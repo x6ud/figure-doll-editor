@@ -3,7 +3,9 @@
          :class="{'quad-view': quadView}"
     >
         <canvas ref="canvas"></canvas>
-        <div class="view v1" ref="view1" tabindex="0">
+        <div class="view v1" ref="view1" tabindex="0"
+             v-show="quadView || mainView === 0"
+        >
             <template v-if="editorContext">
                 <view-rotation-handler :alpha="editorContext.views[0].camera.alpha"
                                        :beta="editorContext.views[0].camera.beta"
@@ -11,7 +13,9 @@
                 />
             </template>
         </div>
-        <div class="view v2" ref="view2" tabindex="0">
+        <div class="view v2" ref="view2" tabindex="0"
+             v-show="quadView || mainView === 1"
+        >
             <template v-if="editorContext">
                 <view-rotation-handler :alpha="editorContext.views[1].camera.alpha"
                                        :beta="editorContext.views[1].camera.beta"
@@ -19,7 +23,9 @@
                 />
             </template>
         </div>
-        <div class="view v3" ref="view3" tabindex="0">
+        <div class="view v3" ref="view3" tabindex="0"
+             v-show="quadView || mainView === 2"
+        >
             <template v-if="editorContext">
                 <view-rotation-handler :alpha="editorContext.views[2].camera.alpha"
                                        :beta="editorContext.views[2].camera.beta"
@@ -27,7 +33,9 @@
                 />
             </template>
         </div>
-        <div class="view v4" ref="view4" tabindex="0">
+        <div class="view v4" ref="view4" tabindex="0"
+             v-show="quadView || mainView === 3"
+        >
             <template v-if="editorContext">
                 <view-rotation-handler :alpha="editorContext.views[3].camera.alpha"
                                        :beta="editorContext.views[3].camera.beta"
@@ -73,8 +81,8 @@
 
         .view-rotation-handler {
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 6px;
+            right: 6px;
         }
     }
 
@@ -102,12 +110,6 @@
         .view {
             width: 100%;
             height: 100%;
-        }
-
-        .v2, .v3, .v4 {
-            width: 0;
-            height: 0;
-            display: none;
         }
     }
 }

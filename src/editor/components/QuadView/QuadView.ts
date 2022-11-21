@@ -6,7 +6,8 @@ export default defineComponent({
     components: {ViewRotationHandler},
     props: {
         editorContext: EditorContext,
-        quadView: Boolean
+        quadView: Boolean,
+        mainView: Number,
     },
     emits: ['mounted', 'beforeUnmount', 'setView'],
     setup(props, ctx) {

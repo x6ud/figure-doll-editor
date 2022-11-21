@@ -1,13 +1,17 @@
-import {BoxGeometry, DirectionalLight, Mesh, MeshStandardMaterial} from 'three';
+import {DirectionalLight} from 'three';
 import {defineComponent, ref} from 'vue';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
+import PopupMenu from './components/popup/PopupMenu/PopupMenu.vue';
+import PopupMenuItem from './components/popup/PopupMenu/PopupMenuItem.vue';
 import QuadView from './components/QuadView/QuadView.vue';
 import EditorContext from './EditorContext';
 
 export default defineComponent({
     components: {
-        QuadView
+        PopupMenu,
+        PopupMenuItem,
+        QuadView,
     },
     setup() {
         const editorContext = ref<EditorContext>();

@@ -36,39 +36,53 @@
             width: 24px;
             height: 24px;
             box-sizing: border-box;
-            border: solid 1px #989898;
+            border: solid 1px;
             background-color: rgba(0, 0, 0, .8);
-            color: #fff;
             font-size: 8px;
+            font-weight: bold;
             cursor: pointer;
             transition: all .1s;
 
             &.front {
                 transform: rotateY(0) translateZ(12px);
-            }
-
-            &.right {
-                transform: rotateY(90deg) translateZ(12px);
+                color: #6FA51B;
+                border-color: #6FA51B;
             }
 
             &.back {
                 transform: rotateY(180deg) translateZ(12px);
+                color: #6FA51B;
+                border-color: #6FA51B;
+            }
+
+            &.right {
+                transform: rotateY(90deg) translateZ(12px);
+                color: #F63652;
+                border-color: #F63652;
             }
 
             &.left {
                 transform: rotateY(-90deg) translateZ(12px);
+                color: #F63652;
+                border-color: #F63652;
             }
 
             &.top {
                 transform: rotateX(90deg) translateZ(12px);
+                color: #2F83E3;
+                border-color: #2F83E3;
             }
 
             &.bottom {
                 transform: rotateX(-90deg) translateZ(12px);
+                color: #2F83E3;
+                border-color: #2F83E3;
             }
 
             &:hover {
                 background-color: #3390ff;
+                color: #fff;
+                border-color: #3390ff;
             }
         }
     }

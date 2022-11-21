@@ -25,7 +25,7 @@ export default class EditorContext {
     xyGrids: Grids;
     readonly mainViewIndex: number;
 
-    quadView: boolean = true;
+    quadView: boolean = false;
     showGrids: boolean = true;
 
     constructor(
