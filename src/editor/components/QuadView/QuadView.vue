@@ -3,10 +3,38 @@
          :class="{'quad-view': quadView}"
     >
         <canvas ref="canvas"></canvas>
-        <div class="view v1" ref="view1" tabindex="0"></div>
-        <div class="view v2" ref="view2" tabindex="0"></div>
-        <div class="view v3" ref="view3" tabindex="0"></div>
-        <div class="view v4" ref="view4" tabindex="0"></div>
+        <div class="view v1" ref="view1" tabindex="0">
+            <template v-if="editorContext">
+                <view-rotation-handler :alpha="editorContext.views[0].camera.alpha"
+                                       :beta="editorContext.views[0].camera.beta"
+                                       @set-view="setView"
+                />
+            </template>
+        </div>
+        <div class="view v2" ref="view2" tabindex="0">
+            <template v-if="editorContext">
+                <view-rotation-handler :alpha="editorContext.views[1].camera.alpha"
+                                       :beta="editorContext.views[1].camera.beta"
+                                       @set-view="setView"
+                />
+            </template>
+        </div>
+        <div class="view v3" ref="view3" tabindex="0">
+            <template v-if="editorContext">
+                <view-rotation-handler :alpha="editorContext.views[2].camera.alpha"
+                                       :beta="editorContext.views[2].camera.beta"
+                                       @set-view="setView"
+                />
+            </template>
+        </div>
+        <div class="view v4" ref="view4" tabindex="0">
+            <template v-if="editorContext">
+                <view-rotation-handler :alpha="editorContext.views[3].camera.alpha"
+                                       :beta="editorContext.views[3].camera.beta"
+                                       @set-view="setView"
+                />
+            </template>
+        </div>
     </div>
 </template>
 
@@ -41,6 +69,12 @@
 
         &.v1, &.v3 {
             border-right: solid 1px rgba(0, 0, 0, .25);
+        }
+
+        .view-rotation-handler {
+            position: absolute;
+            top: 10px;
+            right: 10px;
         }
     }
 

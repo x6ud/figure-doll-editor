@@ -1,8 +1,10 @@
 <template>
     <div class="container">
-        <quad-view :quad-view="quadView"
+        <quad-view style="width: 100%; height: 100%;"
+                   :editor-context="editorContext"
+                   :quad-view="editorContext?.quadView"
                    @mounted="onCanvasMounted"
-                   style="width: 100%; height: 100%;"
+                   @set-view="onSetView"
         />
     </div>
 </template>

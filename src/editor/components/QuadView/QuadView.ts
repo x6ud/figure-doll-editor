@@ -1,10 +1,14 @@
 import {defineComponent, onBeforeUnmount, onMounted, ref, watch} from 'vue';
+import EditorContext from '../../EditorContext';
+import ViewRotationHandler from '../ViewRotationHandler/ViewRotationHandler.vue';
 
 export default defineComponent({
+    components: {ViewRotationHandler},
     props: {
+        editorContext: EditorContext,
         quadView: Boolean
     },
-    emits: ['mounted', 'beforeUnmount'],
+    emits: ['mounted', 'beforeUnmount', 'setView'],
     setup(props, ctx) {
         const wrapper = ref<HTMLElement>();
         const canvas = ref<HTMLCanvasElement>();
@@ -39,6 +43,10 @@ export default defineComponent({
             }
         }
 
+        function setView(face: string) {
+            ctx.emit('setView', face);
+        }
+
         return {
             wrapper,
             canvas,
@@ -46,6 +54,7 @@ export default defineComponent({
             view2,
             view3,
             view4,
+            setView,
         };
     }
 });

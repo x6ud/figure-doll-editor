@@ -2,6 +2,7 @@ import {MouseButton} from './MouseButton';
 
 export default class Input {
 
+    element?: HTMLElement;
     mouseOver: boolean = false;
     mouseX: number = 0;
     mouseY: number = 0;
@@ -33,14 +34,23 @@ export default class Input {
 
     constructor() {
         this.onContextmenu = (e: MouseEvent) => {
+            if (e.target !== this.element) {
+                return;
+            }
             e.preventDefault();
         };
         this.onMouseMove = (e: MouseEvent) => {
+            if (e.target !== this.element) {
+                return;
+            }
             this.mouseOver = true;
             this.mouseX = e.offsetX;
             this.mouseY = e.offsetY;
         };
         this.onMouseDown = (e: MouseEvent) => {
+            if (e.target !== this.element) {
+                return;
+            }
             switch (e.button) {
                 case MouseButton.LEFT:
                     this.mouseLeft = true;
@@ -73,6 +83,9 @@ export default class Input {
             }
         };
         this.onClick = (e: MouseEvent) => {
+            if (e.target !== this.element) {
+                return;
+            }
             this.click = true;
         };
         this.onMouseLeave = () => {
@@ -116,6 +129,8 @@ export default class Input {
     }
 
     setup(element: HTMLElement) {
+        this.unload();
+        this.element = element;
         element.addEventListener('contextmenu', this.onContextmenu);
         element.addEventListener('mousemove', this.onMouseMove);
         element.addEventListener('mousedown', this.onMouseDown);
@@ -129,7 +144,11 @@ export default class Input {
         window.addEventListener('blur', this.onBlur);
     }
 
-    unload(element: HTMLElement) {
+    unload() {
+        const element = this.element;
+        if (!element) {
+            return;
+        }
         element.removeEventListener('contextmenu', this.onContextmenu);
         element.removeEventListener('mousemove', this.onMouseMove);
         element.removeEventListener('mousedown', this.onMouseDown);
@@ -141,6 +160,7 @@ export default class Input {
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
         window.removeEventListener('blur', this.onBlur);
+        this.element = undefined;
     }
 
     update() {

@@ -1,6 +1,6 @@
 import {Vector3} from 'three';
 import EditorContext from '../EditorContext';
-import {raycastPanel} from '../utils/math';
+import {linePanelIntersection} from '../utils/math';
 import UpdateSystem from '../utils/UpdateSystem';
 
 class CameraDraggingState {
@@ -70,8 +70,8 @@ export default class CameraDraggingSystem extends UpdateSystem<EditorContext> {
                     _mouseRay1.copy(state.mouseNdc0);
                     _mouseRay1.z = +1;
                     _mouseRay1.unproject(view.camera.get());
-                    raycastPanel(_mouse0, _mouseRay0, _mouseRay1, state.target0, state.mouseRayN0);
-                    raycastPanel(_mouse1, view.mouseRay0, view.mouseRay1, state.target0, state.mouseRayN0);
+                    linePanelIntersection(_mouse0, _mouseRay0, _mouseRay1, state.target0, state.mouseRayN0);
+                    linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, state.target0, state.mouseRayN0);
                     _det.subVectors(_mouse1, _mouse0);
                     view.camera.target.subVectors(state.target0, _det);
                     changedIndex = view.index;

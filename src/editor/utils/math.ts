@@ -1,6 +1,6 @@
 import {Vector3} from 'three';
 
-export const raycastPanel = (function () {
+export const linePanelIntersection = (function () {
     const _l = new Vector3();
     const _pr0 = new Vector3();
     return function (

@@ -43,6 +43,6 @@ export default class EditorView {
     }
 
     dispose() {
-        this.input.unload(this.element);
+        this.input.unload();
     }
 }
