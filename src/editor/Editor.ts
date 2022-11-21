@@ -25,11 +25,6 @@ export default defineComponent({
             editorContext.value = new EditorContext(canvas, view1, view2, view3, view4);
             renderLoop.start();
 
-            const geometry = new BoxGeometry(1, 2, 1);
-            const material = new MeshStandardMaterial({color: 0xff00ff});
-            const cube = new Mesh(geometry, material);
-            editorContext.value.scene.add(cube);
-
             const light = new DirectionalLight(0xffffff, 1.0);
             light.position.x = 0.5;
             light.position.z = 5;
