@@ -1,6 +1,9 @@
 import {Scene, WebGLRenderer} from 'three';
 import EditorView from './EditorView';
+import Model from './model/Model';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
+import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
+import ModelUpdateSystem from './systems/ModelUpdateSystem';
 import MouseSystem from './systems/MouseSystem';
 import RenderSystem from './systems/RenderSystem';
 import Grids from './utils/geometry/Grids';
@@ -11,6 +14,9 @@ const GRIDS_SIZE = 200;
 export default class EditorContext {
 
     systems: UpdateSystem<EditorContext>[] = [
+        new ModelUpdateSystem([
+            new TransformUpdateFilter(),
+        ]),
         new MouseSystem(),
         new RenderSystem(),
         new CameraDraggingSystem(),
@@ -28,6 +34,8 @@ export default class EditorContext {
     quadView: boolean = false;
     showGrids: boolean = true;
 
+    model = new Model();
+
     constructor(
         canvas: HTMLCanvasElement,
         view1: HTMLElement,
@@ -42,7 +50,7 @@ export default class EditorContext {
             // top
             new EditorView(0, view1, -Math.PI / 2, -Math.PI / 2, false),
             // main
-            new EditorView(1, view2, -Math.PI / 10, -Math.PI / 2.5, true),
+            new EditorView(1, view2, -Math.PI / 8, -Math.PI / 4, true),
             // front
             new EditorView(2, view3, 0, -Math.PI / 2, false),
             // right
