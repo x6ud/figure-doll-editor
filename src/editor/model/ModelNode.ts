@@ -1,5 +1,9 @@
+import {Matrix4} from 'three';
 import Class from '../../common/type/Class';
+import CObject3D from './components/CObject3D';
 import ModelNodeComponent from './ModelNodeComponent';
+
+const UNIT_MAT4 = new Matrix4();
 
 export default class ModelNode {
     id: number = 0;
@@ -36,5 +40,18 @@ export default class ModelNode {
             callback(node);
             stack.push(...node.children);
         }
+    }
+
+    getWorldMatrix(): Matrix4 {
+        if (this.has(CObject3D)) {
+            const obj = this.value(CObject3D);
+            if (obj) {
+                return obj.matrixWorld;
+            }
+        }
+        if (this.parent) {
+            return this.parent.getWorldMatrix();
+        }
+        return UNIT_MAT4;
     }
 }

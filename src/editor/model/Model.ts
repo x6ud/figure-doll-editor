@@ -2,15 +2,87 @@ import Class from '../../common/type/Class';
 import ModelNode from './ModelNode';
 import ModelNodeChangedWatcher from './ModelNodeChangedWatcher';
 import ModelNodeComponent from './ModelNodeComponent';
+import {getModelNodeDef} from './ModelNodeDef';
 import TransformWatcher from './watchers/TransformWatcher';
 
 export default class Model {
+    private nodesMap: Map<number, ModelNode> = new Map();
+
     nodes: ModelNode[] = [];
     watchers: ModelNodeChangedWatcher[] = [
         new TransformWatcher(),
     ];
     dirty: boolean = true;
     selected: number[] = [];
+
+    isNodeExists(id: number): boolean {
+        return this.nodesMap.has(id);
+    }
+
+    getNode(id: number): ModelNode {
+        const node = this.nodesMap.get(id);
+        if (!node) {
+            throw new Error(`Node #${id} does not exist`);
+        }
+        return node;
+    }
+
+    createNode(
+        id: number,
+        type: string,
+        parent: ModelNode | null,
+        after: ModelNode | null,
+    ): ModelNode {
+        if (this.isNodeExists(id)) {
+            throw new Error(`Node #${id} already exists`);
+        }
+        const nodeDef = getModelNodeDef(type);
+        const node = new ModelNode();
+        node.id = id;
+        node.type = type;
+        for (let componentConstructor of nodeDef.components) {
+            node.components[componentConstructor.name] = new componentConstructor();
+        }
+        node.parent = parent;
+        const list = parent ? parent.children : this.nodes;
+        if (after) {
+            const index = this.nodes.indexOf(after);
+            list.splice(index, 0, node);
+        } else {
+            list.push(node);
+        }
+        this.nodesMap.set(id, node);
+        if (parent) {
+            for (let watcher of this.watchers) {
+                watcher.onChildAdded(this, parent, node);
+            }
+        }
+        return node;
+    }
+
+    removeNode(id: number) {
+        if (!this.isNodeExists(id)) {
+            return;
+        }
+        const node = this.getNode(id);
+        if (node.parent) {
+            for (let watcher of this.watchers) {
+                watcher.onBeforeChildRemoved(this, node.parent, node);
+            }
+        }
+        node.forEach(node => this.nodesMap.delete(node.id));
+        const list = node.parent ? node.parent.children : this.nodes;
+        const index = list.indexOf(node);
+        if (index >= 0) {
+            list.splice(index, 1);
+        }
+        node.forEach(node => {
+            for (let name in node.components) {
+                const component = node.components[name];
+                component.onRemoved();
+            }
+        });
+    }
 
     setValue<T>(node: ModelNode, componentClass: Class<ModelNodeComponent<T>>, value: T) {
         node.get(componentClass).value = value;
@@ -20,4 +92,5 @@ export default class Model {
             watcher.onValueChanged(this, node, componentClass);
         }
     }
+
 }

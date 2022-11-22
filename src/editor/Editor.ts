@@ -5,6 +5,7 @@ import {createTransitionAnimation} from '../common/utils/transition';
 import PopupMenu from './components/popup/PopupMenu/PopupMenu.vue';
 import PopupMenuItem from './components/popup/PopupMenu/PopupMenuItem.vue';
 import QuadView from './components/QuadView/QuadView.vue';
+import SidePanel from './components/SidePanel/SidePanel.vue';
 import EditorContext from './EditorContext';
 
 export default defineComponent({
@@ -12,12 +13,14 @@ export default defineComponent({
         PopupMenu,
         PopupMenuItem,
         QuadView,
+        SidePanel,
     },
     setup() {
         const editorContext = ref<EditorContext>();
         const renderLoop = new RenderLoop(function () {
             editorContext.value?.update();
         });
+        const modelTreePanelWidth = ref(250);
 
         function onCanvasMounted(
             canvas: HTMLCanvasElement,
@@ -35,6 +38,11 @@ export default defineComponent({
             editorContext.value.scene.add(light);
 
             (window as any).ctx = editorContext.value;
+        }
+
+        function onBeforeCanvasUnmount() {
+            editorContext.value?.dispose();
+            editorContext.value = undefined;
         }
 
         function onSetView(face: string) {
@@ -103,7 +111,9 @@ export default defineComponent({
 
         return {
             editorContext,
+            modelTreePanelWidth,
             onCanvasMounted,
+            onBeforeCanvasUnmount,
             onSetView,
         };
     }

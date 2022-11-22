@@ -1,5 +1,5 @@
 import EditorContext from '../../EditorContext';
-import CMesh from '../../model/components/CMesh';
+import CObject3D from '../../model/components/CObject3D';
 import CPosition from '../../model/components/CPosition';
 import CRotation from '../../model/components/CRotation';
 import CScale from '../../model/components/CScale';
@@ -8,9 +8,9 @@ import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
 export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
-        if (node.has(CMesh)) {
-            const cMesh = node.get(CMesh);
-            if (cMesh.dirty) {
+        if (node.has(CObject3D)) {
+            const cMesh = node.get(CObject3D);
+            if (cMesh.transformChanged) {
                 const mesh = cMesh.value;
                 if (mesh) {
                     if (node.has(CPosition)) {
@@ -24,7 +24,7 @@ export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
                     }
                     mesh.updateMatrixWorld();
                 }
-                cMesh.dirty = false;
+                cMesh.transformChanged = false;
             }
         }
     }

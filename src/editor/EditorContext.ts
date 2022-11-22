@@ -2,6 +2,8 @@ import {Scene, WebGLRenderer} from 'three';
 import EditorView from './EditorView';
 import Model from './model/Model';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
+import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
+import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
 import ModelUpdateSystem from './systems/ModelUpdateSystem';
 import MouseSystem from './systems/MouseSystem';
@@ -15,6 +17,8 @@ export default class EditorContext {
 
     systems: UpdateSystem<EditorContext>[] = [
         new ModelUpdateSystem([
+            new ContainerUpdateFilter(),
+            new Object3DRelationshipUpdateFilter(),
             new TransformUpdateFilter(),
         ]),
         new MouseSystem(),
@@ -31,7 +35,9 @@ export default class EditorContext {
     xyGrids: Grids;
     readonly mainViewIndex: number;
 
-    quadView: boolean = false;
+    fps: number = 0;
+    private lastTimestamp: number = 0;
+    quadView: boolean = true;
     showGrids: boolean = true;
 
     model = new Model();
@@ -56,10 +62,10 @@ export default class EditorContext {
             // right
             new EditorView(3, view4, 0, 0, false),
         ];
-        this.xzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x6FA51B, 0x6B6B6B);
-        this.yzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x6B6B6B);
+        this.xzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x6FA51B, 0x555555);
+        this.yzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555);
         this.yzGrids.rotateX(Math.PI / 2);
-        this.xyGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0x2F83E3, 0x6FA51B, 0x6B6B6B);
+        this.xyGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0x2F83E3, 0x6FA51B, 0x555555);
         this.xyGrids.rotateZ(Math.PI / 2);
         this.scene.add(this.xzGrids);
         this.scene.add(this.yzGrids);
@@ -73,6 +79,10 @@ export default class EditorContext {
     }
 
     update() {
+        const now = Date.now();
+        this.fps = Math.floor(1000 / (now - this.lastTimestamp));
+        this.lastTimestamp = now;
+
         for (let i = 0; i < this.views.length; ++i) {
             const view = this.views[i];
             view.enabled = i === this.mainViewIndex || this.quadView;

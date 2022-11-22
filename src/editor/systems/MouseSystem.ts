@@ -1,9 +1,11 @@
+import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
 import UpdateSystem from '../utils/UpdateSystem';
 
 export default class MouseSystem extends UpdateSystem<EditorContext> {
 
     begin(ctx: EditorContext): void {
+        ctx = toRaw(ctx);
         for (let view of ctx.views) {
             if (view.enabled) {
                 view.mouseScr.x = view.input.mouseX;

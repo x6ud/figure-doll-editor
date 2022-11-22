@@ -26,7 +26,7 @@ export default defineComponent({
 
         onMounted(function () {
             resize();
-            tid = setInterval(resize, 200);
+            tid = setInterval(resize, 50);
             ctx.emit('mounted', canvas.value, view1.value, view2.value, view3.value, view4.value);
         });
 

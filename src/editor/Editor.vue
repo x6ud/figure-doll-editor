@@ -21,25 +21,36 @@
                                      @click="editorContext.quadView = !editorContext.quadView"
                     />
                 </popup-menu>
+                <div class="fill"></div>
+                <div style="font-size: 8px;">FPS: {{ editorContext.fps }}&nbsp;</div>
             </template>
         </div>
-        <quad-view class="fill"
-                   :editor-context="editorContext"
-                   :quad-view="editorContext?.quadView"
-                   :main-view="editorContext?.mainViewIndex"
-                   @mounted="onCanvasMounted"
-                   @set-view="onSetView"
-        />
+        <div class="cols fill">
+            <side-panel direction="right"
+                        v-model:width="modelTreePanelWidth"
+            >
+                <div class="rows" style="width: 100%; height: 100%;"
+                     v-if="editorContext"
+                >
+                    <div class="toolbar">
+                        <popup-menu>
+                            <template #trigger>Add</template>
+                        </popup-menu>
+                    </div>
+                </div>
+            </side-panel>
+            <quad-view class="fill"
+                       :editor-context="editorContext"
+                       :quad-view="editorContext?.quadView"
+                       :main-view="editorContext?.mainViewIndex"
+                       @mounted="onCanvasMounted"
+                       @before-unmount="onBeforeCanvasUnmount"
+                       @set-view="onSetView"
+            />
+        </div>
     </div>
 </template>
 
 <script src="./Editor.ts"></script>
 
 <style src="./ui.scss"></style>
-
-<style lang="scss" scoped>
-.quad-views {
-    width: 100%;
-    height: 100%;
-}
-</style>
