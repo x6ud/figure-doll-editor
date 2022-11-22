@@ -57,6 +57,7 @@ export default class Model {
                 watcher.onChildAdded(this, parent, node);
             }
         }
+        this.dirty = true;
         return node;
     }
 
@@ -70,7 +71,13 @@ export default class Model {
                 watcher.onBeforeChildRemoved(this, node.parent, node);
             }
         }
-        node.forEach(node => this.nodesMap.delete(node.id));
+        node.forEach(node => {
+            this.nodesMap.delete(node.id);
+            const index = this.selected.indexOf(node.id);
+            if (index >= 0) {
+                this.selected.splice(index, 1);
+            }
+        });
         const list = node.parent ? node.parent.children : this.nodes;
         const index = list.indexOf(node);
         if (index >= 0) {
@@ -82,6 +89,7 @@ export default class Model {
                 component.onRemoved();
             }
         });
+        this.dirty = true;
     }
 
     setValue<T>(node: ModelNode, componentClass: Class<ModelNodeComponent<T>>, value: T) {
