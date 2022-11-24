@@ -1,5 +1,5 @@
 import {DirectionalLight} from 'three';
-import {defineComponent, ref} from 'vue';
+import {defineComponent, ref, toRaw} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
@@ -11,6 +11,7 @@ import SidePanel from './components/SidePanel/SidePanel.vue';
 import EditorContext from './EditorContext';
 import ModelNode from './model/ModelNode';
 import ModelNodeComponent from './model/ModelNodeComponent';
+import {getModelNodeDef} from './model/ModelNodeDef';
 
 export default defineComponent({
     components: {
@@ -48,12 +49,12 @@ export default defineComponent({
             editorContext.value.scene.add(light);
 
             const ctx = (window as any).ctx = editorContext.value!;
-            const n0 = ctx.model.createNode(0, 'container');
-            const n1 = ctx.model.createNode(1, 'container');
-            const n2 = ctx.model.createNode(2, 'container', n0);
-            const n3 = ctx.model.createNode(3, 'container', n2);
-            const n4 = ctx.model.createNode(4, 'container');
-            ctx.model.selected = [0, 3];
+            const n0 = ctx.model.createNode(1, 'container');
+            const n1 = ctx.model.createNode(2, 'container');
+            const n2 = ctx.model.createNode(3, 'container', n0);
+            const n3 = ctx.model.createNode(4, 'container', n2);
+            const n4 = ctx.model.createNode(5, 'container');
+            ctx.model.selected = [1, 4];
         }
 
         function onBeforeCanvasUnmount() {
@@ -130,6 +131,41 @@ export default defineComponent({
         }
 
         function onMoveNode(related: ModelNode, position: 'before' | 'after' | 'atFirst' | 'atLast') {
+            related = toRaw(related);
+            const ctx = editorContext.value!;
+            const model = toRaw(ctx.model);
+            let nodes = model.selected.map(id => model.getNode(id));
+            const parent = (position === 'before' || position === 'after') ? related.parent : related;
+            nodes = nodes.filter(node => !(node.parent && nodes.includes(node.parent)));
+            for (let node of nodes) {
+                if (!isValidChild(parent, node)) {
+                    return;
+                }
+            }
+            for (let node of nodes) {
+                if (position === 'before' || position === 'after') {
+                    ctx.history.moveNode(node, parent, related, position === 'after');
+                } else {
+                    ctx.history.moveNode(node, parent, null, position === 'atLast');
+                }
+            }
+
+            function isValidChild(parent: ModelNode | null, node: ModelNode) {
+                const nodeDef = getModelNodeDef(node.type);
+                if (!parent) {
+                    return nodeDef.canBeRoot;
+                }
+                const parentNodeDef = getModelNodeDef(parent.type);
+                if (!parentNodeDef.validChildTypes.includes(node.type)) {
+                    return false;
+                }
+                for (; parent; parent = parent.parent) {
+                    if (parent === node) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         }
 
         return {

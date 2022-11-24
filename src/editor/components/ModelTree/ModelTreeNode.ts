@@ -74,10 +74,14 @@ export default defineComponent({
             }
         }
 
-        function onMouseDown() {
-            if (props.model.selected.includes(props.node.id)) {
-                onDragStart(props.node);
+        function onMouseDown(e: MouseEvent) {
+            if (!props.model.selected.includes(props.node.id)) {
+                if (e.ctrlKey) {
+                    return;
+                }
+                ctx.emit('setSelection', [props.node.id]);
             }
+            onDragStart(props.node);
         }
 
         function onMouseMove(e: MouseEvent) {
@@ -110,7 +114,7 @@ export default defineComponent({
                 selected: props.model.selected.includes(node.id),
                 dragging,
                 'drag-over-before': dragOver && position === 'before',
-                'drag-over-inside': dragOver && position === 'inside',
+                'drag-over-inside': dragOver && (position === 'atFirst' || position === 'atLast'),
                 'drag-over-after': dragOver && position === 'after',
             };
         });

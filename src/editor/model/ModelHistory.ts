@@ -31,16 +31,36 @@ type CreateNode = {
 
 export default class ModelHistory {
     private model: Model;
-    private enableMergeThisFrame = false;
-    private enableMergeNextFrame = true;
+    private enableMerge = true;
     private currentFrameRecords: Record[] = [];
     private redoStack: Record[] = [];
     private undoStack: Record[] = [];
     private nextNodeId: number = 0;
     dirty = false;
+    private lastEventTarget: EventTarget | null = null;
+    private onMouseDown = (e: MouseEvent) => {
+        this.lastEventTarget = e.target;
+        this.enableMerge = false;
+    };
+    private onKeyDown = (e: KeyboardEvent) => {
+        if (this.lastEventTarget !== e.target) {
+            this.lastEventTarget = e.target;
+            this.enableMerge = false;
+        }
+    };
 
     constructor(model: Model) {
         this.model = model;
+    }
+
+    setup() {
+        window.addEventListener('mousedown', this.onMouseDown);
+        window.addEventListener('keydown', this.onKeyDown);
+    }
+
+    unload() {
+        window.removeEventListener('mousedown', this.onMouseDown);
+        window.removeEventListener('keydown', this.onKeyDown);
     }
 
     clear() {
@@ -50,12 +70,76 @@ export default class ModelHistory {
         this.undoStack.length = 0;
     }
 
-    begin() {
-        // todo
+    save() {
+        this.dirty = false;
     }
 
-    end() {
-        // todo
+    update() {
+        this.nextNodeId = 0;
+        if (!this.currentFrameRecords.length) {
+            return;
+        }
+        this.redoStack.length = 0;
+
+        const redoList: (() => void)[] = [];
+        const undoList: (() => void)[] = [];
+        for (let record of this.currentFrameRecords) {
+            record.redo();
+            redoList.push(record.redo);
+            undoList.push(record.undo);
+        }
+        let redo = () => {
+            for (let func of redoList) {
+                func();
+            }
+        };
+        let undo = () => {
+            for (let func of undoList) {
+                func();
+            }
+        };
+
+        const hash = this.currentFrameRecords.map(record => record.hash).sort().join('@');
+        if (this.enableMerge) {
+            for (; this.undoStack.length;) {
+                const top = this.undoStack[this.undoStack.length - 1];
+                if (top.hash === hash) {
+                    undo = top.undo;
+                    this.undoStack.pop();
+                }
+            }
+        }
+        this.enableMerge = true;
+
+        this.undoStack.push({hash, redo, undo});
+
+        if (this.undoStack.length >= MAX_STACK_SIZE) {
+            this.undoStack.shift();
+        }
+
+        this.currentFrameRecords.length = 0;
+        this.dirty = true;
+    }
+
+    undo() {
+        const record = this.undoStack.pop();
+        if (!record) {
+            return;
+        }
+        this.redoStack.push(record);
+        this.model.selected = [];
+        record.undo();
+        this.dirty = true;
+    }
+
+    redo() {
+        const record = this.redoStack.pop();
+        if (!record) {
+            return;
+        }
+        this.undoStack.push(record);
+        record.redo();
+        this.dirty = true;
     }
 
     private getNextNodeId() {
@@ -90,7 +174,7 @@ export default class ModelHistory {
                     null,
                     createNode.data
                 );
-                this.model.selected.push(node.id);
+                this.model.addSelection(node.id);
                 // create children
                 if (createNode.children) {
                     const stack: [ModelNode, CreateChildNode[]][] = [[node, createNode.children]];
@@ -120,7 +204,7 @@ export default class ModelHistory {
                 this.model.removeNode(nodeId);
             },
         });
-        this.enableMergeThisFrame = false;
+        this.enableMerge = false;
         this.nextNodeId = nodeId;
         if (createNode.children) {
             const stack: CreateChildNode[] = [...createNode.children];
@@ -184,7 +268,7 @@ export default class ModelHistory {
                     nodeRecord.index,
                     nodeRecord.data
                 );
-                this.model.selected.push(node.id);
+                this.model.addSelection(node.id);
                 const stack: [ModelNode, NodeRecord[]][] = [[node, nodeRecord.children]];
                 for (; ;) {
                     const pair = stack.pop();
@@ -202,7 +286,7 @@ export default class ModelHistory {
                 }
             },
         });
-        this.enableMergeThisFrame = false;
+        this.enableMerge = false;
     }
 
     moveNode(node: ModelNode, parent: ModelNode | null, related: ModelNode | null, placeAfter: boolean) {
@@ -239,7 +323,7 @@ export default class ModelHistory {
                 this.model.addSelection(nodeId);
             },
         });
-        this.enableMergeThisFrame = false;
+        this.enableMerge = false;
         // keep world matrix unchanged
         if (parentId0 !== parentId1 && (node.has(CPosition) || node.has(CRotation) || node.has(CScale))) {
             let localMatrix = node.getWorldMatrix();

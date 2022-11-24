@@ -27,13 +27,12 @@ export default defineComponent({
         function onDragStart(node: ModelNode) {
             draggingNode.value = node;
             dragOverNode.value = undefined;
-            dragging = true;
             const onMouseUp = function () {
                 if (draggingNode.value !== dragOverNode.value
                     && draggingNode.value
                     && dragOverNode.value
                 ) {
-                    ctx.emit('moveNode', dragOverNode.value, dropPosition);
+                    ctx.emit('moveNode', dragOverNode.value, dropPosition.value);
                 }
                 draggingNode.value = undefined;
                 dragOverNode.value = undefined;
@@ -43,6 +42,9 @@ export default defineComponent({
         }
 
         function onDragOver(node: ModelNode, position: string) {
+            if (node !== dragOverNode.value) {
+                dragging = true;
+            }
             dragOverNode.value = node;
             dropPosition.value = position;
         }

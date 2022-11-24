@@ -3,6 +3,7 @@ import EditorView from './EditorView';
 import Model from './model/Model';
 import ModelHistory from './model/ModelHistory';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
+import HistorySystem from './systems/HistorySystem';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
 import Object3DUpdateFilter from './systems/model-update-filters/Object3DUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
@@ -23,6 +24,7 @@ export default class EditorContext {
             new TransformUpdateFilter(),
         ]),
         new MouseSystem(),
+        new HistorySystem(),
         new RenderSystem(),
         new CameraDraggingSystem(),
     ];
@@ -51,6 +53,7 @@ export default class EditorContext {
         view3: HTMLElement,
         view4: HTMLElement,
     ) {
+        this.history.setup();
         this.canvas = canvas;
         this.renderer = new WebGLRenderer({canvas});
         this.mainViewIndex = 1;
@@ -75,6 +78,7 @@ export default class EditorContext {
     }
 
     dispose() {
+        this.history.unload();
         for (let view of this.views) {
             view.dispose();
         }

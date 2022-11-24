@@ -24,7 +24,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D],
         canBeRoot: true,
         unique: false,
-        validChildTypes: [],
+        validChildTypes: ['container'],
     }
 ];
 
