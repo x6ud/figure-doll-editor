@@ -1,6 +1,7 @@
 import {Scene, WebGLRenderer} from 'three';
 import EditorView from './EditorView';
 import Model from './model/Model';
+import ModelHistory from './model/ModelHistory';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
 import Object3DUpdateFilter from './systems/model-update-filters/Object3DUpdateFilter';
@@ -41,6 +42,7 @@ export default class EditorContext {
     showGrids: boolean = true;
 
     model = new Model();
+    history = new ModelHistory(this.model);
 
     constructor(
         canvas: HTMLCanvasElement,

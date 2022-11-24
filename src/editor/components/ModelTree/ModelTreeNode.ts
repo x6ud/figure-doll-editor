@@ -85,9 +85,9 @@ export default defineComponent({
                 const rect = dom.value.getBoundingClientRect();
                 const y = e.clientY - rect.top;
                 const THRESHOLD = 6;
-                let position: 'before' | 'after' | 'inside' = y <= THRESHOLD ? 'before' : (y >= rect.height - THRESHOLD ? 'after' : 'inside');
+                let position: 'before' | 'after' | 'atFirst' | 'atLast' = y <= THRESHOLD ? 'before' : (y >= rect.height - THRESHOLD ? 'after' : 'atLast');
                 if (position === 'after' && props.node.children.length && props.node.expanded) {
-                    position = 'inside';
+                    position = 'atFirst';
                 }
                 ctx.emit('dragOver', props.node, position);
             }
@@ -97,7 +97,7 @@ export default defineComponent({
             ctx.emit('dragStart', node);
         }
 
-        function onDragOver(node: ModelNode, position: 'before' | 'after' | 'inside') {
+        function onDragOver(node: ModelNode, position: 'before' | 'after' | 'atFirst' | 'atLast') {
             ctx.emit('dragOver', node, position);
         }
 

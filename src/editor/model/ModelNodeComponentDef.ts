@@ -5,6 +5,7 @@ import ModelNodeComponent from './ModelNodeComponent';
 export type ModelNodeComponentDef = {
     constructor: Class<ModelNodeComponent<any>>;
     storable?: boolean;
+    equal?: (a: any, b: any) => boolean,
     label?: string;
     inputComponent?: Component;
     inputComponentProps?: { [prop: string]: any };

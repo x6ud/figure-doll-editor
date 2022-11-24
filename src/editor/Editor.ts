@@ -126,10 +126,10 @@ export default defineComponent({
         }
 
         function onSetValue(node: ModelNode, componentClass: Class<ModelNodeComponent<any>>, value: any) {
-            editorContext.value!.model.setValue(node, componentClass, value);
+            editorContext.value!.history.setValue(node, componentClass, value);
         }
 
-        function onMoveNode(related: ModelNode, position: 'before' | 'inside' | 'after') {
+        function onMoveNode(related: ModelNode, position: 'before' | 'after' | 'atFirst' | 'atLast') {
         }
 
         return {

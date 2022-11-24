@@ -19,16 +19,14 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
     begin(ctx: EditorContext): void {
         ctx = toRaw(ctx);
         if (ctx.model.dirty) {
-            for (let node of ctx.model.nodes) {
-                node.forEach(node => {
-                    if (node.dirty) {
-                        for (let filter of this.filters) {
-                            filter.update(ctx, node);
-                        }
-                        node.dirty = false;
+            ctx.model.forEach(node => {
+                if (node.dirty) {
+                    for (let filter of this.filters) {
+                        filter.update(ctx, node);
                     }
-                });
-            }
+                    node.dirty = false;
+                }
+            });
             ctx.model.dirty = false;
         }
     }

@@ -15,8 +15,20 @@ export default class Model {
     dirty: boolean = true;
     selected: number[] = [];
 
+    addSelection(id: number) {
+        if (!this.selected.includes(id)) {
+            this.selected.push(id);
+        }
+    }
+
     isNodeExists(id: number): boolean {
         return this.nodesMap.has(id);
+    }
+
+    forEach(callback: (node: ModelNode) => void) {
+        for (let node of this.nodes) {
+            node.forEach(callback);
+        }
     }
 
     getNode(id: number): ModelNode {
@@ -31,7 +43,8 @@ export default class Model {
         id: number,
         type: string,
         parent: ModelNode | null = null,
-        after: ModelNode | null = null,
+        index: number | null = null,
+        data?: { [name: string]: any }
     ): ModelNode {
         if (this.isNodeExists(id)) {
             throw new Error(`Node #${id} already exists`);
@@ -44,9 +57,16 @@ export default class Model {
             node.components[componentConstructor.name] = new componentConstructor();
         }
         node.parent = parent;
+        if (data) {
+            for (let name in data) {
+                const component = node.components[name];
+                if (component) {
+                    component.value = data[name];
+                }
+            }
+        }
         const list = parent ? parent.children : this.nodes;
-        if (after) {
-            const index = this.nodes.indexOf(after);
+        if (index != null) {
             list.splice(index, 0, node);
         } else {
             list.push(node);
@@ -90,6 +110,32 @@ export default class Model {
             }
         });
         this.dirty = true;
+    }
+
+    moveNode(node: ModelNode, parent: ModelNode | null, related: ModelNode | null, placeAfter: boolean) {
+        const oldParent = node.parent;
+        const oldList = oldParent ? oldParent.children : this.nodes;
+        oldList.splice(oldList.indexOf(node), 1);
+        const newList = parent ? parent.children : this.nodes;
+        node.parent = parent;
+        if (related) {
+            const index = newList.indexOf(related);
+            if (placeAfter) {
+                newList.splice(index + 1, 0, node);
+            } else {
+                newList.splice(index, 0, node);
+            }
+        } else {
+            if (placeAfter) {
+                newList.push(node);
+            } else {
+                newList.unshift(node);
+            }
+        }
+        this.dirty = true;
+        for (let watcher of this.watchers) {
+            watcher.onMoved(this, node, oldParent, parent);
+        }
     }
 
     setValue<T>(node: ModelNode, componentClass: Class<ModelNodeComponent<T>>, value: T) {

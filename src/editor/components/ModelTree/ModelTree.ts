@@ -22,7 +22,7 @@ export default defineComponent({
         let dragging = false;
         const draggingNode = ref<ModelNode>();
         const dragOverNode = ref<ModelNode>();
-        const dropPosition = ref<'before' | 'inside' | 'after'>('before');
+        const dropPosition = ref<string>('');
 
         function onDragStart(node: ModelNode) {
             draggingNode.value = node;
@@ -42,7 +42,7 @@ export default defineComponent({
             document.addEventListener('mouseup', onMouseUp);
         }
 
-        function onDragOver(node: ModelNode, position: 'before' | 'inside' | 'after') {
+        function onDragOver(node: ModelNode, position: string) {
             dragOverNode.value = node;
             dropPosition.value = position;
         }
