@@ -1,9 +1,10 @@
 import EditorContext from '../../EditorContext';
 import CObject3D from '../../model/components/CObject3D';
+import CVisible from '../../model/components/CVisible';
 import ModelNode from '../../model/ModelNode';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
-export default class Object3DRelationshipUpdateFilter implements ModelNodeUpdateFilter {
+export default class Object3DUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
         if (node.has(CObject3D)) {
             const cObject3D = node.get(CObject3D);
@@ -22,6 +23,11 @@ export default class Object3DRelationshipUpdateFilter implements ModelNodeUpdate
                     }
                 }
                 cObject3D.parentChanged = false;
+            }
+            if (node.has(CVisible)) {
+                if (cObject3D.value) {
+                    cObject3D.value.visible = node.value(CVisible);
+                }
             }
         }
     }

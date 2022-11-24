@@ -3,7 +3,7 @@ import EditorView from './EditorView';
 import Model from './model/Model';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
-import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
+import Object3DUpdateFilter from './systems/model-update-filters/Object3DUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
 import ModelUpdateSystem from './systems/ModelUpdateSystem';
 import MouseSystem from './systems/MouseSystem';
@@ -18,7 +18,7 @@ export default class EditorContext {
     systems: UpdateSystem<EditorContext>[] = [
         new ModelUpdateSystem([
             new ContainerUpdateFilter(),
-            new Object3DRelationshipUpdateFilter(),
+            new Object3DUpdateFilter(),
             new TransformUpdateFilter(),
         ]),
         new MouseSystem(),

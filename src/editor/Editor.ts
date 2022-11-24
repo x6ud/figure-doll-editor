@@ -1,26 +1,36 @@
 import {DirectionalLight} from 'three';
 import {defineComponent, ref} from 'vue';
+import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
+import ModelTree from './components/ModelTree/ModelTree.vue';
 import PopupMenu from './components/popup/PopupMenu/PopupMenu.vue';
 import PopupMenuItem from './components/popup/PopupMenu/PopupMenuItem.vue';
 import QuadView from './components/QuadView/QuadView.vue';
 import SidePanel from './components/SidePanel/SidePanel.vue';
 import EditorContext from './EditorContext';
+import ModelNode from './model/ModelNode';
+import ModelNodeComponent from './model/ModelNodeComponent';
 
 export default defineComponent({
     components: {
+        ModelTree,
         PopupMenu,
         PopupMenuItem,
         QuadView,
         SidePanel,
     },
     setup() {
+        const dom = ref<HTMLElement>();
         const editorContext = ref<EditorContext>();
         const renderLoop = new RenderLoop(function () {
             editorContext.value?.update();
         });
         const modelTreePanelWidth = ref(250);
+
+        function focus() {
+            dom.value?.focus();
+        }
 
         function onCanvasMounted(
             canvas: HTMLCanvasElement,
@@ -37,7 +47,13 @@ export default defineComponent({
             light.position.z = 5;
             editorContext.value.scene.add(light);
 
-            (window as any).ctx = editorContext.value;
+            const ctx = (window as any).ctx = editorContext.value!;
+            const n0 = ctx.model.createNode(0, 'container');
+            const n1 = ctx.model.createNode(1, 'container');
+            const n2 = ctx.model.createNode(2, 'container', n0);
+            const n3 = ctx.model.createNode(3, 'container', n2);
+            const n4 = ctx.model.createNode(4, 'container');
+            ctx.model.selected = [0, 3];
         }
 
         function onBeforeCanvasUnmount() {
@@ -109,12 +125,22 @@ export default defineComponent({
             }, 100);
         }
 
+        function onSetValue(node: ModelNode, componentClass: Class<ModelNodeComponent<any>>, value: any) {
+            editorContext.value!.model.setValue(node, componentClass, value);
+        }
+
+        function onMoveNode(related: ModelNode, position: 'before' | 'inside' | 'after') {
+        }
+
         return {
+            dom,
             editorContext,
             modelTreePanelWidth,
             onCanvasMounted,
             onBeforeCanvasUnmount,
             onSetView,
+            onSetValue,
+            onMoveNode,
         };
     }
 });

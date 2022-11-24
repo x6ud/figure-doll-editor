@@ -1,5 +1,7 @@
 <template>
-    <div class="container rows">
+    <div class="container rows"
+         ref="dom"
+    >
         <div class="toolbar">
             <template v-if="editorContext">
                 <popup-menu>
@@ -37,6 +39,11 @@
                             <template #trigger>Add</template>
                         </popup-menu>
                     </div>
+                    <model-tree class="fill"
+                                :model="editorContext.model"
+                                @set-value="onSetValue"
+                                @move-node="onMoveNode"
+                    />
                 </div>
             </side-panel>
             <quad-view class="fill"

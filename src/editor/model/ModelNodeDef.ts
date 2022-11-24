@@ -4,6 +4,7 @@ import CObject3D from './components/CObject3D';
 import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
+import CVisible from './components/CVisible';
 import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
 
@@ -20,7 +21,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'container',
         label: 'Container',
-        components: [CName, CPosition, CRotation, CScale, CObject3D],
+        components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D],
         canBeRoot: true,
         unique: false,
         validChildTypes: [],

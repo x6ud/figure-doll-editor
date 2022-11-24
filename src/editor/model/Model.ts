@@ -30,8 +30,8 @@ export default class Model {
     createNode(
         id: number,
         type: string,
-        parent: ModelNode | null,
-        after: ModelNode | null,
+        parent: ModelNode | null = null,
+        after: ModelNode | null = null,
     ): ModelNode {
         if (this.isNodeExists(id)) {
             throw new Error(`Node #${id} already exists`);
