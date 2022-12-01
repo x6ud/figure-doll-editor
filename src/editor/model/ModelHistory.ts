@@ -106,6 +106,8 @@ export default class ModelHistory {
                 if (top.hash === hash) {
                     undo = top.undo;
                     this.undoStack.pop();
+                } else {
+                    break;
                 }
             }
         }

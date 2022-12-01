@@ -1,4 +1,5 @@
 import {Vector3} from 'three';
+import InputVector3 from '../../components/input/InputVector3/InputVector3.vue';
 import ModelNodeComponent from '../ModelNodeComponent';
 import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 
@@ -11,6 +12,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
             && Math.abs(a.z - b.z) < 1e-8;
     },
     label: 'Position',
+    inputComponent: InputVector3,
     serialize(val: Vector3) {
         return [val.x, val.y, val.z];
     },

@@ -3,6 +3,7 @@ import {toRaw} from 'vue';
 import EditorView from './EditorView';
 import Model from './model/Model';
 import ModelHistory from './model/ModelHistory';
+import CallbackFireSystem from './systems/CallbackFireSystem';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
 import HistorySystem from './systems/HistorySystem';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
@@ -28,6 +29,7 @@ export default class EditorContext {
         new HistorySystem(),
         new RenderSystem(),
         new CameraDraggingSystem(),
+        new CallbackFireSystem(),
     ];
 
     canvas: HTMLCanvasElement;
@@ -46,6 +48,7 @@ export default class EditorContext {
 
     model = new Model();
     history = new ModelHistory(this.model);
+    nextFrameCallbacks: (() => void)[] = [];
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -120,6 +123,10 @@ export default class EditorContext {
 
     readonlyRef(): EditorContext {
         return toRaw(this);
+    }
+
+    nextFrame(callback: () => void) {
+        this.nextFrameCallbacks.push(callback);
     }
 
 }

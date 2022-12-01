@@ -62,10 +62,20 @@
                     </div>
                     <model-tree class="fill"
                                 :model="editorContext.model"
+                                @select="onSelect"
                                 @set-value="onSetValue"
                                 @move-node="onMoveNode"
                     />
                 </div>
+            </side-panel>
+            <side-panel direction="right"
+                        v-model:width="modelNodePropertiesPanelWidth"
+            >
+                <template v-if="editorContext">
+                    <model-node-properties :editor-context="editorContext"
+                                           @set-data="onSetNodeProperty"
+                    />
+                </template>
             </side-panel>
             <quad-view class="fill"
                        :editor-context="editorContext"

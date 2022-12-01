@@ -1,6 +1,38 @@
 import {createComponentInstance} from '../utils/component';
+import AlertDialog from './AlertDialog.vue';
 import ConfirmDialog from './ConfirmDialog.vue';
 import PromptDialog from './PromptDialog.vue';
+
+// =========================== alert ===========================
+
+export class AlertDialogContext {
+    visible: boolean;
+    content: string;
+    onCloseCallback: () => void;
+
+    constructor(visible: boolean, content: string, onCloseCallback: () => void) {
+        this.visible = visible;
+        this.content = content;
+        this.onCloseCallback = onCloseCallback;
+    }
+}
+
+export function showAlertDialog(content: string): Promise<void> {
+    let unmount: () => void;
+    return new Promise<void>(function (resolve) {
+        const context = new AlertDialogContext(
+            true,
+            content,
+            function () {
+                unmount();
+                resolve();
+            }
+        );
+        unmount = createComponentInstance(AlertDialog, app => {
+            app.provide('context', context);
+        });
+    });
+}
 
 // =========================== confirm ===========================
 

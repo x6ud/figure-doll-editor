@@ -13,7 +13,7 @@ export default defineComponent({
             required: true
         }
     },
-    emits: ['setValue', 'moveNode'],
+    emits: ['setValue', 'moveNode', 'select'],
     setup(props, ctx) {
         function onSetValue(node: ModelNode, componentClass: Class<ModelNodeComponent<any>>, value: any) {
             ctx.emit('setValue', node, componentClass, value);
@@ -54,7 +54,7 @@ export default defineComponent({
                 dragging = false;
                 return;
             }
-            props.model.selected = ids;
+            ctx.emit('select', ids);
         }
 
         return {

@@ -5,10 +5,6 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            redirect: '/editor',
-        },
-        {
-            path: '/editor',
             component: () => import('./editor/Editor.vue')
         },
         {

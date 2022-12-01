@@ -1,15 +1,16 @@
 import {DirectionalLight} from 'three';
-import {computed, defineComponent, ref, toRaw, watch} from 'vue';
+import {computed, defineComponent, onMounted, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
 import {hideFullscreenLoading, showFullscreenLoading} from './components/FullscreenLoading/loading';
+import ModelNodeProperties from './components/ModelNodeProperties/ModelNodeProperties.vue';
 import ModelTree from './components/ModelTree/ModelTree.vue';
 import PopupMenu from './components/popup/PopupMenu/PopupMenu.vue';
 import PopupMenuItem from './components/popup/PopupMenu/PopupMenuItem.vue';
 import QuadView from './components/QuadView/QuadView.vue';
 import SidePanel from './components/SidePanel/SidePanel.vue';
-import {showConfirmDialog} from './dialogs/dialogs';
+import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
 import ModelNode from './model/ModelNode';
 import ModelNodeComponent from './model/ModelNodeComponent';
@@ -25,6 +26,7 @@ const filePickerAcceptType: FilePickerAcceptType = {
 
 export default defineComponent({
     components: {
+        ModelNodeProperties,
         ModelTree,
         PopupMenu,
         PopupMenuItem,
@@ -38,6 +40,7 @@ export default defineComponent({
             editorContext.value?.update();
         });
         const modelTreePanelWidth = ref(250);
+        const modelNodePropertiesPanelWidth = ref(250);
         const filename = ref<string | null>(null);
         let fileHandle: FileSystemFileHandle | null = null;
 
@@ -60,7 +63,7 @@ export default defineComponent({
                 if (filename && filename.endsWith(extension)) {
                     filename = filename.substring(0, filename.length - extension.length);
                 }
-                document.title = (filename || 'Untitled') + (dirty ? '*' : '');
+                document.title = (filename || 'Untitled') + (dirty ? '*' : '') + ' - Puppet Editor';
             },
             {immediate: true}
         );
@@ -68,6 +71,12 @@ export default defineComponent({
         function focus() {
             dom.value?.focus();
         }
+
+        onMounted(async function () {
+            if (!('showOpenFilePicker' in window)) {
+                await showAlertDialog('This application is only available in Chrome or Edge.\nCannot open or save files in the current browser.');
+            }
+        });
 
         function onCanvasMounted(
             canvas: HTMLCanvasElement,
@@ -330,10 +339,23 @@ export default defineComponent({
             focus();
         }
 
+        function onSelect(ids: number[]) {
+            editorContext.value!.nextFrame(function () {
+                editorContext.value!.model.selected = ids;
+            });
+        }
+
+        function onSetNodeProperty(items: { node: ModelNode, type: Class<ModelNodeComponent<any>>, value: any }[]) {
+            for (let item of items) {
+                editorContext.value!.history.setValue(item.node, item.type, item.value);
+            }
+        }
+
         return {
             dom,
             editorContext,
             modelTreePanelWidth,
+            modelNodePropertiesPanelWidth,
             validChildNodeDefs,
             onCanvasMounted,
             onBeforeCanvasUnmount,
@@ -348,6 +370,8 @@ export default defineComponent({
             onMoveNode,
             onAddNode,
             onRemoveNodes,
+            onSelect,
+            onSetNodeProperty,
         };
     }
 });
