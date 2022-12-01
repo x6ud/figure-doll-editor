@@ -2,9 +2,18 @@ import {Component} from 'vue';
 import Class from '../../common/type/Class';
 import ModelNodeComponent from './ModelNodeComponent';
 
+export const enum DataType {
+    NUMBER = 1,
+    STRING = 2,
+    BOOLEAN = 3,
+    NUMBER_ARRAY = 4,
+    BYTES = 5,
+}
+
 export type ModelNodeComponentDef = {
     constructor: Class<ModelNodeComponent<any>>;
     storable?: boolean;
+    dataType?: DataType;
     equal?: (a: any, b: any) => boolean,
     label?: string;
     inputComponent?: Component;
@@ -17,6 +26,12 @@ const modelNodeComponentDefs: { [name: string]: ModelNodeComponentDef } = {};
 
 export function registerModelComponent(params: Omit<ModelNodeComponentDef, 'constructor'>) {
     return function (constructor: Class<ModelNodeComponent<any>>) {
+        if (!constructor.name.startsWith('C')) {
+            throw new Error(`Component class name should be prefixed with "C"`);
+        }
+        if (params.storable && params.dataType == null) {
+            throw new Error(`Component [${constructor.name}] missing data type`);
+        }
         modelNodeComponentDefs[constructor.name] = Object.assign({constructor}, params) as ModelNodeComponentDef;
     };
 }

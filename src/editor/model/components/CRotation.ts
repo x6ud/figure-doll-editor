@@ -1,9 +1,10 @@
 import {Euler} from 'three';
 import ModelNodeComponent from '../ModelNodeComponent';
-import {registerModelComponent} from '../ModelNodeComponentDef';
+import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 
 @registerModelComponent({
     storable: true,
+    dataType: DataType.NUMBER_ARRAY,
     equal(a: Euler, b: Euler) {
         return Math.abs(a.x - b.x) < 1e-8
             && Math.abs(a.y - b.y) < 1e-8

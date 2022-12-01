@@ -1,7 +1,7 @@
 import ModelNodeComponent from '../ModelNodeComponent';
-import {registerModelComponent} from '../ModelNodeComponentDef';
+import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 
-@registerModelComponent({storable: true})
+@registerModelComponent({storable: true, dataType: DataType.STRING})
 export default class CName extends ModelNodeComponent<string> {
     value = '';
 }

@@ -1,4 +1,3 @@
-import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
 import ModelNode from '../model/ModelNode';
 import UpdateSystem from '../utils/UpdateSystem';
@@ -17,7 +16,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
     }
 
     begin(ctx: EditorContext): void {
-        ctx = toRaw(ctx);
+        ctx = ctx.readonlyRef();
         if (ctx.model.dirty) {
             ctx.model.forEach(node => {
                 if (node.dirty) {

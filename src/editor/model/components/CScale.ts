@@ -1,8 +1,9 @@
 import ModelNodeComponent from '../ModelNodeComponent';
-import {registerModelComponent} from '../ModelNodeComponentDef';
+import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 
 @registerModelComponent({
     storable: true,
+    dataType: DataType.NUMBER,
     equal(a: number, b: number) {
         return Math.abs(a - b) < 1e-8;
     },

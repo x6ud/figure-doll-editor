@@ -1,11 +1,10 @@
-import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
 import UpdateSystem from '../utils/UpdateSystem';
 
 export default class RenderSystem extends UpdateSystem<EditorContext> {
 
     begin(ctx: EditorContext): void {
-        ctx = toRaw(ctx);
+        ctx = ctx.readonlyRef();
         const rect = ctx.canvas.getBoundingClientRect();
         const renderer = ctx.renderer;
         renderer.setScissorTest(true);

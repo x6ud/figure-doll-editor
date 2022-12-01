@@ -19,12 +19,12 @@ export type ModelNodeDef = {
 
 export const modelNodeDefs: ModelNodeDef[] = [
     {
-        name: 'container',
+        name: 'Container',
         label: 'Container',
         components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D],
         canBeRoot: true,
         unique: false,
-        validChildTypes: ['container'],
+        validChildTypes: ['Container'],
     }
 ];
 

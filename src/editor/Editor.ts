@@ -13,6 +13,8 @@ import EditorContext from './EditorContext';
 import ModelNode from './model/ModelNode';
 import ModelNodeComponent from './model/ModelNodeComponent';
 import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} from './model/ModelNodeDef';
+import ProjectReader from './ProjectReader';
+import ProjectWriter from './ProjectWriter';
 
 const extension = '.model';
 const filePickerAcceptType: FilePickerAcceptType = {
@@ -134,8 +136,9 @@ export default defineComponent({
                 const file = await fileHandle.getFile();
                 filename.value = file.name;
                 editorContext.value!.reset();
+                const result = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
+                console.log(result); // todo
                 focus();
-                // todo
             }
         }
 
@@ -172,11 +175,9 @@ export default defineComponent({
                 return;
             }
             const stream = await fileHandle.createWritable({keepExistingData: false});
-            await stream.write('a');
-            await stream.write('b');
+            await stream.write(new ProjectWriter().write(editorContext.value!).getBytes());
             await stream.close();
             editorContext.value!.history.save();
-            // todo
         }
 
         function onSetView(face: string) {
