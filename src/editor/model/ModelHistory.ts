@@ -362,8 +362,10 @@ export default class ModelHistory {
                 return false;
             }
         }
+        const hash = nodeId + '#' + componentClass.name;
+        this.currentFrameRecords = this.currentFrameRecords.filter(record => record.hash !== hash);
         this.currentFrameRecords.push({
-            hash: nodeId + '#' + componentClass.name,
+            hash,
             redo: () => {
                 this.model.setValue(this.model.getNode(nodeId), componentClass, value);
             },

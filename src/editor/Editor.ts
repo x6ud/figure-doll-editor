@@ -349,6 +349,7 @@ export default defineComponent({
             for (let item of items) {
                 editorContext.value!.history.setValue(item.node, item.type, item.value);
             }
+            focus();
         }
 
         return {
