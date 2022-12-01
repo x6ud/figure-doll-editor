@@ -15,6 +15,14 @@ export default class Model {
     dirty: boolean = true;
     selected: number[] = [];
 
+    reset() {
+        this.selected = [];
+        this.dirty = false;
+        for (let id of this.nodes.map(node => node.id)) {
+            this.removeNode(id);
+        }
+    }
+
     addSelection(id: number) {
         if (!this.selected.includes(id)) {
             this.selected.push(id);
@@ -37,6 +45,10 @@ export default class Model {
             throw new Error(`Node #${id} does not exist`);
         }
         return node;
+    }
+
+    getSelectedNodes(): ModelNode[] {
+        return this.selected.map(id => this.getNode(id));
     }
 
     createNode(

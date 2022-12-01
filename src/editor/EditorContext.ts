@@ -106,4 +106,15 @@ export default class EditorContext {
         }
     }
 
+    reset() {
+        this.views[this.mainViewIndex].camera.alpha = -Math.PI / 8;
+        this.views[this.mainViewIndex].camera.alpha = -Math.PI /4;
+        for (let view of this.views) {
+            view.camera.target.set(0, 0, 0);
+            view.zoomLevel = 0;
+        }
+        this.model.reset();
+        this.history.clear();
+    }
+
 }

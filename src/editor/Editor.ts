@@ -1,5 +1,5 @@
 import {DirectionalLight} from 'three';
-import {defineComponent, ref, toRaw} from 'vue';
+import {computed, defineComponent, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
@@ -8,10 +8,17 @@ import PopupMenu from './components/popup/PopupMenu/PopupMenu.vue';
 import PopupMenuItem from './components/popup/PopupMenu/PopupMenuItem.vue';
 import QuadView from './components/QuadView/QuadView.vue';
 import SidePanel from './components/SidePanel/SidePanel.vue';
+import {showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
 import ModelNode from './model/ModelNode';
 import ModelNodeComponent from './model/ModelNodeComponent';
-import {getModelNodeDef} from './model/ModelNodeDef';
+import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} from './model/ModelNodeDef';
+
+const extension = '.model';
+const filePickerAcceptType: FilePickerAcceptType = {
+    description: 'Model',
+    accept: {'application/puppet-editor': [extension]}
+};
 
 export default defineComponent({
     components: {
@@ -28,6 +35,32 @@ export default defineComponent({
             editorContext.value?.update();
         });
         const modelTreePanelWidth = ref(250);
+        const filename = ref<string | null>(null);
+        let fileHandle: FileSystemFileHandle | null = null;
+
+        const validChildNodeDefs = computed<ModelNodeDef[]>(function () {
+            const model = editorContext.value?.model;
+            if (!model) {
+                return [];
+            }
+            if (model.selected.length === 0) {
+                return modelNodeDefs.filter(def => def.canBeRoot);
+            }
+            if (model.selected.length > 1) {
+                return [];
+            }
+            return getValidChildNodeDefs(model.getSelectedNodes()[0]);
+        });
+
+        watch([filename, () => editorContext.value?.history?.dirty],
+            function ([filename, dirty]) {
+                if (filename && filename.endsWith(extension)) {
+                    filename = filename.substring(0, filename.length - extension.length);
+                }
+                document.title = (filename || 'Untitled') + (dirty ? '*' : '');
+            },
+            {immediate: true}
+        );
 
         function focus() {
             dom.value?.focus();
@@ -48,18 +81,102 @@ export default defineComponent({
             light.position.z = 5;
             editorContext.value.scene.add(light);
 
-            const ctx = (window as any).ctx = editorContext.value!;
-            const n0 = ctx.model.createNode(1, 'container');
-            const n1 = ctx.model.createNode(2, 'container');
-            const n2 = ctx.model.createNode(3, 'container', n0);
-            const n3 = ctx.model.createNode(4, 'container', n2);
-            const n4 = ctx.model.createNode(5, 'container');
-            ctx.model.selected = [1, 4];
+            (window as any).ctx = editorContext.value!;
         }
 
         function onBeforeCanvasUnmount() {
             editorContext.value?.dispose();
             editorContext.value = undefined;
+        }
+
+        function onUndo(e?: KeyboardEvent | MouseEvent) {
+            if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
+                return;
+            }
+            editorContext.value!.history.undo();
+            focus();
+        }
+
+        function onRedo(e?: KeyboardEvent | MouseEvent) {
+            if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
+                return;
+            }
+            editorContext.value!.history.redo();
+            focus();
+        }
+
+        async function historyConfirm() {
+            if (editorContext.value!.history.dirty) {
+                return await showConfirmDialog('Unsaved changes will be lost.\nAre you sure you want to continue?');
+            }
+            return true;
+        }
+
+        async function onNew() {
+            if (await historyConfirm()) {
+                filename.value = null;
+                fileHandle = null;
+                editorContext.value!.reset();
+                focus();
+            }
+        }
+
+        async function onOpen() {
+            try {
+                [fileHandle] = await showOpenFilePicker({
+                    types: [filePickerAcceptType],
+                    multiple: false
+                });
+            } catch (e) {
+                return;
+            }
+            if (await historyConfirm()) {
+                const file = await fileHandle.getFile();
+                filename.value = file.name;
+                editorContext.value!.reset();
+                focus();
+                // todo
+            }
+        }
+
+        async function onSave(e?: KeyboardEvent | MouseEvent) {
+            if (e?.shiftKey) {
+                await onSaveAs();
+            } else {
+                if (fileHandle) {
+                    await saveFile();
+                } else {
+                    await onSaveAs();
+                }
+                focus();
+            }
+        }
+
+        async function onSaveAs() {
+            try {
+                fileHandle = await showSaveFilePicker({
+                    types: [filePickerAcceptType],
+                    suggestedName: filename.value ? filename.value + extension : undefined
+                });
+            } catch (e) {
+                return;
+            }
+            const file = await fileHandle.getFile();
+            filename.value = file.name;
+            await saveFile();
+            focus();
+        }
+
+        async function saveFile() {
+            if (!fileHandle) {
+                return;
+            }
+            const stream = await fileHandle.createWritable({keepExistingData: false});
+            await stream.write('a');
+            await stream.write('b');
+            await stream.close();
+            editorContext.value!.history.save();
+            // todo
         }
 
         function onSetView(face: string) {
@@ -168,15 +285,57 @@ export default defineComponent({
             }
         }
 
+        function onAddNode(type: string) {
+            const model = editorContext.value!.model;
+            const parentId = model.selected[0];
+            model.selected = [];
+            editorContext.value!.history.createNode({
+                type,
+                parentId,
+            });
+            focus();
+        }
+
+        function onRemoveNodes() {
+            const model = editorContext.value!.model;
+            const targets: number[] = [];
+            for (let id of model.selected) {
+                const node = model.getNode(id);
+                let valid = true;
+                for (let parent = node.parent; parent; parent = parent.parent) {
+                    if (model.selected.includes(parent.id)) {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (valid) {
+                    targets.push(id);
+                }
+            }
+            for (let id of targets) {
+                editorContext.value!.history.removeNode(id);
+            }
+            focus();
+        }
+
         return {
             dom,
             editorContext,
             modelTreePanelWidth,
+            validChildNodeDefs,
             onCanvasMounted,
             onBeforeCanvasUnmount,
+            onUndo,
+            onRedo,
+            onNew,
+            onOpen,
+            onSave,
+            onSaveAs,
             onSetView,
             onSetValue,
             onMoveNode,
+            onAddNode,
+            onRemoveNodes,
         };
     }
 });

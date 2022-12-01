@@ -1,7 +1,9 @@
 import {Material, Object3D} from 'three';
 import {Geometry} from 'three/examples/jsm/deprecated/Geometry';
 import ModelNodeComponent from '../ModelNodeComponent';
+import {registerModelComponent} from '../ModelNodeComponentDef';
 
+@registerModelComponent({})
 export default class CObject3D extends ModelNodeComponent<Object3D | null> {
     value: Object3D | null = null;
     parentChanged: boolean = true;
@@ -17,7 +19,7 @@ export default class CObject3D extends ModelNodeComponent<Object3D | null> {
 
 function disposeObject3D(obj: Object3D) {
     for (let child of obj.children) {
-        disposeObject3D(obj);
+        disposeObject3D(child);
     }
     if ('geometry' in obj) {
         const geometry = obj.geometry as Geometry;

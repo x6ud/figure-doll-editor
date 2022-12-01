@@ -1,7 +1,7 @@
 <template>
     <div class="model-tree-node"
          :class="classnames"
-         @mousedown="onMouseDown"
+         @mousedown.left="onMouseDown"
          @mousemove="onMouseMove"
          ref="dom"
     >
