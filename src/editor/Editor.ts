@@ -147,9 +147,8 @@ export default defineComponent({
                     showFullscreenLoading();
                     const file = await fileHandle.getFile();
                     filename.value = file.name;
-                    editorContext.value!.reset();
-                    const result = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
-                    console.log(result); // todo
+                    const data = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
+                    editorContext.value!.load(data);
                     focus();
                 } finally {
                     hideFullscreenLoading();

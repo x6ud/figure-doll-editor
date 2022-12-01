@@ -1,4 +1,4 @@
-import {DataType} from './model/ModelNodeComponentDef';
+import {DataType, getModelNodeComponentDef} from './model/ModelNodeComponentDef';
 import {MAGIC_HEADER, SERIALIZATION_VERSION} from './ProjectWriter';
 
 const _view = new DataView(new ArrayBuffer(8));
@@ -126,6 +126,10 @@ export default class ProjectReader {
                         break;
                     default:
                         throw new Error(`Unimplemented data type [${dataType}]`);
+                }
+                const componentDef = getModelNodeComponentDef(name);
+                if (componentDef.deserialize) {
+                    value = componentDef.deserialize(value);
                 }
                 data[name] = value;
             }

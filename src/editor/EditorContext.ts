@@ -3,6 +3,7 @@ import {toRaw} from 'vue';
 import EditorView from './EditorView';
 import Model from './model/Model';
 import ModelHistory from './model/ModelHistory';
+import {ProjectReaderResult} from './ProjectReader';
 import CallbackFireSystem from './systems/CallbackFireSystem';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
 import HistorySystem from './systems/HistorySystem';
@@ -127,6 +128,27 @@ export default class EditorContext {
 
     nextFrame(callback: () => void) {
         this.nextFrameCallbacks.push(callback);
+    }
+
+    load(data: ProjectReaderResult) {
+        this.reset();
+        for (let i = 0; i < 4; ++i) {
+            const state = data.views[i];
+            const view = this.views[i];
+            view.zoomLevel = state.zoomLevel;
+            view.camera.alpha = state.alpha;
+            view.camera.beta = state.beta;
+            view.camera.target.set(...state.target);
+        }
+        for (let node of data.nodes) {
+            this.model.createNode(
+                node.id,
+                node.type,
+                node.parentId ? this.model.getNode(node.parentId) : null,
+                null,
+                node.data
+            );
+        }
     }
 
 }
