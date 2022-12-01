@@ -3,6 +3,7 @@ import {computed, defineComponent, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
+import {hideFullscreenLoading, showFullscreenLoading} from './components/FullscreenLoading/loading';
 import ModelTree from './components/ModelTree/ModelTree.vue';
 import PopupMenu from './components/popup/PopupMenu/PopupMenu.vue';
 import PopupMenuItem from './components/popup/PopupMenu/PopupMenuItem.vue';
@@ -133,12 +134,17 @@ export default defineComponent({
                 return;
             }
             if (await historyConfirm()) {
-                const file = await fileHandle.getFile();
-                filename.value = file.name;
-                editorContext.value!.reset();
-                const result = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
-                console.log(result); // todo
-                focus();
+                try {
+                    showFullscreenLoading();
+                    const file = await fileHandle.getFile();
+                    filename.value = file.name;
+                    editorContext.value!.reset();
+                    const result = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
+                    console.log(result); // todo
+                    focus();
+                } finally {
+                    hideFullscreenLoading();
+                }
             }
         }
 
@@ -174,10 +180,15 @@ export default defineComponent({
             if (!fileHandle) {
                 return;
             }
-            const stream = await fileHandle.createWritable({keepExistingData: false});
-            await stream.write(new ProjectWriter().write(editorContext.value!).getBytes());
-            await stream.close();
-            editorContext.value!.history.save();
+            try {
+                showFullscreenLoading();
+                const stream = await fileHandle.createWritable({keepExistingData: false});
+                await stream.write(new ProjectWriter().write(editorContext.value!).getBytes());
+                await stream.close();
+                editorContext.value!.history.save();
+            } finally {
+                hideFullscreenLoading();
+            }
         }
 
         function onSetView(face: string) {

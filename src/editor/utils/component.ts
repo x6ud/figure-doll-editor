@@ -8,6 +8,6 @@ export function createComponentInstance(component: Component, callback?: (app: A
     app.mount(dom);
     return function () {
         app.unmount();
-        document.body.removeChild(dom);
+        dom.remove();
     };
 }
