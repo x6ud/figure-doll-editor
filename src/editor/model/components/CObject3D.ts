@@ -1,5 +1,6 @@
 import {Material, Object3D} from 'three';
 import {Geometry} from 'three/examples/jsm/deprecated/Geometry';
+import ModelNode from '../ModelNode';
 import ModelNodeComponent from '../ModelNodeComponent';
 import {registerModelComponent} from '../ModelNodeComponentDef';
 
@@ -20,6 +21,10 @@ export default class CObject3D extends ModelNodeComponent<Object3D | null> {
     dispose() {
         this.onRemoved();
     }
+}
+
+export type Object3DUserData = {
+    node?: ModelNode;
 }
 
 function disposeObject3D(obj: Object3D) {

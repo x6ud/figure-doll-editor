@@ -1,7 +1,7 @@
 import {Mesh, MeshLambertMaterial, Texture} from 'three';
 import EditorContext from '../../EditorContext';
 import CImage from '../../model/components/CImage';
-import CObject3D from '../../model/components/CObject3D';
+import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
 import ModelNode from '../../model/ModelNode';
 import DoubleSidedPlaneGeometry from '../../utils/geometry/DoubleSidedPlaneGeometry';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
@@ -51,6 +51,7 @@ export default class ImageUpdateFilter implements ModelNodeUpdateFilter {
                     new DoubleSidedPlaneGeometry(width, height),
                     new MeshLambertMaterial({map: texture}),
                 );
+                (cObject3D.value.userData as Object3DUserData) = {node};
                 ctx.model.dirty = true;
                 node.dirty = true;
                 cObject3D.parentChanged = true;

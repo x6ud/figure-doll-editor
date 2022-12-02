@@ -284,10 +284,11 @@ export default defineComponent({
                 }
             }
             for (let node of nodes) {
+                const keepTransformUnchanged = ctx.keepTransformUnchangedWhileMoving;
                 if (position === 'before' || position === 'after') {
-                    ctx.history.moveNode(node, parent, related, position === 'after');
+                    ctx.history.moveNode(node, parent, related, position === 'after', keepTransformUnchanged);
                 } else {
-                    ctx.history.moveNode(node, parent, null, position === 'atLast');
+                    ctx.history.moveNode(node, parent, null, position === 'atLast', keepTransformUnchanged);
                 }
             }
 

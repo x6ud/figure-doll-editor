@@ -274,7 +274,12 @@ export default class ModelHistory {
         this.enableMerge = false;
     }
 
-    moveNode(node: ModelNode, parent: ModelNode | null, related: ModelNode | null, placeAfter: boolean) {
+    moveNode(node: ModelNode,
+             parent: ModelNode | null,
+             related: ModelNode | null,
+             placeAfter: boolean,
+             keepTransformUnchanged: boolean
+    ) {
         const nodeId = node.id;
         const parentId1 = parent ? parent.id : 0;
         const relatedId1 = related ? related.id : 0;
@@ -309,25 +314,27 @@ export default class ModelHistory {
             },
         });
         this.enableMerge = false;
-        // keep world matrix unchanged
-        if (parentId0 !== parentId1 && (node.has(CPosition) || node.has(CRotation) || node.has(CScale))) {
-            let localMatrix = node.getWorldMatrix();
-            if (parent) {
-                localMatrix = new Matrix4().copy(parent.getWorldMatrix()).invert().multiply(localMatrix);
-            }
-            if (node.has(CPosition)) {
-                const position = new Vector3();
-                const rotation = new Quaternion();
-                const scale = new Vector3();
-                localMatrix.decompose(position, rotation, scale);
+
+        if (keepTransformUnchanged) {
+            if (parentId0 !== parentId1 && (node.has(CPosition) || node.has(CRotation) || node.has(CScale))) {
+                let localMatrix = node.getWorldMatrix();
+                if (parent) {
+                    localMatrix = new Matrix4().copy(parent.getWorldMatrix()).invert().multiply(localMatrix);
+                }
                 if (node.has(CPosition)) {
-                    this.setValue(node, CPosition, position);
-                }
-                if (node.has(CRotation)) {
-                    this.setValue(node, CRotation, new Euler().setFromQuaternion(rotation));
-                }
-                if (node.has(CScale)) {
-                    this.setValue(node, CScale, scale.x);
+                    const position = new Vector3();
+                    const rotation = new Quaternion();
+                    const scale = new Vector3();
+                    localMatrix.decompose(position, rotation, scale);
+                    if (node.has(CPosition)) {
+                        this.setValue(node, CPosition, position);
+                    }
+                    if (node.has(CRotation)) {
+                        this.setValue(node, CRotation, new Euler().setFromQuaternion(rotation));
+                    }
+                    if (node.has(CScale)) {
+                        this.setValue(node, CScale, scale.x);
+                    }
                 }
             }
         }

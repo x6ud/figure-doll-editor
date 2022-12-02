@@ -14,6 +14,9 @@ import TransformUpdateFilter from './systems/model-update-filters/TransformUpdat
 import ModelUpdateSystem from './systems/ModelUpdateSystem';
 import MouseSystem from './systems/MouseSystem';
 import RenderSystem from './systems/RenderSystem';
+import ToolSystem from './systems/ToolSystem';
+import CursorTool from './tools/CursorTool';
+import EditorTool from './tools/EditorTool';
 import Grids from './utils/geometry/Grids';
 import UpdateSystem from './utils/UpdateSystem';
 
@@ -29,6 +32,7 @@ export default class EditorContext {
             new TransformUpdateFilter(),
         ]),
         new MouseSystem(),
+        new ToolSystem(),
         new HistorySystem(),
         new RenderSystem(),
         new CameraDraggingSystem(),
@@ -52,6 +56,13 @@ export default class EditorContext {
     model = new Model();
     history = new ModelHistory(this.model);
     nextFrameCallbacks: (() => void)[] = [];
+
+    tools: EditorTool[] = [
+        new CursorTool(),
+    ];
+    tool: EditorTool = this.tools[0];
+
+    keepTransformUnchangedWhileMoving: boolean = true;
 
     constructor(
         canvas: HTMLCanvasElement,

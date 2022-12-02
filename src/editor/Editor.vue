@@ -29,6 +29,11 @@
                     <popup-menu-item title="Copy" hotkey="Ctrl+C" @click="onCopy"/>
                     <popup-menu-item title="Paste" hotkey="Ctrl+V" @click="onPaste"/>
                     <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"/>
+                    <popup-menu-item sep/>
+                    <popup-menu-item title="Keep Global Position Unchanged while Moving Nodes"
+                                     @click="editorContext.keepTransformUnchangedWhileMoving = !editorContext.keepTransformUnchangedWhileMoving"
+                                     :checked="editorContext.keepTransformUnchangedWhileMoving"
+                    />
                 </popup-menu>
                 <popup-menu title="View">
                     <popup-menu-item title="Grids"
@@ -44,9 +49,24 @@
                 <div style="font-size: 8px;">FPS: {{ editorContext.fps }}&nbsp;</div>
             </template>
         </div>
+
         <div class="cols fill">
+            <div class="tools">
+                <template v-if="editorContext">
+                    <button class="tool icon-button toggle-button"
+                            v-for="tool in editorContext.tools"
+                            :title="tool.label"
+                            :class="{active: editorContext.tool === tool}"
+                            @click="editorContext.tool = tool"
+                    >
+                        <img :src="tool.icon" alt="">
+                    </button>
+                </template>
+            </div>
+
             <side-panel direction="right"
                         v-model:width="modelTreePanelWidth"
+                        style="border-left: none;"
             >
                 <div class="rows" style="width: 100%; height: 100%;"
                      v-if="editorContext"
@@ -82,8 +102,10 @@
                     />
                 </div>
             </side-panel>
+
             <side-panel direction="right"
                         v-model:width="modelNodePropertiesPanelWidth"
+                        style="border-left: none;"
             >
                 <template v-if="editorContext">
                     <model-node-properties :editor-context="editorContext"
@@ -91,6 +113,7 @@
                     />
                 </template>
             </side-panel>
+
             <quad-view class="fill"
                        :editor-context="editorContext"
                        :quad-view="editorContext?.quadView"
@@ -106,3 +129,19 @@
 <script src="./Editor.ts"></script>
 
 <style src="./ui.scss"></style>
+
+<style lang="scss" scoped>
+
+.tools {
+    display: flex;
+    flex-direction: column;
+    padding: 0 2px;
+    border: solid 1px #555;
+
+    .tool {
+        width: 24px;
+        height: 24px;
+        margin: 4px 0 0 0;
+    }
+}
+</style>
