@@ -49,7 +49,6 @@ export default class TranslateTool extends EditorTool {
         }
         const control = view.transformControls;
         control.setMode('translate');
-        control.attach(ctx.dummyObject);
         if (control.dragging) {
             this.dragging = true;
             const matrix = ctx.dummyObject.matrix;

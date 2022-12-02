@@ -89,10 +89,10 @@ export default class EditorContext {
             // right
             new EditorView(this, 3, view4, 0, 0, false),
         ];
-        this.xzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x6FA51B, 0x555555);
-        this.yzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555);
+        this.xzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555);
+        this.yzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x6FA51B, 0x555555);
         this.yzGrids.rotateX(Math.PI / 2);
-        this.xyGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0x2F83E3, 0x6FA51B, 0x555555);
+        this.xyGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0x6FA51B, 0x2F83E3, 0x555555);
         this.xyGrids.rotateZ(Math.PI / 2);
         this.scene.add(this.xzGrids);
         this.scene.add(this.yzGrids);

@@ -45,14 +45,14 @@
 
             &.front {
                 transform: rotateY(0) translateZ(12px);
-                color: #6FA51B;
-                border-color: #6FA51B;
+                color: #2F83E3;
+                border-color: #2F83E3;
             }
 
             &.back {
                 transform: rotateY(180deg) translateZ(12px);
-                color: #6FA51B;
-                border-color: #6FA51B;
+                color: #2F83E3;
+                border-color: #2F83E3;
             }
 
             &.right {
@@ -69,14 +69,14 @@
 
             &.top {
                 transform: rotateX(90deg) translateZ(12px);
-                color: #2F83E3;
-                border-color: #2F83E3;
+                color: #6FA51B;
+                border-color: #6FA51B;
             }
 
             &.bottom {
                 transform: rotateX(-90deg) translateZ(12px);
-                color: #2F83E3;
-                border-color: #2F83E3;
+                color: #6FA51B;
+                border-color: #6FA51B;
             }
 
             &:hover {
