@@ -6,6 +6,7 @@
         <div class="view v1" ref="view1" tabindex="0"
              v-show="quadView || mainView === 0"
         >
+            <div class="control" ref="view1Control"></div>
             <template v-if="editorContext">
                 <view-rotation-handler :alpha="editorContext.views[0].camera.alpha"
                                        :beta="editorContext.views[0].camera.beta"
@@ -16,6 +17,7 @@
         <div class="view v2" ref="view2" tabindex="0"
              v-show="quadView || mainView === 1"
         >
+            <div class="control" ref="view2Control"></div>
             <template v-if="editorContext">
                 <view-rotation-handler :alpha="editorContext.views[1].camera.alpha"
                                        :beta="editorContext.views[1].camera.beta"
@@ -26,6 +28,7 @@
         <div class="view v3" ref="view3" tabindex="0"
              v-show="quadView || mainView === 2"
         >
+            <div class="control" ref="view3Control"></div>
             <template v-if="editorContext">
                 <view-rotation-handler :alpha="editorContext.views[2].camera.alpha"
                                        :beta="editorContext.views[2].camera.beta"
@@ -36,6 +39,7 @@
         <div class="view v4" ref="view4" tabindex="0"
              v-show="quadView || mainView === 3"
         >
+            <div class="control" ref="view4Control"></div>
             <template v-if="editorContext">
                 <view-rotation-handler :alpha="editorContext.views[3].camera.alpha"
                                        :beta="editorContext.views[3].camera.beta"
@@ -79,8 +83,15 @@
             border-right: solid 1px rgba(0, 0, 0, .25);
         }
 
+        .control {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
         .view-rotation-handler {
             position: absolute;
+            z-index: 2;
             top: 6px;
             right: 6px;
         }

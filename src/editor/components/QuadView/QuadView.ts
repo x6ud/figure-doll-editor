@@ -17,6 +17,10 @@ export default defineComponent({
         const view2 = ref<HTMLElement>();
         const view3 = ref<HTMLElement>();
         const view4 = ref<HTMLElement>();
+        const view1Control = ref<HTMLElement>();
+        const view2Control = ref<HTMLElement>();
+        const view3Control = ref<HTMLElement>();
+        const view4Control = ref<HTMLElement>();
 
         let tid: number;
 
@@ -27,7 +31,7 @@ export default defineComponent({
         onMounted(function () {
             resize();
             tid = setInterval(resize, 50);
-            ctx.emit('mounted', canvas.value, view1.value, view2.value, view3.value, view4.value);
+            ctx.emit('mounted', canvas.value, view1Control.value, view2Control.value, view3Control.value, view4Control.value);
         });
 
         onBeforeUnmount(function () {
@@ -55,6 +59,10 @@ export default defineComponent({
             view2,
             view3,
             view4,
+            view1Control,
+            view2Control,
+            view3Control,
+            view4Control,
             setView,
         };
     }
