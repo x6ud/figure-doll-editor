@@ -44,7 +44,7 @@ export default defineComponent({
         }
 
         function format(val: number) {
-            return Number((val / Math.PI * 180).toFixed(6));
+            return Number((val / Math.PI * 180).toFixed(1));
         }
 
         return {

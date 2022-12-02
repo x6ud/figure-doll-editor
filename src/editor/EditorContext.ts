@@ -1,4 +1,4 @@
-import {Scene, WebGLRenderer} from 'three';
+import {Object3D, Scene, WebGLRenderer} from 'three';
 import {toRaw} from 'vue';
 import EditorView from './EditorView';
 import Model from './model/Model';
@@ -17,6 +17,7 @@ import RenderSystem from './systems/RenderSystem';
 import ToolSystem from './systems/ToolSystem';
 import CursorTool from './tools/CursorTool';
 import EditorTool from './tools/EditorTool';
+import TranslateTool from './tools/TranslateTool';
 import Grids from './utils/geometry/Grids';
 import UpdateSystem from './utils/UpdateSystem';
 
@@ -47,11 +48,14 @@ export default class EditorContext {
     yzGrids: Grids;
     xyGrids: Grids;
     readonly mainViewIndex: number;
+    /** Used for setting transform control handler position */
+    dummyObject = new Object3D();
 
     fps: number = 0;
     private lastTimestamp: number = 0;
     quadView: boolean = true;
     showGrids: boolean = true;
+    keepTransformUnchangedWhileMoving: boolean = true;
 
     model = new Model();
     history = new ModelHistory(this.model);
@@ -59,10 +63,10 @@ export default class EditorContext {
 
     tools: EditorTool[] = [
         new CursorTool(),
+        new TranslateTool(),
     ];
+    /** Current active tool */
     tool: EditorTool = this.tools[0];
-
-    keepTransformUnchangedWhileMoving: boolean = true;
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -77,13 +81,13 @@ export default class EditorContext {
         this.mainViewIndex = 1;
         this.views = [
             // top
-            new EditorView(0, view1, -Math.PI / 2, -Math.PI / 2, false),
+            new EditorView(this, 0, view1, -Math.PI / 2, -Math.PI / 2, false),
             // main
-            new EditorView(1, view2, -Math.PI / 8, -Math.PI / 4, true),
+            new EditorView(this, 1, view2, -Math.PI / 8, -Math.PI / 4, true),
             // front
-            new EditorView(2, view3, 0, -Math.PI / 2, false),
+            new EditorView(this, 2, view3, 0, -Math.PI / 2, false),
             // right
-            new EditorView(3, view4, 0, 0, false),
+            new EditorView(this, 3, view4, 0, 0, false),
         ];
         this.xzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x6FA51B, 0x555555);
         this.yzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555);
@@ -93,6 +97,7 @@ export default class EditorContext {
         this.scene.add(this.xzGrids);
         this.scene.add(this.yzGrids);
         this.scene.add(this.xyGrids);
+        this.scene.add(this.dummyObject);
     }
 
     dispose() {
@@ -135,6 +140,7 @@ export default class EditorContext {
         this.history.clear();
     }
 
+    /** Get the raw reference from vue proxy. This can improve performance. Only use if the update doesn't affect the ui. */
     readonlyRef(): EditorContext {
         return toRaw(this);
     }

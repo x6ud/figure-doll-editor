@@ -1,4 +1,4 @@
-import {DirectionalLight, Quaternion, Vector3} from 'three';
+import {DirectionalLight, Vector3} from 'three';
 import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
@@ -17,6 +17,7 @@ import ModelNodeComponent from './model/ModelNodeComponent';
 import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} from './model/ModelNodeDef';
 import ProjectReader from './ProjectReader';
 import ProjectWriter from './ProjectWriter';
+import {getTranslation} from './utils/math';
 
 const extension = '.model';
 const filePickerAcceptType: FilePickerAcceptType = {
@@ -354,9 +355,7 @@ export default defineComponent({
                 return;
             }
             const position = new Vector3();
-            const rotation = new Quaternion();
-            const scale = new Vector3();
-            node.getWorldMatrix().decompose(position, rotation, scale);
+            getTranslation(position, node.getWorldMatrix());
             for (let view of editorContext.value!.views) {
                 view.camera.target.copy(position);
             }

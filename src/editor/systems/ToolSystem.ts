@@ -5,9 +5,11 @@ import UpdateSystem from '../utils/UpdateSystem';
 export default class ToolSystem extends UpdateSystem<EditorContext> {
 
     begin(ctx: EditorContext): void {
+        const tool = ctx.tool;
+        tool.begin(ctx);
         for (let view of ctx.views) {
             if (view.enabled) {
-                ctx.tool.update(ctx, toRaw(view));
+                tool.update(ctx, toRaw(view));
             }
         }
     }

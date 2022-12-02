@@ -45,6 +45,7 @@ export default class ModelNode {
         return this.get(componentClass).value;
     }
 
+    /** Iterate over this node and all child nodes. Retuning false in callback to break the loop. */
     forEach(callback: (node: ModelNode) => void | boolean): void | boolean {
         const stack: ModelNode[] = [this];
         for (; ;) {
@@ -74,16 +75,20 @@ export default class ModelNode {
         return UNIT_MAT4;
     }
 
+    getParentWorldMatrix(): Matrix4 {
+        return this.parent ? this.parent.getWorldMatrix() : UNIT_MAT4;
+    }
+
     toJson(): ModelNodeJson {
         return {
             type: this.type,
             parentId: this.parent?.id,
-            data: this.getDataJson(),
+            data: this.getComponentsDataJson(),
             children: this.children.map(node => node.toJson())
         };
     }
 
-    getDataJson(): { [name: string]: any } {
+    getComponentsDataJson(): { [name: string]: any } {
         const ret: { [name: string]: any } = {};
         for (let componentName in this.components) {
             const componentDef = getModelNodeComponentDef(componentName);

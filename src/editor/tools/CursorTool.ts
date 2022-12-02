@@ -4,9 +4,12 @@ import {Object3DUserData} from '../model/components/CObject3D';
 import icon from './Cursor.png';
 import EditorTool from './EditorTool';
 
-export default class CursorTool implements EditorTool {
+export default class CursorTool extends EditorTool {
     label = 'Cursor';
     icon = icon;
+
+    begin(ctx: EditorContext): void {
+    }
 
     update(ctx: EditorContext, view: EditorView): void {
         if (!view.input.mouseOver) {

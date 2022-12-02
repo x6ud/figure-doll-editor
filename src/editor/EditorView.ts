@@ -1,4 +1,6 @@
 import {Raycaster, Vector2, Vector3} from 'three';
+import {TransformControls} from 'three/examples/jsm/controls/TransformControls';
+import EditorContext from './EditorContext';
 import ArcRotateCamera from './utils/camera/ArcRotateCamera';
 import Input from './utils/Input';
 
@@ -7,6 +9,7 @@ export default class EditorView {
     enabled: boolean = true;
     element: HTMLElement;
     camera = new ArcRotateCamera();
+    zoomLevel = 0;
     left: number = 0;
     bottom: number = 0;
     width: number = 0;
@@ -18,14 +21,22 @@ export default class EditorView {
     mouseRay1 = new Vector3();
     mouseRayN = new Vector3();
     raycaster = new Raycaster();
-    zoomLevel = 0;
+    transformControls: TransformControls;
 
-    constructor(index: number, element: HTMLElement, alpha: number = 0, beta: number = 0, perspective: boolean = true) {
+    constructor(ctx: EditorContext,
+                index: number,
+                element: HTMLElement,
+                alpha: number = 0,
+                beta: number = 0,
+                perspective: boolean = true
+    ) {
         this.index = index;
         this.element = element;
         this.camera.alpha = alpha;
         this.camera.beta = beta;
         this.camera.perspective = perspective;
+        this.transformControls = new TransformControls(this.camera.get(), element);
+        ctx.scene.add(this.transformControls);
         this.input.setup(element);
     }
 
@@ -43,6 +54,7 @@ export default class EditorView {
     }
 
     dispose() {
+        this.transformControls.dispose();
         this.input.unload();
     }
 }

@@ -44,7 +44,7 @@ export default defineComponent({
         }
 
         function format(val: number) {
-            return Number(val.toFixed(6));
+            return Number(val.toFixed(3));
         }
 
         return {

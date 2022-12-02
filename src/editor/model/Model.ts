@@ -36,6 +36,7 @@ export default class Model {
         return this.nodesMap.has(id);
     }
 
+    /** Iterate over all nodes. Retuning false in callback to break the loop. */
     forEach(callback: (node: ModelNode) => void | boolean): void | boolean {
         for (let node of this.nodes) {
             if (node.forEach(callback) === false) {
@@ -56,6 +57,7 @@ export default class Model {
         return this.selected.map(id => this.getNode(id));
     }
 
+    /** Returns all selected nodes excluding nested child nodes. */
     getTopmostSelectedNodes(): ModelNode[] {
         const ret: ModelNode[] = [];
         for (let id of this.selected) {

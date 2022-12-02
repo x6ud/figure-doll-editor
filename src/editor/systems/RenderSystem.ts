@@ -11,6 +11,9 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
         renderer.setClearColor(0x000000, 0.0);
         renderer.clear();
         for (let view of ctx.views) {
+            for (let view2 of ctx.views) {
+                view2.transformControls.visible = view === view2 && ctx.tool.enableTransformControls;
+            }
             if (view.enabled) {
                 if (view.width && view.height) {
                     ctx.xzGrids.visible = ctx.showGrids && (view.index === ctx.mainViewIndex || view.index === 0);

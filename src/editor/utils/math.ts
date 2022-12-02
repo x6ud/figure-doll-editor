@@ -1,4 +1,4 @@
-import {Vector3} from 'three';
+import {Matrix4, Quaternion, Vector3} from 'three';
 
 export const linePanelIntersection = (function () {
     const _l = new Vector3();
@@ -27,3 +27,25 @@ export const linePanelIntersection = (function () {
         return true;
     };
 })();
+
+const _decomposeTranslation = new Vector3();
+const _decomposeRotation = new Quaternion();
+const _decomposeScale = new Vector3();
+
+export function getTranslation(out: Vector3, matrix: Matrix4) {
+    matrix.decompose(_decomposeTranslation, _decomposeRotation, _decomposeScale);
+    out.copy(_decomposeTranslation);
+    return out;
+}
+
+export function getRotation(out: Quaternion, matrix: Matrix4) {
+    matrix.decompose(_decomposeTranslation, _decomposeRotation, _decomposeScale);
+    out.copy(_decomposeRotation);
+    return out;
+}
+
+export function getScale(out: Vector3, matrix: Matrix4) {
+    matrix.decompose(_decomposeTranslation, _decomposeRotation, _decomposeScale);
+    out.copy(_decomposeScale);
+    return out;
+}
