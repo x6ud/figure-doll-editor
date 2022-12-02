@@ -97,6 +97,11 @@ export default class ModelHistory {
                     break;
                 }
             }
+        } else {
+            const top = this.undoStack[this.undoStack.length - 1];
+            if (top) {
+                top.hash += '!'; // prevent merge
+            }
         }
         this.enableMerge = true;
 
