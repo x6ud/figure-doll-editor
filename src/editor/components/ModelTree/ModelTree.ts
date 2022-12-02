@@ -15,7 +15,7 @@ export default defineComponent({
             required: true
         }
     },
-    emits: ['setValue', 'moveNode', 'select', 'focus', 'cut', 'copy', 'paste'],
+    emits: ['setValue', 'moveNode', 'select', 'focus', 'cut', 'copy', 'paste', 'delete'],
     setup(props, ctx) {
         const contextMenu = ref<{ show(trigger: HTMLElement, position: { x: number, y: number }): void }>();
 
@@ -87,6 +87,10 @@ export default defineComponent({
             ctx.emit('paste', contextMenuNode);
         }
 
+        function onDelete() {
+            ctx.emit('delete');
+        }
+
         return {
             contextMenu,
             onSetValue,
@@ -101,6 +105,7 @@ export default defineComponent({
             onCut,
             onCopy,
             onPaste,
+            onDelete,
         };
     }
 });

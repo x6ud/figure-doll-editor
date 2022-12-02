@@ -55,7 +55,9 @@ export default class ModelNode {
             if (callback(node) === false) {
                 return false;
             }
-            stack.push(...node.children);
+            for (let i = node.children.length; i--;) {
+                stack.push(node.children[i]);
+            }
         }
     }
 

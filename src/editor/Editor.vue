@@ -8,6 +8,7 @@
          @keydown.ctrl.x="onCut"
          @keydown.ctrl.c="onCopy"
          @keydown.ctrl.v="onPaste"
+         @keydown.delete="onDelete"
          @contextmenu.prevent
          ref="dom"
     >
@@ -23,6 +24,11 @@
                 <popup-menu title="Edit">
                     <popup-menu-item title="Undo" hotkey="Ctrl+Z" @click="onUndo"/>
                     <popup-menu-item title="Redo" hotkey="Ctrl+Y" @click="onRedo"/>
+                    <popup-menu-item sep/>
+                    <popup-menu-item title="Cut" hotkey="Ctrl+X" @click="onCut"/>
+                    <popup-menu-item title="Copy" hotkey="Ctrl+C" @click="onCopy"/>
+                    <popup-menu-item title="Paste" hotkey="Ctrl+V" @click="onPaste"/>
+                    <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"/>
                 </popup-menu>
                 <popup-menu title="View">
                     <popup-menu-item title="Grids"
@@ -58,7 +64,7 @@
                             />
                         </popup-menu>
                         <button :disabled="!editorContext.model.selected.length"
-                                @click="onRemoveNodes"
+                                @click="onDelete"
                         >
                             Delete
                         </button>
@@ -72,6 +78,7 @@
                                 @cut="onCut"
                                 @copy="onCopy"
                                 @paste="onPaste"
+                                @delete="onDelete"
                     />
                 </div>
             </side-panel>

@@ -24,6 +24,7 @@
             <popup-menu-item title="Cut" hotkey="Ctrl+X" @click="onCut"/>
             <popup-menu-item title="Copy" hotkey="Ctrl+C" @click="onCopy"/>
             <popup-menu-item title="Paste" hotkey="Ctrl+V" @click="onPaste"/>
+            <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"/>
         </popup-menu>
     </div>
 </template>

@@ -174,16 +174,17 @@ export default class ModelHistory {
                         }
                         const parent = pair[0];
                         const children = pair[1];
-                        for (let createNode of children) {
+                        for (let json of children) {
                             const node = this.model.createNode(
                                 nextNodeId++,
-                                createNode.type,
+                                json.type,
                                 parent,
                                 null,
-                                createNode.data
+                                json.data
                             );
-                            if (createNode.children) {
-                                stack.push([node, createNode.children]);
+                            this.model.addSelection(node.id);
+                            if (json.children) {
+                                stack.push([node, json.children]);
                             }
                         }
                     }
@@ -262,6 +263,7 @@ export default class ModelHistory {
                     const children = pair[1];
                     for (let nodeRecord of children) {
                         const node = this.model.createNode(nodeRecord.id, nodeRecord.type, parent, null, nodeRecord.data);
+                        this.model.addSelection(node.id);
                         if (nodeRecord.children.length) {
                             stack.push([node, nodeRecord.children]);
                         }

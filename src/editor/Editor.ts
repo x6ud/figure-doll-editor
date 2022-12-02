@@ -316,7 +316,10 @@ export default defineComponent({
             focus();
         }
 
-        function onRemoveNodes() {
+        function onDelete(e?: KeyboardEvent) {
+            if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
+                return;
+            }
             const model = editorContext.value!.model;
             const targets = model.getTopmostSelectedNodes();
             for (let node of targets) {
@@ -391,7 +394,7 @@ export default defineComponent({
                     }
                 });
             }
-            model.selected = [];
+            let changed = false;
             const history = editorContext.value!.history;
             for (let item of clipboardContent) {
                 if (target) {
@@ -399,6 +402,7 @@ export default defineComponent({
                         const json = {...item};
                         json.parentId = target.id;
                         history.createNode(json);
+                        changed = true;
                     }
                 } else {
                     const nodeDef = getModelNodeDef(item.type);
@@ -406,8 +410,12 @@ export default defineComponent({
                         const json = {...item};
                         json.parentId = undefined;
                         history.createNode(json);
+                        changed = true;
                     }
                 }
+            }
+            if (changed) {
+                model.selected = [];
             }
             focus();
         }
@@ -430,7 +438,7 @@ export default defineComponent({
             onSetValue,
             onMoveNode,
             onAddNode,
-            onRemoveNodes,
+            onDelete,
             onSelect,
             onSetNodeProperty,
             onFocus,
