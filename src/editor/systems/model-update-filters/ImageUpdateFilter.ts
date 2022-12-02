@@ -54,7 +54,7 @@ export default class ImageUpdateFilter implements ModelNodeUpdateFilter {
                 ctx.model.dirty = true;
                 node.dirty = true;
                 cObject3D.parentChanged = true;
-                cObject3D.transformChanged = true;
+                cObject3D.localTransformChanged = true;
             });
         };
         image.src = cImage.value;

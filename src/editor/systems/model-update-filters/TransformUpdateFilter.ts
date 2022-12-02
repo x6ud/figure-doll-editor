@@ -9,10 +9,10 @@ import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
         if (node.has(CObject3D)) {
-            const cMesh = node.get(CObject3D);
-            if (cMesh.transformChanged) {
-                const mesh = cMesh.value;
-                if (mesh) {
+            const cObject3D = node.get(CObject3D);
+            const mesh = cObject3D.value;
+            if (mesh) {
+                if (cObject3D.localTransformChanged) {
                     if (node.has(CPosition)) {
                         mesh.position.copy(node.value(CPosition));
                     }
@@ -22,9 +22,13 @@ export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
                     if (node.has(CScale)) {
                         mesh.scale.x = mesh.scale.y = mesh.scale.z = node.value(CScale);
                     }
-                    mesh.updateMatrixWorld();
+                    mesh.updateMatrix();
+                    cObject3D.localTransformChanged = false;
                 }
-                cMesh.transformChanged = false;
+                if (cObject3D.worldTransformChanged) {
+                    mesh.updateMatrixWorld(true);
+                    cObject3D.worldTransformChanged = false;
+                }
             }
         }
     }

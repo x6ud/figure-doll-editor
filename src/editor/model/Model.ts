@@ -169,6 +169,7 @@ export default class Model {
                 newList.unshift(node);
             }
         }
+        node.dirty = true;
         this.dirty = true;
         for (let watcher of this.watchers) {
             watcher.onMoved(this, node, oldParent, parent);

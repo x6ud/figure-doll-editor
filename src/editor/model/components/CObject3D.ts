@@ -7,7 +7,8 @@ import {registerModelComponent} from '../ModelNodeComponentDef';
 export default class CObject3D extends ModelNodeComponent<Object3D | null> {
     value: Object3D | null = null;
     parentChanged: boolean = true;
-    transformChanged: boolean = true;
+    localTransformChanged: boolean = true;
+    worldTransformChanged: boolean = true;
 
     onRemoved() {
         if (this.value) {

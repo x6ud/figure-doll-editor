@@ -11,6 +11,7 @@ export default class Object3DRelationshipUpdateFilter implements ModelNodeUpdate
             if (cObject3D.parentChanged) {
                 const obj = cObject3D.value;
                 if (obj) {
+                    obj.removeFromParent();
                     if (node.parent) {
                         if (node.parent.has(CObject3D)) {
                             const parent = node.parent.value(CObject3D);

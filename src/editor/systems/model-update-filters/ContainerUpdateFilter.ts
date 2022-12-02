@@ -6,7 +6,7 @@ import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
 export default class ContainerUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
-        if (node.type === 'container') {
+        if (node.type === 'Container') {
             const cObject3D = node.get(CObject3D);
             if (!cObject3D.value) {
                 cObject3D.value = new Group();

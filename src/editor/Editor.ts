@@ -1,5 +1,5 @@
 import {DirectionalLight, Quaternion, Vector3} from 'three';
-import {computed, defineComponent, onMounted, ref, toRaw, watch} from 'vue';
+import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
@@ -39,8 +39,10 @@ export default defineComponent({
         const renderLoop = new RenderLoop(function () {
             editorContext.value?.update();
         });
-        const modelTreePanelWidth = ref(250);
-        const modelNodePropertiesPanelWidth = ref(250);
+
+        const modelTreePanelWidth = ref(200);
+        const modelNodePropertiesPanelWidth = ref(200);
+
         const filename = ref<string | null>(null);
         let fileHandle: FileSystemFileHandle | null = null;
 
@@ -145,6 +147,7 @@ export default defineComponent({
             if (await historyConfirm()) {
                 try {
                     showFullscreenLoading();
+                    await nextTick();
                     const file = await fileHandle.getFile();
                     filename.value = file.name;
                     const data = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
@@ -190,6 +193,7 @@ export default defineComponent({
             }
             try {
                 showFullscreenLoading();
+                await nextTick();
                 const stream = await fileHandle.createWritable({keepExistingData: false});
                 await stream.write(new ProjectWriter().write(editorContext.value!).getBytes());
                 await stream.close();
@@ -317,6 +321,9 @@ export default defineComponent({
         }
 
         function onDelete(e?: KeyboardEvent) {
+            if (e?.key === 'Backspace') {
+                return;
+            }
             if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
                 return;
             }

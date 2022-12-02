@@ -8,28 +8,28 @@ import ModelNode from '../ModelNode';
 import ModelNodeChangedWatcher from '../ModelNodeChangedWatcher';
 import ModelNodeComponent from '../ModelNodeComponent';
 
-const targets = [CPosition, CRotation, CScale];
+const transformComponents = [CPosition, CRotation, CScale];
 
 export default class TransformWatcher implements ModelNodeChangedWatcher {
 
     onValueChanged(model: Model, node: ModelNode, componentClass: Class<ModelNodeComponent<any>>): void {
-        if (targets.includes(componentClass)) {
+        if (transformComponents.includes(componentClass)) {
             if (node.has(CObject3D)) {
                 node.dirty = true;
-                node.get(CObject3D).transformChanged = true;
+                const cObject3D = node.get(CObject3D);
+                cObject3D.localTransformChanged = true;
+                cObject3D.worldTransformChanged = true;
             }
         }
     }
 
     onMoved(model: Model, node: ModelNode, oldParent: ModelNode | null, newParent: ModelNode | null): void {
-        node.forEach(node => {
-            if (node.has(CObject3D)) {
-                node.dirty = true;
-                const cObject3D = node.get(CObject3D);
-                cObject3D.parentChanged = true;
-                cObject3D.transformChanged = true;
-            }
-        });
+        if (node.has(CObject3D)) {
+            node.dirty = true;
+            const cObject3D = node.get(CObject3D);
+            cObject3D.parentChanged = true;
+            cObject3D.worldTransformChanged = true;
+        }
     }
 
     onChildAdded(model: Model, node: ModelNode, child: ModelNode): void {
