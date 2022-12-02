@@ -13,6 +13,9 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     },
     label: 'Rotation',
     inputComponent: InputEuler,
+    clone(val: Euler) {
+        return new Euler().copy(val);
+    },
     serialize(val: Euler) {
         return [val.x, val.y, val.z];
     },

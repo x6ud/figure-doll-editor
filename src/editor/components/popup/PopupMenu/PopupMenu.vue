@@ -5,8 +5,9 @@
             @mousedown.stop="onTriggerMouseDown"
             @mouseover="onTriggerMouseOver"
             ref="trigger"
+            v-if="title"
     >
-        <slot name="trigger"/>
+        {{ title }}
     </button>
 
     <teleport to="body">

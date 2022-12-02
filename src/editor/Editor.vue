@@ -5,26 +5,26 @@
          @keydown.ctrl.y="onRedo"
          @keydown.ctrl.o.prevent="onOpen"
          @keydown.ctrl.s.prevent="onSave"
+         @keydown.ctrl.x="onCut"
+         @keydown.ctrl.c="onCopy"
+         @keydown.ctrl.v="onPaste"
          @contextmenu.prevent
          ref="dom"
     >
         <div class="toolbar">
             <template v-if="editorContext">
-                <popup-menu>
-                    <template #trigger>File</template>
+                <popup-menu title="File">
                     <popup-menu-item title="New" @click="onNew"/>
                     <popup-menu-item title="Open" popup hotkey="Ctrl+O" @click="onOpen"/>
                     <popup-menu-item sep/>
                     <popup-menu-item title="Save" hotkey="Ctrl+S" @click="onSave"/>
                     <popup-menu-item title="Save As" popup hotkey="Shirt+Ctrl+S" @click="onSaveAs"/>
                 </popup-menu>
-                <popup-menu>
-                    <template #trigger>Edit</template>
+                <popup-menu title="Edit">
                     <popup-menu-item title="Undo" hotkey="Ctrl+Z" @click="onUndo"/>
                     <popup-menu-item title="Redo" hotkey="Ctrl+Y" @click="onRedo"/>
                 </popup-menu>
-                <popup-menu>
-                    <template #trigger>View</template>
+                <popup-menu title="View">
                     <popup-menu-item title="Grids"
                                      :checked="editorContext.showGrids"
                                      @click="editorContext.showGrids = !editorContext.showGrids"
@@ -45,9 +45,12 @@
                 <div class="rows" style="width: 100%; height: 100%;"
                      v-if="editorContext"
                 >
-                    <div class="toolbar">
-                        <popup-menu :disabled="!validChildNodeDefs.length">
-                            <template #trigger>Add</template>
+                    <div class="toolbar"
+                         @click.self="onSelect([])"
+                    >
+                        <popup-menu title="Add"
+                                    :disabled="!validChildNodeDefs.length"
+                        >
                             <popup-menu-item v-for="def in validChildNodeDefs"
                                              :key="def.name"
                                              :title="def.label"
@@ -65,6 +68,10 @@
                                 @select="onSelect"
                                 @set-value="onSetValue"
                                 @move-node="onMoveNode"
+                                @focus="onFocus"
+                                @cut="onCut"
+                                @copy="onCopy"
+                                @paste="onPaste"
                     />
                 </div>
             </side-panel>

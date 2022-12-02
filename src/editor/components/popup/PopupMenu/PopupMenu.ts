@@ -8,6 +8,7 @@ let topMenus: PopupMenuContext[] = [];
 
 export default defineComponent({
     props: {
+        title: String,
         triggerBy: {
             type: String,
             default: 'mousedown'
@@ -75,7 +76,7 @@ export default defineComponent({
             }
         }
 
-        async function show(trigger: HTMLElement, position: string) {
+        async function show(trigger: HTMLElement, position: string | { x: number, y: number }) {
             if (props.disabled) {
                 return;
             }
@@ -102,15 +103,20 @@ export default defineComponent({
             let y: number;
             const width = rect.right - rect.left;
             const height = rect.bottom - rect.top;
-            switch (position) {
-                case 'bottom':
-                    x = targetRect.left;
-                    y = targetRect.bottom;
-                    break;
-                default:
-                    x = targetRect.right;
-                    y = targetRect.top;
-                    break;
+            if (typeof position === 'object') {
+                x = position.x;
+                y = position.y;
+            } else {
+                switch (position) {
+                    case 'bottom':
+                        x = targetRect.left;
+                        y = targetRect.bottom;
+                        break;
+                    default:
+                        x = targetRect.right;
+                        y = targetRect.top;
+                        break;
+                }
             }
             const newStyle: Style = {
                 width: Math.floor(width) + 'px',
@@ -150,6 +156,8 @@ export default defineComponent({
             style,
             scrollable,
             visible,
+            show,
+            hide,
         };
     }
 });

@@ -3,6 +3,7 @@
          :class="classnames"
          @mousedown.left="onMouseDown"
          @mousemove="onMouseMove"
+         @contextmenu.prevent="onContextMenu(node, $event)"
          ref="dom"
     >
         <div class="visibility">
@@ -39,6 +40,7 @@
                          :drop-position="dropPosition"
                          @drag-start="onDragStart"
                          @drag-over="onDragOver"
+                         @contextmenu="onContextMenu"
         />
     </template>
 </template>

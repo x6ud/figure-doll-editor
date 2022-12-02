@@ -15,7 +15,16 @@
                          :drop-position="dropPosition"
                          @drag-start="onDragStart"
                          @drag-over="onDragOver"
+                         @contextmenu="onContextMenu"
         />
+
+        <popup-menu ref="contextMenu">
+            <popup-menu-item title="Focus" @click="onFocus"/>
+            <popup-menu-item sep/>
+            <popup-menu-item title="Cut" hotkey="Ctrl+X" @click="onCut"/>
+            <popup-menu-item title="Copy" hotkey="Ctrl+C" @click="onCopy"/>
+            <popup-menu-item title="Paste" hotkey="Ctrl+V" @click="onPaste"/>
+        </popup-menu>
     </div>
 </template>
 

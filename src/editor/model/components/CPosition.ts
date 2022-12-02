@@ -13,6 +13,9 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     },
     label: 'Position',
     inputComponent: InputVector3,
+    clone(val: Vector3) {
+        return new Vector3().copy(val);
+    },
     serialize(val: Vector3) {
         return [val.x, val.y, val.z];
     },

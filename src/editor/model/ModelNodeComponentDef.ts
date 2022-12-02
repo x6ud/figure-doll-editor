@@ -18,6 +18,7 @@ export type ModelNodeComponentDef = {
     label?: string;
     inputComponent?: Component;
     inputComponentProps?: { [prop: string]: any };
+    clone?: (val: any) => any;
     serialize?: (val: any) => any;
     deserialize?: (val: any) => any;
 };

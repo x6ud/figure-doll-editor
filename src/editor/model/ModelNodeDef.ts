@@ -14,7 +14,6 @@ export type ModelNodeDef = {
     label: string;
     components: Class<ModelNodeComponent<any>>[];
     canBeRoot: boolean;
-    unique: boolean;
     validChildTypes: string[];
 };
 
@@ -24,7 +23,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Container',
         components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D],
         canBeRoot: true,
-        unique: false,
         validChildTypes: ['Container', 'Image'],
     },
     {
@@ -32,7 +30,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Image',
         components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D, CImage],
         canBeRoot: true,
-        unique: false,
         validChildTypes: [],
     },
 ];
@@ -52,12 +49,5 @@ export function getModelNodeDef(name: string): ModelNodeDef {
 
 export function getValidChildNodeDefs(node: ModelNode) {
     const def = getModelNodeDef(node.type);
-    return def.validChildTypes
-        .map(getModelNodeDef)
-        .filter(def => {
-            if (def.unique) {
-                return !node.children.find(child => child.type === def.name);
-            }
-            return true;
-        });
+    return def.validChildTypes.map(getModelNodeDef);
 }

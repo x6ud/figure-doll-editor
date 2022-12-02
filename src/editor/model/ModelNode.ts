@@ -2,8 +2,22 @@ import {Matrix4} from 'three';
 import Class from '../../common/type/Class';
 import CObject3D from './components/CObject3D';
 import ModelNodeComponent from './ModelNodeComponent';
+import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 
 const UNIT_MAT4 = new Matrix4();
+
+export type ModelNodeChildJson = {
+    type: string;
+    data?: { [name: string]: any };
+    children?: ModelNodeChildJson[];
+}
+
+export type ModelNodeJson = {
+    type: string;
+    parentId?: number;
+    data?: { [name: string]: any };
+    children?: ModelNodeChildJson[];
+};
 
 export default class ModelNode {
     id: number = 0;
@@ -31,14 +45,16 @@ export default class ModelNode {
         return this.get(componentClass).value;
     }
 
-    forEach(callback: (node: ModelNode) => void) {
+    forEach(callback: (node: ModelNode) => void | boolean): void | boolean {
         const stack: ModelNode[] = [this];
         for (; ;) {
             const node = stack.pop();
             if (!node) {
                 break;
             }
-            callback(node);
+            if (callback(node) === false) {
+                return false;
+            }
             stack.push(...node.children);
         }
     }
@@ -54,5 +70,26 @@ export default class ModelNode {
             return this.parent.getWorldMatrix();
         }
         return UNIT_MAT4;
+    }
+
+    toJson(): ModelNodeJson {
+        return {
+            type: this.type,
+            parentId: this.parent?.id,
+            data: this.getDataJson(),
+            children: this.children.map(node => node.toJson())
+        };
+    }
+
+    getDataJson(): { [name: string]: any } {
+        const ret: { [name: string]: any } = {};
+        for (let componentName in this.components) {
+            const componentDef = getModelNodeComponentDef(componentName);
+            if (componentDef.storable) {
+                const component = this.components[componentName];
+                ret[componentName] = componentDef.clone ? componentDef.clone(component.value) : component.value;
+            }
+        }
+        return ret;
     }
 }

@@ -1,4 +1,4 @@
-import {DirectionalLight} from 'three';
+import {DirectionalLight, Quaternion, Vector3} from 'three';
 import {computed, defineComponent, onMounted, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
@@ -12,7 +12,7 @@ import QuadView from './components/QuadView/QuadView.vue';
 import SidePanel from './components/SidePanel/SidePanel.vue';
 import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
-import ModelNode from './model/ModelNode';
+import ModelNode, {ModelNodeJson} from './model/ModelNode';
 import ModelNodeComponent from './model/ModelNodeComponent';
 import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} from './model/ModelNodeDef';
 import ProjectReader from './ProjectReader';
@@ -318,22 +318,9 @@ export default defineComponent({
 
         function onRemoveNodes() {
             const model = editorContext.value!.model;
-            const targets: number[] = [];
-            for (let id of model.selected) {
-                const node = model.getNode(id);
-                let valid = true;
-                for (let parent = node.parent; parent; parent = parent.parent) {
-                    if (model.selected.includes(parent.id)) {
-                        valid = false;
-                        break;
-                    }
-                }
-                if (valid) {
-                    targets.push(id);
-                }
-            }
-            for (let id of targets) {
-                editorContext.value!.history.removeNode(id);
+            const targets = model.getTopmostSelectedNodes();
+            for (let node of targets) {
+                editorContext.value!.history.removeNode(node.id);
             }
             focus();
         }
@@ -347,6 +334,80 @@ export default defineComponent({
         function onSetNodeProperty(items: { node: ModelNode, type: Class<ModelNodeComponent<any>>, value: any }[]) {
             for (let item of items) {
                 editorContext.value!.history.setValue(item.node, item.type, item.value);
+            }
+            focus();
+        }
+
+        function onFocus(node?: ModelNode) {
+            if (!node) {
+                return;
+            }
+            const position = new Vector3();
+            const rotation = new Quaternion();
+            const scale = new Vector3();
+            node.getWorldMatrix().decompose(position, rotation, scale);
+            for (let view of editorContext.value!.views) {
+                view.camera.target.copy(position);
+            }
+        }
+
+        let clipboardContent: ModelNodeJson[] = [];
+
+        function onCut(e?: KeyboardEvent) {
+            if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
+                return;
+            }
+            const targets = editorContext.value!.model.getTopmostSelectedNodes();
+            clipboardContent = targets.map(node => node.toJson());
+            for (let node of targets) {
+                editorContext.value!.history.removeNode(node.id);
+            }
+            focus();
+        }
+
+        function onCopy(e?: KeyboardEvent) {
+            if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
+                return;
+            }
+            const targets = editorContext.value!.model.getTopmostSelectedNodes();
+            clipboardContent = targets.map(node => node.toJson());
+            focus();
+        }
+
+        function onPaste(e?: ModelNode | KeyboardEvent) {
+            if (!clipboardContent.length) {
+                return;
+            }
+            if (e && 'target' in e && (e.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
+                return;
+            }
+            let target: ModelNode | undefined = e instanceof ModelNode ? e : undefined;
+            const model = editorContext.value!.model;
+            if (!target) {
+                model.forEach(node => {
+                    if (model.selected.includes(node.id)) {
+                        target = node;
+                        return false;
+                    }
+                });
+            }
+            model.selected = [];
+            const history = editorContext.value!.history;
+            for (let item of clipboardContent) {
+                if (target) {
+                    if (getModelNodeDef(target.type).validChildTypes.includes(item.type)) {
+                        const json = {...item};
+                        json.parentId = target.id;
+                        history.createNode(json);
+                    }
+                } else {
+                    const nodeDef = getModelNodeDef(item.type);
+                    if (nodeDef.canBeRoot) {
+                        const json = {...item};
+                        json.parentId = undefined;
+                        history.createNode(json);
+                    }
+                }
             }
             focus();
         }
@@ -372,6 +433,10 @@ export default defineComponent({
             onRemoveNodes,
             onSelect,
             onSetNodeProperty,
+            onFocus,
+            onCut,
+            onCopy,
+            onPaste,
         };
     }
 });

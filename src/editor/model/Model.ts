@@ -2,6 +2,7 @@ import Class from '../../common/type/Class';
 import ModelNode from './ModelNode';
 import ModelNodeChangedWatcher from './ModelNodeChangedWatcher';
 import ModelNodeComponent from './ModelNodeComponent';
+import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 import {getModelNodeDef} from './ModelNodeDef';
 import ImageWatcher from './watchers/ImageWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
@@ -35,9 +36,11 @@ export default class Model {
         return this.nodesMap.has(id);
     }
 
-    forEach(callback: (node: ModelNode) => void) {
+    forEach(callback: (node: ModelNode) => void | boolean): void | boolean {
         for (let node of this.nodes) {
-            node.forEach(callback);
+            if (node.forEach(callback) === false) {
+                return false;
+            }
         }
     }
 
@@ -51,6 +54,24 @@ export default class Model {
 
     getSelectedNodes(): ModelNode[] {
         return this.selected.map(id => this.getNode(id));
+    }
+
+    getTopmostSelectedNodes(): ModelNode[] {
+        const ret: ModelNode[] = [];
+        for (let id of this.selected) {
+            const node = this.getNode(id);
+            let valid = true;
+            for (let parent = node.parent; parent; parent = parent.parent) {
+                if (this.selected.includes(parent.id)) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (valid) {
+                ret.push(node);
+            }
+        }
+        return ret;
     }
 
     createNode(
@@ -75,7 +96,8 @@ export default class Model {
             for (let name in data) {
                 const component = node.components[name];
                 if (component) {
-                    component.value = data[name];
+                    const componentDef = getModelNodeComponentDef(name);
+                    component.value = componentDef.clone ? componentDef.clone(data[name]) : data[name];
                 }
             }
         }

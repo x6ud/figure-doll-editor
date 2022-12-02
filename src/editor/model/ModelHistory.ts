@@ -4,7 +4,7 @@ import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
 import Model from './Model';
-import ModelNode from './ModelNode';
+import ModelNode, {ModelNodeChildJson, ModelNodeJson} from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
 import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 
@@ -15,19 +15,6 @@ type Record = {
     redo: () => void;
     undo: () => void;
 }
-
-type CreateChildNode = {
-    type: string;
-    data?: { [name: string]: any };
-    children?: CreateChildNode[];
-}
-
-type CreateNode = {
-    type: string;
-    parentId?: number;
-    data?: { [name: string]: any };
-    children?: CreateChildNode[];
-};
 
 export default class ModelHistory {
     private model: Model;
@@ -155,31 +142,31 @@ export default class ModelHistory {
         return id + 1;
     }
 
-    createNode(createNode: CreateNode) {
+    createNode(nodeJson: ModelNodeJson) {
         const nodeId = this.getNextNodeId();
         this.currentFrameRecords.push({
             hash: '$createNode',
             redo: () => {
                 let nextNodeId = nodeId;
                 // expand parents
-                if (createNode.parentId) {
-                    let parent: ModelNode | null = this.model.getNode(createNode.parentId);
+                if (nodeJson.parentId) {
+                    let parent: ModelNode | null = this.model.getNode(nodeJson.parentId);
                     for (; parent; parent = parent.parent) {
                         parent.expanded = true;
                     }
                 }
                 // create node
                 const node = this.model.createNode(
-                    nextNodeId,
-                    createNode.type,
-                    createNode.parentId ? this.model.getNode(createNode.parentId) : null,
+                    nextNodeId++,
+                    nodeJson.type,
+                    nodeJson.parentId ? this.model.getNode(nodeJson.parentId) : null,
                     null,
-                    createNode.data
+                    nodeJson.data
                 );
                 this.model.addSelection(node.id);
                 // create children
-                if (createNode.children) {
-                    const stack: [ModelNode, CreateChildNode[]][] = [[node, createNode.children]];
+                if (nodeJson.children) {
+                    const stack: [ModelNode, ModelNodeChildJson[]][] = [[node, nodeJson.children]];
                     for (; ;) {
                         const pair = stack.pop();
                         if (!pair) {
@@ -208,8 +195,8 @@ export default class ModelHistory {
         });
         this.enableMerge = false;
         this.nextNodeId = nodeId;
-        if (createNode.children) {
-            const stack: CreateChildNode[] = [...createNode.children];
+        if (nodeJson.children) {
+            const stack: ModelNodeChildJson[] = [...nodeJson.children];
             for (; ;) {
                 const child = stack.pop();
                 if (!child) {
@@ -234,7 +221,7 @@ export default class ModelHistory {
             type: string;
             parentId: number = 0;
             index: number = 0;
-            data: { [name: string]: any } = {};
+            data: { [name: string]: any };
             children: NodeRecord[];
 
             constructor(node: ModelNode, model: Model) {
@@ -245,13 +232,7 @@ export default class ModelHistory {
                 }
                 const list = node.parent ? node.parent.children : model.nodes;
                 this.index = list.indexOf(node);
-                for (let componentName in node.components) {
-                    const componentDef = getModelNodeComponentDef(componentName);
-                    if (componentDef.storable) {
-                        const component = node.components[componentName];
-                        this.data[componentName] = component.value;
-                    }
-                }
+                this.data = node.getDataJson();
                 this.children = node.children.map(child => new NodeRecord(child, model));
             }
         }

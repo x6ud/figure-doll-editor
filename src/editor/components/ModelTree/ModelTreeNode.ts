@@ -30,6 +30,7 @@ export default defineComponent({
         'setSelection',
         'dragStart',
         'dragOver',
+        'contextmenu',
     ],
     setup(props, ctx) {
         const dom = ref<HTMLElement>();
@@ -119,6 +120,10 @@ export default defineComponent({
             };
         });
 
+        function onContextMenu(node: ModelNode, e: PointerEvent) {
+            ctx.emit('contextmenu', props.node, e);
+        }
+
         return {
             dom,
             name,
@@ -134,6 +139,7 @@ export default defineComponent({
             onDragStart,
             onDragOver,
             classnames,
+            onContextMenu,
         };
     }
 });
