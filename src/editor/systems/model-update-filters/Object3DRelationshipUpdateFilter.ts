@@ -4,7 +4,7 @@ import CVisible from '../../model/components/CVisible';
 import ModelNode from '../../model/ModelNode';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
-export default class Object3DUpdateFilter implements ModelNodeUpdateFilter {
+export default class Object3DRelationshipUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
         if (node.has(CObject3D)) {
             const cObject3D = node.get(CObject3D);

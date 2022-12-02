@@ -1,12 +1,13 @@
 <template>
-    <div class="popup-menu-trigger"
-         :class="{disabled, active: visible}"
-         @mousedown.stop="onTriggerMouseDown"
-         @mouseover="onTriggerMouseOver"
-         ref="trigger"
+    <button class="popup-menu-trigger"
+            :class="{active: visible}"
+            :disabled="disabled"
+            @mousedown.stop="onTriggerMouseDown"
+            @mouseover="onTriggerMouseOver"
+            ref="trigger"
     >
         <slot name="trigger"/>
-    </div>
+    </button>
 
     <teleport to="body">
         <div v-if="visible"

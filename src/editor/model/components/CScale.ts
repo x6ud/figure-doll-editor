@@ -1,4 +1,4 @@
-import InputRange from '../../components/input/InputRange/InputRange.vue';
+import InputNumber from '../../components/input/InputNumber/InputNumber.vue';
 import ModelNodeComponent from '../ModelNodeComponent';
 import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 
@@ -9,8 +9,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
         return Math.abs(a - b) < 1e-8;
     },
     label: 'Scale',
-    inputComponent: InputRange,
-    inputComponentProps: {min: 0, max: 1, step: 0.01}
+    inputComponent: InputNumber
 })
 export default class CScale extends ModelNodeComponent<number> {
     value = 1.0;

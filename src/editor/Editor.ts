@@ -339,7 +339,7 @@ export default defineComponent({
         }
 
         function onSelect(ids: number[]) {
-            editorContext.value!.nextFrame(function () {
+            editorContext.value!.nextFrameEnd(function () {
                 editorContext.value!.model.selected = ids;
             });
         }

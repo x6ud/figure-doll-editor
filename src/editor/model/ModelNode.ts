@@ -13,6 +13,7 @@ export default class ModelNode {
     parent: ModelNode | null = null;
     children: ModelNode[] = [];
     dirty: boolean = true;
+    deleted: boolean = false;
 
     get<T extends ModelNodeComponent<any>>(componentClass: Class<T>): T {
         const component = this.components[componentClass.name];

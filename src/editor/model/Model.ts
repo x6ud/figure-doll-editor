@@ -3,6 +3,7 @@ import ModelNode from './ModelNode';
 import ModelNodeChangedWatcher from './ModelNodeChangedWatcher';
 import ModelNodeComponent from './ModelNodeComponent';
 import {getModelNodeDef} from './ModelNodeDef';
+import ImageWatcher from './watchers/ImageWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
 
 export default class Model {
@@ -11,6 +12,7 @@ export default class Model {
     nodes: ModelNode[] = [];
     watchers: ModelNodeChangedWatcher[] = [
         new TransformWatcher(),
+        new ImageWatcher(),
     ];
     dirty: boolean = true;
     selected: number[] = [];
@@ -98,6 +100,7 @@ export default class Model {
             return;
         }
         const node = this.getNode(id);
+        node.deleted = true;
         if (node.parent) {
             for (let watcher of this.watchers) {
                 watcher.onBeforeChildRemoved(this, node.parent, node);

@@ -1,4 +1,5 @@
 import {Euler} from 'three';
+import InputEuler from '../../components/input/InputEuler/InputEuler.vue';
 import ModelNodeComponent from '../ModelNodeComponent';
 import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 
@@ -11,6 +12,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
             && Math.abs(a.z - b.z) < 1e-8;
     },
     label: 'Rotation',
+    inputComponent: InputEuler,
     serialize(val: Euler) {
         return [val.x, val.y, val.z];
     },

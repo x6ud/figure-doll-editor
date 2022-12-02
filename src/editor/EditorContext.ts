@@ -8,7 +8,8 @@ import CallbackFireSystem from './systems/CallbackFireSystem';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
 import HistorySystem from './systems/HistorySystem';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
-import Object3DUpdateFilter from './systems/model-update-filters/Object3DUpdateFilter';
+import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
+import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
 import ModelUpdateSystem from './systems/ModelUpdateSystem';
 import MouseSystem from './systems/MouseSystem';
@@ -22,8 +23,9 @@ export default class EditorContext {
 
     systems: UpdateSystem<EditorContext>[] = [
         new ModelUpdateSystem([
+            new ImageUpdateFilter(),
             new ContainerUpdateFilter(),
-            new Object3DUpdateFilter(),
+            new Object3DRelationshipUpdateFilter(),
             new TransformUpdateFilter(),
         ]),
         new MouseSystem(),
@@ -126,7 +128,7 @@ export default class EditorContext {
         return toRaw(this);
     }
 
-    nextFrame(callback: () => void) {
+    nextFrameEnd(callback: () => void) {
         this.nextFrameCallbacks.push(callback);
     }
 

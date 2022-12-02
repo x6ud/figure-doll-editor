@@ -15,6 +15,10 @@ export default class CObject3D extends ModelNodeComponent<Object3D | null> {
             this.value.removeFromParent();
         }
     }
+
+    dispose() {
+        this.onRemoved();
+    }
 }
 
 function disposeObject3D(obj: Object3D) {
