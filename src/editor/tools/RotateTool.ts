@@ -1,16 +1,17 @@
-import {Matrix4, Vector3} from 'three';
+import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CPosition from '../model/components/CPosition';
+import CRotation from '../model/components/CRotation';
 import ModelNode from '../model/ModelNode';
-import {getTranslation} from '../utils/math';
+import {getRotation, getTranslation} from '../utils/math';
 import EditorTool from './EditorTool';
-import icon from './Translate.png';
+import icon from './Rotate.png';
 
 const _mat = new Matrix4();
 
-export default class TranslateTool extends EditorTool {
-    label = 'Translate';
+export default class RotateTool extends EditorTool {
+    label = 'Rotate';
     icon = icon;
 
     /** Selected topmost nodes with position component */
@@ -20,8 +21,8 @@ export default class TranslateTool extends EditorTool {
     /** Is control dragging previous frame */
     private dragging = false;
 
-    begin(ctx: EditorContext) {
-        this.nodes = ctx.model.getTopmostSelectedNodes().filter(node => node.has(CPosition));
+    begin(ctx: EditorContext): void {
+        this.nodes = ctx.model.getTopmostSelectedNodes().filter(node => node.has(CRotation));
         if (!this.nodes.length) {
             this.enableTransformControls = false;
             return;
@@ -33,6 +34,7 @@ export default class TranslateTool extends EditorTool {
                 ctx.dummyObject.quaternion,
                 ctx.dummyObject.scale
             );
+            getTranslation(ctx.dummyObject.position, this.nodes[0].getWorldMatrix());
             this.detMat.length = this.nodes.length - 1;
             if (this.detMat.length) {
                 _mat.copy(this.nodes[0].getWorldMatrix()).invert();
@@ -52,7 +54,7 @@ export default class TranslateTool extends EditorTool {
             return;
         }
         const control = view.transformControls;
-        control.setMode('translate');
+        control.setMode('rotate');
         if (control.dragging) {
             this.dragging = true;
             const matrix = ctx.dummyObject.matrix;
@@ -62,9 +64,11 @@ export default class TranslateTool extends EditorTool {
                 if (i > 0) {
                     _mat.multiply(this.detMat[i - 1]);
                 }
-                ctx.history.setValue(node, CPosition, getTranslation(new Vector3(), _mat));
+                ctx.history.setValue(node, CRotation, new Euler().setFromQuaternion(getRotation(new Quaternion(), _mat)));
+                if (i > 0) {
+                    ctx.history.setValue(node, CPosition, getTranslation(new Vector3(), _mat));
+                }
             }
         }
     }
-
 }

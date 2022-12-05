@@ -17,6 +17,7 @@ import RenderSystem from './systems/RenderSystem';
 import ToolSystem from './systems/ToolSystem';
 import CursorTool from './tools/CursorTool';
 import EditorTool from './tools/EditorTool';
+import RotateTool from './tools/RotateTool';
 import TranslateTool from './tools/TranslateTool';
 import Grids from './utils/geometry/Grids';
 import UpdateSystem from './utils/UpdateSystem';
@@ -40,6 +41,12 @@ export default class EditorContext {
         new CallbackFireSystem(),
     ];
 
+    tools: EditorTool[] = [
+        new CursorTool(),
+        new TranslateTool(),
+        new RotateTool(),
+    ];
+
     canvas: HTMLCanvasElement;
     renderer: WebGLRenderer;
     scene = new Scene();
@@ -51,22 +58,15 @@ export default class EditorContext {
     /** Used for setting transform control handler position */
     dummyObject = new Object3D();
 
+    model = new Model();
+    history = new ModelHistory(this.model);
     fps: number = 0;
     private lastTimestamp: number = 0;
+    tool: EditorTool = this.tools[0];
+    nextFrameCallbacks: (() => void)[] = [];
     quadView: boolean = true;
     showGrids: boolean = true;
     keepTransformUnchangedWhileMoving: boolean = true;
-
-    model = new Model();
-    history = new ModelHistory(this.model);
-    nextFrameCallbacks: (() => void)[] = [];
-
-    tools: EditorTool[] = [
-        new CursorTool(),
-        new TranslateTool(),
-    ];
-    /** Current active tool */
-    tool: EditorTool = this.tools[0];
 
     constructor(
         canvas: HTMLCanvasElement,
