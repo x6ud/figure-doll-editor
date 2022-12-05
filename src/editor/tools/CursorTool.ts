@@ -8,9 +8,6 @@ export default class CursorTool extends EditorTool {
     label = 'Cursor';
     icon = icon;
 
-    begin(ctx: EditorContext): void {
-    }
-
     update(ctx: EditorContext, view: EditorView): void {
         if (!view.input.mouseOver) {
             return;

@@ -6,7 +6,15 @@ export default abstract class EditorTool {
     abstract icon: string;
     enableTransformControls: boolean = false;
 
-    abstract begin(ctx: EditorContext): void;
+    setup(ctx: EditorContext): void {
+    }
 
-    abstract update(ctx: EditorContext, view: EditorView): void;
+    dispose(): void {
+    }
+
+    begin(ctx: EditorContext): void {
+    }
+
+    update(ctx: EditorContext, view: EditorView): void {
+    }
 }

@@ -30,7 +30,7 @@
                     <popup-menu-item title="Paste" hotkey="Ctrl+V" @click="onPaste"/>
                     <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"/>
                     <popup-menu-item sep/>
-                    <popup-menu-item title="Keep Global Position Unchanged while Moving Nodes"
+                    <popup-menu-item title="Keep Global Transformation Unchanged When Moving Nodes"
                                      @click="editorContext.keepTransformUnchangedWhileMoving = !editorContext.keepTransformUnchangedWhileMoving"
                                      :checked="editorContext.keepTransformUnchangedWhileMoving"
                     />

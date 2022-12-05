@@ -34,16 +34,15 @@ export default class RotateTool extends EditorTool {
                 ctx.dummyObject.quaternion,
                 ctx.dummyObject.scale
             );
-            getTranslation(ctx.dummyObject.position, this.nodes[0].getWorldMatrix());
             this.detMat.length = this.nodes.length - 1;
             if (this.detMat.length) {
                 _mat.copy(this.nodes[0].getWorldMatrix()).invert();
-            }
-            for (let i = 0; i < this.detMat.length; ++i) {
-                if (!this.detMat[i]) {
-                    this.detMat[i] = new Matrix4();
+                for (let i = 0; i < this.detMat.length; ++i) {
+                    if (!this.detMat[i]) {
+                        this.detMat[i] = new Matrix4();
+                    }
+                    this.detMat[i].multiplyMatrices(_mat, this.nodes[i + 1].getWorldMatrix());
                 }
-                this.detMat[i].multiplyMatrices(_mat, this.nodes[i + 1].getWorldMatrix());
             }
         }
         this.dragging = false;

@@ -17,6 +17,7 @@ import RenderSystem from './systems/RenderSystem';
 import ToolSystem from './systems/ToolSystem';
 import CursorTool from './tools/CursorTool';
 import EditorTool from './tools/EditorTool';
+import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
 import TranslateTool from './tools/TranslateTool';
 import Grids from './utils/geometry/Grids';
@@ -45,6 +46,7 @@ export default class EditorContext {
         new CursorTool(),
         new TranslateTool(),
         new RotateTool(),
+        new RescaleTool(),
     ];
 
     canvas: HTMLCanvasElement;
@@ -98,6 +100,9 @@ export default class EditorContext {
         this.scene.add(this.yzGrids);
         this.scene.add(this.xyGrids);
         this.scene.add(this.dummyObject);
+        for (let tool of this.tools) {
+            tool.setup(this);
+        }
     }
 
     dispose() {
@@ -105,6 +110,10 @@ export default class EditorContext {
         for (let view of this.views) {
             view.dispose();
         }
+        for (let tool of this.tools) {
+            tool.dispose();
+        }
+        this.renderer.dispose();
     }
 
     update() {
