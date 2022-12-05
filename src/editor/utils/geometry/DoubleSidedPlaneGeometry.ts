@@ -20,17 +20,20 @@ export default class DoubleSidedPlaneGeometry extends BufferGeometry {
         const normals: number[] = [];
         const uvs: number[] = [];
 
-        for (let iy = 0; iy < gridY1; iy++) {
-            const y = iy * segment_height - height_half;
-            for (let ix = 0; ix < gridX1; ix++) {
-                const x = ix * segment_width - width_half;
-                vertices.push(x, -y, 0);
-                normals.push(0, 0, 1);
-                uvs.push(ix / gridX);
-                uvs.push(1 - (iy / gridY));
+        for (let side = 0; side < 2; ++side) {
+            for (let iy = 0; iy < gridY1; iy++) {
+                const y = iy * segment_height - height_half;
+                for (let ix = 0; ix < gridX1; ix++) {
+                    const x = ix * segment_width - width_half;
+                    vertices.push(x, -y, 0);
+                    normals.push(0, 0, side === 0 ? 1 : -1);
+                    uvs.push(ix / gridX);
+                    uvs.push(1 - (iy / gridY));
+                }
             }
         }
 
+        const offset = gridX1 * gridY1;
         for (let iy = 0; iy < gridY; iy++) {
             for (let ix = 0; ix < gridX; ix++) {
                 const a = ix + gridX1 * iy;
@@ -40,8 +43,8 @@ export default class DoubleSidedPlaneGeometry extends BufferGeometry {
                 indices.push(a, b, d);
                 indices.push(b, c, d);
 
-                indices.push(a, d, c);
-                indices.push(a, c, b);
+                indices.push(a + offset, d + offset, c + offset);
+                indices.push(a + offset, c + offset, b + offset);
             }
         }
 

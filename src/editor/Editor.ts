@@ -1,4 +1,4 @@
-import {DirectionalLight, Vector3} from 'three';
+import {Vector3} from 'three';
 import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
@@ -90,12 +90,6 @@ export default defineComponent({
         ) {
             editorContext.value = new EditorContext(canvas, view1, view2, view3, view4);
             renderLoop.start();
-
-            const light = new DirectionalLight(0xffffff, 1.0);
-            light.position.x = 0.5;
-            light.position.z = 5;
-            editorContext.value.scene.add(light);
-
             (window as any).ctx = editorContext.value!;
         }
 

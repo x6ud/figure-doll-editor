@@ -1,4 +1,4 @@
-import {Raycaster, Vector2, Vector3} from 'three';
+import {DirectionalLight, Raycaster, Vector2, Vector3} from 'three';
 import {TransformControls} from 'three/examples/jsm/controls/TransformControls';
 import EditorContext from './EditorContext';
 import ArcRotateCamera from './utils/camera/ArcRotateCamera';
@@ -22,6 +22,7 @@ export default class EditorView {
     mouseRayN = new Vector3();
     raycaster = new Raycaster();
     transformControls: TransformControls;
+    defaultLight: DirectionalLight;
 
     constructor(ctx: EditorContext,
                 index: number,
@@ -32,12 +33,14 @@ export default class EditorView {
     ) {
         this.index = index;
         this.element = element;
+        this.input.setup(element);
         this.camera.alpha = alpha;
         this.camera.beta = beta;
         this.camera.perspective = perspective;
         this.transformControls = new TransformControls(this.camera.get(), element);
         ctx.scene.add(this.transformControls);
-        this.input.setup(element);
+        this.defaultLight = new DirectionalLight();
+        ctx.scene.add(this.defaultLight);
     }
 
     update() {
@@ -55,6 +58,7 @@ export default class EditorView {
 
     dispose() {
         this.transformControls.dispose();
+        this.defaultLight.dispose();
         this.input.unload();
     }
 }

@@ -13,6 +13,7 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
         for (let view of ctx.views) {
             for (let view2 of ctx.views) {
                 view2.transformControls.visible = view === view2 && ctx.tool.enableTransformControls;
+                view2.defaultLight.visible = view === view2;
             }
             if (view.enabled) {
                 if (view.width && view.height) {
