@@ -22,7 +22,7 @@ import EditorTool from './tools/EditorTool';
 import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
 import TranslateTool from './tools/TranslateTool';
-import GridsGeometry from './utils/geometry/GridsGeometry';
+import Grids from './utils/geometry/Grids';
 import UpdateSystem from './utils/UpdateSystem';
 
 const GRIDS_SIZE = 200;
@@ -58,9 +58,9 @@ export default class EditorContext {
     scene = new Scene();
     views: EditorView[];
     readonly mainViewIndex: number;
-    xzGrids: GridsGeometry;
-    yzGrids: GridsGeometry;
-    xyGrids: GridsGeometry;
+    xzGrids: Grids;
+    yzGrids: Grids;
+    xyGrids: Grids;
     /** Used for setting transform control handler position */
     dummyObject = new Object3D();
 
@@ -95,10 +95,10 @@ export default class EditorContext {
             // right
             new EditorView(this, 3, view4, 0, 0, false),
         ];
-        this.xzGrids = new GridsGeometry(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555);
-        this.yzGrids = new GridsGeometry(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x6FA51B, 0x555555);
+        this.xzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555);
+        this.yzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x6FA51B, 0x555555);
         this.yzGrids.rotateX(Math.PI / 2);
-        this.xyGrids = new GridsGeometry(GRIDS_SIZE, GRIDS_SIZE, 0x6FA51B, 0x2F83E3, 0x555555);
+        this.xyGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0x6FA51B, 0x2F83E3, 0x555555);
         this.xyGrids.rotateZ(Math.PI / 2);
         this.scene.add(this.xzGrids);
         this.scene.add(this.yzGrids);

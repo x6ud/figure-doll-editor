@@ -1,6 +1,6 @@
 import {BufferGeometry, Color, Float32BufferAttribute, LineBasicMaterial, LineSegments, Material} from 'three';
 
-export default class GridsGeometry extends LineSegments {
+export default class Grids extends LineSegments {
     constructor(size = 10, divisions = 10, color1_ = 0x444444, color2_ = 0x444444, color3_ = 0x888888) {
         const color1 = new Color(color1_);
         const color2 = new Color(color2_);
