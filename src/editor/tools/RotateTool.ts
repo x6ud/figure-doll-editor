@@ -14,7 +14,7 @@ export default class RotateTool extends EditorTool {
     label = 'Rotate';
     icon = icon;
 
-    /** Selected topmost nodes with position component */
+    /** Selected topmost nodes with rotation component */
     private nodes: ModelNode[] = [];
     /** The difference world matrices of other nodes relative to the first node */
     private detMat: Matrix4[] = [];
@@ -66,7 +66,9 @@ export default class RotateTool extends EditorTool {
                 }
                 ctx.history.setValue(node, CRotation, new Euler().setFromQuaternion(getRotation(new Quaternion(), _mat)));
                 if (i > 0) {
-                    ctx.history.setValue(node, CPosition, getTranslation(new Vector3(), _mat));
+                    if (node.has(CPosition)) {
+                        ctx.history.setValue(node, CPosition, getTranslation(new Vector3(), _mat));
+                    }
                 }
             }
         }
