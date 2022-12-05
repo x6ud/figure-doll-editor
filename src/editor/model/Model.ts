@@ -5,6 +5,7 @@ import ModelNodeComponent from './ModelNodeComponent';
 import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 import {getModelNodeDef} from './ModelNodeDef';
 import ImageWatcher from './watchers/ImageWatcher';
+import ObjWatcher from './watchers/ObjWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
 
 export default class Model {
@@ -14,6 +15,7 @@ export default class Model {
     watchers: ModelNodeChangedWatcher[] = [
         new TransformWatcher(),
         new ImageWatcher(),
+        new ObjWatcher(),
     ];
     dirty: boolean = true;
     selected: number[] = [];

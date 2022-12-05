@@ -1,6 +1,7 @@
 import Class from '../../common/type/Class';
 import CImage from './components/CImage';
 import CName from './components/CName';
+import CObj from './components/CObj';
 import CObject3D from './components/CObject3D';
 import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
@@ -23,7 +24,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Container',
         components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D],
         canBeRoot: true,
-        validChildTypes: ['Container', 'Image'],
+        validChildTypes: ['Container', 'Image', 'ObjModel'],
     },
     {
         name: 'Image',
@@ -32,6 +33,13 @@ export const modelNodeDefs: ModelNodeDef[] = [
         canBeRoot: true,
         validChildTypes: [],
     },
+    {
+        name: 'ObjModel',
+        label: 'OBJ Model',
+        components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D, CObj],
+        canBeRoot: true,
+        validChildTypes: [],
+    }
 ];
 
 const modelNodeDefMap: { [name: string]: ModelNodeDef } = {};

@@ -2,7 +2,8 @@ import {defineComponent, ref} from 'vue';
 
 export default defineComponent({
     props: {
-        value: String
+        value: String,
+        accept: String
     },
     emits: ['input'],
     setup(props, ctx) {
@@ -24,6 +25,7 @@ export default defineComponent({
                 reader.onerror = reject;
                 reader.readAsDataURL(file);
             });
+            input.value.value = '';
             ctx.emit('input', dataUrl);
         }
 

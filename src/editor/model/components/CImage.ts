@@ -1,13 +1,14 @@
 import {Texture} from 'three';
-import InputImage from '../../components/input/InputImage/InputImage.vue';
+import InputFileAsDataURL from '../../components/input/InputFileAsDataURL/InputFileAsDataURL.vue';
 import ModelNodeComponent from '../ModelNodeComponent';
 import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 
 @registerModelComponent({
     storable: true,
     dataType: DataType.STRING,
-    label: 'Image',
-    inputComponent: InputImage
+    label: 'Image File',
+    inputComponent: InputFileAsDataURL,
+    inputComponentProps: {accept: 'image/png, image/jpeg'}
 })
 export default class CImage extends ModelNodeComponent<string> {
     value = '';
