@@ -1,4 +1,5 @@
 import Class from '../../common/type/Class';
+import CBoxSize from './components/CBoxSize';
 import CImage from './components/CImage';
 import CName from './components/CName';
 import CObj from './components/CObj';
@@ -24,7 +25,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Container',
         components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D],
         canBeRoot: true,
-        validChildTypes: ['Container', 'Image', 'ObjModel'],
+        validChildTypes: ['Container', 'Image', 'ObjModel', 'Box'],
     },
     {
         name: 'Image',
@@ -37,6 +38,13 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'ObjModel',
         label: 'OBJ Model',
         components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D, CObj],
+        canBeRoot: true,
+        validChildTypes: [],
+    },
+    {
+        name: 'Box',
+        label: 'Box',
+        components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D, CBoxSize],
         canBeRoot: true,
         validChildTypes: [],
     }

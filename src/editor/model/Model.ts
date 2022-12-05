@@ -4,6 +4,7 @@ import ModelNodeChangedWatcher from './ModelNodeChangedWatcher';
 import ModelNodeComponent from './ModelNodeComponent';
 import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 import {getModelNodeDef} from './ModelNodeDef';
+import BoxWatcher from './watchers/BoxWatcher';
 import ImageWatcher from './watchers/ImageWatcher';
 import ObjWatcher from './watchers/ObjWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
@@ -16,6 +17,7 @@ export default class Model {
         new TransformWatcher(),
         new ImageWatcher(),
         new ObjWatcher(),
+        new BoxWatcher(),
     ];
     dirty: boolean = true;
     selected: number[] = [];

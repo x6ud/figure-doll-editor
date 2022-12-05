@@ -8,6 +8,7 @@ import CallbackFireSystem from './systems/CallbackFireSystem';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
 import DefaultLightUpdateSystem from './systems/DefaultLightUpdateSystem';
 import HistorySystem from './systems/HistorySystem';
+import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
@@ -17,6 +18,7 @@ import ModelUpdateSystem from './systems/ModelUpdateSystem';
 import MouseSystem from './systems/MouseSystem';
 import RenderSystem from './systems/RenderSystem';
 import ToolSystem from './systems/ToolSystem';
+import BoxTool from './tools/BoxTool';
 import CursorTool from './tools/CursorTool';
 import EditorTool from './tools/EditorTool';
 import RescaleTool from './tools/RescaleTool';
@@ -33,6 +35,7 @@ export default class EditorContext {
         new ModelUpdateSystem([
             new ImageUpdateFilter(),
             new ObjUpdateFilter(),
+            new BoxUpdateFilter(),
             new ContainerUpdateFilter(),
             new Object3DRelationshipUpdateFilter(),
             new TransformUpdateFilter(),
@@ -51,7 +54,11 @@ export default class EditorContext {
         new TranslateTool(),
         new RotateTool(),
         new RescaleTool(),
+        new BoxTool(),
     ];
+
+    /** Vue proxied reference. Used for updating ui. */
+    proxiedRef = this;
 
     canvas: HTMLCanvasElement;
     renderer: WebGLRenderer;
@@ -68,6 +75,7 @@ export default class EditorContext {
     history = new ModelHistory(this.model);
     fps: number = 0;
     private lastTimestamp: number = 0;
+    statusBarMessage: string = '';
     tool: EditorTool = this.tools[0];
     nextFrameCallbacks: (() => void)[] = [];
     quadView: boolean = true;

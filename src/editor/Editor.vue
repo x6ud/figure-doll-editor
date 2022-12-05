@@ -123,6 +123,10 @@
                        @set-view="onSetView"
             />
         </div>
+
+        <div class="status-bar">
+            {{ editorContext?.statusBarMessage }}
+        </div>
     </div>
 </template>
 
@@ -143,5 +147,13 @@
         height: 24px;
         margin: 4px 0 0 0;
     }
+}
+
+.status-bar {
+    height: 16px;
+    line-height: 16px;
+    font-size: 12px;
+    padding: 0 2px;
+    background: #111;
 }
 </style>

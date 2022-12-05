@@ -1,6 +1,7 @@
-import {BufferGeometry, Euler, Line, LineBasicMaterial, Matrix4, Quaternion, Vector3} from 'three';
+import {Box3, BufferGeometry, Euler, Line, LineBasicMaterial, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import CObject3D from '../model/components/CObject3D';
 import CPosition from '../model/components/CPosition';
 import CRotation from '../model/components/CRotation';
 import CScale from '../model/components/CScale';
@@ -17,6 +18,7 @@ const _mat1 = new Matrix4();
 const _pos = new Vector3();
 const _rot = new Quaternion();
 const _scale = new Vector3();
+const _box = new Box3();
 
 export default class RescaleTool extends EditorTool {
     label = 'Rescale';
@@ -90,6 +92,16 @@ export default class RescaleTool extends EditorTool {
                     if (i > 0) {
                         ctx.history.setValue(node, CPosition, new Vector3().copy(_pos));
                         ctx.history.setValue(node, CRotation, new Euler().setFromQuaternion(_rot));
+                    }
+                }
+                if (this.nodes[0].has(CObject3D)) {
+                    const object3D = this.nodes[0].value(CObject3D);
+                    if (object3D) {
+                        _box.setFromObject(object3D);
+                        const dx = (_box.max.x - _box.min.x).toFixed(2);
+                        const dy = (_box.max.y - _box.min.y).toFixed(2);
+                        const dz = (_box.max.z - _box.min.z).toFixed(2);
+                        ctx.proxiedRef.statusBarMessage = `${dx} × ${dy} × ${dz}`;
                     }
                 }
             } else {

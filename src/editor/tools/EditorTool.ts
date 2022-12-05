@@ -4,6 +4,7 @@ import EditorView from '../EditorView';
 export default abstract class EditorTool {
     abstract label: string;
     abstract icon: string;
+    tips: string = '';
     enableTransformControls: boolean = false;
 
     setup(ctx: EditorContext): void {

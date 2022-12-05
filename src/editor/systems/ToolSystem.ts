@@ -1,8 +1,11 @@
 import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
+import EditorTool from '../tools/EditorTool';
 import UpdateSystem from '../utils/UpdateSystem';
 
 export default class ToolSystem extends UpdateSystem<EditorContext> {
+
+    private prevTool?: EditorTool;
 
     begin(ctx: EditorContext): void {
         const tool = ctx.tool;
@@ -16,6 +19,10 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 }
                 tool.update(ctx, toRaw(view));
             }
+        }
+        if (this.prevTool !== tool) {
+            this.prevTool = tool;
+            ctx.statusBarMessage = tool.tips;
         }
     }
 

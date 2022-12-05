@@ -89,6 +89,7 @@ export default defineComponent({
             view4: HTMLElement,
         ) {
             editorContext.value = new EditorContext(canvas, view1, view2, view3, view4);
+            editorContext.value.proxiedRef = editorContext.value;
             renderLoop.start();
             (window as any).ctx = editorContext.value!;
         }
@@ -127,6 +128,7 @@ export default defineComponent({
                 fileHandle = null;
                 editorContext.value!.reset();
                 focus();
+                editorContext.value!.statusBarMessage = '';
             }
         }
 
@@ -141,6 +143,7 @@ export default defineComponent({
             }
             if (await historyConfirm()) {
                 try {
+                    editorContext.value!.statusBarMessage = 'Loading...';
                     showFullscreenLoading();
                     await nextTick();
                     const file = await fileHandle.getFile();
@@ -148,6 +151,9 @@ export default defineComponent({
                     const data = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
                     editorContext.value!.load(data);
                     focus();
+                    editorContext.value!.statusBarMessage = '';
+                } catch (e) {
+                    editorContext.value!.statusBarMessage = 'Failed to open file.';
                 } finally {
                     hideFullscreenLoading();
                 }
@@ -187,12 +193,16 @@ export default defineComponent({
                 return;
             }
             try {
+                editorContext.value!.statusBarMessage = 'Saving...';
                 showFullscreenLoading();
                 await nextTick();
                 const stream = await fileHandle.createWritable({keepExistingData: false});
                 await stream.write(new ProjectWriter().write(editorContext.value!).getBytes());
                 await stream.close();
                 editorContext.value!.history.save();
+                editorContext.value!.statusBarMessage = 'File saved.';
+            } catch (e) {
+                editorContext.value!.statusBarMessage = 'Failed to save file.';
             } finally {
                 hideFullscreenLoading();
             }
