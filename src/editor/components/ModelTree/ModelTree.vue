@@ -1,7 +1,7 @@
 <template>
     <div class="model-tree"
          @click.left.self="onSetSelection([])"
-         @contextmenu.prevent
+         @contextmenu.prevent="onContextMenu(undefined, $event)"
     >
         <model-tree-node v-for="node in model.nodes"
                          :key="node.id"
@@ -19,12 +19,20 @@
         />
 
         <popup-menu ref="contextMenu">
-            <popup-menu-item title="Focus" @click="onFocus"/>
+            <popup-menu-item title="Focus" @click="onFocus"
+                             :disabled="!contextMenuNode"
+            />
             <popup-menu-item sep/>
-            <popup-menu-item title="Cut" hotkey="Ctrl+X" @click="onCut"/>
-            <popup-menu-item title="Copy" hotkey="Ctrl+C" @click="onCopy"/>
+            <popup-menu-item title="Cut" hotkey="Ctrl+X" @click="onCut"
+                             :disabled="!model.selected.length"
+            />
+            <popup-menu-item title="Copy" hotkey="Ctrl+C" @click="onCopy"
+                             :disabled="!model.selected.length"
+            />
             <popup-menu-item title="Paste" hotkey="Ctrl+V" @click="onPaste"/>
-            <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"/>
+            <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"
+                             :disabled="!model.selected.length"
+            />
         </popup-menu>
     </div>
 </template>

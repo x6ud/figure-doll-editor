@@ -26,6 +26,9 @@ export default class ObjUpdateFilter implements ModelNodeUpdateFilter {
             cObject3D.dispose();
             cObject3D.value = new OBJLoader().parse(cObj.value);
             (cObject3D.value.userData as Object3DUserData) = {node};
+            for (let child of cObject3D.value.children) {
+                (child.userData as Object3DUserData) = {node};
+            }
             ctx.model.dirty = true;
             node.dirty = true;
             cObject3D.parentChanged = true;

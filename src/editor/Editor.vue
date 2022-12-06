@@ -128,6 +128,8 @@
             {{ editorContext?.statusBarMessage }}
         </div>
     </div>
+
+    <fullscreen-loading v-if="fullscreenLoading"/>
 </template>
 
 <script src="./Editor.ts"></script>

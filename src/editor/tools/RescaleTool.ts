@@ -101,7 +101,7 @@ export default class RescaleTool extends EditorTool {
                         const dx = (_box.max.x - _box.min.x).toFixed(2);
                         const dy = (_box.max.y - _box.min.y).toFixed(2);
                         const dz = (_box.max.z - _box.min.z).toFixed(2);
-                        ctx.proxiedRef.statusBarMessage = `${dx} × ${dy} × ${dz}`;
+                        ctx.statusBarMessage = `${dx} × ${dy} × ${dz}`;
                     }
                 }
             } else {

@@ -13,19 +13,15 @@ export default class CursorTool extends EditorTool {
             return;
         }
         if (view.input.mouseLeftDownThisFrame) {
-            const result = view.raycaster.intersectObjects(ctx.readonlyRef().scene.children.filter(
-                obj => !!(obj.userData as Object3DUserData).node
-            ));
-            if (result.length) {
-                const node = (result[0].object.userData as Object3DUserData).node!;
-                if (view.input.isKeyPressed('Control')) {
+            const result = view.mousePick();
+            if (!view.input.isKeyPressed('Control')) {
+                ctx.model.selected = [];
+            }
+            for (let obj of result) {
+                const node = (result[0].object.userData as Object3DUserData).node;
+                if (node) {
                     ctx.model.addSelection(node.id);
-                } else {
-                    ctx.model.selected = [node.id];
-                }
-            } else {
-                if (!view.input.isKeyPressed('Control')) {
-                    ctx.model.selected = [];
+                    break;
                 }
             }
         }

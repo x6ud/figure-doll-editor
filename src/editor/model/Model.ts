@@ -36,7 +36,11 @@ export default class Model {
         }
     }
 
-    isNodeExists(id: number): boolean {
+    isNodeExists(id: number, type?: string): boolean {
+        if (type) {
+            const node = this.nodesMap.get(id);
+            return node?.type === type;
+        }
         return this.nodesMap.has(id);
     }
 

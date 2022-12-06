@@ -57,9 +57,6 @@ export default class EditorContext {
         new BoxTool(),
     ];
 
-    /** Vue proxied reference. Used for updating ui. */
-    proxiedRef = this;
-
     canvas: HTMLCanvasElement;
     renderer: WebGLRenderer;
     scene = new Scene();

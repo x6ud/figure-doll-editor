@@ -46,7 +46,7 @@ export default class BoxEdge extends LineSegments {
         this.type = 'BoxEdge';
     }
 
-    updateVertices() {
+    updateGeometry() {
         const position = this.geometry.attributes.position as BufferAttribute;
         const array = position.array as Float32Array;
         _a0.copy(this.point1);

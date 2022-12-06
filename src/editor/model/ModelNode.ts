@@ -62,6 +62,19 @@ export default class ModelNode {
         }
     }
 
+    getLocalMatrix(): Matrix4 {
+        if (this.has(CObject3D)) {
+            const obj = this.value(CObject3D);
+            if (obj) {
+                return obj.matrix;
+            }
+        }
+        if (this.parent) {
+            return this.parent.getLocalMatrix();
+        }
+        return UNIT_MAT4;
+    }
+
     getWorldMatrix(): Matrix4 {
         if (this.has(CObject3D)) {
             const obj = this.value(CObject3D);

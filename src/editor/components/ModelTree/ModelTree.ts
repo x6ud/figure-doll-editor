@@ -61,10 +61,10 @@ export default defineComponent({
             ctx.emit('select', ids);
         }
 
-        let contextMenuNode: ModelNode | null = null;
+        const contextMenuNode = ref<ModelNode>();
 
-        function onContextMenu(node: ModelNode, e: PointerEvent) {
-            contextMenuNode = node;
+        function onContextMenu(node: ModelNode | undefined, e: PointerEvent) {
+            contextMenuNode.value = node;
             contextMenu.value!.show(
                 e.target as HTMLElement,
                 {x: e.clientX, y: e.clientY}
@@ -72,7 +72,7 @@ export default defineComponent({
         }
 
         function onFocus() {
-            ctx.emit('focus', contextMenuNode);
+            ctx.emit('focus', contextMenuNode.value);
         }
 
         function onCut() {
@@ -84,7 +84,7 @@ export default defineComponent({
         }
 
         function onPaste() {
-            ctx.emit('paste', contextMenuNode);
+            ctx.emit('paste', contextMenuNode.value);
         }
 
         function onDelete() {
@@ -101,6 +101,7 @@ export default defineComponent({
             onDragStart,
             onDragOver,
             onContextMenu,
+            contextMenuNode,
             onFocus,
             onCut,
             onCopy,

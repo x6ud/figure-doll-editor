@@ -3,7 +3,7 @@ import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
-import {hideFullscreenLoading, showFullscreenLoading} from './components/FullscreenLoading/loading';
+import FullscreenLoading from './components/FullscreenLoading/FullscreenLoading.vue';
 import ModelNodeProperties from './components/ModelNodeProperties/ModelNodeProperties.vue';
 import ModelTree from './components/ModelTree/ModelTree.vue';
 import PopupMenu from './components/popup/PopupMenu/PopupMenu.vue';
@@ -25,8 +25,10 @@ const filePickerAcceptType: FilePickerAcceptType = {
     accept: {'application/puppet-editor': [extension]}
 };
 
+
 export default defineComponent({
     components: {
+        FullscreenLoading,
         ModelNodeProperties,
         ModelTree,
         PopupMenu,
@@ -41,6 +43,7 @@ export default defineComponent({
             editorContext.value?.update();
         });
 
+        const fullscreenLoading = ref(false);
         const modelTreePanelWidth = ref(200);
         const modelNodePropertiesPanelWidth = ref(200);
 
@@ -89,9 +92,8 @@ export default defineComponent({
             view4: HTMLElement,
         ) {
             editorContext.value = new EditorContext(canvas, view1, view2, view3, view4);
-            editorContext.value.proxiedRef = editorContext.value;
             renderLoop.start();
-            (window as any).ctx = editorContext.value!;
+            const ctx = (window as any).ctx = editorContext.value!;
         }
 
         function onBeforeCanvasUnmount() {
@@ -144,7 +146,7 @@ export default defineComponent({
             if (await historyConfirm()) {
                 try {
                     editorContext.value!.statusBarMessage = 'Loading...';
-                    showFullscreenLoading();
+                    fullscreenLoading.value = true;
                     await nextTick();
                     const file = await fileHandle.getFile();
                     filename.value = file.name;
@@ -155,7 +157,7 @@ export default defineComponent({
                 } catch (e) {
                     editorContext.value!.statusBarMessage = 'Failed to open file.';
                 } finally {
-                    hideFullscreenLoading();
+                    fullscreenLoading.value = false;
                 }
             }
         }
@@ -194,7 +196,7 @@ export default defineComponent({
             }
             try {
                 editorContext.value!.statusBarMessage = 'Saving...';
-                showFullscreenLoading();
+                fullscreenLoading.value = true;
                 await nextTick();
                 const stream = await fileHandle.createWritable({keepExistingData: false});
                 await stream.write(new ProjectWriter().write(editorContext.value!).getBytes());
@@ -204,7 +206,7 @@ export default defineComponent({
             } catch (e) {
                 editorContext.value!.statusBarMessage = 'Failed to save file.';
             } finally {
-                hideFullscreenLoading();
+                fullscreenLoading.value = false;
             }
         }
 
@@ -434,6 +436,7 @@ export default defineComponent({
         return {
             dom,
             editorContext,
+            fullscreenLoading,
             modelTreePanelWidth,
             modelNodePropertiesPanelWidth,
             validChildNodeDefs,

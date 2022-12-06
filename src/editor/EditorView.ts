@@ -1,10 +1,12 @@
 import {DirectionalLight, Raycaster, Vector2, Vector3} from 'three';
 import {TransformControls} from 'three/examples/jsm/controls/TransformControls';
 import EditorContext from './EditorContext';
+import {Object3DUserData} from './model/components/CObject3D';
 import ArcRotateCamera from './utils/camera/ArcRotateCamera';
 import Input from './utils/Input';
 
 export default class EditorView {
+    ctx: EditorContext;
     index: number;
     enabled: boolean = true;
     element: HTMLElement;
@@ -31,6 +33,7 @@ export default class EditorView {
                 beta: number = 0,
                 perspective: boolean = true
     ) {
+        this.ctx = ctx;
         this.index = index;
         this.element = element;
         this.input.setup(element);
@@ -60,5 +63,11 @@ export default class EditorView {
         this.transformControls.dispose();
         this.defaultLight.dispose();
         this.input.unload();
+    }
+
+    mousePick() {
+        return this.raycaster.intersectObjects(this.ctx.readonlyRef().scene.children.filter(
+            obj => obj.visible && !!(obj.userData as Object3DUserData).node
+        ));
     }
 }
