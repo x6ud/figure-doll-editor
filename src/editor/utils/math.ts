@@ -50,6 +50,11 @@ export function getScale(out: Vector3, matrix: Matrix4) {
     return out;
 }
 
+export function getScaleScalar(matrix: Matrix4) {
+    matrix.decompose(_decomposeTranslation, _decomposeRotation, _decomposeScale);
+    return _decomposeScale.x;
+}
+
 export function closestPointsBetweenTwoLines(
     out1: Vector3 | null, out2: Vector3 | null,
     p1: Vector3, n1: Vector3, p2: Vector3, n2: Vector3
@@ -146,3 +151,20 @@ export function closestPointsBetweenTwoLines(
     }
     return parallel;
 }
+
+export const quatFromForwardUp = (function () {
+    const _a = new Vector3();
+    const _b = new Vector3();
+    const _mat = new Matrix4();
+    return function (out: Quaternion, forward: Vector3, up: Vector3) {
+        _a.crossVectors(up, forward).normalize();
+        _b.crossVectors(forward, _a).normalize();
+        _mat.set(
+            _a.x, _a.y, _a.z, 0,
+            _b.x, _b.y, _b.z, 0,
+            forward.x, forward.y, forward.z, 0,
+            0, 0, 0, 1
+        ).transpose();
+        return out.setFromRotationMatrix(_mat);
+    };
+})();

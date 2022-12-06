@@ -67,4 +67,8 @@ export default class TranslateTool extends EditorTool {
             }
         }
     }
+
+    onUnselected(ctx: EditorContext) {
+        this.dragging = false;
+    }
 }

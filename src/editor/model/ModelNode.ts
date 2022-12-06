@@ -3,6 +3,7 @@ import Class from '../../common/type/Class';
 import CObject3D from './components/CObject3D';
 import ModelNodeComponent from './ModelNodeComponent';
 import {getModelNodeComponentDef} from './ModelNodeComponentDef';
+import {getValidChildNodeDefs} from './ModelNodeDef';
 
 const UNIT_MAT4 = new Matrix4();
 
@@ -111,5 +112,9 @@ export default class ModelNode {
             }
         }
         return ret;
+    }
+
+    isValidChild(type: string) {
+        return !!getValidChildNodeDefs(this).find(def => def.name === type);
     }
 }

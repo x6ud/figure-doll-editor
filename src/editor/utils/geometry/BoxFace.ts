@@ -87,24 +87,73 @@ export default class BoxFace extends Mesh {
 
     setFaceFromNormal(normal: Vector3) {
         if (normal.x < -1e-6) {
-            this.face = BoxFace.Left;
+            this.setFace(BoxFace.Left);
         } else if (normal.x > 1e-6) {
-            this.face = BoxFace.Right;
+            this.setFace(BoxFace.Right);
         } else if (normal.y < -1e-6) {
-            this.face = BoxFace.Bottom;
+            this.setFace(BoxFace.Bottom);
         } else if (normal.y > 1e-6) {
-            this.face = BoxFace.Top;
+            this.setFace(BoxFace.Top);
         } else if (normal.z < -1e-6) {
-            this.face = BoxFace.Back;
+            this.setFace(BoxFace.Back);
         } else {
-            this.face = BoxFace.Front;
+            this.setFace(BoxFace.Front);
         }
+    }
+
+    getFaceNormal(out: Vector3): Vector3 {
+        switch (this.face) {
+            case BoxFace.Left:
+                out.set(-1, 0, 0);
+                break;
+            case BoxFace.Right:
+                out.set(1, 0, 0);
+                break;
+            case BoxFace.Bottom:
+                out.set(0, -1, 0);
+                break;
+            case BoxFace.Top:
+                out.set(0, 1, 0);
+                break;
+            case BoxFace.Back:
+                out.set(0, 0, -1);
+                break;
+            case BoxFace.Front:
+                out.set(0, 0, 1);
+                break;
+        }
+        return out;
+    }
+
+    getFaceTangent(out: Vector3): Vector3 {
+        switch (this.face) {
+            case BoxFace.Left:
+                out.set(0, 0, -1);
+                break;
+            case BoxFace.Right:
+                out.set(0, 0, 1);
+                break;
+            case BoxFace.Bottom:
+                out.set(-1, 0, 0);
+                break;
+            case BoxFace.Top:
+                out.set(1, 0, 0);
+                break;
+            case BoxFace.Back:
+                out.set(0, -1, 0);
+                break;
+            case BoxFace.Front:
+                out.set(0, 1, 0);
+                break;
+        }
+        return out;
     }
 
     updateGeometry() {
         if (!this.dirty) {
             return;
         }
+        this.dirty = false;
         _o.copy(this.size).multiplyScalar(-0.5);
         _dx.set(this.size.x, 0, 0);
         _dy.set(0, this.size.y, 0);

@@ -73,4 +73,8 @@ export default class RotateTool extends EditorTool {
             }
         }
     }
+
+    onUnselected(ctx: EditorContext) {
+        this.dragging = false;
+    }
 }

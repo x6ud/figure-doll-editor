@@ -136,4 +136,9 @@ export default class RescaleTool extends EditorTool {
             }
         }
     }
+
+    onUnselected(ctx: EditorContext) {
+        this.dragging = false;
+        this.line.visible = false;
+    }
 }

@@ -1,12 +1,14 @@
-import {Matrix4, Vector3} from 'three';
+import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CBoxSize from '../model/components/CBoxSize';
 import {Object3DUserData} from '../model/components/CObject3D';
 import CPosition from '../model/components/CPosition';
+import CRotation from '../model/components/CRotation';
+import ModelNode from '../model/ModelNode';
 import BoxEdge from '../utils/geometry/BoxEdge';
 import BoxFace from '../utils/geometry/BoxFace';
-import {closestPointsBetweenTwoLines} from '../utils/math';
+import {closestPointsBetweenTwoLines, getScaleScalar, linePanelIntersection, quatFromForwardUp} from '../utils/math';
 import icon from './Box.png';
 import EditorTool from './EditorTool';
 
@@ -18,6 +20,13 @@ const _boxSize = new Vector3();
 const _range0 = new Vector3();
 const _range1 = new Vector3();
 const _cross = new Vector3();
+const _normal = new Vector3();
+const _invMat = new Matrix4();
+const _local2 = new Vector3();
+const _local3 = new Vector3();
+const _nx = new Vector3();
+const _ny = new Vector3();
+const _nz = new Vector3();
 
 const SNAP = 0.25;
 
@@ -29,8 +38,9 @@ export default class BoxTool extends EditorTool {
     private boxEdge = new BoxEdge();
     private boxFace = new BoxFace();
 
+    private activeViewIndex = -1;
+
     private draggingFace = false;
-    private draggingFaceViewIndex = -1;
     private draggingFaceNodeId = 0;
     private draggingFaceIndex = 0;
     private draggingFaceNormal = new Vector3();
@@ -42,6 +52,14 @@ export default class BoxTool extends EditorTool {
     private mouse0 = new Vector3();
     private local0 = new Vector3();
 
+    private creating = false;
+    private point2Set = false;
+    private point1 = new Vector3();
+    private point2 = new Vector3();
+    private normal1 = new Vector3();
+    private normal2 = new Vector3();
+    private boxHeight = 0;
+
     setup(ctx: EditorContext) {
         this.boxEdge.visible = false;
         ctx.scene.add(this.boxEdge);
@@ -50,17 +68,22 @@ export default class BoxTool extends EditorTool {
     }
 
     begin(ctx: EditorContext) {
-        this.boxEdge.visible = false;
         if (!this.draggingFace) {
             this.boxFace.visible = false;
+        }
+        if (!this.creating) {
+            this.boxEdge.visible = false;
         }
     }
 
     update(ctx: EditorContext, view: EditorView) {
         const input = view.input;
 
-        if (this.draggingFace && this.draggingFaceViewIndex === view.index) {
-            // dragging box face
+        // dragging box face
+        if (this.draggingFace) {
+            if (this.activeViewIndex !== view.index) {
+                return;
+            }
             if (input.mouseOver && input.mouseLeft && ctx.model.isNodeExists(this.draggingFaceNodeId, 'Box')) {
                 if (_cross.crossVectors(this.faceNormalWorld0, view.mouseRayN).lengthSq() < 1e-6) {
                     return;
@@ -115,10 +138,115 @@ export default class BoxTool extends EditorTool {
                 _position.add(_range0).sub(_range1);
                 ctx.history.setValue(node, CBoxSize, new Vector3().copy(_boxSize));
                 ctx.history.setValue(node, CPosition, new Vector3().copy(_position));
+                _boxSize.multiplyScalar(getScaleScalar(node.getWorldMatrix()));
+                ctx.statusBarMessage = `${_boxSize.x.toFixed(2)} × ${_boxSize.y.toFixed(2)} × ${_boxSize.z.toFixed(2)}`;
             } else {
                 this.draggingFace = false;
-                this.draggingFaceViewIndex = -1;
+                this.activeViewIndex = -1;
                 this.draggingFaceNodeId = 0;
+                ctx.statusBarMessage = this.tips;
+            }
+            return;
+        }
+
+        // creating box
+        if (this.creating) {
+            // set point 2
+            if (!this.point2Set) {
+                if (this.activeViewIndex !== view.index) {
+                    return;
+                }
+                if (linePanelIntersection(
+                    this.point2,
+                    view.mouseRay0, view.mouseRay1,
+                    this.point1, this.normal2
+                )) {
+                    this.boxEdge.setPoint2(this.point2);
+                    this.boxEdge.updateGeometry();
+                    const w = Math.abs(this.boxEdge.getWidth()).toFixed(2);
+                    const l = Math.abs(this.boxEdge.getLength()).toFixed(2);
+                    ctx.statusBarMessage = `${w} × ${l}`;
+                }
+                if (!input.mouseLeft) {
+                    this.point2Set = true;
+                }
+                return;
+            }
+            if (!input.mouseOver) {
+                return;
+            }
+            // set height
+            if (_cross.crossVectors(this.normal2, view.mouseRayN).lengthSq() < 1e-8) {
+                return;
+            }
+            if (!closestPointsBetweenTwoLines(
+                _mouse1, null,
+                this.point2, this.normal2,
+                view.mouseRay0, view.mouseRayN
+            )) {
+                this.boxHeight = _det.subVectors(_mouse1, this.point2).dot(this.normal2);
+                this.boxEdge.setHeight(this.boxHeight);
+                this.boxEdge.updateGeometry();
+                const w = Math.abs(this.boxEdge.getWidth()).toFixed(2);
+                const l = Math.abs(this.boxEdge.getLength()).toFixed(2);
+                const h = Math.abs(this.boxHeight).toFixed(2);
+                ctx.statusBarMessage = `${w} × ${l} × ${h}`;
+            }
+
+            // create node
+            if (input.mouseLeftDownThisFrame) {
+                this.creating = false;
+                this.point2Set = false;
+                ctx.statusBarMessage = this.tips;
+
+                let parent: ModelNode | null = null;
+                for (let node of ctx.model.getSelectedNodes()) {
+                    if (node.isValidChild('Box')) {
+                        parent = node;
+                        break;
+                    }
+                }
+                if (parent) {
+                    _invMat.copy(parent.getWorldMatrix()).invert();
+                } else {
+                    _invMat.identity();
+                }
+                _local1.copy(this.point1).applyMatrix4(_invMat);
+                _local2.copy(this.point2).applyMatrix4(_invMat);
+                _local3.copy(this.point2).addScaledVector(this.normal2, this.boxHeight).applyMatrix4(_invMat);
+                _nx.copy(this.normal1).transformDirection(_invMat);
+                _ny.copy(this.normal2).transformDirection(_invMat);
+                _nz.crossVectors(_nx, _ny).normalize();
+                let x0 = _local1.dot(_nx);
+                let x1 = _local2.dot(_nx);
+                if (x0 > x1) {
+                    [x0, x1] = [x1, x0];
+                }
+                let z0 = _local1.dot(_nz);
+                let z1 = _local2.dot(_nz);
+                if (z0 > z1) {
+                    [z0, z1] = [z1, z0];
+                }
+                let y0 = _local2.dot(_ny);
+                let y1 = _local3.dot(_ny);
+                if (y0 > y1) {
+                    [y0, y1] = [y1, y0];
+                }
+                const rot = new Euler().setFromQuaternion(quatFromForwardUp(new Quaternion(), _nz, _ny));
+                const size = new Vector3(x1 - x0, y1 - y0, z1 - z0);
+                const pos = new Vector3()
+                    .addScaledVector(_nx, x0 + size.x / 2)
+                    .addScaledVector(_ny, y0 + size.y / 2)
+                    .addScaledVector(_nz, z0 + size.z / 2);
+                ctx.history.createNode({
+                    type: 'Box',
+                    parentId: parent ? parent.id : 0,
+                    data: {
+                        [CBoxSize.name]: size,
+                        [CPosition.name]: pos,
+                        [CRotation.name]: rot
+                    }
+                });
             }
             return;
         }
@@ -136,10 +264,13 @@ export default class BoxTool extends EditorTool {
                         this.boxFace.setSize(node.value(CBoxSize));
                         this.boxFace.setFaceFromNormal(normal);
                         this.boxFace.updateGeometry();
+
+                        this.point1.copy(result.point);
+
                         // drag start
-                        if (input.mouseLeftDownThisFrame) {
+                        if (input.mouseLeftDownThisFrame && !input.isKeyPressed('Alt')) {
                             this.draggingFace = true;
-                            this.draggingFaceViewIndex = view.index;
+                            this.activeViewIndex = view.index;
                             this.draggingFaceNodeId = node.id;
                             this.draggingFaceIndex = this.boxFace.getFace();
                             this.draggingFaceNormal.copy(normal);
@@ -150,12 +281,59 @@ export default class BoxTool extends EditorTool {
                             this.invWorldMat0.copy(node.getWorldMatrix()).invert();
                             this.mouse0.copy(result.point);
                             this.local0.copy(this.mouse0).applyMatrix4(this.invWorldMat0);
-                            ctx.model.selected = [node.id];
                         }
                     }
                     break;
                 }
             }
+
+            // create box
+            if (input.isKeyPressed('Alt') && input.mouseLeftDownThisFrame) {
+                if (this.boxFace.visible) {
+                    this.creating = true;
+                    this.boxFace.getFaceTangent(this.normal1);
+                    this.boxFace.getFaceNormal(this.normal2);
+                    this.normal1.transformDirection(this.boxFace.matrix);
+                    this.normal2.transformDirection(this.boxFace.matrix);
+                } else {
+                    if (linePanelIntersection(
+                        this.point1,
+                        view.mouseRay0, view.mouseRay1,
+                        this.point1.set(0, 0, 0),
+                        view.camera.perspective ? _normal.set(0, 1, 0) : view.mouseRayN
+                    )) {
+                        if (view.camera.perspective) {
+                            this.normal1.set(1, 0, 0);
+                            this.normal2.set(0, 1, 0);
+                        } else {
+                            this.boxFace.setFaceFromNormal(view.mouseRayN);
+                            this.boxFace.getFaceTangent(this.normal1);
+                            this.boxFace.getFaceNormal(this.normal2);
+                        }
+                        this.creating = true;
+                    }
+                }
+                // set point 1
+                if (this.creating) {
+                    this.activeViewIndex = view.index;
+                    this.boxHeight = 0;
+                    this.boxEdge.setPoint1(this.point1);
+                    this.boxEdge.setPoint2(this.point1);
+                    this.boxEdge.setNormal1(this.normal1);
+                    this.boxEdge.setNormal2(this.normal2);
+                    this.boxEdge.setHeight(0);
+                    this.boxEdge.updateGeometry();
+                    this.boxEdge.visible = true;
+                }
+            }
         }
+    }
+
+    onUnselected(ctx: EditorContext) {
+        this.draggingFace = false;
+        this.creating = false;
+        this.point2Set = false;
+        this.boxEdge.visible = false;
+        this.boxFace.visible = false;
     }
 }

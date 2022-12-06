@@ -26,11 +26,14 @@ function line(buffer: Float32Array, i: number, a: Vector3, b: Vector3) {
 }
 
 export default class BoxEdge extends LineSegments {
-    point1 = new Vector3();
-    point2 = new Vector3();
-    normal1 = new Vector3();
-    normal2 = new Vector3();
-    height = 0;
+    private point1 = new Vector3();
+    private point2 = new Vector3();
+    private normal1 = new Vector3();
+    private normal2 = new Vector3();
+    private length = 0;
+    private width = 0;
+    private height = 0;
+    private dirty = false;
 
     constructor() {
         const geometry = new BufferGeometry();
@@ -41,12 +44,65 @@ export default class BoxEdge extends LineSegments {
         const material = new LineBasicMaterial({
             vertexColors: true,
             toneMapped: false,
+            color: 0xffff00,
         });
         super(geometry, material);
         this.type = 'BoxEdge';
     }
 
+    setPoint1(point: Vector3) {
+        if (this.point1.equals(point)) {
+            return;
+        }
+        this.dirty = true;
+        this.point1.copy(point);
+    }
+
+    setPoint2(point: Vector3) {
+        if (this.point2.equals(point)) {
+            return;
+        }
+        this.dirty = true;
+        this.point2.copy(point);
+    }
+
+    setNormal1(normal: Vector3) {
+        if (this.normal1.equals(normal)) {
+            return;
+        }
+        this.dirty = true;
+        this.normal1.copy(normal);
+    }
+
+    setNormal2(normal: Vector3) {
+        if (this.normal2.equals(normal)) {
+            return;
+        }
+        this.dirty = true;
+        this.normal2.copy(normal);
+    }
+
+    setHeight(height: number) {
+        if (height === this.height) {
+            return;
+        }
+        this.dirty = true;
+        this.height = height;
+    }
+
+    getLength() {
+        return this.length;
+    }
+
+    getWidth() {
+        return this.width;
+    }
+
     updateGeometry() {
+        if (!this.dirty) {
+            return;
+        }
+        this.dirty = false;
         const position = this.geometry.attributes.position as BufferAttribute;
         const array = position.array as Float32Array;
         _a0.copy(this.point1);
@@ -54,8 +110,8 @@ export default class BoxEdge extends LineSegments {
         _nx.copy(this.normal1).normalize();
         _ny.crossVectors(this.normal1, this.normal2).normalize();
         _v.subVectors(_c0, _a0);
-        _b0.copy(_a0).addScaledVector(_nx, _v.dot(_nx));
-        _d0.copy(_a0).addScaledVector(_ny, _v.dot(_ny));
+        _b0.copy(_a0).addScaledVector(_nx, this.width = _v.dot(_nx));
+        _d0.copy(_a0).addScaledVector(_ny, this.length = _v.dot(_ny));
         _dy.copy(this.normal2).normalize().multiplyScalar(this.height);
         _a1.addVectors(_a0, _dy);
         _b1.addVectors(_b0, _dy);
