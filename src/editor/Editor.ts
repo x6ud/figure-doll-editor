@@ -43,6 +43,11 @@ export default defineComponent({
             editorContext.value?.update();
         });
 
+        const showTools = ref(true);
+        const showModelTree = ref(true);
+        const showProperties = ref(true);
+        const showStatusBar = ref(true);
+
         const fullscreenLoading = ref(false);
         const modelTreePanelWidth = ref(200);
         const modelNodePropertiesPanelWidth = ref(200);
@@ -437,6 +442,10 @@ export default defineComponent({
             dom,
             editorContext,
             fullscreenLoading,
+            showTools,
+            showModelTree,
+            showProperties,
+            showStatusBar,
             modelTreePanelWidth,
             modelNodePropertiesPanelWidth,
             validChildNodeDefs,

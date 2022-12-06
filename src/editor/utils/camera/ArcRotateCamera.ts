@@ -7,8 +7,8 @@ const _rotation = new Quaternion();
 
 export default class ArcRotateCamera {
     perspective: boolean = true;
-    perspectiveCamera = new PerspectiveCamera();
-    orthographicCamera = new OrthographicCamera();
+    perspectiveCamera = new PerspectiveCamera(45, 1, 0.1, 2000);
+    orthographicCamera = new OrthographicCamera(-1, 1, -1, 1, 0, 2000);
     target = new Vector3();
     distance: number = 1;
     alpha: number = 0;

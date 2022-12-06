@@ -53,7 +53,7 @@ export default class TranslateTool extends EditorTool {
         }
         const control = view.transformControls;
         control.setMode('translate');
-        control.setTranslationSnap(view.input.isKeyPressed('Shift') ? 0.5 : null);
+        control.setTranslationSnap(view.input.isKeyPressed('Shift') ? 0.25 : null);
         if (control.dragging) {
             this.dragging = true;
             const matrix = ctx.dummyObject.matrix;

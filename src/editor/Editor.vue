@@ -36,6 +36,27 @@
                     />
                 </popup-menu>
                 <popup-menu title="View">
+                    <popup-menu-item title="Window">
+                        <popup-menu>
+                            <popup-menu-item title="Tools"
+                                             :checked="showTools"
+                                             @click="showTools = !showTools"
+                            />
+                            <popup-menu-item title="Nodes Panel"
+                                             :checked="showModelTree"
+                                             @click="showModelTree = !showModelTree"
+                            />
+                            <popup-menu-item title="Properties Panel"
+                                             :checked="showProperties"
+                                             @click="showProperties = !showProperties"
+                            />
+                            <popup-menu-item title="Status Bar"
+                                             :checked="showStatusBar"
+                                             @click="showStatusBar = !showStatusBar"
+                            />
+                        </popup-menu>
+                    </popup-menu-item>
+                    <popup-menu-item sep/>
                     <popup-menu-item title="Grids"
                                      :checked="editorContext.showGrids"
                                      @click="editorContext.showGrids = !editorContext.showGrids"
@@ -51,22 +72,27 @@
         </div>
 
         <div class="cols fill">
-            <div class="tools">
-                <template v-if="editorContext">
-                    <button class="tool icon-button toggle-button"
-                            v-for="tool in editorContext.tools"
-                            :title="tool.label"
-                            :class="{active: editorContext.tool === tool}"
-                            @click="editorContext.tool = tool"
-                    >
-                        <img :src="tool.icon" alt="">
-                    </button>
-                </template>
+            <div class="tools scrollable"
+                 v-if="showTools"
+            >
+                <div class="scroll">
+                    <div v-if="editorContext">
+                        <button class="tool icon-button toggle-button"
+                                v-for="tool in editorContext.tools"
+                                :title="tool.label"
+                                :class="{active: editorContext.tool === tool}"
+                                @click="editorContext.tool = tool"
+                        >
+                            <img :src="tool.icon" alt="">
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <side-panel direction="right"
                         v-model:width="modelTreePanelWidth"
                         style="border-left: none;"
+                        v-if="showModelTree"
             >
                 <div class="rows" style="width: 100%; height: 100%;"
                      v-if="editorContext"
@@ -106,6 +132,7 @@
             <side-panel direction="right"
                         v-model:width="modelNodePropertiesPanelWidth"
                         style="border-left: none;"
+                        v-if="showProperties"
             >
                 <template v-if="editorContext">
                     <model-node-properties :editor-context="editorContext"
@@ -124,7 +151,9 @@
             />
         </div>
 
-        <div class="status-bar">
+        <div class="status-bar"
+             v-if="showStatusBar"
+        >
             {{ editorContext?.statusBarMessage }}
         </div>
     </div>
@@ -142,7 +171,12 @@
     display: flex;
     flex-direction: column;
     padding: 0 2px;
+    width: 24px;
     border: solid 1px #555;
+
+    .scroll {
+        left: 2px;
+    }
 
     .tool {
         width: 24px;
