@@ -8,7 +8,13 @@ import CRotation from '../model/components/CRotation';
 import ModelNode from '../model/ModelNode';
 import BoxEdge from '../utils/geometry/BoxEdge';
 import BoxFace from '../utils/geometry/BoxFace';
-import {closestPointsBetweenTwoLines, getScaleScalar, linePanelIntersection, quatFromForwardUp} from '../utils/math';
+import {
+    closestPointsBetweenTwoLines,
+    getScaleScalar,
+    linePanelIntersection,
+    quatFromForwardUp,
+    snapPoint
+} from '../utils/math';
 import icon from './Box.png';
 import EditorTool from './EditorTool';
 
@@ -156,6 +162,11 @@ export default class BoxTool extends EditorTool {
                 if (this.activeViewIndex !== view.index) {
                     return;
                 }
+                if (input.mouseRightDownThisFrame) {
+                    // cancel
+                    this.creating = false;
+                    ctx.statusBarMessage = this.tips;
+                }
                 if (linePanelIntersection(
                     this.point2,
                     view.mouseRay0, view.mouseRay1,
@@ -163,6 +174,19 @@ export default class BoxTool extends EditorTool {
                 )) {
                     this.boxEdge.setPoint2(this.point2);
                     this.boxEdge.updateGeometry();
+                    if (input.isKeyPressed('Shift')) {
+                        _nx.copy(this.normal1);
+                        _ny.crossVectors(this.normal1, this.normal2).normalize();
+                        let w = this.boxEdge.getWidth();
+                        let l = this.boxEdge.getLength();
+                        w = Math.round(w / SNAP) * SNAP;
+                        l = Math.round(l / SNAP) * SNAP;
+                        this.point2.copy(this.point1)
+                            .addScaledVector(_nx, w)
+                            .addScaledVector(_ny, l);
+                        this.boxEdge.setPoint2(this.point2);
+                        this.boxEdge.updateGeometry();
+                    }
                     const w = Math.abs(this.boxEdge.getWidth()).toFixed(2);
                     const l = Math.abs(this.boxEdge.getLength()).toFixed(2);
                     ctx.statusBarMessage = `${w} × ${l}`;
@@ -175,6 +199,14 @@ export default class BoxTool extends EditorTool {
             if (!input.mouseOver) {
                 return;
             }
+
+            if (input.mouseRightDownThisFrame) {
+                // cancel
+                this.creating = false;
+                this.point2Set = false;
+                ctx.statusBarMessage = this.tips;
+            }
+
             // set height
             if (_cross.crossVectors(this.normal2, view.mouseRayN).lengthSq() < 1e-8) {
                 return;
@@ -185,6 +217,9 @@ export default class BoxTool extends EditorTool {
                 view.mouseRay0, view.mouseRayN
             )) {
                 this.boxHeight = _det.subVectors(_mouse1, this.point2).dot(this.normal2);
+                if (input.isKeyPressed('Shift')) {
+                    this.boxHeight = Math.round(this.boxHeight / SNAP) * SNAP;
+                }
                 this.boxEdge.setHeight(this.boxHeight);
                 this.boxEdge.updateGeometry();
                 const w = Math.abs(this.boxEdge.getWidth()).toFixed(2);
@@ -315,6 +350,9 @@ export default class BoxTool extends EditorTool {
                 }
                 // set point 1
                 if (this.creating) {
+                    if (input.isKeyPressed('Shift')) {
+                        snapPoint(this.point1, SNAP);
+                    }
                     this.activeViewIndex = view.index;
                     this.boxHeight = 0;
                     this.boxEdge.setPoint1(this.point1);

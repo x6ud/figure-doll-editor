@@ -168,3 +168,10 @@ export const quatFromForwardUp = (function () {
         return out.setFromRotationMatrix(_mat);
     };
 })();
+
+export function snapPoint(p: Vector3, snap: number) {
+    p.x = Math.round(p.x / snap) * snap;
+    p.y = Math.round(p.y / snap) * snap;
+    p.z = Math.round(p.z / snap) * snap;
+    return p;
+}
