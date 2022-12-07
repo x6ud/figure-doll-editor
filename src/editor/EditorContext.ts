@@ -14,6 +14,7 @@ import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter'
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import ObjUpdateFilter from './systems/model-update-filters/ObjUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
+import TubeUpdateFilter from './systems/model-update-filters/TubeUpdateFilter';
 import ModelUpdateSystem from './systems/ModelUpdateSystem';
 import MouseSystem from './systems/MouseSystem';
 import RenderSystem from './systems/RenderSystem';
@@ -24,6 +25,7 @@ import EditorTool from './tools/EditorTool';
 import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
 import TranslateTool from './tools/TranslateTool';
+import TubeTool from './tools/TubeTool';
 import Grids from './utils/geometry/Grids';
 import UpdateSystem from './utils/UpdateSystem';
 
@@ -36,6 +38,7 @@ export default class EditorContext {
             new ImageUpdateFilter(),
             new ObjUpdateFilter(),
             new BoxUpdateFilter(),
+            new TubeUpdateFilter(),
             new ContainerUpdateFilter(),
             new Object3DRelationshipUpdateFilter(),
             new TransformUpdateFilter(),
@@ -55,6 +58,7 @@ export default class EditorContext {
         new RotateTool(),
         new RescaleTool(),
         new BoxTool(),
+        new TubeTool(),
     ];
 
     canvas: HTMLCanvasElement;

@@ -15,12 +15,16 @@ export default abstract class EditorTool {
     dispose(): void {
     }
 
-    /** Called once every frame */
     begin(ctx: EditorContext): void {
     }
 
-    /** Called for every active view */
     update(ctx: EditorContext, view: EditorView): void {
+    }
+
+    end(ctx: EditorContext): void {
+    }
+
+    beforeRender(ctx: EditorContext, view: EditorView): void {
     }
 
     /** Called when tool is unselected */

@@ -20,6 +20,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 tool.update(ctx, toRaw(view));
             }
         }
+        tool.end(ctx);
         if (this.prevTool !== tool) {
             this.prevTool?.onUnselected(ctx);
             this.prevTool = tool;

@@ -17,6 +17,7 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
             }
             if (view.enabled) {
                 if (view.width && view.height) {
+                    ctx.tool.beforeRender(ctx, view);
                     ctx.xzGrids.visible = ctx.showGrids && (view.index === ctx.mainViewIndex || view.index === 0);
                     ctx.yzGrids.visible = ctx.showGrids && view.index === 2;
                     ctx.xyGrids.visible = ctx.showGrids && view.index === 3;

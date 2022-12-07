@@ -3,6 +3,7 @@ import CObject3D from '../../model/components/CObject3D';
 import CPosition from '../../model/components/CPosition';
 import CRotation from '../../model/components/CRotation';
 import CScale from '../../model/components/CScale';
+import CTube from '../../model/components/CTube';
 import ModelNode from '../../model/ModelNode';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
@@ -28,6 +29,15 @@ export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
                 if (cObject3D.worldTransformChanged) {
                     mesh.updateMatrixWorld(true);
                     cObject3D.worldTransformChanged = false;
+                    node.forEach(child => {
+                        if (child.has(CTube)) {
+                            const cTube = child.get(CTube);
+                            if (cTube.group) {
+                                cTube.group.matrixAutoUpdate = false;
+                                cTube.group.matrix.copy(child.getWorldMatrix());
+                            }
+                        }
+                    });
                 }
             }
         }

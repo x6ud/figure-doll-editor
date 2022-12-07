@@ -7,6 +7,7 @@ import CObject3D from './components/CObject3D';
 import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
+import CTube from './components/CTube';
 import CVisible from './components/CVisible';
 import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
@@ -25,7 +26,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Container',
         components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D],
         canBeRoot: true,
-        validChildTypes: ['Container', 'Image', 'ObjModel', 'Box'],
+        validChildTypes: ['Container', 'Image', 'ObjModel', 'Box', 'Tube'],
     },
     {
         name: 'Image',
@@ -47,7 +48,14 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D, CBoxSize],
         canBeRoot: true,
         validChildTypes: [],
-    }
+    },
+    {
+        name: 'Tube',
+        label: 'Tube',
+        components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D, CTube],
+        canBeRoot: true,
+        validChildTypes: [],
+    },
 ];
 
 const modelNodeDefMap: { [name: string]: ModelNodeDef } = {};

@@ -175,3 +175,9 @@ export function snapPoint(p: Vector3, snap: number) {
     p.z = Math.round(p.z / snap) * snap;
     return p;
 }
+
+export function vectorsEqual(a: Vector3, b: Vector3) {
+    return Math.abs(a.x - b.x) < 1e-8
+        && Math.abs(a.y - b.y) < 1e-8
+        && Math.abs(a.z - b.z) < 1e-8;
+}
