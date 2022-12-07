@@ -13,8 +13,6 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
     begin(ctx: EditorContext): void {
         const tool = ctx.tool;
 
-        tool.begin(ctx);
-
         // selection rect
         ctx.selectionRectSetThisFrame = false;
         if (tool.enableSelectionRect) {
@@ -82,7 +80,12 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                     }
                 }
             }
+        } else {
+            this.selectionRect.hide();
+            ctx.selectionRectDragging = false;
         }
+
+        tool.begin(ctx);
 
         for (let view of ctx.views) {
             view = toRaw(view);

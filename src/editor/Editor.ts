@@ -98,22 +98,6 @@ export default defineComponent({
             editorContext.value = new EditorContext(canvas, view1, view2, view3, view4);
             renderLoop.start();
             (window as any).ctx = editorContext.value!.readonlyRef();
-
-            editorContext.value!.history.createNode({
-                type: 'Container',
-                children: [
-                    {
-                        type: 'Tube',
-                        data: {
-                            CTube: [
-                                {radius: 0.5, position: new Vector3(0, 0, 1)},
-                                {radius: 0.7, position: new Vector3(0, 1, 0)},
-                                {radius: 0.3, position: new Vector3(1, 1, 1)},
-                            ]
-                        }
-                    }
-                ]
-            });
         }
 
         function onBeforeCanvasUnmount() {

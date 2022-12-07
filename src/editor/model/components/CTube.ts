@@ -1,4 +1,4 @@
-import {Line, LineBasicMaterial, Object3D, Vector3} from 'three';
+import {Line, LineBasicMaterial, Matrix4, Object3D, Vector3} from 'three';
 import {vectorsEqual} from '../../utils/math';
 import ModelNodeComponent from '../ModelNodeComponent';
 import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
@@ -29,7 +29,7 @@ const normalMaterial = new LineBasicMaterial({
 const hoveredMaterial = normalMaterial.clone();
 hoveredMaterial.color.setHex(0xffff00);
 const selectedMaterial = normalMaterial.clone();
-selectedMaterial.color.setHex(0xffff00);
+selectedMaterial.color.setHex(0xf3982d);
 
 @registerModelComponent({
     storable: true,
@@ -79,6 +79,10 @@ export default class CTube extends ModelNodeComponent<Tube> {
     lines: Object3D[] = [];
     hovered: number = -1;
     selected: number[] = [];
+    draggingStartValue?: Tube;
+    draggingStartMatrix?: Matrix4;
+    draggingStartInvMatrix?: Matrix4;
+    draggingStartNodeIndex: number = -1;
 
     onRemoved() {
         this.group?.removeFromParent();
@@ -87,12 +91,20 @@ export default class CTube extends ModelNodeComponent<Tube> {
     updateColor() {
         for (let i = 0, len = this.circles.length; i < len; ++i) {
             const circle = this.circles[i] as Line;
-            if (i === this.hovered) {
-                circle.material = hoveredMaterial;
-            } else if (this.selected.includes(i)) {
+            if (this.selected.includes(i) || i === this.draggingStartNodeIndex) {
                 circle.material = selectedMaterial;
+            } else if (i === this.hovered) {
+                circle.material = hoveredMaterial;
             } else {
                 circle.material = normalMaterial;
+            }
+            if (i < len - 1) {
+                const line = this.lines[i] as Line;
+                if (this.selected.includes(i) && this.selected.includes(i + 1)) {
+                    line.material = selectedMaterial;
+                } else {
+                    line.material = normalMaterial;
+                }
             }
         }
     }
@@ -103,7 +115,7 @@ export default class CTube extends ModelNodeComponent<Tube> {
         }
     }
 
-    clone() {
-        return cloneTube(this.value);
+    clone(val = this.value) {
+        return cloneTube(val);
     }
 }

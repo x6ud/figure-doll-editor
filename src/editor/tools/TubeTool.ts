@@ -1,22 +1,30 @@
-import {Vector3} from 'three';
+import {Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CTube, {TubeNodePickerUserData} from '../model/components/CTube';
 import ModelNode from '../model/ModelNode';
-import {intersectPointRect} from '../utils/math';
+import {intersectPointRect, linePanelIntersection} from '../utils/math';
 import EditorTool from './EditorTool';
 import icon from './Tube.png';
 
 const _pos = new Vector3();
+const _mouse1 = new Vector3();
+const _det = new Vector3();
+const _rot = new Quaternion();
 
 export default class TubeTool extends EditorTool {
     label = 'Tube';
     icon = icon;
     enableDefaultDeleteShortcut = false;
+    enableSelectionRect = true;
     enableDefaultSelectionBehavior = false;
 
     private nodes: ModelNode[] = [];
     private enableDeleteThisFrame = true;
+
+    private dragging = false;
+    private draggingActiveViewIndex = -1;
+    private mouse0 = new Vector3();
 
     begin(ctx: EditorContext) {
         for (let node of this.nodes) {
@@ -44,6 +52,7 @@ export default class TubeTool extends EditorTool {
                 this.enableDefaultDeleteShortcut = false;
             }
         }
+        this.enableSelectionRect = !this.dragging;
     }
 
     update(ctx: EditorContext, view: EditorView) {
@@ -61,18 +70,82 @@ export default class TubeTool extends EditorTool {
             }
             return;
         }
+        // drag move
+        if (this.dragging && view.index === this.draggingActiveViewIndex) {
+            this.enableSelectionRect = false;
+            if (input.mouseLeft) {
+                if (linePanelIntersection(
+                    _mouse1,
+                    view.mouseRay0, view.mouseRay1,
+                    this.mouse0, view.mouseRayN
+                )) {
+                    _det.subVectors(_mouse1, this.mouse0);
+                    for (let node of this.nodes) {
+                        const cTube = node.get(CTube);
+                        if (cTube.selected.length || cTube.draggingStartNodeIndex >= 0) {
+                            const val = cTube.clone(cTube.draggingStartValue!);
+                            for (let index of cTube.selected) {
+                                val[index].position
+                                    .applyMatrix4(cTube.draggingStartMatrix!)
+                                    .add(_det)
+                                    .applyMatrix4(cTube.draggingStartInvMatrix!);
+                            }
+                            if (cTube.draggingStartNodeIndex >= 0
+                                && !cTube.selected.includes(cTube.draggingStartNodeIndex)
+                            ) {
+                                val[cTube.draggingStartNodeIndex].position
+                                    .applyMatrix4(cTube.draggingStartMatrix!)
+                                    .add(_det)
+                                    .applyMatrix4(cTube.draggingStartInvMatrix!);
+                            }
+                            ctx.history.setValue(node, CTube, val);
+                        }
+                    }
+                }
+            } else {
+                // drag end
+                this.dragging = false;
+                this.draggingActiveViewIndex = -1;
+                for (let node of this.nodes) {
+                    const cTube = node.get(CTube);
+                    cTube.draggingStartNodeIndex = -1;
+                }
+            }
+            return;
+        }
         // find hovered
-        if (input.mouseOver) {
+        if (input.mouseOver && !this.dragging) {
             for (let node of this.nodes) {
                 const cTube = node.get(CTube);
                 const result = view.raycaster.intersectObjects(cTube.pickers);
                 if (result.length) {
                     const index = (result[0].object.userData as TubeNodePickerUserData).index;
                     cTube.hovered = index == null ? -1 : index;
+
+                    // drag start
+                    if (input.mouseLeftDownThisFrame) {
+                        this.dragging = true;
+                        this.draggingActiveViewIndex = view.index;
+                        this.enableSelectionRect = false;
+                        this.mouse0.copy(result[0].point);
+                        cTube.draggingStartNodeIndex = cTube.hovered;
+                    }
                 } else {
                     cTube.hovered = -1;
                 }
             }
+        }
+        // drag start
+        if (this.dragging && view.index === this.draggingActiveViewIndex) {
+            for (let node of this.nodes) {
+                const cTube = node.get(CTube);
+                if (cTube.selected.length || cTube.draggingStartNodeIndex >= 0) {
+                    cTube.draggingStartMatrix = new Matrix4().copy(node.getWorldMatrix());
+                    cTube.draggingStartInvMatrix = new Matrix4().copy(node.getWorldMatrix()).invert();
+                    cTube.draggingStartValue = cTube.clone();
+                }
+            }
+            return;
         }
         // select
         if (ctx.selectionRectSetThisFrame
@@ -109,19 +182,20 @@ export default class TubeTool extends EditorTool {
         }
     }
 
-    beforeRender(ctx: EditorContext, view: EditorView) {
-        for (let node of this.nodes) {
-            const cTube = node.get(CTube);
-            for (let circle of cTube.circles) {
-                circle.quaternion.copy(view.camera.get().quaternion);
-            }
-        }
-    }
-
     end(ctx: EditorContext) {
         for (let node of this.nodes) {
             const cTube = node.get(CTube);
             cTube.updateColor();
+        }
+    }
+
+    beforeRender(ctx: EditorContext, view: EditorView) {
+        for (let node of this.nodes) {
+            const cTube = node.get(CTube);
+            _rot.setFromRotationMatrix(node.getWorldMatrix()).invert();
+            for (let circle of cTube.circles) {
+                circle.quaternion.copy(_rot).multiply(view.camera.get().quaternion);
+            }
         }
     }
 

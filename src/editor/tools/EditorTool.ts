@@ -8,8 +8,8 @@ export default abstract class EditorTool {
     tips: string = '';
     enableTransformControls: boolean = false;
     enableDefaultDeleteShortcut: boolean = true;
-    enableSelectionRect: boolean = true;
-    enableDefaultSelectionBehavior: boolean = true;
+    enableSelectionRect: boolean = false;
+    enableDefaultSelectionBehavior: boolean = false;
 
     /** Called once on load */
     setup(ctx: EditorContext): void {
