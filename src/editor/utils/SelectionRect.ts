@@ -86,7 +86,7 @@ export default class SelectionRect {
         this.dom.style.right = `${r}px`;
         this.dom.style.top = `${t}px`;
         this.dom.style.bottom = `${b}px`;
-        if (Math.abs(l - r) > 3 || Math.abs(t - b) > 3) {
+        if (Math.abs(l - r) || Math.abs(t - b)) {
             this.show();
         } else {
             this.hide();

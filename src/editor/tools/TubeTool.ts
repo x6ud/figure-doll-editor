@@ -23,6 +23,7 @@ export default class TubeTool extends EditorTool {
     private enableDeleteThisFrame = true;
 
     private dragging = false;
+    private mouseMoved = false;
     private draggingActiveViewIndex = -1;
     private mouse0 = new Vector3();
 
@@ -52,7 +53,7 @@ export default class TubeTool extends EditorTool {
                 this.enableDefaultDeleteShortcut = false;
             }
         }
-        this.enableSelectionRect = !this.dragging;
+        this.enableSelectionRect = true;
     }
 
     update(ctx: EditorContext, view: EditorView) {
@@ -72,7 +73,9 @@ export default class TubeTool extends EditorTool {
         }
         // drag move
         if (this.dragging && view.index === this.draggingActiveViewIndex) {
-            this.enableSelectionRect = false;
+            if (this.mouseMoved) {
+                this.enableSelectionRect = false;
+            }
             if (input.mouseLeft) {
                 if (linePanelIntersection(
                     _mouse1,
@@ -80,6 +83,9 @@ export default class TubeTool extends EditorTool {
                     this.mouse0, view.mouseRayN
                 )) {
                     _det.subVectors(_mouse1, this.mouse0);
+                    if (_det.lengthSq() > 1e-6) {
+                        this.mouseMoved = true;
+                    }
                     for (let node of this.nodes) {
                         const cTube = node.get(CTube);
                         if (cTube.selected.length || cTube.draggingStartNodeIndex >= 0) {
@@ -111,7 +117,6 @@ export default class TubeTool extends EditorTool {
                     cTube.draggingStartNodeIndex = -1;
                 }
             }
-            return;
         }
         // find hovered
         if (input.mouseOver && !this.dragging) {
@@ -125,8 +130,8 @@ export default class TubeTool extends EditorTool {
                     // drag start
                     if (input.mouseLeftDownThisFrame) {
                         this.dragging = true;
+                        this.mouseMoved = false;
                         this.draggingActiveViewIndex = view.index;
-                        this.enableSelectionRect = false;
                         this.mouse0.copy(result[0].point);
                         cTube.draggingStartNodeIndex = cTube.hovered;
                     }
@@ -134,18 +139,17 @@ export default class TubeTool extends EditorTool {
                     cTube.hovered = -1;
                 }
             }
-        }
-        // drag start
-        if (this.dragging && view.index === this.draggingActiveViewIndex) {
-            for (let node of this.nodes) {
-                const cTube = node.get(CTube);
-                if (cTube.selected.length || cTube.draggingStartNodeIndex >= 0) {
-                    cTube.draggingStartMatrix = new Matrix4().copy(node.getWorldMatrix());
-                    cTube.draggingStartInvMatrix = new Matrix4().copy(node.getWorldMatrix()).invert();
-                    cTube.draggingStartValue = cTube.clone();
+            // save dragging start state
+            if (this.dragging && view.index === this.draggingActiveViewIndex) {
+                for (let node of this.nodes) {
+                    const cTube = node.get(CTube);
+                    if (cTube.selected.length || cTube.draggingStartNodeIndex >= 0) {
+                        cTube.draggingStartMatrix = new Matrix4().copy(node.getWorldMatrix());
+                        cTube.draggingStartInvMatrix = new Matrix4().copy(node.getWorldMatrix()).invert();
+                        cTube.draggingStartValue = cTube.clone();
+                    }
                 }
             }
-            return;
         }
         // select
         if (ctx.selectionRectSetThisFrame
