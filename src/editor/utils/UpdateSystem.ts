@@ -6,6 +6,12 @@ export default abstract class UpdateSystem<T> {
 
     abstract end(ctx: T): void;
 
+    setup(ctx: T) {
+    }
+
+    dispose() {
+    }
+
     sub(...systems: UpdateSystem<T>[]) {
         this.subSystems.push(...systems);
         return this;

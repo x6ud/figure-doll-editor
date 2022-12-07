@@ -10,6 +10,10 @@ export type TubeNode = {
 
 export type Tube = TubeNode[];
 
+function cloneTube(val: Tube): Tube {
+    return val.map(node => ({radius: node.radius, position: new Vector3().copy(node.position)}));
+}
+
 export type TubeNodePickerUserData = {
     index?: number;
 };
@@ -43,9 +47,7 @@ selectedMaterial.color.setHex(0xffff00);
         }
         return true;
     },
-    clone(val: Tube): Tube {
-        return val.map(node => ({radius: node.radius, position: new Vector3().copy(node.position)}));
-    },
+    clone: cloneTube,
     serialize(val: Tube): number[] {
         const ret: number[] = [];
         for (let node of val) {
@@ -99,5 +101,9 @@ export default class CTube extends ModelNodeComponent<Tube> {
         if (!this.selected.includes(index)) {
             this.selected.push(index);
         }
+    }
+
+    clone() {
+        return cloneTube(this.value);
     }
 }

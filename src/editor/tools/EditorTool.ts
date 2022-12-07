@@ -7,6 +7,9 @@ export default abstract class EditorTool {
     /** Text set to status bar when tool is selected */
     tips: string = '';
     enableTransformControls: boolean = false;
+    enableDefaultDeleteShortcut: boolean = true;
+    enableSelectionRect: boolean = true;
+    enableDefaultSelectionBehavior: boolean = true;
 
     /** Called once on load */
     setup(ctx: EditorContext): void {

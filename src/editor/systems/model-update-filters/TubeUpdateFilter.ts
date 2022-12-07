@@ -1,4 +1,4 @@
-import {BufferGeometry, Group, Line, LineBasicMaterial, Mesh, Object3D, Vector3} from 'three';
+import {BufferGeometry, Group, Line, Mesh, Object3D, Vector3} from 'three';
 import {ParametricGeometries} from 'three/examples/jsm/geometries/ParametricGeometries';
 import EditorContext from '../../EditorContext';
 import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';

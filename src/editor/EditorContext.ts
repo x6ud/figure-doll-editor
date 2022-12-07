@@ -1,4 +1,4 @@
-import {Object3D, Scene, WebGLRenderer} from 'three';
+import {Object3D, Scene, Vector2, WebGLRenderer} from 'three';
 import {toRaw} from 'vue';
 import EditorView from './EditorView';
 import Model from './model/Model';
@@ -72,6 +72,12 @@ export default class EditorContext {
     /** Used for setting transform control handler position */
     dummyObject = new Object3D();
 
+    selectionRectDragging = false;
+    selectionRectViewIndex = -1;
+    selectionRectSetThisFrame = false;
+    selectionStart = new Vector2();
+    selectionEnd = new Vector2();
+
     model = new Model();
     history = new ModelHistory(this.model);
     fps: number = 0;
@@ -113,6 +119,9 @@ export default class EditorContext {
         this.scene.add(this.yzGrids);
         this.scene.add(this.xyGrids);
         this.scene.add(this.dummyObject);
+        for (let system of this.systems) {
+            system.setup(this);
+        }
         for (let tool of this.tools) {
             tool.setup(this);
         }
@@ -122,6 +131,9 @@ export default class EditorContext {
         this.history.unload();
         for (let view of this.views) {
             view.dispose();
+        }
+        for (let system of this.systems) {
+            system.dispose();
         }
         for (let tool of this.tools) {
             tool.dispose();

@@ -8,8 +8,11 @@ import icon from './Tube.png';
 export default class TubeTool extends EditorTool {
     label = 'Tube';
     icon = icon;
+    enableDefaultDeleteShortcut = false;
+    enableDefaultSelectionBehavior = false;
 
     private nodes: ModelNode[] = [];
+    private enableDeleteThisFrame = true;
 
     begin(ctx: EditorContext) {
         for (let node of this.nodes) {
@@ -24,6 +27,8 @@ export default class TubeTool extends EditorTool {
                 cTube.selected.length = 0;
             }
         }
+        this.enableDefaultDeleteShortcut = true;
+        this.enableDeleteThisFrame = true;
         this.nodes = ctx.model.getSelectedNodes().filter(node => node.has(CTube));
         for (let node of this.nodes) {
             const cTube = node.get(CTube);
@@ -31,11 +36,26 @@ export default class TubeTool extends EditorTool {
                 cTube.group.visible = true;
             }
             cTube.hovered = -1;
+            if (cTube.selected.length) {
+                this.enableDefaultDeleteShortcut = false;
+            }
         }
     }
 
     update(ctx: EditorContext, view: EditorView) {
         const input = view.input;
+        if (input.isKeyPressed('Delete') && this.enableDeleteThisFrame) {
+            this.enableDeleteThisFrame = false;
+            for (let node of this.nodes) {
+                const cTube = node.get(CTube);
+                if (cTube.selected.length) {
+                    const tube = cTube.clone().filter((_, i) => !cTube.selected.includes(i));
+                    cTube.selected.length = 0;
+                    ctx.history.setValue(node, CTube, tube);
+                }
+            }
+            return;
+        }
         if (input.mouseOver) {
             for (let node of this.nodes) {
                 const cTube = node.get(CTube);
@@ -43,16 +63,6 @@ export default class TubeTool extends EditorTool {
                 if (result.length) {
                     const index = (result[0].object.userData as TubeNodePickerUserData).index;
                     cTube.hovered = index == null ? -1 : index;
-                    if (index != null) {
-                        if (input.mouseLeftDownThisFrame) {
-                            if (input.isKeyPressed('Control')) {
-                                cTube.addSelection(index);
-                            } else {
-                                cTube.selected = [index];
-                            }
-                        }
-                    }
-
                 } else {
                     cTube.hovered = -1;
                 }

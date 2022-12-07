@@ -25,7 +25,6 @@ const filePickerAcceptType: FilePickerAcceptType = {
     accept: {'application/puppet-editor': [extension]}
 };
 
-
 export default defineComponent({
     components: {
         FullscreenLoading,
@@ -354,6 +353,9 @@ export default defineComponent({
                 return;
             }
             if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
+                return;
+            }
+            if (!editorContext.value!.tool.enableDefaultDeleteShortcut) {
                 return;
             }
             const model = editorContext.value!.model;
