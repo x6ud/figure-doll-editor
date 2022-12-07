@@ -1,9 +1,13 @@
+import {Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CTube, {TubeNodePickerUserData} from '../model/components/CTube';
 import ModelNode from '../model/ModelNode';
+import {intersectPointRect} from '../utils/math';
 import EditorTool from './EditorTool';
 import icon from './Tube.png';
+
+const _pos = new Vector3();
 
 export default class TubeTool extends EditorTool {
     label = 'Tube';
@@ -44,6 +48,7 @@ export default class TubeTool extends EditorTool {
 
     update(ctx: EditorContext, view: EditorView) {
         const input = view.input;
+        // delete
         if (input.isKeyPressed('Delete') && this.enableDeleteThisFrame) {
             this.enableDeleteThisFrame = false;
             for (let node of this.nodes) {
@@ -56,6 +61,7 @@ export default class TubeTool extends EditorTool {
             }
             return;
         }
+        // find hovered
         if (input.mouseOver) {
             for (let node of this.nodes) {
                 const cTube = node.get(CTube);
@@ -65,6 +71,39 @@ export default class TubeTool extends EditorTool {
                     cTube.hovered = index == null ? -1 : index;
                 } else {
                     cTube.hovered = -1;
+                }
+            }
+        }
+        // select
+        if (ctx.selectionRectSetThisFrame
+            && ctx.selectionRectViewIndex === view.index
+        ) {
+            if (ctx.selectionStart.equals(ctx.selectionEnd)) {
+                for (let node of this.nodes) {
+                    const cTube = node.get(CTube);
+                    if (!input.isKeyPressed('Control')) {
+                        cTube.selected.length = 0;
+                    }
+                    if (cTube.hovered >= 0) {
+                        cTube.addSelection(cTube.hovered);
+                    }
+                }
+            } else {
+                const camera = view.camera.get();
+                for (let node of this.nodes) {
+                    const cTube = node.get(CTube);
+                    if (!input.isKeyPressed('Control')) {
+                        cTube.selected.length = 0;
+                    }
+                    for (let obj of cTube.pickers) {
+                        _pos.setFromMatrixPosition(obj.matrixWorld).project(camera);
+                        if (intersectPointRect(_pos, ctx.selectionStart, ctx.selectionEnd)) {
+                            const index = (obj.userData as TubeNodePickerUserData).index;
+                            if (index != null) {
+                                cTube.addSelection(index);
+                            }
+                        }
+                    }
                 }
             }
         }

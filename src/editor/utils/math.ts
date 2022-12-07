@@ -1,4 +1,4 @@
-import {Matrix4, Quaternion, Vector3} from 'three';
+import {Matrix4, Quaternion, Vector2, Vector3} from 'three';
 
 export const linePanelIntersection = (function () {
     const _l = new Vector3();
@@ -180,4 +180,14 @@ export function vectorsEqual(a: Vector3, b: Vector3) {
     return Math.abs(a.x - b.x) < 1e-8
         && Math.abs(a.y - b.y) < 1e-8
         && Math.abs(a.z - b.z) < 1e-8;
+}
+
+export function intersectPointRect(point: Vector2 | Vector3, rectStart: Vector2, rectEnd: Vector2) {
+    const x0 = Math.min(rectStart.x, rectEnd.x),
+        x1 = Math.max(rectStart.x, rectEnd.x),
+        y0 = Math.min(rectStart.y, rectEnd.y),
+        y1 = Math.max(rectStart.y, rectEnd.y),
+        x = point.x,
+        y = point.y;
+    return !(x < x0 || x > x1 || y < y0 || y > y1);
 }
