@@ -68,6 +68,7 @@ export default class EditorContext {
     readonly mainViewIndex: number;
     /** Used for setting transform control handler position */
     dummyObject = new Object3D();
+    disableCameraDraggingThisFrame = false;
 
     selectionRectDragging = false;
     selectionRectViewIndex = -1;

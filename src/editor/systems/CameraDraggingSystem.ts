@@ -32,6 +32,11 @@ export default class CameraDraggingSystem extends UpdateSystem<EditorContext> {
     ];
 
     begin(ctx: EditorContext): void {
+        if (ctx.disableCameraDraggingThisFrame) {
+            ctx.disableCameraDraggingThisFrame = false;
+            return;
+        }
+
         let changedIndex = -1;
         for (let view of ctx.views) {
             const state = this.states[view.index];
