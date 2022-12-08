@@ -33,7 +33,6 @@ export default class TubeTool extends EditorTool {
     private enableDeleteThisFrame = true;
 
     private dragging = false;
-    private dragMoved = false;
     private draggingActiveViewIndex = -1;
     private mouse0 = new Vector3();
 
@@ -130,9 +129,7 @@ export default class TubeTool extends EditorTool {
         }
         // drag move
         if (this.dragging && view.index === this.draggingActiveViewIndex) {
-            if (this.dragMoved) {
-                this.enableSelectionRect = false;
-            }
+            this.enableSelectionRect = false;
             if (input.mouseLeft) {
                 if (linePanelIntersection(
                     _mouse1,
@@ -140,9 +137,6 @@ export default class TubeTool extends EditorTool {
                     this.mouse0, view.mouseRayN
                 )) {
                     _det.subVectors(_mouse1, this.mouse0);
-                    if (_det.lengthSq() > 1e-6) {
-                        this.dragMoved = true;
-                    }
                     let draggingSelected = true;
                     for (let node of this.nodes) {
                         const cTube = node.get(CTube);
@@ -172,6 +166,16 @@ export default class TubeTool extends EditorTool {
                             ctx.history.setValue(node, CTube, val);
                         }
                     }
+                    if (!draggingSelected) {
+                        for (let node of this.nodes) {
+                            const cTube = node.get(CTube);
+                            if (cTube.draggingStartNodeIndex >= 0) {
+                                cTube.selected = [cTube.draggingStartNodeIndex];
+                            } else {
+                                cTube.selected = [];
+                            }
+                        }
+                    }
                 }
             } else {
                 // drag end
@@ -197,7 +201,6 @@ export default class TubeTool extends EditorTool {
                     if (input.mouseLeftDownThisFrame) {
                         // drag start
                         this.dragging = true;
-                        this.dragMoved = false;
                         this.draggingActiveViewIndex = view.index;
                         this.mouse0.copy(result[0].point);
                         cTube.draggingStartNodeIndex = cTube.hovered;
@@ -234,20 +237,19 @@ export default class TubeTool extends EditorTool {
                     }
                 }
             }
-        }
-        // start creating node
-        if (!this.dragging && !this.creating && input.isKeyPressed('Alt')) {
-            this.creating = true;
-            // set new node radius as current selected node
-            for (let node of this.nodes) {
-                const cTube = node.get(CTube);
-                if (cTube.selected.length) {
-                    this.radius = cTube.value[cTube.selected[0]].radius;
-                    this.radius *= getScaleScalar(node.getWorldMatrix());
-                    break;
+            // start creating node
+            if (!this.dragging && !this.creating && input.isKeyPressed('Alt')) {
+                this.creating = true;
+                // set new node radius as current selected node
+                for (let node of this.nodes) {
+                    const cTube = node.get(CTube);
+                    if (cTube.selected.length) {
+                        this.radius = cTube.value[cTube.selected[0]].radius;
+                        this.radius *= getScaleScalar(node.getWorldMatrix());
+                        break;
+                    }
                 }
             }
-            return;
         }
         // creating node
         if (this.creating) {
@@ -361,6 +363,7 @@ export default class TubeTool extends EditorTool {
                                 }
                             });
                         }
+                        this.creating = false;
                     }
                 }
             } else {
