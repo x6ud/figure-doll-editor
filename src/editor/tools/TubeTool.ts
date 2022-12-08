@@ -143,19 +143,27 @@ export default class TubeTool extends EditorTool {
                     if (_det.lengthSq() > 1e-6) {
                         this.dragMoved = true;
                     }
+                    let draggingSelected = true;
+                    for (let node of this.nodes) {
+                        const cTube = node.get(CTube);
+                        if (cTube.draggingStartNodeIndex >= 0) {
+                            draggingSelected = cTube.selected.includes(cTube.draggingStartNodeIndex);
+                            break;
+                        }
+                    }
                     for (let node of this.nodes) {
                         const cTube = node.get(CTube);
                         if (cTube.selected.length || cTube.draggingStartNodeIndex >= 0) {
                             const val = cTube.clone(cTube.draggingStartValue!);
-                            for (let index of cTube.selected) {
-                                val[index].position
-                                    .applyMatrix4(cTube.draggingStartMatrix!)
-                                    .add(_det)
-                                    .applyMatrix4(cTube.draggingStartInvMatrix!);
+                            if (draggingSelected) {
+                                for (let index of cTube.selected) {
+                                    val[index].position
+                                        .applyMatrix4(cTube.draggingStartMatrix!)
+                                        .add(_det)
+                                        .applyMatrix4(cTube.draggingStartInvMatrix!);
+                                }
                             }
-                            if (cTube.draggingStartNodeIndex >= 0
-                                && !cTube.selected.includes(cTube.draggingStartNodeIndex)
-                            ) {
+                            if (cTube.draggingStartNodeIndex >= 0 && !draggingSelected) {
                                 val[cTube.draggingStartNodeIndex].position
                                     .applyMatrix4(cTube.draggingStartMatrix!)
                                     .add(_det)
