@@ -28,6 +28,7 @@ export default class TubeTool extends EditorTool {
     enableSelectionRect = true;
     enableDefaultSelectionBehavior = false;
 
+    /** Selected nodes with CTube component */
     private nodes: ModelNode[] = [];
     private enableDeleteThisFrame = true;
 
@@ -36,6 +37,7 @@ export default class TubeTool extends EditorTool {
     private draggingActiveViewIndex = -1;
     private mouse0 = new Vector3();
 
+    /** Indicator for creating node */
     private circle = new Line(
         new CircleEdgeGeometry(),
         new LineBasicMaterial({
@@ -47,16 +49,20 @@ export default class TubeTool extends EditorTool {
             color: 0xff00ff
         })
     );
+    /** Indicator for creating node */
     private line1 = new Line(
         new BufferGeometry().setFromPoints([new Vector3(0, 0, 0), new Vector3(1, 0, 0)]),
         this.circle.material.clone()
     );
+    /** Indicator for creating node */
     private line2 = new Line(
         this.line1.geometry.clone(),
         this.line1.material.clone()
     );
     private creating = false;
+    /** Creating node radius */
     private radius = 0.1;
+    /** New node id that created in previous frame */
     private lastNodeId = 0;
 
     setup(ctx: EditorContext) {
@@ -108,7 +114,7 @@ export default class TubeTool extends EditorTool {
 
     update(ctx: EditorContext, view: EditorView) {
         const input = view.input;
-        // delete
+        // delete selected tube nodes
         if (input.isKeyPressed('Delete') && this.enableDeleteThisFrame) {
             this.enableDeleteThisFrame = false;
             for (let node of this.nodes) {
@@ -175,6 +181,7 @@ export default class TubeTool extends EditorTool {
                 const cTube = node.get(CTube);
                 const result = view.raycaster.intersectObjects(cTube.pickers);
                 if (result.length) {
+                    // found
                     const index = (result[0].object.userData as TubeNodePickerUserData).index;
                     cTube.hovered = index == null ? -1 : index;
 
@@ -186,6 +193,7 @@ export default class TubeTool extends EditorTool {
                         this.mouse0.copy(result[0].point);
                         cTube.draggingStartNodeIndex = cTube.hovered;
                     } else if (input.wheelDetY && cTube.selected.includes(cTube.hovered)) {
+                        // wheel resize radius
                         resize = true;
                     }
                 } else {
@@ -203,7 +211,7 @@ export default class TubeTool extends EditorTool {
                     }
                 }
             }
-            // set radius
+            // wheel resize radius
             if (resize) {
                 ctx.disableCameraDraggingThisFrame = true;
                 for (let node of this.nodes) {
@@ -221,6 +229,7 @@ export default class TubeTool extends EditorTool {
         // start creating node
         if (!this.dragging && !this.creating && input.isKeyPressed('Alt')) {
             this.creating = true;
+            // set new node radius as current selected node
             for (let node of this.nodes) {
                 const cTube = node.get(CTube);
                 if (cTube.selected.length) {
@@ -236,6 +245,7 @@ export default class TubeTool extends EditorTool {
             if (input.isKeyPressed('Alt')) {
                 this.enableSelectionRect = false;
                 if (input.mouseOver) {
+                    // find insert position
                     let node: ModelNode | null = null;
                     let cTube: CTube | null = null;
                     let index = -1;
@@ -259,15 +269,18 @@ export default class TubeTool extends EditorTool {
                             }
                         }
                     }
+                    // get mouse pointing position
                     linePanelIntersection(
                         this.circle.position,
                         view.mouseRay0, view.mouseRay1,
                         _pos, view.mouseRayN
                     );
+                    // wheel resize radius
                     if (input.wheelDetY) {
                         this.radius = Math.min(MAX_RADIUS, Math.max(MIN_RADIUS, -input.wheelDetY * RESIZE_STEP + this.radius));
                         ctx.disableCameraDraggingThisFrame = true;
                     }
+                    // update indicator position
                     this.circle.scale.setScalar(this.radius);
                     this.circle.visible = true;
                     this.line1.visible = false;
@@ -295,10 +308,12 @@ export default class TubeTool extends EditorTool {
                             });
                         }
                     }
+                    // left click to create node
                     if (input.mouseLeftDownThisFrame) {
                         _pos.copy(this.circle.position);
                         let radius = this.radius;
                         if (node) {
+                            // insert tube node
                             _mat.copy(node.getWorldMatrix()).invert();
                             _pos.applyMatrix4(_mat);
                             radius *= getScaleScalar(_mat);
@@ -310,6 +325,7 @@ export default class TubeTool extends EditorTool {
                             cTube!.selected = [index + 1];
                             ctx.history.setValue(node, CTube, value);
                         } else {
+                            // create a new tube
                             let parent = null;
                             if (this.nodes.length) {
                                 parent = this.nodes[0].parent;
@@ -347,6 +363,7 @@ export default class TubeTool extends EditorTool {
             && ctx.selectionRectViewIndex === view.index
         ) {
             if (ctx.selectionStart.equals(ctx.selectionEnd)) {
+                // click select
                 for (let node of this.nodes) {
                     const cTube = node.get(CTube);
                     if (cTube.selected.includes(cTube.hovered)) {
@@ -363,6 +380,7 @@ export default class TubeTool extends EditorTool {
                     }
                 }
             } else {
+                // rect area select
                 const camera = view.camera.get();
                 for (let node of this.nodes) {
                     const cTube = node.get(CTube);
@@ -391,6 +409,7 @@ export default class TubeTool extends EditorTool {
     }
 
     beforeRender(ctx: EditorContext, view: EditorView) {
+        // make indicator circles facing screen
         for (let node of this.nodes) {
             const cTube = node.get(CTube);
             getRotation(_rot, node.getWorldMatrix()).invert();
