@@ -9,6 +9,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
 
     private prevTool?: EditorTool;
     private selectionRect = new SelectionRect();
+    private dragMovedFramesCount = 0;
 
     begin(ctx: EditorContext): void {
         const tool = ctx.tool;
@@ -30,6 +31,12 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                             // drag move
                             this.selectionRect.setPoint2(x, y);
                             ctx.selectionEnd.set(x, y);
+                            if (this.dragMovedFramesCount < 2) {
+                                this.selectionRect.hide();
+                                if (this.dragMovedFramesCount || !ctx.selectionStart.equals(ctx.selectionEnd)) {
+                                    this.dragMovedFramesCount += 1;
+                                }
+                            }
                         } else {
                             // drag start
                             ctx.selectionRectDragging = true;
@@ -39,6 +46,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                             this.selectionRect.setPoint2(x, y);
                             ctx.selectionStart.set(x, y);
                             ctx.selectionEnd.set(x, y);
+                            this.dragMovedFramesCount = 0;
                         }
                     }
                 }
@@ -50,14 +58,28 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                     if (tool.enableDefaultSelectionBehavior) {
                         if (ctx.selectionStart.equals(ctx.selectionEnd)) {
                             const result = view.mousePick();
-                            if (!view.input.isKeyPressed('Control')) {
-                                ctx.model.selected = [];
-                            }
+                            let id = 0;
                             for (let obj of result) {
                                 const node = (result[0].object.userData as Object3DUserData).node;
                                 if (node) {
-                                    ctx.model.addSelection(node.id);
+                                    id = node.id;
                                     break;
+                                }
+                            }
+                            if (id) {
+                                if (ctx.model.selected.includes(id)) {
+                                    if (view.input.isKeyPressed('Control')) {
+                                        ctx.model.selected = ctx.model.selected.filter(curr => curr !== id);
+                                    }
+                                } else {
+                                    if (!view.input.isKeyPressed('Control')) {
+                                        ctx.model.selected = [];
+                                    }
+                                    ctx.model.addSelection(id);
+                                }
+                            } else {
+                                if (!view.input.isKeyPressed('Control')) {
+                                    ctx.model.selected = [];
                                 }
                             }
                         } else {

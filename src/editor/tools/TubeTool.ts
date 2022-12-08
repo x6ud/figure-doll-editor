@@ -23,7 +23,7 @@ export default class TubeTool extends EditorTool {
     private enableDeleteThisFrame = true;
 
     private dragging = false;
-    private mouseMoved = false;
+    private dragMoved = false;
     private draggingActiveViewIndex = -1;
     private mouse0 = new Vector3();
 
@@ -73,7 +73,7 @@ export default class TubeTool extends EditorTool {
         }
         // drag move
         if (this.dragging && view.index === this.draggingActiveViewIndex) {
-            if (this.mouseMoved) {
+            if (this.dragMoved) {
                 this.enableSelectionRect = false;
             }
             if (input.mouseLeft) {
@@ -84,7 +84,7 @@ export default class TubeTool extends EditorTool {
                 )) {
                     _det.subVectors(_mouse1, this.mouse0);
                     if (_det.lengthSq() > 1e-6) {
-                        this.mouseMoved = true;
+                        this.dragMoved = true;
                     }
                     for (let node of this.nodes) {
                         const cTube = node.get(CTube);
@@ -130,7 +130,7 @@ export default class TubeTool extends EditorTool {
                     // drag start
                     if (input.mouseLeftDownThisFrame) {
                         this.dragging = true;
-                        this.mouseMoved = false;
+                        this.dragMoved = false;
                         this.draggingActiveViewIndex = view.index;
                         this.mouse0.copy(result[0].point);
                         cTube.draggingStartNodeIndex = cTube.hovered;
@@ -158,11 +158,17 @@ export default class TubeTool extends EditorTool {
             if (ctx.selectionStart.equals(ctx.selectionEnd)) {
                 for (let node of this.nodes) {
                     const cTube = node.get(CTube);
-                    if (!input.isKeyPressed('Control')) {
-                        cTube.selected.length = 0;
-                    }
-                    if (cTube.hovered >= 0) {
-                        cTube.addSelection(cTube.hovered);
+                    if (cTube.selected.includes(cTube.hovered)) {
+                        if (input.isKeyPressed('Control')) {
+                            cTube.selected = cTube.selected.filter(i => i !== cTube.hovered);
+                        }
+                    } else {
+                        if (!input.isKeyPressed('Control')) {
+                            cTube.selected.length = 0;
+                        }
+                        if (cTube.hovered >= 0) {
+                            cTube.addSelection(cTube.hovered);
+                        }
                     }
                 }
             } else {

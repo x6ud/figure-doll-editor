@@ -203,7 +203,10 @@ export default defineComponent({
                 fullscreenLoading.value = true;
                 await nextTick();
                 const stream = await fileHandle.createWritable({keepExistingData: false});
-                await stream.write(new ProjectWriter().write(editorContext.value!).getBytes());
+                const bytes = new ProjectWriter().write(editorContext.value!).getBytes();
+                editorContext.value!.statusBarMessage = 'Writing files...';
+                await nextTick();
+                await stream.write(bytes);
                 await stream.close();
                 editorContext.value!.history.save();
                 editorContext.value!.statusBarMessage = 'File saved.';

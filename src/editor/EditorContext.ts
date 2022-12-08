@@ -66,9 +66,6 @@ export default class EditorContext {
     scene = new Scene();
     views: EditorView[];
     readonly mainViewIndex: number;
-    xzGrids: Grids;
-    yzGrids: Grids;
-    xyGrids: Grids;
     /** Used for setting transform control handler position */
     dummyObject = new Object3D();
 
@@ -102,22 +99,24 @@ export default class EditorContext {
         this.mainViewIndex = 1;
         this.views = [
             // top
-            new EditorView(this, 0, view1, -Math.PI / 2, -Math.PI / 2, false),
+            new EditorView(this, 0, view1, -Math.PI / 2, -Math.PI / 2, false,
+                new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555, false)
+            ),
             // main
-            new EditorView(this, 1, view2, -Math.PI / 8, -Math.PI / 4, true),
+            new EditorView(this, 1, view2, -Math.PI / 8, -Math.PI / 4, true,
+                new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555)
+            ),
             // front
-            new EditorView(this, 2, view3, 0, -Math.PI / 2, false),
+            new EditorView(this, 2, view3, 0, -Math.PI / 2, false,
+                new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x6FA51B, 0x555555, false)
+                    .rotateX(Math.PI / 2)
+            ),
             // right
-            new EditorView(this, 3, view4, 0, 0, false),
+            new EditorView(this, 3, view4, 0, 0, false,
+                new Grids(GRIDS_SIZE, GRIDS_SIZE, 0x6FA51B, 0x2F83E3, 0x555555, false)
+                    .rotateZ(Math.PI / 2)
+            ),
         ];
-        this.xzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555);
-        this.yzGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x6FA51B, 0x555555);
-        this.yzGrids.rotateX(Math.PI / 2);
-        this.xyGrids = new Grids(GRIDS_SIZE, GRIDS_SIZE, 0x6FA51B, 0x2F83E3, 0x555555);
-        this.xyGrids.rotateZ(Math.PI / 2);
-        this.scene.add(this.xzGrids);
-        this.scene.add(this.yzGrids);
-        this.scene.add(this.xyGrids);
         this.scene.add(this.dummyObject);
         for (let system of this.systems) {
             system.setup(this);

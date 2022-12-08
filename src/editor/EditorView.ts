@@ -1,4 +1,4 @@
-import {DirectionalLight, Raycaster, Vector2, Vector3} from 'three';
+import {DirectionalLight, Object3D, Raycaster, Vector2, Vector3} from 'three';
 import {TransformControls} from 'three/examples/jsm/controls/TransformControls';
 import EditorContext from './EditorContext';
 import {Object3DUserData} from './model/components/CObject3D';
@@ -10,6 +10,7 @@ export default class EditorView {
     index: number;
     enabled: boolean = true;
     element: HTMLElement;
+    grids: Object3D;
     camera = new ArcRotateCamera();
     zoomLevel = 0;
     left: number = 0;
@@ -29,17 +30,20 @@ export default class EditorView {
     constructor(ctx: EditorContext,
                 index: number,
                 element: HTMLElement,
-                alpha: number = 0,
-                beta: number = 0,
-                perspective: boolean = true
+                cameraAlpha: number,
+                cameraBeta: number,
+                cameraPerspective: boolean,
+                grids: Object3D
     ) {
         this.ctx = ctx;
         this.index = index;
         this.element = element;
+        this.grids = grids;
+        ctx.scene.add(grids);
         this.input.setup(element);
-        this.camera.alpha = alpha;
-        this.camera.beta = beta;
-        this.camera.perspective = perspective;
+        this.camera.alpha = cameraAlpha;
+        this.camera.beta = cameraBeta;
+        this.camera.perspective = cameraPerspective;
         this.transformControls = new TransformControls(this.camera.get(), element);
         ctx.scene.add(this.transformControls);
         this.defaultLight = new DirectionalLight();

@@ -10,20 +10,19 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
         renderer.setScissorTest(true);
         renderer.setClearColor(0x000000, 0.0);
         renderer.clear();
-        for (let view of ctx.views) {
-            for (let view2 of ctx.views) {
-                view2.transformControls.visible = view === view2 && ctx.tool.enableTransformControls;
-                view2.defaultLight.visible = view === view2;
+        for (let curr of ctx.views) {
+            for (let view of ctx.views) {
+                const active = curr === view;
+                view.transformControls.visible = active && ctx.tool.enableTransformControls;
+                view.defaultLight.visible = active;
+                view.grids.visible = active;
             }
-            if (view.enabled) {
-                if (view.width && view.height) {
-                    ctx.tool.beforeRender(ctx, view);
-                    ctx.xzGrids.visible = ctx.showGrids && (view.index === ctx.mainViewIndex || view.index === 0);
-                    ctx.yzGrids.visible = ctx.showGrids && view.index === 2;
-                    ctx.xyGrids.visible = ctx.showGrids && view.index === 3;
-                    renderer.setViewport(-rect.left + view.left, rect.bottom - view.bottom, view.width, view.height);
-                    renderer.setScissor(-rect.left + view.left, rect.bottom - view.bottom, view.width, view.height);
-                    renderer.render(ctx.scene, view.camera.get());
+            if (curr.enabled) {
+                if (curr.width && curr.height) {
+                    ctx.tool.beforeRender(ctx, curr);
+                    renderer.setViewport(-rect.left + curr.left, rect.bottom - curr.bottom, curr.width, curr.height);
+                    renderer.setScissor(-rect.left + curr.left, rect.bottom - curr.bottom, curr.width, curr.height);
+                    renderer.render(ctx.scene, curr.camera.get());
                 }
             }
         }

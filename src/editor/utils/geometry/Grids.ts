@@ -1,7 +1,13 @@
 import {BufferGeometry, Color, Float32BufferAttribute, LineBasicMaterial, LineSegments, Material} from 'three';
 
 export default class Grids extends LineSegments {
-    constructor(size = 10, divisions = 10, color1_ = 0x444444, color2_ = 0x444444, color3_ = 0x888888) {
+    constructor(size = 10,
+                divisions = 10,
+                color1_ = 0x444444,
+                color2_ = 0x444444,
+                color3_ = 0x888888,
+                depthWrite: boolean = true
+    ) {
         const color1 = new Color(color1_);
         const color2 = new Color(color2_);
         const color3 = new Color(color3_);
@@ -27,7 +33,11 @@ export default class Grids extends LineSegments {
         const geometry = new BufferGeometry();
         geometry.setAttribute('position', new Float32BufferAttribute(vertices, 3));
         geometry.setAttribute('color', new Float32BufferAttribute(colors, 3));
-        const material = new LineBasicMaterial({vertexColors: true, toneMapped: false});
+        const material = new LineBasicMaterial({
+            vertexColors: true,
+            toneMapped: false,
+            depthWrite: depthWrite
+        });
         super(geometry, material);
         this.type = 'Grids';
     }
