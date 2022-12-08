@@ -101,6 +101,7 @@ export default class TubeTool extends EditorTool {
             }
             if (node.id === this.lastNodeId && cTube.value.length) {
                 cTube.selected = [0];
+                this.lastNodeId = 0;
             }
         }
         this.enableSelectionRect = true;
