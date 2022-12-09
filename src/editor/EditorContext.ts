@@ -149,6 +149,12 @@ export default class EditorContext {
         for (let i = 0; i < this.views.length; ++i) {
             const view = this.views[i];
             view.enabled = i === this.mainViewIndex || this.quadView;
+            if (i === this.mainViewIndex) {
+                const camera = view.camera;
+                camera.perspective =
+                    Math.abs(camera.alpha % (Math.PI / 2)) > 1e-8
+                    || Math.abs(camera.beta % (Math.PI / 2)) > 1e-8;
+            }
         }
         for (let view of this.views) {
             if (view.enabled) {

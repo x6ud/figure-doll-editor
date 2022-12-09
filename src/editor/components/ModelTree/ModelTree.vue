@@ -1,7 +1,7 @@
 <template>
     <div class="model-tree"
          @click.left.self="onSetSelection([])"
-         @contextmenu.prevent="onContextMenu(undefined, $event)"
+         @contextmenu.self.prevent="onContextMenu(undefined, $event)"
     >
         <model-tree-node v-for="node in model.nodes"
                          :key="node.id"

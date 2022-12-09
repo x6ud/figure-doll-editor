@@ -206,9 +206,15 @@ export default class TubeTool extends EditorTool {
                         this.draggingActiveViewIndex = view.index;
                         this.mouse0.copy(result[0].point);
                         cTube.draggingStartNodeIndex = cTube.hovered;
-                    } else if (input.wheelDetY && cTube.selected.includes(cTube.hovered)) {
+                    } else if (input.wheelDetY) {
                         // wheel resize radius
-                        resize = true;
+                        for (let item of result) {
+                            const index = (item.object.userData as TubeNodePickerUserData).index;
+                            if (index != null && cTube.selected.includes(index)) {
+                                resize = true;
+                                break;
+                            }
+                        }
                     }
                 } else {
                     cTube.hovered = -1;

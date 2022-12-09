@@ -19,8 +19,9 @@ const _mouse0 = new Vector3();
 const _mouse1 = new Vector3();
 const _det = new Vector3();
 
-const MAX_ZOOM = 20;
-const MIN_ZOOM = -10;
+const MAX_ZOOM = 40;
+const MIN_ZOOM = -20;
+const ZOOM_STEP = 2.5;
 
 export default class CameraDraggingSystem extends UpdateSystem<EditorContext> {
 
@@ -110,8 +111,8 @@ export default class CameraDraggingSystem extends UpdateSystem<EditorContext> {
         for (let view of ctx.views) {
             if (view.enabled) {
                 view.camera.distance = view.zoomLevel >= 0 ?
-                    5.0 + view.zoomLevel
-                    : 5.0 - (view.zoomLevel / MIN_ZOOM) * 5.0;
+                    ZOOM_STEP + view.zoomLevel
+                    : ZOOM_STEP - (view.zoomLevel / MIN_ZOOM) * ZOOM_STEP;
             }
         }
     }

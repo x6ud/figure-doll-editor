@@ -15,7 +15,7 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
                 const active = curr === view;
                 view.transformControls.visible = active && ctx.tool.enableTransformControls;
                 view.defaultLight.visible = active;
-                view.grids.visible = active;
+                view.grids.visible = active && ctx.showGrids;
             }
             if (curr.enabled) {
                 if (curr.width && curr.height) {

@@ -24,12 +24,15 @@ const normalMaterial = new LineBasicMaterial({
     fog: false,
     toneMapped: false,
     transparent: true,
-    color: 0x000000
+    color: 0xffffff,
+    opacity: 0.5,
 });
 const hoveredMaterial = normalMaterial.clone();
 hoveredMaterial.color.setHex(0xffff00);
+hoveredMaterial.opacity = 1;
 const selectedMaterial = normalMaterial.clone();
 selectedMaterial.color.setHex(0xf3982d);
+selectedMaterial.opacity = 1;
 
 @registerModelComponent({
     storable: true,
