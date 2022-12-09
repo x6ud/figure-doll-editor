@@ -1,6 +1,7 @@
 import {Vector2, Vector3} from 'three';
 import {Tube} from '../../model/components/CTube';
 
+const _det = new Vector3();
 const _cross = new Vector3();
 const _axis = new Vector3();
 const _u = new Vector3();
@@ -8,14 +9,15 @@ const _v = new Vector3();
 
 // https://github.com/huxingyi/dust3d/blob/master/dust3d/mesh/tube_mesh_builder.cc
 export default class TubeMeshBuilder {
-    private readonly tube: Tube;
+    private tube: Tube;
     private directions: Vector3[] = [];
     private forwardDirections: Vector3[] = [];
     private forwardDistances: number[] = [];
     private baseNormal = new Vector3();
     private cutFaceVertices: Vector3[] = [];
 
-    roundEnd: boolean = true;
+    enableInterpolation: boolean = true;
+    enableRoundingEnds: boolean = false;
     cutFace: Vector2[] = [
         new Vector2(-1, -1),
         new Vector2(1, -1),
@@ -28,7 +30,8 @@ export default class TubeMeshBuilder {
     }
 
     build() {
-        this.applyRoundEnd();
+        this.applyInterpolation();
+        this.applyRoundingEnds();
         this.calcDirections();
         this.calcBaseNormal();
         for (let i = 0; i < this.tube.length; ++i) {
@@ -43,12 +46,29 @@ export default class TubeMeshBuilder {
             vertices.push(this.cutFaceVertices[j]);
             vertices.push(this.cutFaceVertices[0]);
         }
+        const faceLen = this.cutFace.length;
         for (let j = 0, len = this.tube.length; j + 1 < len; ++j) {
-            for (let k = 0, cfLen = this.cutFace.length; k < cfLen; ++k) {
-                const a = this.cutFaceVertices[j * cfLen + k];
-                const b = this.cutFaceVertices[j * cfLen + (k + 1) % cfLen];
-                const c = this.cutFaceVertices[(j + 1) * cfLen + (k + 1) % cfLen];
-                const d = this.cutFaceVertices[(j + 1) * cfLen + k];
+            let bestOffset = 0;
+            let maxDot = -1;
+            const dir = this.directions[j];
+            for (let offset = 0; offset < faceLen; ++offset) {
+                let dot = 1;
+                for (let k = 0; k < faceLen; ++k) {
+                    const a = this.cutFaceVertices[j * faceLen + k];
+                    const b = this.cutFaceVertices[(j + 1) * faceLen + (k + offset) % faceLen];
+                    _det.subVectors(b, a).normalize();
+                    dot += _det.dot(dir);
+                }
+                if (dot > maxDot) {
+                    bestOffset = offset;
+                    maxDot = dot;
+                }
+            }
+            for (let k = 0; k < faceLen; ++k) {
+                const a = this.cutFaceVertices[j * faceLen + k];
+                const b = this.cutFaceVertices[j * faceLen + (k + 1) % faceLen];
+                const c = this.cutFaceVertices[(j + 1) * faceLen + (k + bestOffset + 1) % faceLen];
+                const d = this.cutFaceVertices[(j + 1) * faceLen + (k + bestOffset) % faceLen];
                 vertices.push(a, b, c, a, c, d);
             }
         }
@@ -60,11 +80,40 @@ export default class TubeMeshBuilder {
         return vertices;
     }
 
-    private applyRoundEnd() {
+    private applyInterpolation() {
+        if (!this.enableInterpolation) {
+            return;
+        }
         if (this.tube.length <= 1) {
             return;
         }
-        if (!this.roundEnd) {
+        const tube: Tube = [this.tube[0]];
+        for (let j = 1, len = this.tube.length; j < len; ++j) {
+            const i = j - 1;
+            _det.subVectors(this.tube[i].position, this.tube[j].position);
+            const dist = _det.length();
+            const distRadius = this.tube[i].radius + this.tube[j].radius;
+            if (distRadius <= dist) {
+                const seg = Math.floor(dist / distRadius);
+                for (let k = 1; k < seg; ++k) {
+                    const ratio = k / seg;
+                    tube.push({
+                        radius: this.tube[i].radius * (1 - ratio) + this.tube[j].radius * ratio,
+                        position: new Vector3().copy(this.tube[i].position).multiplyScalar(1 - ratio)
+                            .addScaledVector(this.tube[j].position, ratio)
+                    });
+                }
+            }
+            tube.push(this.tube[j]);
+        }
+        this.tube = tube;
+    }
+
+    private applyRoundingEnds() {
+        if (this.tube.length <= 1) {
+            return;
+        }
+        if (!this.enableRoundingEnds) {
             return;
         }
         this.tube.unshift({
@@ -151,8 +200,7 @@ export default class TubeMeshBuilder {
     }
 
     private buildCutFaceVertices(center: Vector3, radius: number, forwardDirection: Vector3) {
-        _u.copy(this.baseNormal).negate();
-        _v.crossVectors(forwardDirection, _u).normalize().multiplyScalar(radius);
+        _v.crossVectors(forwardDirection, this.baseNormal).normalize().multiplyScalar(radius);
         _u.crossVectors(_v, forwardDirection).normalize().multiplyScalar(radius);
         for (let i = 0, len = this.cutFace.length; i < len; ++i) {
             this.cutFaceVertices.push(

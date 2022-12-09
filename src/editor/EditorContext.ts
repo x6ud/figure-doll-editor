@@ -83,7 +83,7 @@ export default class EditorContext {
     statusBarMessage: string = '';
     tool: EditorTool = this.tools[0];
     nextFrameCallbacks: (() => void)[] = [];
-    quadView: boolean = true;
+    quadView: boolean = false;
     showGrids: boolean = true;
     keepTransformUnchangedWhileMoving: boolean = true;
 
