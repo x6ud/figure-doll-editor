@@ -1,22 +1,25 @@
 import {Matrix4} from 'three';
 import Class from '../../common/type/Class';
+import {uint8ArrayToDataUrl} from '../utils/convert';
 import CObject3D from './components/CObject3D';
 import ModelNodeComponent from './ModelNodeComponent';
-import {getModelNodeComponentDef} from './ModelNodeComponentDef';
+import {DataType, getModelNodeComponentDef} from './ModelNodeComponentDef';
 import {getValidChildNodeDefs} from './ModelNodeDef';
 
 const UNIT_MAT4 = new Matrix4();
 
-export type ModelNodeChildJson = {
+type ModelNodeJsonData = string | number | boolean | number[];
+
+type ModelNodeChildJson = {
     type: string;
-    data?: { [name: string]: any };
+    data?: { [name: string]: ModelNodeJsonData };
     children?: ModelNodeChildJson[];
 }
 
 export type ModelNodeJson = {
     type: string;
     parentId?: number;
-    data?: { [name: string]: any };
+    data?: { [name: string]: ModelNodeJsonData };
     children?: ModelNodeChildJson[];
 };
 
@@ -93,22 +96,33 @@ export default class ModelNode {
         return this.parent ? this.parent.getWorldMatrix() : UNIT_MAT4;
     }
 
-    toJson(): ModelNodeJson {
+    async toJson(): Promise<ModelNodeJson> {
+        const children: ModelNodeJson[] = [];
+        for (let child of this.children) {
+            children.push(await child.toJson());
+        }
         return {
             type: this.type,
             parentId: this.parent?.id,
-            data: this.getComponentsDataJson(),
-            children: this.children.map(node => node.toJson())
+            data: await this.getComponentsDataJson(),
+            children,
         };
     }
 
-    getComponentsDataJson(): { [name: string]: any } {
-        const ret: { [name: string]: any } = {};
+    async getComponentsDataJson(): Promise<{ [name: string]: ModelNodeJsonData }> {
+        const ret: { [name: string]: ModelNodeJsonData } = {};
         for (let componentName in this.components) {
             const componentDef = getModelNodeComponentDef(componentName);
             if (componentDef.storable) {
                 const component = this.components[componentName];
-                ret[componentName] = componentDef.clone ? componentDef.clone(component.value) : component.value;
+                let val = component.value;
+                if (componentDef.serialize) {
+                    val = componentDef.serialize(val);
+                }
+                if (val && componentDef.dataType === DataType.BYTES) {
+                    val = await uint8ArrayToDataUrl(val);
+                }
+                ret[componentName] = val;
             }
         }
         return ret;

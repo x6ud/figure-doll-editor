@@ -14,9 +14,11 @@ import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
 import ModelNode, {ModelNodeJson} from './model/ModelNode';
 import ModelNodeComponent from './model/ModelNodeComponent';
+import {DataType, getModelNodeComponentDef} from './model/ModelNodeComponentDef';
 import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} from './model/ModelNodeDef';
 import ProjectReader from './ProjectReader';
 import ProjectWriter from './ProjectWriter';
+import {dataUrlToUint8Array} from './utils/convert';
 import {getTranslation} from './utils/math';
 
 const extension = '.model';
@@ -377,70 +379,97 @@ export default defineComponent({
             }
         }
 
-        let clipboardContent: ModelNodeJson[] = [];
+        async function onCut(e?: KeyboardEvent) {
+            const targets = await onCopy(e);
+            if (targets) {
+                for (let node of targets) {
+                    editorContext.value!.history.removeNode(node.id);
+                }
+            }
+            focus();
+        }
 
-        function onCut(e?: KeyboardEvent) {
+        async function onCopy(e?: KeyboardEvent): Promise<ModelNode[] | void> {
             if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
                 return;
             }
             const targets = editorContext.value!.model.getTopmostSelectedNodes();
-            clipboardContent = targets.map(node => node.toJson());
+            const clipboardContext: ModelNodeJson[] = [];
             for (let node of targets) {
-                editorContext.value!.history.removeNode(node.id);
+                clipboardContext.push(await node.toJson());
             }
+            await navigator.clipboard.writeText(JSON.stringify(clipboardContext));
             focus();
+            return targets;
         }
 
-        function onCopy(e?: KeyboardEvent) {
-            if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
-                return;
-            }
-            const targets = editorContext.value!.model.getTopmostSelectedNodes();
-            clipboardContent = targets.map(node => node.toJson());
-            focus();
-        }
-
-        function onPaste(e?: ModelNode | KeyboardEvent) {
-            if (!clipboardContent.length) {
-                return;
-            }
+        async function onPaste(e?: ModelNode | KeyboardEvent) {
             if (e && 'target' in e && (e.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
                 return;
             }
-            let target: ModelNode | undefined = e instanceof ModelNode ? e : undefined;
-            const model = editorContext.value!.model;
-            if (!target) {
-                model.forEach(node => {
-                    if (model.selected.includes(node.id)) {
-                        target = node;
-                        return false;
+            try {
+                const json = JSON.parse(await navigator.clipboard.readText()) as ModelNodeJson[];
+                if (!Array.isArray(json)) {
+                    return;
+                }
+                await convertJsonToRealDataType(json);
+                let target: ModelNode | undefined = e instanceof ModelNode ? e : undefined;
+                const model = editorContext.value!.model;
+                if (!target) {
+                    model.forEach(node => {
+                        if (model.selected.includes(node.id)) {
+                            target = node;
+                            return false;
+                        }
+                    });
+                }
+                let changed = false;
+                const history = editorContext.value!.history;
+                for (let item of json) {
+                    if (target) {
+                        if (getModelNodeDef(target.type).validChildTypes.includes(item.type)) {
+                            const creationInfo = {...item};
+                            creationInfo.parentId = target.id;
+                            history.createNode(creationInfo);
+                            changed = true;
+                        }
+                    } else {
+                        const nodeDef = getModelNodeDef(item.type);
+                        if (nodeDef.canBeRoot) {
+                            const creationInfo = {...item};
+                            creationInfo.parentId = undefined;
+                            history.createNode(creationInfo);
+                            changed = true;
+                        }
                     }
-                });
+                }
+                if (changed) {
+                    model.selected = [];
+                }
+                focus();
+            } catch (e) {
+                console.error(e);
+                return;
             }
-            let changed = false;
-            const history = editorContext.value!.history;
-            for (let item of clipboardContent) {
-                if (target) {
-                    if (getModelNodeDef(target.type).validChildTypes.includes(item.type)) {
-                        const json = {...item};
-                        json.parentId = target.id;
-                        history.createNode(json);
-                        changed = true;
+
+            async function convertJsonToRealDataType(json: ModelNodeJson[]) {
+                for (let node of json) {
+                    for (let name in node.data) {
+                        const componentDef = getModelNodeComponentDef(name);
+                        let val = node.data[name] as any;
+                        if (componentDef.dataType === DataType.BYTES) {
+                            val = await dataUrlToUint8Array(val);
+                        }
+                        if (componentDef.deserialize) {
+                            val = componentDef.deserialize(val);
+                        }
+                        node.data[name] = val;
                     }
-                } else {
-                    const nodeDef = getModelNodeDef(item.type);
-                    if (nodeDef.canBeRoot) {
-                        const json = {...item};
-                        json.parentId = undefined;
-                        history.createNode(json);
-                        changed = true;
+                    if (node.children) {
+                        await convertJsonToRealDataType(node.children);
                     }
                 }
             }
-            if (changed) {
-                model.selected = [];
-            }
-            focus();
         }
 
         return {

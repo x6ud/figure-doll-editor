@@ -4,7 +4,7 @@ import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
 import Model from './Model';
-import ModelNode, {ModelNodeChildJson, ModelNodeJson} from './ModelNode';
+import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
 import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 
@@ -15,6 +15,19 @@ type Record = {
     redo: () => void;
     undo: () => void;
 }
+
+type ModelNodeChildCreationInfo = {
+    type: string;
+    data?: { [name: string]: any };
+    children?: ModelNodeChildCreationInfo[];
+}
+
+type ModelNodeCreationInfo = {
+    type: string;
+    parentId?: number;
+    data?: { [name: string]: any };
+    children?: ModelNodeChildCreationInfo[];
+};
 
 export default class ModelHistory {
     private model: Model;
@@ -147,7 +160,7 @@ export default class ModelHistory {
         return id + 1;
     }
 
-    createNode(nodeJson: ModelNodeJson) {
+    createNode(nodeJson: ModelNodeCreationInfo) {
         const nodeId = this.getNextNodeId();
         this.currentFrameRecords.push({
             hash: '$createNode',
@@ -171,7 +184,7 @@ export default class ModelHistory {
                 this.model.addSelection(node.id);
                 // create children
                 if (nodeJson.children) {
-                    const stack: [ModelNode, ModelNodeChildJson[]][] = [[node, nodeJson.children]];
+                    const stack: [ModelNode, ModelNodeChildCreationInfo[]][] = [[node, nodeJson.children]];
                     for (; ;) {
                         const pair = stack.pop();
                         if (!pair) {
@@ -202,7 +215,7 @@ export default class ModelHistory {
         this.enableMerge = false;
         this.nextNodeId = nodeId;
         if (nodeJson.children) {
-            const stack: ModelNodeChildJson[] = [...nodeJson.children];
+            const stack: ModelNodeChildCreationInfo[] = [...nodeJson.children];
             for (; ;) {
                 const child = stack.pop();
                 if (!child) {
