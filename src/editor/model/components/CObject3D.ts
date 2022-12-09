@@ -7,6 +7,7 @@ import {registerModelComponent} from '../ModelNodeComponentDef';
 @registerModelComponent({})
 export default class CObject3D extends ModelNodeComponent<Object3D | null> {
     value: Object3D | null = null;
+    edge: Object3D | null = null;
     parentChanged: boolean = true;
     localTransformChanged: boolean = true;
     worldTransformChanged: boolean = true;
@@ -15,6 +16,10 @@ export default class CObject3D extends ModelNodeComponent<Object3D | null> {
         if (this.value) {
             disposeObject3D(this.value);
             this.value.removeFromParent();
+        }
+        if (this.edge) {
+            disposeObject3D(this.edge);
+            this.edge.removeFromParent();
         }
     }
 
@@ -27,7 +32,7 @@ export type Object3DUserData = {
     node?: ModelNode;
 }
 
-function disposeObject3D(obj: Object3D) {
+export function disposeObject3D(obj: Object3D) {
     for (let child of obj.children) {
         disposeObject3D(child);
     }

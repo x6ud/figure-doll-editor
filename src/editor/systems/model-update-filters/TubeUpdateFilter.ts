@@ -1,4 +1,14 @@
-import {BufferGeometry, Group, Line, Mesh, MeshStandardMaterial, Vector3} from 'three';
+import {
+    BufferGeometry,
+    EdgesGeometry,
+    Group,
+    Line,
+    LineBasicMaterial,
+    LineSegments,
+    Mesh,
+    MeshStandardMaterial,
+    Vector3
+} from 'three';
 import {ParametricGeometries} from 'three/examples/jsm/geometries/ParametricGeometries';
 import EditorContext from '../../EditorContext';
 import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
@@ -85,7 +95,11 @@ export default class TubeUpdateFilter implements ModelNodeUpdateFilter {
         if (!cObject3D.value) {
             cObject3D.value = new Mesh(
                 new BufferGeometry(),
-                new MeshStandardMaterial(),
+                new MeshStandardMaterial({
+                    polygonOffset: true,
+                    polygonOffsetFactor: 1,
+                    polygonOffsetUnits: 1
+                }),
             );
             (cObject3D.value.userData as Object3DUserData) = {node};
             cObject3D.parentChanged = true;
@@ -95,5 +109,17 @@ export default class TubeUpdateFilter implements ModelNodeUpdateFilter {
         geometry.setFromPoints(new TubeMeshBuilder(cTube.value).build());
         delete geometry.attributes.normal;
         geometry.computeVertexNormals();
+        if (!cObject3D.edge) {
+            cObject3D.edge = new LineSegments(
+                new EdgesGeometry(geometry),
+                new LineBasicMaterial({
+                    color: 0x000000,
+                })
+            );
+        } else {
+            const edge = cObject3D.edge as LineSegments;
+            edge.geometry.dispose();
+            edge.geometry = new EdgesGeometry(geometry);
+        }
     }
 }

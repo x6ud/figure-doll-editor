@@ -7,7 +7,9 @@ const _axis = new Vector3();
 const _u = new Vector3();
 const _v = new Vector3();
 
-// https://github.com/huxingyi/dust3d/blob/master/dust3d/mesh/tube_mesh_builder.cc
+/**
+ * Modified from https://github.com/huxingyi/dust3d/blob/master/dust3d/mesh/tube_mesh_builder.cc
+ */
 export default class TubeMeshBuilder {
     private tube: Tube;
     private directions: Vector3[] = [];
@@ -46,16 +48,16 @@ export default class TubeMeshBuilder {
             vertices.push(this.cutFaceVertices[j]);
             vertices.push(this.cutFaceVertices[0]);
         }
-        const faceLen = this.cutFace.length;
+        const cutFaceLen = this.cutFace.length;
         for (let j = 0, len = this.tube.length; j + 1 < len; ++j) {
             let bestOffset = 0;
             let maxDot = -1;
             const dir = this.directions[j];
-            for (let offset = 0; offset < faceLen; ++offset) {
+            for (let offset = 0; offset < cutFaceLen; ++offset) {
                 let dot = 1;
-                for (let k = 0; k < faceLen; ++k) {
-                    const a = this.cutFaceVertices[j * faceLen + k];
-                    const b = this.cutFaceVertices[(j + 1) * faceLen + (k + offset) % faceLen];
+                for (let k = 0; k < cutFaceLen; ++k) {
+                    const a = this.cutFaceVertices[j * cutFaceLen + k];
+                    const b = this.cutFaceVertices[(j + 1) * cutFaceLen + (k + offset) % cutFaceLen];
                     _det.subVectors(b, a).normalize();
                     dot += _det.dot(dir);
                 }
@@ -64,11 +66,11 @@ export default class TubeMeshBuilder {
                     maxDot = dot;
                 }
             }
-            for (let k = 0; k < faceLen; ++k) {
-                const a = this.cutFaceVertices[j * faceLen + k];
-                const b = this.cutFaceVertices[j * faceLen + (k + 1) % faceLen];
-                const c = this.cutFaceVertices[(j + 1) * faceLen + (k + bestOffset + 1) % faceLen];
-                const d = this.cutFaceVertices[(j + 1) * faceLen + (k + bestOffset) % faceLen];
+            for (let k = 0; k < cutFaceLen; ++k) {
+                const a = this.cutFaceVertices[j * cutFaceLen + k];
+                const b = this.cutFaceVertices[j * cutFaceLen + (k + 1) % cutFaceLen];
+                const c = this.cutFaceVertices[(j + 1) * cutFaceLen + (k + bestOffset + 1) % cutFaceLen];
+                const d = this.cutFaceVertices[(j + 1) * cutFaceLen + (k + bestOffset) % cutFaceLen];
                 vertices.push(a, b, c, a, c, d);
             }
         }
