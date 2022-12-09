@@ -36,27 +36,19 @@ export default class ImageUpdateFilter implements ModelNodeUpdateFilter {
             if (node.type !== 'Image') {
                 return;
             }
-            ctx.nextFrameEnd(function () {
-                if (node.deleted) {
-                    return;
-                }
-                if (texture !== cImage.texture) {
-                    return;
-                }
-                const cObject3D = node.get(CObject3D);
-                cObject3D.dispose();
-                const width = 1;
-                const height = image.height / image.width * width;
-                cObject3D.value = new Mesh(
-                    new DoubleSidedPlaneGeometry(width, height),
-                    new MeshLambertMaterial({map: texture}),
-                );
-                (cObject3D.value.userData as Object3DUserData) = {node};
-                ctx.model.dirty = true;
-                node.dirty = true;
-                cObject3D.parentChanged = true;
-                cObject3D.localTransformChanged = true;
-            });
+            const cObject3D = node.get(CObject3D);
+            cObject3D.dispose();
+            const width = 1;
+            const height = image.height / image.width * width;
+            cObject3D.value = new Mesh(
+                new DoubleSidedPlaneGeometry(width, height),
+                new MeshLambertMaterial({map: texture}),
+            );
+            (cObject3D.value.userData as Object3DUserData) = {node};
+            ctx.model.dirty = true;
+            node.dirty = true;
+            cObject3D.parentChanged = true;
+            cObject3D.localTransformChanged = true;
         };
         image.src = cImage.value;
     }

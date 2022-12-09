@@ -80,20 +80,12 @@ export default class TubeUpdateFilter implements ModelNodeUpdateFilter {
             }
         }
 
-        ctx.nextFrameEnd(function () {
-            if (node.deleted) {
-                return;
-            }
-            const cObject3D = node.get(CObject3D);
-            if (!cObject3D.value) {
-                // todo
-                cObject3D.value = new Object3D();
-            }
+        const cObject3D = node.get(CObject3D);
+        if (!cObject3D.value) {
+            cObject3D.value = new Object3D();
             (cObject3D.value.userData as Object3DUserData) = {node};
-            ctx.model.dirty = true;
-            node.dirty = true;
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
-        });
+        }
     }
 }

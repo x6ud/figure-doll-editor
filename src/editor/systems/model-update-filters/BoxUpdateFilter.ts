@@ -17,34 +17,19 @@ export default class BoxUpdateFilter implements ModelNodeUpdateFilter {
         cBoxSize.dirty = false;
 
         const cObject3D = node.get(CObject3D);
+        const size = cBoxSize.value;
         if (cObject3D.value) {
             const mesh = cObject3D.value as Mesh;
             mesh.geometry.dispose();
-            const size = cBoxSize.value;
             mesh.geometry = new BoxGeometry(size.x, size.y, size.z);
         } else {
-            ctx.nextFrameEnd(function () {
-                if (node.deleted) {
-                    return;
-                }
-                const cObject3D = node.get(CObject3D);
-                const size = cBoxSize.value;
-                if (cObject3D.value) {
-                    const mesh = cObject3D.value as Mesh;
-                    mesh.geometry.dispose();
-                    mesh.geometry = new BoxGeometry(size.x, size.y, size.z);
-                } else {
-                    cObject3D.value = new Mesh(
-                        new BoxGeometry(size.x, size.y, size.z),
-                        new MeshStandardMaterial(),
-                    );
-                }
-                (cObject3D.value.userData as Object3DUserData) = {node};
-                ctx.model.dirty = true;
-                node.dirty = true;
-                cObject3D.parentChanged = true;
-                cObject3D.localTransformChanged = true;
-            });
+            cObject3D.value = new Mesh(
+                new BoxGeometry(size.x, size.y, size.z),
+                new MeshStandardMaterial(),
+            );
+            (cObject3D.value.userData as Object3DUserData) = {node};
+            cObject3D.parentChanged = true;
+            cObject3D.localTransformChanged = true;
         }
     }
 }

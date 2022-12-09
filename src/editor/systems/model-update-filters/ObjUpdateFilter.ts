@@ -18,21 +18,14 @@ export default class ObjUpdateFilter implements ModelNodeUpdateFilter {
         if (!cObj.value) {
             return;
         }
-        ctx.nextFrameEnd(function () {
-            if (node.deleted) {
-                return;
-            }
-            const cObject3D = node.get(CObject3D);
-            cObject3D.dispose();
-            cObject3D.value = new OBJLoader().parse(cObj.value);
-            (cObject3D.value.userData as Object3DUserData) = {node};
-            for (let child of cObject3D.value.children) {
-                (child.userData as Object3DUserData) = {node};
-            }
-            ctx.model.dirty = true;
-            node.dirty = true;
-            cObject3D.parentChanged = true;
-            cObject3D.localTransformChanged = true;
-        });
+        const cObject3D = node.get(CObject3D);
+        cObject3D.dispose();
+        cObject3D.value = new OBJLoader().parse(cObj.value);
+        (cObject3D.value.userData as Object3DUserData) = {node};
+        for (let child of cObject3D.value.children) {
+            (child.userData as Object3DUserData) = {node};
+        }
+        cObject3D.parentChanged = true;
+        cObject3D.localTransformChanged = true;
     }
 }

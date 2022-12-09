@@ -6,6 +6,8 @@ export interface ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void;
 }
 
+const dirtyNodes: ModelNode[] = [];
+
 export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
 
     private readonly filters: ModelNodeUpdateFilter[];
@@ -20,12 +22,18 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         if (ctx.model.dirty) {
             ctx.model.forEach(node => {
                 if (node.dirty) {
-                    for (let filter of this.filters) {
-                        filter.update(ctx, node);
-                    }
-                    node.dirty = false;
+                    dirtyNodes.push(node);
                 }
             });
+            for (let filter of this.filters) {
+                for (let node of dirtyNodes) {
+                    filter.update(ctx, node);
+                }
+            }
+            for (let node of dirtyNodes) {
+                node.dirty = false;
+            }
+            dirtyNodes.length = 0;
             ctx.model.dirty = false;
         }
     }
