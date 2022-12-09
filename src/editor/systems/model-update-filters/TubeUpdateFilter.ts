@@ -1,10 +1,11 @@
-import {BufferGeometry, Group, Line, Mesh, Object3D, Vector3} from 'three';
+import {BufferGeometry, Group, Line, Mesh, MeshStandardMaterial, Vector3} from 'three';
 import {ParametricGeometries} from 'three/examples/jsm/geometries/ParametricGeometries';
 import EditorContext from '../../EditorContext';
 import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
 import CTube, {TubeNodePickerUserData} from '../../model/components/CTube';
 import ModelNode from '../../model/ModelNode';
 import CircleEdgeGeometry from '../../utils/geometry/CircleEdgeGeometry';
+import TubeMeshBuilder from '../../utils/geometry/TubeMeshBuilder';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 import SphereGeometry = ParametricGeometries.SphereGeometry;
 
@@ -82,10 +83,17 @@ export default class TubeUpdateFilter implements ModelNodeUpdateFilter {
 
         const cObject3D = node.get(CObject3D);
         if (!cObject3D.value) {
-            cObject3D.value = new Object3D();
+            cObject3D.value = new Mesh(
+                new BufferGeometry(),
+                new MeshStandardMaterial(),
+            );
             (cObject3D.value.userData as Object3DUserData) = {node};
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
         }
+        const geometry = (cObject3D.value as Mesh).geometry;
+        geometry.setFromPoints(new TubeMeshBuilder(cTube.value).build());
+        delete geometry.attributes.normal;
+        geometry.computeVertexNormals();
     }
 }

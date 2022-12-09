@@ -82,7 +82,9 @@ export default class TubeTool extends EditorTool {
             if (cTube.group) {
                 cTube.group.visible = false;
             }
-            if (!ctx.model.selected.includes(node.id)) {
+            if (ctx.model.selected.includes(node.id)) {
+                cTube.selected = cTube.selected.filter(i => i < cTube.value.length);
+            } else {
                 cTube.selected.length = 0;
             }
         }
