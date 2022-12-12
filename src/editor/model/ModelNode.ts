@@ -1,6 +1,6 @@
 import {Matrix4} from 'three';
 import Class from '../../common/type/Class';
-import {uint8ArrayToDataUrl} from '../utils/convert';
+import {bufferToDataUrl} from '../utils/convert';
 import CObject3D from './components/CObject3D';
 import ModelNodeComponent from './ModelNodeComponent';
 import {DataType, getModelNodeComponentDef} from './ModelNodeComponentDef';
@@ -121,7 +121,7 @@ export default class ModelNode {
                     val = componentDef.serialize(val);
                 }
                 if (val && componentDef.dataType === DataType.BYTES) {
-                    val = await uint8ArrayToDataUrl(val);
+                    val = await bufferToDataUrl(val);
                 }
                 ret[componentName] = val;
             }

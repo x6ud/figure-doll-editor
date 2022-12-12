@@ -1,15 +1,18 @@
 import Class from '../../../common/type/Class';
-import CObj from '../components/CObj';
+import CImportFbx from '../components/CImportFbx';
+import CImportObj from '../components/CImportObj';
 import Model from '../Model';
 import ModelNode from '../ModelNode';
 import ModelNodeChangedWatcher from '../ModelNodeChangedWatcher';
 import ModelNodeComponent from '../ModelNodeComponent';
 
-export default class ObjWatcher implements ModelNodeChangedWatcher {
+export default class ImportModelWatcher implements ModelNodeChangedWatcher {
 
     onValueChanged(model: Model, node: ModelNode, componentClass: Class<ModelNodeComponent<any>>): void {
-        if (componentClass === CObj) {
-            node.get(CObj).dirty = true;
+        if (componentClass === CImportObj) {
+            node.get(CImportObj).dirty = true;
+        } else if (componentClass === CImportFbx) {
+            node.get(CImportFbx).dirty = true;
         }
     }
 

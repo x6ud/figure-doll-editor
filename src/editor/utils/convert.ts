@@ -1,4 +1,4 @@
-export async function uint8ArrayToDataUrl(data: Uint8Array): Promise<string> {
+export async function bufferToDataUrl(data: BlobPart): Promise<string> {
     return new Promise<string>(resolve => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result as string);
@@ -6,7 +6,7 @@ export async function uint8ArrayToDataUrl(data: Uint8Array): Promise<string> {
     });
 }
 
-export async function dataUrlToUint8Array(str: string): Promise<Uint8Array> {
+export async function dataUrlToArrayBuffer(str: string): Promise<ArrayBuffer> {
     const res = await fetch(str);
-    return new Uint8Array(await res.arrayBuffer());
+    return res.arrayBuffer();
 }

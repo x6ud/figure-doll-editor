@@ -13,7 +13,7 @@ import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
-import ObjUpdateFilter from './systems/model-update-filters/ObjUpdateFilter';
+import ImportModelUpdateFilter from './systems/model-update-filters/ImportModelUpdateFilter';
 import OpacityUpdateFilter from './systems/model-update-filters/OpacityUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
 import TubeUpdateFilter from './systems/model-update-filters/TubeUpdateFilter';
@@ -38,7 +38,7 @@ export default class EditorContext {
     systems: UpdateSystem<EditorContext>[] = [
         new ModelUpdateSystem([
             new ImageUpdateFilter(),
-            new ObjUpdateFilter(),
+            new ImportModelUpdateFilter(),
             new BoxUpdateFilter(),
             new TubeUpdateFilter(),
             new ContainerUpdateFilter(),

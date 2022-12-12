@@ -13,18 +13,20 @@ export default class CObject3D extends ModelNodeComponent<Object3D | null> {
     worldTransformChanged: boolean = true;
 
     onRemoved() {
+        this.dispose();
+    }
+
+    dispose() {
         if (this.value) {
             disposeObject3D(this.value);
             this.value.removeFromParent();
+            this.value = null;
         }
         if (this.edge) {
             disposeObject3D(this.edge);
             this.edge.removeFromParent();
+            this.edge = null;
         }
-    }
-
-    dispose() {
-        this.onRemoved();
     }
 }
 

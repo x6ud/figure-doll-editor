@@ -9,7 +9,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     inputComponent: InputFileAsText,
     inputComponentProps: {accept: '.obj'}
 })
-export default class CObj extends ModelNodeComponent<string> {
+export default class CImportObj extends ModelNodeComponent<string> {
     value = '';
     dirty = true;
 }

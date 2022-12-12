@@ -18,7 +18,7 @@ import {DataType, getModelNodeComponentDef} from './model/ModelNodeComponentDef'
 import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} from './model/ModelNodeDef';
 import ProjectReader from './ProjectReader';
 import ProjectWriter from './ProjectWriter';
-import {dataUrlToUint8Array} from './utils/convert';
+import {dataUrlToArrayBuffer} from './utils/convert';
 import {getTranslation} from './utils/math';
 
 const extension = '.model';
@@ -527,7 +527,7 @@ export default defineComponent({
                         const componentDef = getModelNodeComponentDef(name);
                         let val = node.data[name] as any;
                         if (componentDef.dataType === DataType.BYTES) {
-                            val = await dataUrlToUint8Array(val);
+                            val = new Uint8Array(await dataUrlToArrayBuffer(val));
                         }
                         if (componentDef.deserialize) {
                             val = componentDef.deserialize(val);
