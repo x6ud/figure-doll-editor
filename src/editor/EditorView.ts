@@ -69,9 +69,11 @@ export default class EditorView {
         this.input.unload();
     }
 
-    mousePick() {
+    mousePick(type?: string) {
         return this.raycaster.intersectObjects(this.ctx.readonlyRef().scene.children.filter(
-            obj => obj.visible && !!(obj.userData as Object3DUserData).node
+            obj => obj.visible
+                && !!(obj.userData as Object3DUserData).node
+                && (!type || (obj.userData as Object3DUserData).node?.type === type)
         ));
     }
 }

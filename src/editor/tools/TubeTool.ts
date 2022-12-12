@@ -2,7 +2,7 @@ import {BufferGeometry, Line, LineBasicMaterial, Matrix4, Quaternion, Vector3} f
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CPosition from '../model/components/CPosition';
-import CTube, {TubeNodePickerUserData} from '../model/components/CTube';
+import CTube, {Tube, TubeNodePickerUserData} from '../model/components/CTube';
 import ModelNode from '../model/ModelNode';
 import CircleEdgeGeometry from '../utils/geometry/CircleEdgeGeometry';
 import {getRotation, getScaleScalar, intersectPointRect, linePanelIntersection} from '../utils/math';
@@ -331,17 +331,29 @@ export default class TubeTool extends EditorTool {
                     if (input.mouseLeftDownThisFrame) {
                         _pos.copy(this.circle.position);
                         let radius = this.radius;
+                        if (!node && this.nodes.length && this.nodes[0].value(CTube).length === 0) {
+                            node = this.nodes[0];
+                        }
                         if (node) {
                             // insert tube node
                             _mat.copy(node.getWorldMatrix()).invert();
                             _pos.applyMatrix4(_mat);
                             radius *= getScaleScalar(_mat);
-                            const value = cTube!.clone();
-                            value.splice(index + 1, 0, {
-                                position: new Vector3().copy(_pos),
-                                radius: radius
-                            });
-                            cTube!.selected = [index + 1];
+                            let value: Tube;
+                            if (cTube) {
+                                value = cTube.clone();
+                                value.splice(index + 1, 0, {
+                                    position: new Vector3().copy(_pos),
+                                    radius: radius
+                                });
+                                cTube.selected = [index + 1];
+                            } else {
+                                value = [{
+                                    position: new Vector3().copy(_pos),
+                                    radius: radius
+                                }];
+                                this.lastNodeId = node.id;
+                            }
                             ctx.history.setValue(node, CTube, value);
                         } else {
                             // create a new tube

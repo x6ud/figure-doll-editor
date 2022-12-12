@@ -7,6 +7,7 @@ import {getModelNodeDef} from './ModelNodeDef';
 import BoxWatcher from './watchers/BoxWatcher';
 import ImageWatcher from './watchers/ImageWatcher';
 import ObjWatcher from './watchers/ObjWatcher';
+import OpacityWatcher from './watchers/OpacityWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
 import TubeWatcher from './watchers/TubeWatcher';
 
@@ -16,6 +17,7 @@ export default class Model {
     nodes: ModelNode[] = [];
     watchers: ModelNodeChangedWatcher[] = [
         new TransformWatcher(),
+        new OpacityWatcher(),
         new ImageWatcher(),
         new ObjWatcher(),
         new BoxWatcher(),

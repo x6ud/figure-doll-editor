@@ -33,7 +33,7 @@ export default class Object3DRelationshipUpdateFilter implements ModelNodeUpdate
                 if (cObject3D.value) {
                     cObject3D.value.visible = node.value(CVisible);
                     if (cObject3D.edge) {
-                        cObject3D.edge.visible = cObject3D.value.visible;
+                        cObject3D.edge.visible = ctx.showEdges && cObject3D.value.visible;
                     }
                 }
             }

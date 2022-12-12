@@ -32,6 +32,7 @@ export default class ModelNode {
     children: ModelNode[] = [];
     dirty: boolean = true;
     deleted: boolean = false;
+    opacity: number = 1;
 
     get<T extends ModelNodeComponent<any>>(componentClass: Class<T>): T {
         const component = this.components[componentClass.name];

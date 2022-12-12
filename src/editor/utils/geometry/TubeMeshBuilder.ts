@@ -7,6 +7,23 @@ const _axis = new Vector3();
 const _u = new Vector3();
 const _v = new Vector3();
 
+function makeRegular(seg: number, radius = 1) {
+    const ret: Vector2[] = [];
+    let x0 = 0;
+    let y0 = radius;
+    const detAngle = Math.PI * 2 / seg;
+    const cos = Math.cos(detAngle);
+    const sin = Math.sin(detAngle);
+    for (let i = 0; i < seg; ++i) {
+        const x1 = x0 * cos - y0 * sin;
+        const y1 = x0 * sin + y0 * cos;
+        ret.push(new Vector2(x0, y0), new Vector2(x1, y1));
+        x0 = x1;
+        y0 = y1;
+    }
+    return ret;
+}
+
 /**
  * Modified from https://github.com/huxingyi/dust3d/blob/master/dust3d/mesh/tube_mesh_builder.cc
  */
@@ -19,19 +36,27 @@ export default class TubeMeshBuilder {
     private cutFaceVertices: Vector3[] = [];
 
     enableInterpolation: boolean = true;
-    enableRoundingEnds: boolean = false;
-    cutFace: Vector2[] = [
-        new Vector2(-1, -1),
-        new Vector2(1, -1),
-        new Vector2(1, 1),
-        new Vector2(-1, 1),
-    ];
+    enableRoundingEnds: boolean = true;
+    cutFace: Vector2[] = makeRegular(6);
 
     constructor(tube: Tube) {
         this.tube = [...tube];
     }
 
-    build() {
+    build(): Vector3[] {
+        if (this.tube.length === 1) {
+            const node = this.tube[0];
+            this.tube = [
+                {
+                    radius: node.radius,
+                    position: new Vector3().copy(node.position).add(new Vector3(-node.radius / 3, 0, 0))
+                },
+                {
+                    radius: node.radius,
+                    position: new Vector3().copy(node.position).add(new Vector3(+node.radius / 3, 0, 0))
+                }
+            ];
+        }
         this.applyInterpolation();
         this.applyRoundingEnds();
         this.calcDirections();

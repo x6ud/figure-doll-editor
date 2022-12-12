@@ -4,6 +4,7 @@ import CImage from './components/CImage';
 import CName from './components/CName';
 import CObj from './components/CObj';
 import CObject3D from './components/CObject3D';
+import COpacity from './components/COpacity';
 import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
@@ -24,35 +25,35 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'Container',
         label: 'Container',
-        components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D],
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
         validChildTypes: ['Container', 'Image', 'ObjModel', 'Box', 'Tube'],
     },
     {
         name: 'Image',
         label: 'Image',
-        components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D, CImage],
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
         canBeRoot: true,
         validChildTypes: [],
     },
     {
         name: 'ObjModel',
         label: 'OBJ Model',
-        components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D, CObj],
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CObj],
         canBeRoot: true,
         validChildTypes: [],
     },
     {
         name: 'Box',
         label: 'Box',
-        components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D, CBoxSize],
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CBoxSize],
         canBeRoot: true,
         validChildTypes: [],
     },
     {
         name: 'Tube',
         label: 'Tube',
-        components: [CName, CVisible, CPosition, CRotation, CScale, CObject3D, CTube],
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CTube],
         canBeRoot: true,
         validChildTypes: [],
     },

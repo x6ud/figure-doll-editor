@@ -26,6 +26,7 @@ const filePickerAcceptType: FilePickerAcceptType = {
     description: 'Model',
     accept: {'application/puppet-editor': [extension]}
 };
+const localStorageKey = 'puppet-editor-options';
 
 export default defineComponent({
     components: {
@@ -84,6 +85,35 @@ export default defineComponent({
             dom.value?.focus();
         }
 
+        watch([
+            showTools,
+            showModelTree,
+            showProperties,
+            showStatusBar,
+            modelTreePanelWidth,
+            modelNodePropertiesPanelWidth,
+            () => editorContext.value?.keepTransformUnchangedWhileMoving,
+            () => editorContext.value?.showGrids,
+            () => editorContext.value?.showEdges,
+            () => editorContext.value?.quadView,
+        ], function () {
+            localStorage.setItem(
+                localStorageKey,
+                JSON.stringify({
+                    showTools: showTools.value,
+                    showModelTree: showModelTree.value,
+                    showProperties: showProperties.value,
+                    showStatusBar: showStatusBar.value,
+                    modelTreePanelWidth: modelTreePanelWidth.value,
+                    modelNodePropertiesPanelWidth: modelNodePropertiesPanelWidth.value,
+                    keepTransformUnchangedWhileMoving: editorContext.value?.keepTransformUnchangedWhileMoving,
+                    showGrids: editorContext.value?.showGrids,
+                    showEdges: editorContext.value?.showEdges,
+                    quadView: editorContext.value?.quadView,
+                })
+            );
+        });
+
         onMounted(async function () {
             if (!('showOpenFilePicker' in window)) {
                 await showAlertDialog('This application is only available in Chrome or Edge.\nCannot open or save files in the current browser.');
@@ -98,6 +128,45 @@ export default defineComponent({
             view4: HTMLElement,
         ) {
             editorContext.value = new EditorContext(canvas, view1, view2, view3, view4);
+            try {
+                const optionsJson = localStorage.getItem(localStorageKey);
+                if (optionsJson) {
+                    const options = JSON.parse(optionsJson);
+                    if ('showTools' in options) {
+                        showTools.value = options.showTools;
+                    }
+                    if ('showModelTree' in options) {
+                        showModelTree.value = options.showModelTree;
+                    }
+                    if ('showProperties' in options) {
+                        showProperties.value = options.showProperties;
+                    }
+                    if ('showStatusBar' in options) {
+                        showStatusBar.value = options.showStatusBar;
+                    }
+                    if ('modelTreePanelWidth' in options) {
+                        modelTreePanelWidth.value = options.modelTreePanelWidth;
+                    }
+                    if ('modelNodePropertiesPanelWidth' in options) {
+                        modelNodePropertiesPanelWidth.value = options.modelNodePropertiesPanelWidth;
+                    }
+                    const ctx = editorContext.value;
+                    if ('keepTransformUnchangedWhileMoving' in options) {
+                        ctx.keepTransformUnchangedWhileMoving = options.keepTransformUnchangedWhileMoving;
+                    }
+                    if ('showGrids' in options) {
+                        ctx.showGrids = options.showGrids;
+                    }
+                    if ('showEdges' in options) {
+                        ctx.showEdges = options.showEdges;
+                    }
+                    if ('quadView' in options) {
+                        ctx.quadView = options.quadView;
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+            }
             renderLoop.start();
             (window as any).ctx = editorContext.value!.readonlyRef();
         }

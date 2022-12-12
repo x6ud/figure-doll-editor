@@ -7,12 +7,14 @@ import {ProjectReaderResult} from './ProjectReader';
 import CallbackFireSystem from './systems/CallbackFireSystem';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
 import DefaultLightUpdateSystem from './systems/DefaultLightUpdateSystem';
+import EdgeVisibilityUpdateSystem from './systems/EdgeVisibilityUpdateSystem';
 import HistorySystem from './systems/HistorySystem';
 import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import ObjUpdateFilter from './systems/model-update-filters/ObjUpdateFilter';
+import OpacityUpdateFilter from './systems/model-update-filters/OpacityUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
 import TubeUpdateFilter from './systems/model-update-filters/TubeUpdateFilter';
 import ModelUpdateSystem from './systems/ModelUpdateSystem';
@@ -42,7 +44,9 @@ export default class EditorContext {
             new ContainerUpdateFilter(),
             new Object3DRelationshipUpdateFilter(),
             new TransformUpdateFilter(),
+            new OpacityUpdateFilter(),
         ]),
+        new EdgeVisibilityUpdateSystem(),
         new MouseSystem(),
         new ToolSystem(),
         new HistorySystem(),
@@ -83,9 +87,10 @@ export default class EditorContext {
     statusBarMessage: string = '';
     tool: EditorTool = this.tools[0];
     nextFrameCallbacks: (() => void)[] = [];
+    keepTransformUnchangedWhileMoving: boolean = true;
     quadView: boolean = false;
     showGrids: boolean = true;
-    keepTransformUnchangedWhileMoving: boolean = true;
+    showEdges: boolean = true;
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -209,5 +214,5 @@ export default class EditorContext {
             );
         }
     }
-    
+
 }
