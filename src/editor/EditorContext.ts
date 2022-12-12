@@ -90,7 +90,7 @@ export default class EditorContext {
     keepTransformUnchangedWhileMoving: boolean = true;
     quadView: boolean = false;
     showGrids: boolean = true;
-    showEdges: boolean = true;
+    showEdges: boolean = false;
 
     constructor(
         canvas: HTMLCanvasElement,

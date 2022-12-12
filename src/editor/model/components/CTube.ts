@@ -24,8 +24,8 @@ const normalMaterial = new LineBasicMaterial({
     fog: false,
     toneMapped: false,
     transparent: true,
-    color: 0xffffff,
-    opacity: 0.5,
+    color: 0x22B14C,
+    opacity: 0.75,
 });
 const hoveredMaterial = normalMaterial.clone();
 hoveredMaterial.color.setHex(0xffff00);
