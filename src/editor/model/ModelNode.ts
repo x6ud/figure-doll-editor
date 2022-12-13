@@ -110,6 +110,22 @@ export default class ModelNode {
         };
     }
 
+    getComponentData(): { [name: string]: any } {
+        const ret: { [name: string]: any } = {};
+        for (let componentName in this.components) {
+            const componentDef = getModelNodeComponentDef(componentName);
+            if (componentDef.storable) {
+                const component = this.components[componentName];
+                let val = component.value;
+                if (componentDef.clone) {
+                    val = componentDef.clone(val);
+                }
+                ret[componentName] = val;
+            }
+        }
+        return ret;
+    }
+
     async getComponentsDataJson(): Promise<{ [name: string]: ModelNodeJsonData }> {
         const ret: { [name: string]: ModelNodeJsonData } = {};
         for (let componentName in this.components) {

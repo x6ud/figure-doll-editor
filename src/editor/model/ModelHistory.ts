@@ -253,7 +253,7 @@ export default class ModelHistory {
                 }
                 const list = node.parent ? node.parent.children : model.nodes;
                 this.index = list.indexOf(node);
-                this.data = node.getComponentsDataJson();
+                this.data = node.getComponentData();
                 this.children = node.children.map(child => new NodeRecord(child, model));
             }
         }
