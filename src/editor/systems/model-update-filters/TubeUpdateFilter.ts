@@ -1,11 +1,10 @@
-import {BufferGeometry, Float32BufferAttribute, Group, Line, Mesh, MeshStandardMaterial, Vector3} from 'three';
+import {BufferGeometry, Group, Line, Mesh, Object3D, Vector3} from 'three';
 import {ParametricGeometries} from 'three/examples/jsm/geometries/ParametricGeometries';
 import EditorContext from '../../EditorContext';
 import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
 import CTube, {TubeNodePickerUserData} from '../../model/components/CTube';
 import ModelNode from '../../model/ModelNode';
 import CircleEdgeGeometry from '../../utils/geometry/CircleEdgeGeometry';
-import SdfMeshBuilder from '../../utils/geometry/SdfMeshBuilder';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 import SphereGeometry = ParametricGeometries.SphereGeometry;
 
@@ -83,33 +82,10 @@ export default class TubeUpdateFilter implements ModelNodeUpdateFilter {
 
         const cObject3D = node.get(CObject3D);
         if (!cObject3D.value) {
-            cObject3D.value = new Mesh(
-                new BufferGeometry(),
-                new MeshStandardMaterial({
-                    polygonOffset: true,
-                    polygonOffsetFactor: 1,
-                    polygonOffsetUnits: 1
-                }),
-            );
+            cObject3D.value = new Object3D();
             (cObject3D.value.userData as Object3DUserData) = {node};
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
         }
-        const builder = new SdfMeshBuilder();
-        if (tube.length === 1) {
-            const node = tube[0];
-            builder.sphere(node.position, node.radius, true);
-        } else {
-            for (let i = 0, len = tube.length; i + 1 < len; ++i) {
-                const n1 = tube[i];
-                const n2 = tube[i + 1];
-                builder.roundCone(n1.position, n1.radius, n2.position, n2.radius, true);
-            }
-        }
-        const {position, normal} = builder.build();
-        const geometry = (cObject3D.value as Mesh).geometry;
-        geometry.setAttribute('position', new Float32BufferAttribute(position, 3));
-        geometry.setAttribute('normal', new Float32BufferAttribute(normal, 3));
-        geometry.computeBoundingSphere();
     }
 }

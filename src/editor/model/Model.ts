@@ -9,7 +9,7 @@ import ImageWatcher from './watchers/ImageWatcher';
 import ImportModelWatcher from './watchers/ImportModelWatcher';
 import OpacityWatcher from './watchers/OpacityWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
-import TubeWatcher from './watchers/TubeWatcher';
+import CustomShapeWatcher from './watchers/CustomShapeWatcher';
 
 export default class Model {
     private nodesMap: Map<number, ModelNode> = new Map();
@@ -21,7 +21,7 @@ export default class Model {
         new ImageWatcher(),
         new ImportModelWatcher(),
         new BoxWatcher(),
-        new TubeWatcher(),
+        new CustomShapeWatcher(),
     ];
     dirty: boolean = true;
     selected: number[] = [];

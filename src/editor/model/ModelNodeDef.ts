@@ -9,6 +9,8 @@ import COpacity from './components/COpacity';
 import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
+import CSdfOperator from './components/CSdfOperator';
+import CSdfSymmetry from './components/CSdfSymmetry';
 import CTube from './components/CTube';
 import CVisible from './components/CVisible';
 import ModelNode from './ModelNode';
@@ -28,7 +30,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Container',
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
-        validChildTypes: ['Container', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Tube'],
+        validChildTypes: ['Container', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape'],
     },
     {
         name: 'Image',
@@ -59,10 +61,17 @@ export const modelNodeDefs: ModelNodeDef[] = [
         validChildTypes: [],
     },
     {
+        name: 'Shape',
+        label: 'Custom Shape',
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CSdfSymmetry],
+        canBeRoot: true,
+        validChildTypes: ['Tube'],
+    },
+    {
         name: 'Tube',
         label: 'Tube',
-        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CTube],
-        canBeRoot: true,
+        components: [CName, CObject3D, CSdfOperator, CTube],
+        canBeRoot: false,
         validChildTypes: [],
     },
 ];

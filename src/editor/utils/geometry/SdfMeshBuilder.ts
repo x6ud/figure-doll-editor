@@ -5,7 +5,7 @@ import {mergeSmooth, roundCone, sphere, subtractSmooth} from './sdf';
 
 interface SdfShape {
     /** Add or subtract */
-    operation: boolean;
+    operator: boolean;
     /** Bounding box */
     bb: Box3;
     fatBb: Box3;
@@ -18,21 +18,21 @@ interface SdfShape {
 class SdfSphere implements SdfShape {
     position: Vector3;
     radius: number;
-    operation: boolean;
+    operator: boolean;
     bb: Box3;
     fatBb: Box3 = new Box3();
 
-    constructor(position: Vector3, radius: number, operation: boolean) {
+    constructor(position: Vector3, radius: number, operator: boolean) {
         this.position = position;
         this.radius = radius;
-        this.operation = operation;
+        this.operator = operator;
         this.bb = new Box3().expandByPoint(position).expandByScalar(radius);
     }
 
     createSymmetry(axis: number): SdfShape {
         const position = new Vector3().copy(this.position);
         position.setComponent(axis, -position.getComponent(axis));
-        return new SdfSphere(position, this.radius, this.operation);
+        return new SdfSphere(position, this.radius, this.operator);
     }
 
     sdf(x: number, y: number, z: number): number {
@@ -45,16 +45,16 @@ class SdfRoundCone implements SdfShape {
     r1: number;
     p2: Vector3;
     r2: number;
-    operation: boolean;
+    operator: boolean;
     bb: Box3;
     fatBb: Box3 = new Box3();
 
-    constructor(p1: Vector3, r1: number, p2: Vector3, r2: number, operation: boolean) {
+    constructor(p1: Vector3, r1: number, p2: Vector3, r2: number, operator: boolean) {
         this.p1 = p1;
         this.r1 = r1;
         this.p2 = p2;
         this.r2 = r2;
-        this.operation = operation;
+        this.operator = operator;
         this.bb = new Box3()
             .union(new Box3().expandByPoint(p1).expandByScalar(r1))
             .union(new Box3().expandByPoint(p2).expandByScalar(r2));
@@ -63,7 +63,7 @@ class SdfRoundCone implements SdfShape {
     createSymmetry(axis: number): SdfShape {
         const p1 = new Vector3().copy(this.p1).setComponent(axis, -this.p1.getComponent(axis));
         const p2 = new Vector3().copy(this.p2).setComponent(axis, -this.p2.getComponent(axis));
-        return new SdfRoundCone(p1, this.r1, p2, this.r2, this.operation);
+        return new SdfRoundCone(p1, this.r1, p2, this.r2, this.operator);
     }
 
     sdf(x: number, y: number, z: number): number {
@@ -71,38 +71,39 @@ class SdfRoundCone implements SdfShape {
     }
 }
 
-const _point = new Vector3();
+const _p = new Vector3();
 
 export default class SdfMeshBuilder {
     resolution = 0.005;
+    maxResolutionSeg = 100;
     symmetryAxis = -1;
     smoothRange = 0.005;
     private shapes: SdfShape[] = [];
 
-    sphere(position: Vector3, radius: number, operation: boolean) {
+    sphere(position: Vector3, radius: number, operator: boolean) {
         if (radius <= 0) {
             return;
         }
-        const shape = new SdfSphere(position, radius, operation);
+        const shape = new SdfSphere(position, radius, operator);
         this.shapes.push(shape);
         if (this.symmetryAxis >= 0) {
             this.shapes.push(shape.createSymmetry(this.symmetryAxis));
         }
     }
 
-    roundCone(p1: Vector3, r1: number, p2: Vector3, r2: number, operation: boolean) {
+    roundCone(p1: Vector3, r1: number, p2: Vector3, r2: number, operator: boolean) {
         if (r1 <= 0 && r2 <= 0) {
             return;
         }
-        const dist = _point.subVectors(p1, p2).length();
+        const dist = _p.subVectors(p1, p2).length();
         if (dist <= r1 || dist <= r2) {
             if (r1 > r2) {
-                return this.sphere(p1, r1, operation);
+                return this.sphere(p1, r1, operator);
             } else {
-                return this.sphere(p2, r2, operation);
+                return this.sphere(p2, r2, operator);
             }
         }
-        const shape = new SdfRoundCone(p1, r1, p2, r2, operation);
+        const shape = new SdfRoundCone(p1, r1, p2, r2, operator);
         this.shapes.push(shape);
         if (this.symmetryAxis >= 0) {
             this.shapes.push(shape.createSymmetry(this.symmetryAxis));
@@ -110,17 +111,20 @@ export default class SdfMeshBuilder {
     }
 
     build(): { position: number[], normal: number[] } {
-        const step = this.resolution;
-        const smooth = this.smoothRange;
         const bb = new Box3();
         for (let shape of this.shapes) {
-            if (shape.operation) {
+            if (shape.operator) {
                 bb.union(shape.bb);
             }
-            shape.fatBb.copy(shape.bb).expandByScalar(step + smooth);
         }
         if (bb.isEmpty()) {
             return {position: [], normal: []};
+        }
+        bb.getSize(_p);
+        let step = Math.max(this.resolution, Math.max(_p.x, _p.y, _p.z) / this.maxResolutionSeg);
+        const smooth = this.smoothRange;
+        for (let shape of this.shapes) {
+            shape.fatBb.copy(shape.bb).expandByScalar(step + smooth);
         }
         const x0 = bb.min.x - step - smooth;
         const y0 = bb.min.y - step - smooth;
@@ -141,10 +145,10 @@ export default class SdfMeshBuilder {
                     const z = z0 + iz * step;
                     const index = ix * yRange * zRange + iy * zRange + iz;
                     for (let shape of this.shapes) {
-                        if (!shape.fatBb.containsPoint(_point.set(x, y, z))) {
+                        if (!shape.fatBb.containsPoint(_p.set(x, y, z))) {
                             continue;
                         }
-                        if (shape.operation) {
+                        if (shape.operator) {
                             if (mask.get(index)) {
                                 sample[index] = mergeSmooth(sample[index], shape.sdf(x, y, z), smooth);
                             } else {

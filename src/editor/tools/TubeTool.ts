@@ -374,14 +374,38 @@ export default class TubeTool extends EditorTool {
                                 radius *= getScaleScalar(_mat);
                             }
                             ctx.model.selected = [];
-                            this.lastNodeId = ctx.history.createNode({
-                                type: 'Tube',
-                                parentId: parent ? parent.id : 0,
-                                data: {
-                                    [CTube.name]: [{radius, position: new Vector3()}],
-                                    [CPosition.name]: new Vector3().copy(_pos)
+                            const newShape = !parent;
+                            if (newShape) {
+                                for (let node of ctx.model.getSelectedNodes()) {
+                                    if (node.isValidChild('Shape')) {
+                                        parent = node;
+                                        break;
+                                    }
                                 }
-                            });
+                                this.lastNodeId = ctx.history.createNode({
+                                    type: 'Shape',
+                                    parentId: parent ? parent.id : 0,
+                                    data: {
+                                        [CPosition.name]: new Vector3().copy(_pos)
+                                    },
+                                    children: [
+                                        {
+                                            type: 'Tube',
+                                            data: {
+                                                [CTube.name]: [{radius, position: new Vector3()}],
+                                            }
+                                        }
+                                    ]
+                                }) + 1;
+                            } else {
+                                this.lastNodeId = ctx.history.createNode({
+                                    type: 'Tube',
+                                    parentId: parent ? parent.id : 0,
+                                    data: {
+                                        [CTube.name]: [{radius, position: new Vector3().copy(_pos)}],
+                                    }
+                                });
+                            }
                         }
                         this.creating = false;
                     }

@@ -10,6 +10,7 @@ import DefaultLightUpdateSystem from './systems/DefaultLightUpdateSystem';
 import HistorySystem from './systems/HistorySystem';
 import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
+import CustomShapeUpdateFilter from './systems/model-update-filters/CustomShapeUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
 import ImportModelUpdateFilter from './systems/model-update-filters/ImportModelUpdateFilter';
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
@@ -39,6 +40,7 @@ export default class EditorContext {
             new ImageUpdateFilter(),
             new ImportModelUpdateFilter(),
             new BoxUpdateFilter(),
+            new CustomShapeUpdateFilter(),
             new TubeUpdateFilter(),
             new ContainerUpdateFilter(),
             new Object3DRelationshipUpdateFilter(),
