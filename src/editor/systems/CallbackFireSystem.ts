@@ -8,6 +8,13 @@ export default class CallbackFireSystem extends UpdateSystem<EditorContext> {
             callback();
         }
         ctx.nextFrameCallbacks.length = 0;
+        const time = Date.now();
+        for (let pair of ctx.throttleTasks.entries()) {
+            if (pair[1].time <= time) {
+                pair[1].callback();
+                ctx.throttleTasks.delete(pair[0]);
+            }
+        }
     }
 
     end(ctx: EditorContext): void {

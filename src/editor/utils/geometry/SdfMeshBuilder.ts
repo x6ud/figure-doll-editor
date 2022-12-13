@@ -96,7 +96,7 @@ export default class SdfMeshBuilder {
             return;
         }
         const dist = _p.subVectors(p1, p2).length();
-        if (dist <= r1 || dist <= r2) {
+        if (dist + Math.min(r1, r2) <= Math.max(r1, r2)) {
             if (r1 > r2) {
                 return this.sphere(p1, r1, operator);
             } else {

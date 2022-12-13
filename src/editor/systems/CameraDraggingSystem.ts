@@ -98,10 +98,10 @@ export default class CameraDraggingSystem extends UpdateSystem<EditorContext> {
             }
         }
 
-        if (changedIndex >= 0 && changedIndex !== ctx.mainViewIndex) {
+        if (changedIndex >= 0) {
             const changed = ctx.views[changedIndex];
             for (let view of ctx.views) {
-                if (view.index !== ctx.mainViewIndex && view.index !== changedIndex && view.enabled) {
+                if (view.index !== changedIndex && view.enabled) {
                     view.camera.target.copy(changed.camera.target);
                     view.zoomLevel = changed.zoomLevel;
                 }

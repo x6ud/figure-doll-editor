@@ -26,36 +26,47 @@ export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
             );
             (cObject3D.value.userData as Object3DUserData) = {node};
         }
-        const builder = new SdfMeshBuilder();
-        switch (node.value(CSdfSymmetry)) {
-            case 'x':
-                builder.symmetryAxis = 0;
-                break;
-            case 'y':
-                builder.symmetryAxis = 1;
-                break;
-            case 'z':
-                builder.symmetryAxis = 2;
-                break;
-        }
-        for (let child of node.children) {
-            const tube = child.value(CTube);
-            const operator = child.value(CSdfOperator) === 'add';
-            if (tube.length === 1) {
-                builder.sphere(tube[0].position, tube[0].radius, operator);
-            } else {
-                for (let i = 0; i + 1 < tube.length; ++i) {
-                    const n1 = tube[i];
-                    const n2 = tube[i + 1];
-                    builder.roundCone(n1.position, n1.radius, n2.position, n2.radius, operator);
+
+        ctx.throttle(
+            `#${node.id}-update-custom-shape-geometry`,
+            25,
+            function () {
+                if (node.deleted) {
+                    return;
                 }
-            }
-        }
-        const {position, normal} = builder.build();
-        const mesh = cObject3D.value as Mesh;
-        const geometry = mesh.geometry;
-        geometry.setAttribute('position', new Float32BufferAttribute(position, 3));
-        geometry.setAttribute('normal', new Float32BufferAttribute(normal, 3));
-        geometry.computeBoundingSphere();
+                const builder = new SdfMeshBuilder();
+                switch (node.value(CSdfSymmetry)) {
+                    case 'x':
+                        builder.symmetryAxis = 0;
+                        break;
+                    case 'y':
+                        builder.symmetryAxis = 1;
+                        break;
+                    case 'z':
+                        builder.symmetryAxis = 2;
+                        break;
+                }
+                for (let child of node.children) {
+                    const tube = child.value(CTube);
+                    const operator = child.value(CSdfOperator) === 'add';
+                    if (tube.length === 1) {
+                        builder.sphere(tube[0].position, tube[0].radius, operator);
+                    } else {
+                        for (let i = 0; i + 1 < tube.length; ++i) {
+                            const n1 = tube[i];
+                            const n2 = tube[i + 1];
+                            builder.roundCone(n1.position, n1.radius, n2.position, n2.radius, operator);
+                        }
+                    }
+                }
+                const {position, normal} = builder.build();
+                const mesh = cObject3D.value as Mesh;
+                const geometry = mesh.geometry;
+                geometry.setAttribute('position', new Float32BufferAttribute(position, 3));
+                geometry.setAttribute('normal', new Float32BufferAttribute(normal, 3));
+                geometry.computeBoundingSphere();
+            },
+            false
+        );
     }
 }

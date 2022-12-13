@@ -87,6 +87,8 @@ export default class EditorContext {
     statusBarMessage: string = '';
     tool: EditorTool = this.tools[0];
     nextFrameCallbacks: (() => void)[] = [];
+    throttleTasks: Map<string, { time: number, callback: () => void }> = new Map();
+
     keepTransformUnchangedWhileMoving: boolean = true;
     quadView: boolean = false;
     showGrids: boolean = true;
@@ -191,6 +193,26 @@ export default class EditorContext {
 
     nextFrameEnd(callback: () => void) {
         this.nextFrameCallbacks.push(callback);
+    }
+
+    throttle(hash: string, delayMs: number, callback: () => void, immediate = false) {
+        const task = this.throttleTasks.get(hash);
+        if (task) {
+            if (!immediate) {
+                task.time = Date.now() + delayMs;
+            }
+            task.callback = callback;
+        } else {
+            if (immediate) {
+                callback();
+                this.throttleTasks.set(hash, {
+                    time: Date.now() + delayMs, callback: () => {
+                    }
+                });
+            } else {
+                this.throttleTasks.set(hash, {time: Date.now() + delayMs, callback});
+            }
+        }
     }
 
     load(data: ProjectReaderResult) {
