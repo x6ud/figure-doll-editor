@@ -408,7 +408,9 @@ export default defineComponent({
             if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
                 return;
             }
-            if (!editorContext.value!.tool.enableDefaultDeleteShortcut) {
+            if (!editorContext.value!.tool.enableDefaultDeleteShortcut
+                && e?.key === 'Delete'
+            ) {
                 return;
             }
             const model = editorContext.value!.model;
