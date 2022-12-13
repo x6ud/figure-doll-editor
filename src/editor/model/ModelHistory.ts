@@ -1,8 +1,10 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import Class from '../../common/type/Class';
+import {getScaleScalar} from '../utils/math';
 import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
+import CTube from './components/CTube';
 import Model from './Model';
 import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
@@ -333,8 +335,8 @@ export default class ModelHistory {
         });
         this.enableMerge = false;
 
-        if (keepTransformUnchanged) {
-            if (parentId0 !== parentId1 && (node.has(CPosition) || node.has(CRotation) || node.has(CScale))) {
+        if (keepTransformUnchanged && parentId0 !== parentId1) {
+            if (node.has(CPosition) || node.has(CRotation) || node.has(CScale)) {
                 let localMatrix = node.getWorldMatrix();
                 if (parent) {
                     localMatrix = new Matrix4().copy(parent.getWorldMatrix()).invert().multiply(localMatrix);
@@ -354,6 +356,18 @@ export default class ModelHistory {
                         this.setValue(node, CScale, scale.x);
                     }
                 }
+            } else if (node.has(CTube)) {
+                let detMat = node.getWorldMatrix();
+                if (parent) {
+                    detMat = new Matrix4().copy(parent.getWorldMatrix()).invert().multiply(detMat);
+                }
+                const scale = getScaleScalar(detMat);
+                const tube = node.get(CTube).clone();
+                for (let node of tube) {
+                    node.position.applyMatrix4(detMat);
+                    node.radius *= scale;
+                }
+                this.setValue(node, CTube, tube);
             }
         }
     }

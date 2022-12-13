@@ -11,5 +11,4 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 })
 export default class CSdfOperator extends ModelNodeComponent<'add' | 'subtract'> {
     value: 'add' | 'subtract' = 'add';
-    dirty: boolean = true;
 }

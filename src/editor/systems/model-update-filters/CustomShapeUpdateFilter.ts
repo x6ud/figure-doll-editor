@@ -1,6 +1,7 @@
 import {BufferGeometry, Float32BufferAttribute, Mesh, MeshStandardMaterial} from 'three';
 import EditorContext from '../../EditorContext';
 import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
+import CSdfDirty from '../../model/components/CSdfDirty';
 import CSdfOperator from '../../model/components/CSdfOperator';
 import CSdfSymmetry from '../../model/components/CSdfSymmetry';
 import CTube from '../../model/components/CTube';
@@ -13,26 +14,10 @@ export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
         if (node.type !== 'Shape') {
             return;
         }
-        let dirty = false;
-        const cSdfSymmetry = node.get(CSdfSymmetry);
-        if (cSdfSymmetry.dirty) {
-            dirty = true;
-            cSdfSymmetry.dirty = false;
-        }
-        for (let child of node.children) {
-            const cTube = child.get(CTube);
-            if (cTube.dirty) {
-                dirty = true;
-            }
-            const cSdfOperator = child.get(CSdfOperator);
-            if (cSdfOperator.dirty) {
-                dirty = true;
-                cSdfOperator.dirty = false;
-            }
-        }
-        if (!dirty) {
+        if (!node.value(CSdfDirty)) {
             return;
         }
+        node.get(CSdfDirty).value = false;
         const cObject3D = node.get(CObject3D);
         if (!cObject3D.value) {
             cObject3D.value = new Mesh(
@@ -42,7 +27,7 @@ export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
             (cObject3D.value.userData as Object3DUserData) = {node};
         }
         const builder = new SdfMeshBuilder();
-        switch (cSdfSymmetry.value) {
+        switch (node.value(CSdfSymmetry)) {
             case 'x':
                 builder.symmetryAxis = 0;
                 break;

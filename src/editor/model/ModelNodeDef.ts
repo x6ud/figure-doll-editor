@@ -9,6 +9,7 @@ import COpacity from './components/COpacity';
 import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
+import CSdfDirty from './components/CSdfDirty';
 import CSdfOperator from './components/CSdfOperator';
 import CSdfSymmetry from './components/CSdfSymmetry';
 import CTube from './components/CTube';
@@ -63,7 +64,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'Shape',
         label: 'Custom Shape',
-        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CSdfSymmetry],
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CSdfDirty, CSdfSymmetry],
         canBeRoot: true,
         validChildTypes: ['Tube'],
     },

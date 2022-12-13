@@ -11,5 +11,4 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 })
 export default class CSdfSymmetry extends ModelNodeComponent<'none' | 'x' | 'y' | 'z'> {
     value: 'none' | 'x' | 'y' | 'z' = 'none';
-    dirty: boolean = true;
 }
