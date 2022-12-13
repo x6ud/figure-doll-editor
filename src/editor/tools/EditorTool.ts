@@ -4,6 +4,7 @@ import EditorView from '../EditorView';
 export default abstract class EditorTool {
     abstract label: string;
     abstract icon: string;
+    sep: boolean = false;
     /** Text set to status bar when tool is selected */
     tips: string = '';
     enableTransformControls: boolean = false;

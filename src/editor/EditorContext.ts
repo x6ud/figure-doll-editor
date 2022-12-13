@@ -26,6 +26,7 @@ import CursorTool from './tools/CursorTool';
 import EditorTool from './tools/EditorTool';
 import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
+import ToolSeperator from './tools/ToolSeperator';
 import TranslateTool from './tools/TranslateTool';
 import TubeTool from './tools/TubeTool';
 import Grids from './utils/geometry/Grids';
@@ -58,9 +59,11 @@ export default class EditorContext {
 
     tools: EditorTool[] = [
         new CursorTool(),
+        new ToolSeperator(),
         new TranslateTool(),
         new RotateTool(),
         new RescaleTool(),
+        new ToolSeperator(),
         new BoxTool(),
         new TubeTool(),
     ];

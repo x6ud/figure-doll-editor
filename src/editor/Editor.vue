@@ -77,14 +77,20 @@
             >
                 <div class="scroll">
                     <div v-if="editorContext">
-                        <button class="tool icon-button toggle-button"
-                                v-for="tool in editorContext.tools"
-                                :title="tool.label"
-                                :class="{active: editorContext.tool === tool}"
-                                @click="editorContext.tool = tool"
-                        >
-                            <img :src="tool.icon" alt="">
-                        </button>
+                        <template v-for="tool in editorContext.tools">
+                            <template v-if="tool.sep">
+                                <hr>
+                            </template>
+                            <template v-if="!tool.sep">
+                                <button class="tool icon-button toggle-button"
+                                        :title="tool.label"
+                                        :class="{active: editorContext.tool === tool}"
+                                        @click="editorContext.tool = tool"
+                                >
+                                    <img :src="tool.icon" alt="">
+                                </button>
+                            </template>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -176,12 +182,21 @@
 
     .scroll {
         left: 2px;
+        top: 2px;
     }
 
     .tool {
         width: 24px;
         height: 24px;
-        margin: 4px 0 0 0;
+        margin: 2px 0;
+    }
+
+    hr {
+        width: 24px;
+        height: 1px;
+        border: none;
+        background: #555;
+        margin: 2px 0;
     }
 }
 
