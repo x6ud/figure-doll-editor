@@ -61,11 +61,6 @@
                                      :checked="editorContext.showGrids"
                                      @click="editorContext.showGrids = !editorContext.showGrids"
                     />
-                    <popup-menu-item title="Edges"
-                                     :checked="editorContext.showEdges"
-                                     @click="editorContext.showEdges = !editorContext.showEdges"
-                    />
-                    <popup-menu-item sep/>
                     <popup-menu-item title="Quad Views"
                                      :checked="editorContext.quadView"
                                      @click="editorContext.quadView = !editorContext.quadView"

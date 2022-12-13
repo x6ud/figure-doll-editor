@@ -7,13 +7,12 @@ import {ProjectReaderResult} from './ProjectReader';
 import CallbackFireSystem from './systems/CallbackFireSystem';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
 import DefaultLightUpdateSystem from './systems/DefaultLightUpdateSystem';
-import EdgeVisibilityUpdateSystem from './systems/EdgeVisibilityUpdateSystem';
 import HistorySystem from './systems/HistorySystem';
 import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
-import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import ImportModelUpdateFilter from './systems/model-update-filters/ImportModelUpdateFilter';
+import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import OpacityUpdateFilter from './systems/model-update-filters/OpacityUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
 import TubeUpdateFilter from './systems/model-update-filters/TubeUpdateFilter';
@@ -46,7 +45,6 @@ export default class EditorContext {
             new TransformUpdateFilter(),
             new OpacityUpdateFilter(),
         ]),
-        new EdgeVisibilityUpdateSystem(),
         new MouseSystem(),
         new ToolSystem(),
         new HistorySystem(),
@@ -90,7 +88,6 @@ export default class EditorContext {
     keepTransformUnchangedWhileMoving: boolean = true;
     quadView: boolean = false;
     showGrids: boolean = true;
-    showEdges: boolean = false;
 
     constructor(
         canvas: HTMLCanvasElement,

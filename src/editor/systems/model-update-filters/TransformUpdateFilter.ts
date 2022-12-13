@@ -12,7 +12,6 @@ export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
         if (node.has(CObject3D)) {
             const cObject3D = node.get(CObject3D);
             const mesh = cObject3D.value;
-            const edge = cObject3D.edge;
             if (mesh) {
                 if (cObject3D.localTransformChanged) {
                     if (node.has(CPosition)) {
@@ -25,17 +24,10 @@ export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
                         mesh.scale.x = mesh.scale.y = mesh.scale.z = node.value(CScale);
                     }
                     mesh.updateMatrix();
-                    if (edge) {
-                        edge.matrixAutoUpdate = false;
-                        edge.matrix.copy(mesh.matrix);
-                    }
                     cObject3D.localTransformChanged = false;
                 }
                 if (cObject3D.worldTransformChanged) {
                     mesh.updateMatrixWorld(true);
-                    if (edge) {
-                        edge.updateMatrixWorld();
-                    }
                     cObject3D.worldTransformChanged = false;
                     node.forEach(child => {
                         if (child.has(CTube)) {

@@ -32,17 +32,6 @@ export default class BoxUpdateFilter implements ModelNodeUpdateFilter {
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
         }
-        // if (!cObject3D.edge) {
-        //     cObject3D.edge = new LineSegments(
-        //         new EdgesGeometry(geometry),
-        //         new LineBasicMaterial({
-        //             color: 0x000000,
-        //         })
-        //     );
-        // } else {
-        //     const edge = cObject3D.edge as LineSegments;
-        //     edge.geometry.dispose();
-        //     edge.geometry = new EdgesGeometry(geometry);
-        // }
+        geometry.computeBoundingSphere();
     }
 }

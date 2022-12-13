@@ -1,21 +1,11 @@
-import {
-    BufferGeometry,
-    EdgesGeometry,
-    Group,
-    Line,
-    LineBasicMaterial,
-    LineSegments,
-    Mesh,
-    MeshStandardMaterial,
-    Vector3
-} from 'three';
+import {BufferGeometry, Float32BufferAttribute, Group, Line, Mesh, MeshStandardMaterial, Vector3} from 'three';
 import {ParametricGeometries} from 'three/examples/jsm/geometries/ParametricGeometries';
 import EditorContext from '../../EditorContext';
 import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
 import CTube, {TubeNodePickerUserData} from '../../model/components/CTube';
 import ModelNode from '../../model/ModelNode';
 import CircleEdgeGeometry from '../../utils/geometry/CircleEdgeGeometry';
-import TubeMeshBuilder from '../../utils/geometry/TubeMeshBuilder';
+import SdfMeshBuilder from '../../utils/geometry/SdfMeshBuilder';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 import SphereGeometry = ParametricGeometries.SphereGeometry;
 
@@ -105,21 +95,21 @@ export default class TubeUpdateFilter implements ModelNodeUpdateFilter {
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
         }
-        const geometry = (cObject3D.value as Mesh).geometry;
-        geometry.setFromPoints(new TubeMeshBuilder(cTube.value).build());
-        delete geometry.attributes.normal;
-        geometry.computeVertexNormals();
-        if (!cObject3D.edge) {
-            cObject3D.edge = new LineSegments(
-                new EdgesGeometry(geometry),
-                new LineBasicMaterial({
-                    color: 0x000000,
-                })
-            );
+        const builder = new SdfMeshBuilder();
+        if (tube.length === 1) {
+            const node = tube[0];
+            builder.sphere(node.position, node.radius, true);
         } else {
-            const edge = cObject3D.edge as LineSegments;
-            edge.geometry.dispose();
-            edge.geometry = new EdgesGeometry(geometry);
+            for (let i = 0, len = tube.length; i + 1 < len; ++i) {
+                const n1 = tube[i];
+                const n2 = tube[i + 1];
+                builder.roundCone(n1.position, n1.radius, n2.position, n2.radius, true);
+            }
         }
+        const {position, normal} = builder.build();
+        const geometry = (cObject3D.value as Mesh).geometry;
+        geometry.setAttribute('position', new Float32BufferAttribute(position, 3));
+        geometry.setAttribute('normal', new Float32BufferAttribute(normal, 3));
+        geometry.computeBoundingSphere();
     }
 }

@@ -94,7 +94,6 @@ export default defineComponent({
             modelNodePropertiesPanelWidth,
             () => editorContext.value?.keepTransformUnchangedWhileMoving,
             () => editorContext.value?.showGrids,
-            () => editorContext.value?.showEdges,
             () => editorContext.value?.quadView,
         ], function () {
             localStorage.setItem(
@@ -108,7 +107,6 @@ export default defineComponent({
                     modelNodePropertiesPanelWidth: modelNodePropertiesPanelWidth.value,
                     keepTransformUnchangedWhileMoving: editorContext.value?.keepTransformUnchangedWhileMoving,
                     showGrids: editorContext.value?.showGrids,
-                    showEdges: editorContext.value?.showEdges,
                     quadView: editorContext.value?.quadView,
                 })
             );
@@ -156,9 +154,6 @@ export default defineComponent({
                     }
                     if ('showGrids' in options) {
                         ctx.showGrids = options.showGrids;
-                    }
-                    if ('showEdges' in options) {
-                        ctx.showEdges = options.showEdges;
                     }
                     if ('quadView' in options) {
                         ctx.quadView = options.quadView;
