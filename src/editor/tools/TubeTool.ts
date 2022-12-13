@@ -1,11 +1,12 @@
 import {BufferGeometry, Line, LineBasicMaterial, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import {Object3DUserData} from '../model/components/CObject3D';
 import CPosition from '../model/components/CPosition';
 import CTube, {Tube, TubeNodePickerUserData} from '../model/components/CTube';
 import ModelNode from '../model/ModelNode';
 import CircleEdgeGeometry from '../utils/geometry/CircleEdgeGeometry';
-import {getRotation, getScaleScalar, intersectPointRect, linePanelIntersection} from '../utils/math';
+import {getRotation, getScaleScalar, intersectPointRect, linePanelIntersection, snapPoint} from '../utils/math';
 import EditorTool from './EditorTool';
 import icon from './Tube.png';
 
@@ -19,6 +20,7 @@ const _mat = new Matrix4();
 const MIN_RADIUS = 0.01;
 const RESIZE_STEP = 0.01;
 const MAX_RADIUS = 5;
+const SNAP_STEP = 0.05;
 
 export default class TubeTool extends EditorTool {
     label = 'Tube';
@@ -157,6 +159,9 @@ export default class TubeTool extends EditorTool {
                                         .applyMatrix4(cTube.draggingStartMatrix!)
                                         .add(_det)
                                         .applyMatrix4(cTube.draggingStartInvMatrix!);
+                                    if (input.isKeyPressed('Shift')) {
+                                        snapPoint(val[index].position, SNAP_STEP);
+                                    }
                                 }
                             }
                             if (cTube.draggingStartNodeIndex >= 0 && !draggingSelected) {
@@ -164,6 +169,9 @@ export default class TubeTool extends EditorTool {
                                     .applyMatrix4(cTube.draggingStartMatrix!)
                                     .add(_det)
                                     .applyMatrix4(cTube.draggingStartInvMatrix!);
+                                if (input.isKeyPressed('Shift')) {
+                                    snapPoint(val[cTube.draggingStartNodeIndex].position, SNAP_STEP);
+                                }
                             }
                             ctx.history.setValue(node, CTube, val);
                         }
@@ -294,6 +302,9 @@ export default class TubeTool extends EditorTool {
                         view.mouseRay0, view.mouseRay1,
                         _pos, view.mouseRayN
                     );
+                    if (input.isKeyPressed('Shift')) {
+                        snapPoint(this.circle.position, SNAP_STEP);
+                    }
                     // wheel resize radius
                     if (input.wheelDetY) {
                         this.radius = Math.min(MAX_RADIUS, Math.max(MIN_RADIUS, -input.wheelDetY * RESIZE_STEP + this.radius));
@@ -420,11 +431,16 @@ export default class TubeTool extends EditorTool {
         ) {
             if (ctx.selectionStart.equals(ctx.selectionEnd)) {
                 // click select
+                let anySelected = false;
                 for (let node of this.nodes) {
                     const cTube = node.get(CTube);
+                    if (cTube.selected.length) {
+                        anySelected = true;
+                    }
                     if (cTube.selected.includes(cTube.hovered)) {
                         if (input.isKeyPressed('Control')) {
                             cTube.selected = cTube.selected.filter(i => i !== cTube.hovered);
+                            anySelected = true;
                         }
                     } else {
                         if (!input.isKeyPressed('Control')) {
@@ -432,7 +448,24 @@ export default class TubeTool extends EditorTool {
                         }
                         if (cTube.hovered >= 0) {
                             cTube.addSelection(cTube.hovered);
+                            anySelected = true;
                         }
+                    }
+                }
+                if (!anySelected) {
+                    const result = view.mousePick('Shape');
+                    let shapeNode: ModelNode | null = null;
+                    for (let obj of result) {
+                        const node = (result[0].object.userData as Object3DUserData).node;
+                        if (node) {
+                            shapeNode = node;
+                            break;
+                        }
+                    }
+                    if (shapeNode) {
+                        ctx.model.selected = shapeNode.children.map(node => node.id);
+                    } else {
+                        ctx.model.selected = [];
                     }
                 }
             } else {
