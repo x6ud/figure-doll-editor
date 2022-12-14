@@ -17,8 +17,8 @@ const _rot = new Quaternion();
 const _unitX = new Vector3(1, 0, 0);
 const _mat = new Matrix4();
 
-const MIN_RADIUS = 0.01;
-const RESIZE_STEP = 0.01;
+const MIN_RADIUS = 0.005;
+const RESIZE_STEP = 0.005;
 const MAX_RADIUS = 5;
 const SNAP_STEP = 0.05;
 
@@ -126,7 +126,11 @@ export default class TubeTool extends EditorTool {
                 if (cTube.selected.length) {
                     const tube = cTube.clone().filter((_, i) => !cTube.selected.includes(i));
                     cTube.selected.length = 0;
-                    ctx.history.setValue(node, CTube, tube);
+                    if (tube.length === 0) {
+                        ctx.history.removeNode(node.id);
+                    } else {
+                        ctx.history.setValue(node, CTube, tube);
+                    }
                 }
             }
             return;

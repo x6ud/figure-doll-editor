@@ -77,7 +77,7 @@ export default class SdfMeshBuilder {
     resolution = 0.005;
     maxResolutionSeg = 100;
     symmetryAxis = -1;
-    smoothRange = 0.005;
+    smoothRange = 0.01;
     private shapes: SdfShape[] = [];
 
     sphere(position: Vector3, radius: number, operator: boolean) {
