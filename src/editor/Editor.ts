@@ -13,6 +13,7 @@ import QuadView from './components/QuadView/QuadView.vue';
 import SidePanel from './components/SidePanel/SidePanel.vue';
 import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
+import CName from './model/components/CName';
 import CObject3D from './model/components/CObject3D';
 import CPosition from './model/components/CPosition';
 import CRotation from './model/components/CRotation';
@@ -233,6 +234,7 @@ export default defineComponent({
                     focus();
                     editorContext.value!.statusBarMessage = '';
                 } catch (e) {
+                    console.error(e);
                     editorContext.value!.statusBarMessage = 'Failed to open file.';
                 } finally {
                     fullscreenLoading.value = false;
@@ -574,10 +576,11 @@ export default defineComponent({
                 type: 'Clay',
                 parentId: parent ? parent.id : 0,
                 data: {
-                    [CVertices.name]: vertices,
+                    [CName.name]: node.value(CName),
                     [CPosition.name]: node.cloneValue(CPosition),
                     [CRotation.name]: node.cloneValue(CRotation),
-                    [CScale.name]: node.cloneValue(CScale)
+                    [CScale.name]: node.cloneValue(CScale),
+                    [CVertices.name]: vertices,
                 }
             });
             ctx.history.removeNode(node.id);
