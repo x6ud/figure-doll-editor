@@ -38,7 +38,7 @@ export default class ArcRotateCamera {
         if (this.perspective) {
             this.perspectiveCamera.aspect = width / height;
         } else {
-            const scale = this.distance / 500.0;
+            const scale = this.distance / 850.0;
             const halfWidth = width / 2 * scale;
             const halfHeight = height / 2 * scale;
             this.orthographicCamera.left = -halfWidth;

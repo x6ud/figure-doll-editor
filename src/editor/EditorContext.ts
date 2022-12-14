@@ -27,6 +27,7 @@ import CursorTool from './tools/CursorTool';
 import EditorTool from './tools/EditorTool';
 import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
+import SculptBrushTool from './tools/SculptBrushTool';
 import ToolSeperator from './tools/ToolSeperator';
 import TranslateTool from './tools/TranslateTool';
 import TubeTool from './tools/TubeTool';
@@ -61,14 +62,17 @@ export default class EditorContext {
 
     tools: EditorTool[] = [
         new CursorTool(),
-        new ToolSeperator(),
+        ToolSeperator.instance,
         new TranslateTool(),
         new RotateTool(),
         new RescaleTool(),
-        new ToolSeperator(),
+        ToolSeperator.instance,
         new BoxTool(),
         new TubeTool(),
+        ToolSeperator.instance,
+        new SculptBrushTool(),
     ];
+    symmetry: 'no' | 'x' | 'y' | 'z' = 'x';
 
     canvas: HTMLCanvasElement;
     renderer: WebGLRenderer;

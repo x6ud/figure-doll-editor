@@ -4,6 +4,7 @@ import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
 import FullscreenLoading from './components/FullscreenLoading/FullscreenLoading.vue';
+import LabelRange from './components/LabelRange/LabelRange.vue';
 import ModelNodeProperties from './components/ModelNodeProperties/ModelNodeProperties.vue';
 import ModelTree from './components/ModelTree/ModelTree.vue';
 import PopupMenu from './components/popup/PopupMenu/PopupMenu.vue';
@@ -37,6 +38,7 @@ const localStorageKey = 'puppet-editor-options';
 export default defineComponent({
     components: {
         FullscreenLoading,
+        LabelRange,
         ModelNodeProperties,
         ModelTree,
         PopupMenu,

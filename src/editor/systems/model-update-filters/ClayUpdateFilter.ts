@@ -1,8 +1,10 @@
+import {Vector3} from 'three';
 import EditorContext from '../../EditorContext';
 import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
 import CVertices from '../../model/components/CVertices';
 import ModelNode from '../../model/ModelNode';
 import DynamicMesh from '../../utils/geometry/dynamic/DynamicMesh';
+import SdfMeshBuilder from '../../utils/geometry/SdfMeshBuilder';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
 export default class ClayUpdateFilter implements ModelNodeUpdateFilter {
@@ -15,6 +17,13 @@ export default class ClayUpdateFilter implements ModelNodeUpdateFilter {
             return;
         }
         cVertices.dirty = false;
+        if (cVertices.value.length === 0) {
+            // make default sphere
+            const sdfMeshBuilder = new SdfMeshBuilder();
+            sdfMeshBuilder.sphere(new Vector3(0, 0, 0), 0.25, true);
+            const {position} = sdfMeshBuilder.build();
+            cVertices.value = new Float32Array(position);
+        }
         const cObject3D = node.get(CObject3D);
         if (!cObject3D.mesh) {
             cObject3D.mesh = new DynamicMesh();

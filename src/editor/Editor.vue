@@ -66,8 +66,53 @@
                                      @click="editorContext.quadView = !editorContext.quadView"
                     />
                 </popup-menu>
+
+                <template v-if="editorContext.tool.sculpt">
+                    <div class="separator"></div>
+                    <label-range style="margin-right: 4px;"
+                                 v-model:value="editorContext.tool.brushRadius"
+                                 label="Radius"
+                                 :min="5"
+                                 :max="200"
+                                 :step="1"
+                                 :fraction-digits="0"
+                    />
+                    <label-range style="margin-right: 8px;"
+                                 v-model:value="editorContext.tool.brushStrength"
+                                 label="Strength"
+                                 :min="0"
+                                 :max="1"
+                                 :step="0.001"
+                                 :fraction-digits="3"
+                    />
+                    <div class="button-group cols" style="margin-right: 8px"
+                         title="Direction"
+                    >
+                        <button class="normal-button toggle-button"
+                                :class="{active: editorContext.tool.brushOperator}"
+                                @click="editorContext.tool.brushOperator = true"
+                        >
+                            +
+                        </button>
+                        <button class="normal-button toggle-button"
+                                :class="{active: !editorContext.tool.brushOperator}"
+                                @click="editorContext.tool.brushOperator = false"
+                        >
+                            -
+                        </button>
+                    </div>
+                    <select v-model="editorContext.symmetry"
+                            title="Symmetry"
+                    >
+                        <option>no</option>
+                        <option>x</option>
+                        <option>y</option>
+                        <option>z</option>
+                    </select>
+                </template>
+
                 <div class="fill"></div>
-                <div style="font-size: 8px;">FPS: {{ editorContext.fps }}&nbsp;</div>
+                <div style="font-size: 8px;">FPS: {{ editorContext.fps }}</div>
             </template>
         </div>
 

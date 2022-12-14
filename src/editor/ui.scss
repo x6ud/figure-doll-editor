@@ -147,6 +147,10 @@ button.toggle-button {
 }
 
 .button-group {
+  button {
+    margin: 0;
+  }
+
   &.rows {
     button {
       border-radius: 0;
@@ -159,6 +163,22 @@ button.toggle-button {
 
     button:last-child {
       border-bottom-left-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+  }
+
+  &.cols {
+    button {
+      border-radius: 0;
+    }
+
+    button:first-child {
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+    }
+
+    button:last-child {
+      border-top-right-radius: 3px;
       border-bottom-right-radius: 3px;
     }
   }
@@ -232,12 +252,19 @@ input[type=range] {
   user-select: none;
   cursor: default;
   height: 24px;
-  padding: 0 0 0 4px;
+  padding: 0 4px;
   background: #111;
   font-size: 12px;
 
   .fill {
     flex: 1 1;
+  }
+
+  .separator {
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+    background: #555;
   }
 
   .popup-menu-trigger, & > button {
@@ -248,6 +275,7 @@ input[type=range] {
     padding: 0 .5em;
     box-sizing: border-box;
     border: none;
+    border-radius: 0;
     transition: background-color .3s;
     background: transparent;
 
@@ -282,6 +310,17 @@ input[type=range] {
     &.active {
       background: #333;
     }
+  }
+
+  .toggle-button {
+    min-width: 20px;
+    height: 18px;
+    line-height: 18px;
+    padding: 0 4px;
+  }
+
+  select {
+    height: 18px;
   }
 }
 

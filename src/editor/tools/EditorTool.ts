@@ -11,6 +11,10 @@ export default abstract class EditorTool {
     enableDefaultDeleteShortcut: boolean = true;
     enableSelectionRect: boolean = false;
     enableDefaultSelectionBehavior: boolean = false;
+    sculpt: boolean = false;
+    brushRadius: number = 50;
+    brushStrength: number = 0.5;
+    brushOperator: boolean = true;
 
     /** Called once on load */
     setup(ctx: EditorContext): void {

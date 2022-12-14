@@ -83,6 +83,7 @@ export default class DynamicMesh {
             position.needsUpdate = true;
             const normal = mesh.geometry.getAttribute('normal');
             normal.needsUpdate = true;
+            mesh.geometry.computeBoundingSphere();
             return mesh;
         } else {
             return new Mesh(
