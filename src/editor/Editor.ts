@@ -1,4 +1,4 @@
-import {Vector3} from 'three';
+import {Mesh, Vector3} from 'three';
 import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
@@ -12,6 +12,12 @@ import QuadView from './components/QuadView/QuadView.vue';
 import SidePanel from './components/SidePanel/SidePanel.vue';
 import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
+import CObject3D from './model/components/CObject3D';
+import CPosition from './model/components/CPosition';
+import CRotation from './model/components/CRotation';
+import CScale from './model/components/CScale';
+import CSdfDirty from './model/components/CSdfDirty';
+import CVertices from './model/components/CVertices';
 import ModelNode, {ModelNodeJson} from './model/ModelNode';
 import ModelNodeComponent from './model/ModelNodeComponent';
 import {DataType, getModelNodeComponentDef} from './model/ModelNodeComponentDef';
@@ -538,6 +544,43 @@ export default defineComponent({
             }
         }
 
+        function onConvertToClay(node: ModelNode) {
+            node = toRaw(node);
+            const ctx = editorContext.value!;
+            const parent = node.parent;
+            let vertices: Float32Array;
+            switch (node.type) {
+                case 'Shape': {
+                    const cSdfDirty = node.get(CSdfDirty);
+                    if (cSdfDirty.throttleHash) {
+                        const task = ctx.throttleTasks.get(cSdfDirty.throttleHash);
+                        if (task) {
+                            task.callback();
+                            ctx.throttleTasks.delete(cSdfDirty.throttleHash);
+                        }
+                        cSdfDirty.throttleHash = '';
+                    }
+                    const mesh = node.value(CObject3D) as Mesh;
+                    const geometry = mesh.geometry;
+                    vertices = new Float32Array(geometry.getAttribute('position').array);
+                }
+                    break;
+                default:
+                    return;
+            }
+            ctx.history.createNode({
+                type: 'Clay',
+                parentId: parent ? parent.id : 0,
+                data: {
+                    [CVertices.name]: vertices,
+                    [CPosition.name]: node.cloneValue(CPosition),
+                    [CRotation.name]: node.cloneValue(CRotation),
+                    [CScale.name]: node.cloneValue(CScale)
+                }
+            });
+            ctx.history.removeNode(node.id);
+        }
+
         return {
             dom,
             editorContext,
@@ -568,6 +611,7 @@ export default defineComponent({
             onCut,
             onCopy,
             onPaste,
+            onConvertToClay,
         };
     }
 });

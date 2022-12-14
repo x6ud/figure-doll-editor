@@ -22,6 +22,9 @@
             <popup-menu-item title="Focus" @click="onFocus"
                              :disabled="!contextMenuNode"
             />
+            <template v-if="canConvertToClay">
+                <popup-menu-item title="Convert to Clay" @click="onConvertToClay"/>
+            </template>
             <popup-menu-item sep/>
             <popup-menu-item title="Cut" hotkey="Ctrl+X" @click="onCut"
                              :disabled="!model.selected.length"

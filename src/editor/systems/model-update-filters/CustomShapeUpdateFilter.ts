@@ -17,7 +17,8 @@ export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
         if (!node.value(CSdfDirty)) {
             return;
         }
-        node.get(CSdfDirty).value = false;
+        const cSdfDirty = node.get(CSdfDirty);
+        cSdfDirty.value = false;
         const cObject3D = node.get(CObject3D);
         if (!cObject3D.value) {
             cObject3D.value = new Mesh(
@@ -26,14 +27,15 @@ export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
             );
             (cObject3D.value.userData as Object3DUserData) = {node};
         }
-
+        cSdfDirty.throttleHash = `#${node.id}-update-custom-shape-geometry`;
         ctx.throttle(
-            `#${node.id}-update-custom-shape-geometry`,
+            cSdfDirty.throttleHash,
             25,
             function () {
                 if (node.deleted) {
                     return;
                 }
+                cSdfDirty.throttleHash = '';
                 const builder = new SdfMeshBuilder();
                 switch (node.value(CSdfSymmetry)) {
                     case 'x':

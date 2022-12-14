@@ -5,6 +5,7 @@ import ModelNodeComponent from './ModelNodeComponent';
 import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 import {getModelNodeDef} from './ModelNodeDef';
 import BoxWatcher from './watchers/BoxWatcher';
+import ClayWatcher from './watchers/ClayWatcher';
 import ImageWatcher from './watchers/ImageWatcher';
 import ImportModelWatcher from './watchers/ImportModelWatcher';
 import OpacityWatcher from './watchers/OpacityWatcher';
@@ -22,6 +23,7 @@ export default class Model {
         new ImportModelWatcher(),
         new BoxWatcher(),
         new CustomShapeWatcher(),
+        new ClayWatcher(),
     ];
     dirty: boolean = true;
     selected: number[] = [];

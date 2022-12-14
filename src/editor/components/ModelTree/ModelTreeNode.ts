@@ -121,7 +121,7 @@ export default defineComponent({
         });
 
         function onContextMenu(node: ModelNode, e: PointerEvent) {
-            ctx.emit('contextmenu', props.node, e);
+            ctx.emit('contextmenu', node, e);
         }
 
         return {

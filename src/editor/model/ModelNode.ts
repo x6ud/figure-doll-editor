@@ -50,6 +50,12 @@ export default class ModelNode {
         return this.get(componentClass).value;
     }
 
+    cloneValue<T>(componentClass: Class<ModelNodeComponent<T>>): T {
+        const val = this.get(componentClass).value;
+        const componentDef = getModelNodeComponentDef(componentClass.name);
+        return componentDef.clone ? componentDef.clone(val) : val;
+    }
+
     /** Iterate over this node and all child nodes. Retuning false in callback to break the loop. */
     forEach(callback: (node: ModelNode) => void | boolean): void | boolean {
         const stack: ModelNode[] = [this];

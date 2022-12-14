@@ -1,4 +1,4 @@
-import {defineComponent, ref} from 'vue';
+import {computed, defineComponent, ref} from 'vue';
 import Class from '../../../common/type/Class';
 import Model from '../../model/Model';
 import ModelNode from '../../model/ModelNode';
@@ -15,7 +15,17 @@ export default defineComponent({
             required: true
         }
     },
-    emits: ['setValue', 'moveNode', 'select', 'focus', 'cut', 'copy', 'paste', 'delete'],
+    emits: [
+        'setValue',
+        'moveNode',
+        'select',
+        'focus',
+        'cut',
+        'copy',
+        'paste',
+        'delete',
+        'convertToClay'
+    ],
     setup(props, ctx) {
         const contextMenu = ref<{ show(trigger: HTMLElement, position: { x: number, y: number }): void }>();
 
@@ -62,6 +72,9 @@ export default defineComponent({
         }
 
         const contextMenuNode = ref<ModelNode>();
+        const canConvertToClay = computed(function () {
+            return ['Shape'].includes(contextMenuNode.value?.type || '');
+        });
 
         function onContextMenu(node: ModelNode | undefined, e: PointerEvent) {
             contextMenuNode.value = node;
@@ -91,6 +104,10 @@ export default defineComponent({
             ctx.emit('delete');
         }
 
+        function onConvertToClay() {
+            ctx.emit('convertToClay', contextMenuNode.value);
+        }
+
         return {
             contextMenu,
             onSetValue,
@@ -107,6 +124,8 @@ export default defineComponent({
             onCopy,
             onPaste,
             onDelete,
+            canConvertToClay,
+            onConvertToClay,
         };
     }
 });

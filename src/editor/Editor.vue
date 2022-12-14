@@ -131,6 +131,7 @@
                                 @copy="onCopy"
                                 @paste="onPaste"
                                 @delete="onDelete"
+                                @convertToClay="onConvertToClay"
                     />
                 </div>
             </side-panel>

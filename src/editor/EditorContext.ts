@@ -9,6 +9,7 @@ import CameraDraggingSystem from './systems/CameraDraggingSystem';
 import DefaultLightUpdateSystem from './systems/DefaultLightUpdateSystem';
 import HistorySystem from './systems/HistorySystem';
 import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
+import ClayUpdateFilter from './systems/model-update-filters/ClayUpdateFilter';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
 import CustomShapeUpdateFilter from './systems/model-update-filters/CustomShapeUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
@@ -43,6 +44,7 @@ export default class EditorContext {
             new BoxUpdateFilter(),
             new CustomShapeUpdateFilter(),
             new TubeUpdateFilter(),
+            new ClayUpdateFilter(),
             new ContainerUpdateFilter(),
             new Object3DRelationshipUpdateFilter(),
             new TransformUpdateFilter(),

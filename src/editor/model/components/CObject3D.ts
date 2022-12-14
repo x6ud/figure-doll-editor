@@ -1,5 +1,6 @@
 import {Material, Object3D} from 'three';
 import {Geometry} from 'three/examples/jsm/deprecated/Geometry';
+import DynamicMesh from '../../utils/geometry/dynamic/DynamicMesh';
 import ModelNode from '../ModelNode';
 import ModelNodeComponent from '../ModelNodeComponent';
 import {registerModelComponent} from '../ModelNodeComponentDef';
@@ -10,6 +11,7 @@ export default class CObject3D extends ModelNodeComponent<Object3D | null> {
     parentChanged: boolean = true;
     localTransformChanged: boolean = true;
     worldTransformChanged: boolean = true;
+    mesh?: DynamicMesh;
 
     onRemoved() {
         this.dispose();

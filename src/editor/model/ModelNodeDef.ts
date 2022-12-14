@@ -13,6 +13,7 @@ import CSdfDirty from './components/CSdfDirty';
 import CSdfOperator from './components/CSdfOperator';
 import CSdfSymmetry from './components/CSdfSymmetry';
 import CTube from './components/CTube';
+import CVertices from './components/CVertices';
 import CVisible from './components/CVisible';
 import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
@@ -31,7 +32,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Container',
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
-        validChildTypes: ['Container', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape'],
+        validChildTypes: ['Container', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay'],
     },
     {
         name: 'Image',
@@ -73,6 +74,13 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Tube',
         components: [CName, CObject3D, CSdfOperator, CTube],
         canBeRoot: false,
+        validChildTypes: [],
+    },
+    {
+        name: 'Clay',
+        label: 'Clay',
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CVertices],
+        canBeRoot: true,
         validChildTypes: [],
     },
 ];
