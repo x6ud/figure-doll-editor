@@ -1,4 +1,4 @@
-import {Box3, Ray, Vector3} from 'three';
+import {Box3, Ray, Sphere, Vector3} from 'three';
 import DynamicMesh from './DynamicMesh';
 
 const _triCenter = new Vector3();
@@ -107,6 +107,9 @@ export default class OctreeNode {
     }
 
     update(mesh: DynamicMesh, indices: number[]) {
+        if (!indices.length) {
+            return;
+        }
         const dirtyNodes: Set<OctreeNode> = new Set();
         {
             const stack: OctreeNode[] = [this];
@@ -277,5 +280,30 @@ export default class OctreeNode {
             }
         }
         return ret.sort((a, b) => a.distance - b.distance);
+    }
+
+    intersectSphere(mesh: DynamicMesh, sphere: Sphere) {
+        const stack: OctreeNode[] = [this];
+        const ret: number[] = [];
+        while (stack.length) {
+            const node = stack.pop();
+            if (!node) {
+                break;
+            }
+            if (!node.box.intersectsSphere(sphere)) {
+                continue;
+            }
+            if (node.isLeaf) {
+                for (let i of node.indices) {
+                    mesh.getTriangleBox(_triBox, i);
+                    if (_triBox.intersectsSphere(sphere)) {
+                        ret.push(i);
+                    }
+                }
+            } else {
+                stack.push(...node.children);
+            }
+        }
+        return ret;
     }
 }

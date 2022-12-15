@@ -1,5 +1,9 @@
+import {Sphere} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import DynamicMesh from '../utils/geometry/dynamic/DynamicMesh';
+
+const _sphere = new Sphere();
 
 export default abstract class EditorTool {
     abstract label: string;
@@ -37,5 +41,44 @@ export default abstract class EditorTool {
 
     /** Called when tool is unselected */
     onUnselected(ctx: EditorContext): void {
+    }
+
+    getSculptPicking(ctx: EditorContext, mesh: DynamicMesh): {
+        indices: number[],
+        indicesSym: number[],
+        shared: number[],
+    } {
+        _sphere.set(ctx.sculptLocal, ctx.sculptRadius);
+        const indices = mesh.intersectSphere(_sphere);
+        if (!ctx.sculptSym) {
+            return {indices, indicesSym: [], shared: []};
+        }
+        _sphere.set(ctx.sculptLocalSym, ctx.sculptRadius);
+        const indicesSym = mesh.intersectSphere(_sphere);
+        const set = new Set<number>(indices);
+        const shared = new Set<number>();
+        const filteredSym: number[] = [];
+        for (let i of indicesSym) {
+            if (set.has(i)) {
+                shared.add(i);
+            } else {
+                filteredSym.push(i);
+            }
+        }
+        const filtered: number[] = [];
+        for (let i of indices) {
+            if (!shared.has(i)) {
+                filtered.push(i);
+            }
+        }
+        return {
+            indices: filtered,
+            indicesSym: filteredSym,
+            shared: Array.from(shared)
+        };
+    }
+
+    sculptFalloff(dist: number) {
+        return 3 * dist ** 4 - 4 * dist ** 3 + 1;
     }
 }

@@ -5,6 +5,7 @@ import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
 import CTube from './components/CTube';
+import CVertices from './components/CVertices';
 import Model from './Model';
 import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
@@ -16,6 +17,8 @@ type Record = {
     hash: string;
     redo: () => void;
     undo: () => void;
+    setCtx?: (ctx: any) => void;
+    getCtx?: () => any;
 }
 
 type ModelNodeChildCreationInfo = {
@@ -85,10 +88,13 @@ export default class ModelHistory {
 
         const redoList: (() => void)[] = [];
         const undoList: (() => void)[] = [];
+        let getCtx: (() => any) | undefined = undefined;
+        let setCtx: ((ctx: any) => void) | undefined = undefined;
         for (let record of this.currentFrameRecords) {
-            record.redo();
             redoList.push(record.redo);
             undoList.push(record.undo);
+            getCtx = getCtx || record.getCtx;
+            setCtx = setCtx || record.setCtx;
         }
         let redo = () => {
             for (let func of redoList) {
@@ -101,12 +107,18 @@ export default class ModelHistory {
             }
         };
 
+        redo(); // apply modifications
+
         const hash = this.currentFrameRecords.map(record => record.hash).sort().join('@');
         if (this.enableMerge) {
             for (; this.undoStack.length;) {
                 const top = this.undoStack[this.undoStack.length - 1];
                 if (top.hash === hash) {
-                    undo = top.undo;
+                    if (setCtx && top.getCtx) {
+                        setCtx(top.getCtx());
+                    } else {
+                        undo = top.undo;
+                    }
                     this.undoStack.pop();
                 } else {
                     break;
@@ -120,7 +132,7 @@ export default class ModelHistory {
         }
         this.enableMerge = true;
 
-        this.undoStack.push({hash, redo, undo});
+        this.undoStack.push({hash, redo, undo, getCtx: getCtx, setCtx: setCtx});
 
         if (this.undoStack.length >= MAX_STACK_SIZE) {
             this.undoStack.shift();
@@ -394,6 +406,96 @@ export default class ModelHistory {
             undo: () => {
                 this.model.setValue(this.model.getNode(nodeId), componentClass, oldValue);
                 this.model.addSelection(nodeId);
+            },
+        });
+        return true;
+    }
+
+    setVertices(node: ModelNode, triIndices: number[], positions: Float32Array) {
+        const nodeId = node.id;
+        const vertices = node.value(CVertices);
+        let oldPos = new Float32Array(positions.length);
+        for (let j = 0, len = triIndices.length; j < len; ++j) {
+            const i = triIndices[j];
+            for (let k = 0; k < 9; ++k) {
+                oldPos[j * 9 + k] = vertices[i * 9 + k];
+            }
+        }
+        let equal = true;
+        for (let i = 0, len = positions.length; i < len; ++i) {
+            if (Math.abs(positions[i] - oldPos[i]) >= 1e-7) {
+                equal = false;
+            }
+        }
+        if (equal) {
+            return false;
+        }
+        let oldIndices = triIndices;
+        let newIndices = triIndices;
+        let newPos = positions;
+
+        const hash = nodeId + '#' + CVertices.name;
+        this.currentFrameRecords = this.currentFrameRecords.filter(record => record.hash !== hash);
+        this.currentFrameRecords.push({
+            hash,
+            redo: () => {
+                this.model.setVertices(this.model.getNode(nodeId), newIndices, newPos);
+            },
+            undo: () => {
+                this.model.setVertices(this.model.getNode(nodeId), oldIndices, oldPos);
+                this.model.addSelection(nodeId);
+            },
+            setCtx: ([oldIndices0, oldPos0, newIndices0, newPos0]: [number[], Float32Array, number[], Float32Array]) => {
+                // undo ctx
+                {
+                    const allChangedIndices = new Set([...oldIndices0, ...oldIndices]);
+                    const oldPos1 = new Float32Array(allChangedIndices.size * 9);
+                    for (let i = 0, len = oldPos0.length; i < len; ++i) {
+                        oldPos1[i] = oldPos0[i];
+                    }
+                    const oldIndices1 = [...oldIndices0];
+                    const existed = new Set(oldIndices0);
+                    let offset = oldPos0.length;
+                    for (let j = 0, len = oldIndices.length; j < len; ++j) {
+                        const i = oldIndices[j];
+                        if (!existed.has(i)) {
+                            oldIndices1.push(i);
+                            for (let k = 0; k < 9; ++k) {
+                                oldPos1[offset + k] = oldPos[j * 9 + k];
+                            }
+                            offset += 9;
+                        }
+                    }
+                    oldIndices = oldIndices1;
+                    oldPos = oldPos1;
+                }
+
+                // redo ctx
+                {
+                    const allChangedIndices = new Set([...newIndices, ...newIndices0]);
+                    const newPos1 = new Float32Array(allChangedIndices.size * 9);
+                    for (let i = 0, len = newPos.length; i < len; ++i) {
+                        newPos1[i] = newPos[i];
+                    }
+                    const newIndices1 = [...newIndices];
+                    const existed = new Set(newIndices);
+                    let offset = newPos.length;
+                    for (let j = 0, len = newIndices0.length; j < len; ++j) {
+                        const i = newIndices0[j];
+                        if (!existed.has(i)) {
+                            newIndices1.push(i);
+                            for (let k = 0; k < 9; ++k) {
+                                newPos1[offset + k] = newPos0[j * 9 + k];
+                            }
+                            offset += 9;
+                        }
+                    }
+                    newIndices = newIndices1;
+                    newPos = newPos1;
+                }
+            },
+            getCtx: () => {
+                return [oldIndices, oldPos, newIndices, newPos];
             },
         });
         return true;

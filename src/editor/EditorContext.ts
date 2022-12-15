@@ -74,7 +74,8 @@ export default class EditorContext {
     ];
 
     symmetry: 'no' | 'x' | 'y' | 'z' = 'x';
-    sculptHovered = false;
+    sculptNodeId = 0;
+    sculptActiveView = -1;
     sculptSym = false;
     sculptRadius = 0;
     sculptLocal = new Vector3();
@@ -100,6 +101,7 @@ export default class EditorContext {
     model = new Model();
     history = new ModelHistory(this.model);
     fps: number = 0;
+    detSec: number = 0;
     private lastTimestamp: number = 0;
     statusBarMessage: string = '';
     tool: EditorTool = this.tools[0];
@@ -166,7 +168,8 @@ export default class EditorContext {
 
     update() {
         const now = Date.now();
-        this.fps = Math.floor(1000 / (now - this.lastTimestamp));
+        this.detSec = (now - this.lastTimestamp) / 1000;
+        this.fps = Math.floor(1 / this.detSec);
         this.lastTimestamp = now;
 
         for (let i = 0; i < this.views.length; ++i) {

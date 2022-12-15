@@ -1,5 +1,12 @@
-import {Box3, BufferAttribute, BufferGeometry, Mesh, MeshStandardMaterial, Object3D, Ray, Vector3} from 'three';
+import {Box3, BufferAttribute, BufferGeometry, Mesh, MeshStandardMaterial, Object3D, Ray, Sphere, Vector3} from 'three';
 import OctreeNode from './OctreeNode';
+
+const _a = new Vector3();
+const _b = new Vector3();
+const _c = new Vector3();
+const _ab = new Vector3();
+const _cb = new Vector3();
+const _center = new Vector3();
 
 export default class DynamicMesh {
     aPosition: Float32Array = new Float32Array();
@@ -8,6 +15,7 @@ export default class DynamicMesh {
     triBox: Float32Array = new Float32Array();
     triNum: number = 0;
     octree: OctreeNode = new OctreeNode();
+    private dirtyIndices: Set<number> = new Set();
 
     buildFromTriangles(position: Float32Array, normal?: Float32Array) {
         this.aPosition = new Float32Array(position);
@@ -15,23 +23,18 @@ export default class DynamicMesh {
             this.aNormal = new Float32Array(normal);
         } else {
             const aNormal = this.aNormal = new Float32Array(position.length);
-            const a = new Vector3();
-            const b = new Vector3();
-            const c = new Vector3();
-            const ab = new Vector3();
-            const cb = new Vector3();
             for (let i = 0, vertNum = position.length / 3; i < vertNum; i += 3) {
-                a.fromArray(position, i * 3);
-                b.fromArray(position, (i + 1) * 3);
-                c.fromArray(position, (i + 2) * 3);
-                ab.subVectors(a, b);
-                cb.subVectors(c, b);
-                cb.cross(ab).normalize();
+                _a.fromArray(position, i * 3);
+                _b.fromArray(position, (i + 1) * 3);
+                _c.fromArray(position, (i + 2) * 3);
+                _ab.subVectors(_a, _b);
+                _cb.subVectors(_c, _b);
+                _cb.cross(_ab).normalize();
                 for (let k = 0; k < 3; ++k) {
                     const j = (i + k) * 3;
-                    aNormal[j] = cb.x;
-                    aNormal[j + 1] = cb.y;
-                    aNormal[j + 2] = cb.z;
+                    aNormal[j] = _cb.x;
+                    aNormal[j + 1] = _cb.y;
+                    aNormal[j + 2] = _cb.z;
                 }
             }
         }
@@ -43,24 +46,20 @@ export default class DynamicMesh {
         const triNum = this.triNum = position.length / 9;
         const triCenter = this.triCenter = new Float32Array(triNum * 3);
         const triBox = this.triBox = new Float32Array(triNum * 6);
-        const a = new Vector3();
-        const b = new Vector3();
-        const c = new Vector3();
-        const center = new Vector3();
         for (let i = 0, len = triNum; i < len; ++i) {
-            a.fromArray(position, i * 9);
-            b.fromArray(position, i * 9 + 3);
-            c.fromArray(position, i * 9 + 6);
-            center.copy(a).add(b).add(c).multiplyScalar(1 / 3);
-            triCenter[i * 3] = center.x;
-            triCenter[i * 3 + 1] = center.y;
-            triCenter[i * 3 + 2] = center.z;
-            triBox[i * 6] = Math.min(a.x, b.x, c.x);
-            triBox[i * 6 + 1] = Math.min(a.y, b.y, c.y);
-            triBox[i * 6 + 2] = Math.min(a.z, b.z, c.z);
-            triBox[i * 6 + 3] = Math.max(a.x, b.x, c.x);
-            triBox[i * 6 + 4] = Math.max(a.y, b.y, c.y);
-            triBox[i * 6 + 5] = Math.max(a.z, b.z, c.z);
+            _a.fromArray(position, i * 9);
+            _b.fromArray(position, i * 9 + 3);
+            _c.fromArray(position, i * 9 + 6);
+            _center.copy(_a).add(_b).add(_c).multiplyScalar(1 / 3);
+            triCenter[i * 3] = _center.x;
+            triCenter[i * 3 + 1] = _center.y;
+            triCenter[i * 3 + 2] = _center.z;
+            triBox[i * 6] = Math.min(_a.x, _b.x, _c.x);
+            triBox[i * 6 + 1] = Math.min(_a.y, _b.y, _c.y);
+            triBox[i * 6 + 2] = Math.min(_a.z, _b.z, _c.z);
+            triBox[i * 6 + 3] = Math.max(_a.x, _b.x, _c.x);
+            triBox[i * 6 + 4] = Math.max(_a.y, _b.y, _c.y);
+            triBox[i * 6 + 5] = Math.max(_a.z, _b.z, _c.z);
         }
         this.octree.build(this);
     }
@@ -108,5 +107,56 @@ export default class DynamicMesh {
 
     raycast(ray: Ray, backfaceCulling: boolean) {
         return this.octree.raycast(this, ray, backfaceCulling);
+    }
+
+    intersectSphere(sphere: Sphere) {
+        return this.octree.intersectSphere(this, sphere);
+    }
+
+    setPosition(triIndices: number[], position: Float32Array) {
+        const aPos = this.aPosition;
+        for (let j = 0, len = triIndices.length; j < len; ++j) {
+            const i = triIndices[j];
+            for (let k = 0; k < 9; ++k) {
+                aPos[i * 9 + k] = position[j * 9 + k];
+            }
+        }
+        for (let i of triIndices) {
+            this.dirtyIndices.add(i);
+        }
+    }
+
+    update() {
+        const indices = Array.from(this.dirtyIndices);
+        this.dirtyIndices.clear();
+        const position = this.aPosition;
+        const normal = this.aNormal;
+        const triCenter = this.triCenter;
+        const triBox = this.triBox;
+        for (let i of indices) {
+            _a.fromArray(position, i * 9);
+            _b.fromArray(position, i * 9 + 3);
+            _c.fromArray(position, i * 9 + 6);
+            _ab.subVectors(_a, _b);
+            _cb.subVectors(_c, _b);
+            _cb.cross(_ab).normalize();
+            for (let k = 0; k < 3; ++k) {
+                const j = i * 9 + k * 3;
+                normal[j] = _cb.x;
+                normal[j + 1] = _cb.y;
+                normal[j + 2] = _cb.z;
+            }
+            _center.copy(_a).add(_b).add(_c).multiplyScalar(1 / 3);
+            triCenter[i * 3] = _center.x;
+            triCenter[i * 3 + 1] = _center.y;
+            triCenter[i * 3 + 2] = _center.z;
+            triBox[i * 6] = Math.min(_a.x, _b.x, _c.x);
+            triBox[i * 6 + 1] = Math.min(_a.y, _b.y, _c.y);
+            triBox[i * 6 + 2] = Math.min(_a.z, _b.z, _c.z);
+            triBox[i * 6 + 3] = Math.max(_a.x, _b.x, _c.x);
+            triBox[i * 6 + 4] = Math.max(_a.y, _b.y, _c.y);
+            triBox[i * 6 + 5] = Math.max(_a.z, _b.z, _c.z);
+        }
+        this.octree.update(this, indices);
     }
 }

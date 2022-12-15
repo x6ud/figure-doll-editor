@@ -147,7 +147,8 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
         do {
             this.sculptIndicator.visible = false;
             this.sculptIndicatorSym.visible = false;
-            ctx.sculptHovered = false;
+            ctx.sculptNodeId = 0;
+            ctx.sculptActiveView = -1;
             ctx.sculptSym = ctx.symmetry !== 'no';
             if (!tool.sculpt) {
                 break;
@@ -170,6 +171,8 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                     continue;
                 }
 
+                ctx.sculptActiveView = view.index;
+
                 const mat = clay.getWorldMatrix();
                 _invMat.copy(mat).invert();
 
@@ -180,7 +183,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                     break;
                 }
 
-                ctx.sculptHovered = true;
+                ctx.sculptNodeId = clay.id;
 
                 this.sculptIndicator.visible = true;
                 this.sculptIndicatorSym.visible = ctx.sculptSym;

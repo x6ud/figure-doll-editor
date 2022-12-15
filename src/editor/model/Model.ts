@@ -1,4 +1,6 @@
 import Class from '../../common/type/Class';
+import CObject3D from './components/CObject3D';
+import CVertices from './components/CVertices';
 import ModelNode from './ModelNode';
 import ModelNodeChangedWatcher from './ModelNodeChangedWatcher';
 import ModelNodeComponent from './ModelNodeComponent';
@@ -6,11 +8,11 @@ import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 import {getModelNodeDef} from './ModelNodeDef';
 import BoxWatcher from './watchers/BoxWatcher';
 import ClayWatcher from './watchers/ClayWatcher';
+import CustomShapeWatcher from './watchers/CustomShapeWatcher';
 import ImageWatcher from './watchers/ImageWatcher';
 import ImportModelWatcher from './watchers/ImportModelWatcher';
 import OpacityWatcher from './watchers/OpacityWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
-import CustomShapeWatcher from './watchers/CustomShapeWatcher';
 
 export default class Model {
     private nodesMap: Map<number, ModelNode> = new Map();
@@ -198,6 +200,26 @@ export default class Model {
         this.dirty = true;
         for (let watcher of this.watchers) {
             watcher.onValueChanged(this, node, componentClass);
+        }
+    }
+
+    setVertices(node: ModelNode, triIndices: number[], position: Float32Array) {
+        const cVertices = node.get(CVertices);
+        const val = cVertices.value;
+        for (let j = 0, len = triIndices.length; j < len; ++j) {
+            const i = triIndices[j];
+            for (let k = 0; k < 9; ++k) {
+                val[i * 9 + k] = position[j * 9 + k];
+            }
+        }
+        const cObject3D = node.get(CObject3D);
+        if (cObject3D.mesh) {
+            cObject3D.mesh.setPosition(triIndices, position);
+        }
+        node.dirty = true;
+        this.dirty = true;
+        for (let watcher of this.watchers) {
+            watcher.onValueChanged(this, node, CVertices);
         }
     }
 
