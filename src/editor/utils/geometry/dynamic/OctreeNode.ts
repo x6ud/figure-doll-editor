@@ -110,6 +110,7 @@ export default class OctreeNode {
         if (!indices.length) {
             return;
         }
+        const dirtyIndices = new Set(indices);
         const dirtyNodes: Set<OctreeNode> = new Set();
         {
             const stack: OctreeNode[] = [this];
@@ -119,13 +120,9 @@ export default class OctreeNode {
                     break;
                 }
                 let needsUpdate = false;
-                for (let i of indices) {
-                    const j = node.indices.indexOf(i);
-                    if (j >= 0) {
-                        needsUpdate = true;
-                        node.indices.splice(j, 1);
-                    }
-                }
+                const unchangedIndices = node.indices.filter(i => !dirtyIndices.has(i));
+                needsUpdate = unchangedIndices.length !== node.indices.length;
+                node.indices = unchangedIndices;
                 if (needsUpdate) {
                     if (node.indices.length) {
                         dirtyNodes.add(node);
