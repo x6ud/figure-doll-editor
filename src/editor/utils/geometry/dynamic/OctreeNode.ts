@@ -1,9 +1,13 @@
-import {Box3, Vector3} from 'three';
+import {Box3, Ray, Vector3} from 'three';
 import DynamicMesh from './DynamicMesh';
 
 const _triCenter = new Vector3();
 const _triBox = new Box3();
 const _splitBox = new Box3();
+const _a = new Vector3();
+const _b = new Vector3();
+const _c = new Vector3();
+const _p = new Vector3();
 
 function constructChildren(mesh: DynamicMesh, node: OctreeNode) {
     node.isLeaf = false;
@@ -76,6 +80,7 @@ export default class OctreeNode {
     indices: number[] = [];
 
     build(mesh: DynamicMesh) {
+        this.indices.length = 0;
         for (let i = 0; i < mesh.triNum; ++i) {
             this.indices.push(i);
         }
@@ -98,6 +103,7 @@ export default class OctreeNode {
         for (let i of this.indices) {
             this.box.union(mesh.getTriangleBox(_triBox, i));
         }
+        this.box.expandByScalar(1e-7);
     }
 
     update(mesh: DynamicMesh, indices: number[]) {
@@ -229,5 +235,47 @@ export default class OctreeNode {
         for (let node of dirtyNodes) {
             node.recomputeBox(mesh);
         }
+    }
+
+    raycast(mesh: DynamicMesh, ray: Ray, backfaceCulling: boolean) {
+        const ret: { point: Vector3, normal: Vector3, triangleIndex: number, distance: number }[] = [];
+        const stack: OctreeNode[] = [this];
+        const irx = 1 / ray.direction.x;
+        const iry = 1 / ray.direction.y;
+        const irz = 1 / ray.direction.z;
+        while (stack.length) {
+            const node = stack.pop();
+            if (!node) {
+                break;
+            }
+            const tx0 = (node.box.min.x - ray.origin.x) * irx;
+            const tx1 = (node.box.max.x - ray.origin.x) * irx;
+            const ty0 = (node.box.min.y - ray.origin.y) * iry;
+            const ty1 = (node.box.max.y - ray.origin.y) * iry;
+            const tz0 = (node.box.min.z - ray.origin.z) * irz;
+            const tz1 = (node.box.max.z - ray.origin.z) * irz;
+            const tMin = Math.max(Math.min(tx0, tx1), Math.min(ty0, ty1), Math.min(tz0, tz1));
+            const tMax = Math.min(Math.max(tx0, tx1), Math.max(ty0, ty1), Math.max(tz0, tz1));
+            if (tMax < 0 || tMin > tMax) {
+                continue;
+            }
+            if (node.isLeaf) {
+                for (let i of node.indices) {
+                    mesh.getTriangle(_a, _b, _c, i);
+                    const hit = ray.intersectTriangle(_a, _b, _c, backfaceCulling, _p);
+                    if (hit) {
+                        const point = new Vector3().copy(hit);
+                        const normal = mesh.getNormal(new Vector3(), i);
+                        const distance = ray.origin.distanceTo(point);
+                        ret.push({
+                            point, normal, distance, triangleIndex: i
+                        });
+                    }
+                }
+            } else {
+                stack.push(...node.children);
+            }
+        }
+        return ret.sort((a, b) => a.distance - b.distance);
     }
 }

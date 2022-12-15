@@ -1,4 +1,4 @@
-import {BufferGeometry, LineBasicMaterial, LineSegments, Matrix4, Vector3} from 'three';
+import {BufferGeometry, LineBasicMaterial, LineSegments, Matrix4, Ray, Vector3} from 'three';
 import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
 import CObject3D, {Object3DUserData} from '../model/components/CObject3D';
@@ -12,6 +12,7 @@ const _forward = new Vector3(0, 0, 1);
 const _pos = new Vector3();
 const _invMat = new Matrix4();
 const _normal = new Vector3();
+const _ray = new Ray();
 
 export default class ToolSystem extends UpdateSystem<EditorContext> {
 
@@ -155,8 +156,8 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
             if (!clay) {
                 break;
             }
-            const obj = clay.value(CObject3D);
-            if (!obj) {
+            const mesh = clay.get(CObject3D).mesh;
+            if (!mesh) {
                 break;
             }
             for (let view of ctx.views) {
@@ -168,52 +169,57 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 if (!input.mouseOver) {
                     continue;
                 }
-                const result = view.raycaster.intersectObject(obj)[0];
+
+                const mat = clay.getWorldMatrix();
+                _invMat.copy(mat).invert();
+
+                _ray.copy(view.raycaster.ray);
+                _ray.applyMatrix4(_invMat);
+                const result = mesh.raycast(_ray, true)[0];
                 if (!result) {
                     break;
                 }
-                if (result.face) {
-                    ctx.sculptHovered = true;
 
-                    this.sculptIndicator.visible = true;
-                    this.sculptIndicatorSym.visible = ctx.sculptSym;
+                ctx.sculptHovered = true;
 
-                    this.sculptIndicator.position.copy(result.point);
-                    this.sculptIndicator.quaternion.setFromUnitVectors(_forward, result.face.normal);
-                    _pos.copy(result.point).project(view.camera.get());
-                    _pos.x += tool.brushRadius / view.height;
-                    _pos.unproject(view.camera.get());
-                    const brushSize = _pos.distanceTo(result.point);
-                    this.sculptIndicator.scale.setScalar(brushSize);
+                this.sculptIndicator.visible = true;
+                this.sculptIndicatorSym.visible = ctx.sculptSym;
 
-                    const mat = clay.getWorldMatrix();
-                    _invMat.copy(mat).invert();
-                    ctx.sculptRadius = brushSize * getScaleScalar(_invMat);
-                    ctx.sculptLocal.copy(result.point).applyMatrix4(_invMat);
-                    ctx.sculptNormal.copy(result.face.normal).applyMatrix4(_invMat);
-                    ctx.sculptLocalSym.copy(ctx.sculptLocal);
-                    ctx.sculptNormalSym.copy(ctx.sculptNormal);
-                    switch (ctx.symmetry) {
-                        case 'x':
-                            ctx.sculptLocalSym.x *= -1;
-                            ctx.sculptNormalSym.x *= -1;
-                            break;
-                        case 'y':
-                            ctx.sculptLocalSym.y *= -1;
-                            ctx.sculptNormalSym.y *= -1;
-                            break;
-                        case 'z':
-                            ctx.sculptLocalSym.z *= -1;
-                            ctx.sculptNormalSym.z *= -1;
-                            break;
-                    }
+                this.sculptIndicator.position.copy(result.point).applyMatrix4(mat);
+                _normal.copy(result.normal).transformDirection(mat);
+                this.sculptIndicator.quaternion.setFromUnitVectors(_forward, _normal);
 
-                    if (this.sculptIndicatorSym.visible) {
-                        this.sculptIndicatorSym.position.copy(ctx.sculptLocalSym).applyMatrix4(mat);
-                        _normal.copy(ctx.sculptNormalSym).transformDirection(mat);
-                        this.sculptIndicatorSym.quaternion.setFromUnitVectors(_forward, _normal);
-                        this.sculptIndicatorSym.scale.copy(this.sculptIndicator.scale);
-                    }
+                _pos.copy(result.point).project(view.camera.get());
+                _pos.x += tool.brushRadius / view.height;
+                _pos.unproject(view.camera.get());
+                const brushSize = _pos.distanceTo(result.point);
+                this.sculptIndicator.scale.setScalar(brushSize);
+
+                ctx.sculptRadius = brushSize * getScaleScalar(_invMat);
+                ctx.sculptLocal.copy(result.point);
+                ctx.sculptNormal.copy(result.normal);
+                ctx.sculptLocalSym.copy(ctx.sculptLocal);
+                ctx.sculptNormalSym.copy(ctx.sculptNormal);
+                switch (ctx.symmetry) {
+                    case 'x':
+                        ctx.sculptLocalSym.x *= -1;
+                        ctx.sculptNormalSym.x *= -1;
+                        break;
+                    case 'y':
+                        ctx.sculptLocalSym.y *= -1;
+                        ctx.sculptNormalSym.y *= -1;
+                        break;
+                    case 'z':
+                        ctx.sculptLocalSym.z *= -1;
+                        ctx.sculptNormalSym.z *= -1;
+                        break;
+                }
+
+                if (this.sculptIndicatorSym.visible) {
+                    this.sculptIndicatorSym.position.copy(ctx.sculptLocalSym).applyMatrix4(mat);
+                    _normal.copy(ctx.sculptNormalSym).transformDirection(mat);
+                    this.sculptIndicatorSym.quaternion.setFromUnitVectors(_forward, _normal);
+                    this.sculptIndicatorSym.scale.copy(this.sculptIndicator.scale);
                 }
                 break;
             }

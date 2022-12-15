@@ -1,4 +1,4 @@
-import {Box3, BufferAttribute, BufferGeometry, Mesh, MeshStandardMaterial, Object3D, Vector3} from 'three';
+import {Box3, BufferAttribute, BufferGeometry, Mesh, MeshStandardMaterial, Object3D, Ray, Vector3} from 'three';
 import OctreeNode from './OctreeNode';
 
 export default class DynamicMesh {
@@ -40,17 +40,17 @@ export default class DynamicMesh {
 
     private init() {
         const position = this.aPosition;
-        this.triNum = position.length / 9;
-        const triCenter = this.triCenter = new Float32Array(position.length / 3);
-        const triBox = this.triBox = new Float32Array(this.triCenter.length / 3 * 6);
+        const triNum = this.triNum = position.length / 9;
+        const triCenter = this.triCenter = new Float32Array(triNum * 3);
+        const triBox = this.triBox = new Float32Array(triNum * 6);
         const a = new Vector3();
         const b = new Vector3();
         const c = new Vector3();
         const center = new Vector3();
-        for (let i = 0, len = this.triNum; i < len; i += 9) {
-            a.fromArray(position, i * 3 * 3);
-            b.fromArray(position, (i * 3 + 1) * 3);
-            c.fromArray(position, (i * 3 + 2) * 3);
+        for (let i = 0, len = triNum; i < len; ++i) {
+            a.fromArray(position, i * 9);
+            b.fromArray(position, i * 9 + 3);
+            c.fromArray(position, i * 9 + 6);
             center.copy(a).add(b).add(c).multiplyScalar(1 / 3);
             triCenter[i * 3] = center.x;
             triCenter[i * 3 + 1] = center.y;
@@ -76,6 +76,17 @@ export default class DynamicMesh {
         return out;
     }
 
+    getTriangle(outA: Vector3, outB: Vector3, outC: Vector3, i: number) {
+        outA.fromArray(this.aPosition, i * 3 * 3);
+        outB.fromArray(this.aPosition, (i * 3 + 1) * 3);
+        outC.fromArray(this.aPosition, (i * 3 + 2) * 3);
+    }
+
+    getNormal(out: Vector3, i: number) {
+        out.fromArray(this.aNormal, i * 3 * 3);
+        return out;
+    }
+
     toThree(obj?: Object3D): Object3D {
         if (obj) {
             const mesh = obj as Mesh;
@@ -93,5 +104,9 @@ export default class DynamicMesh {
                 new MeshStandardMaterial()
             );
         }
+    }
+
+    raycast(ray: Ray, backfaceCulling: boolean) {
+        return this.octree.raycast(this, ray, backfaceCulling);
     }
 }
