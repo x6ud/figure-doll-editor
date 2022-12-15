@@ -76,6 +76,7 @@ export default class TubeTool extends EditorTool {
     }
 
     begin(ctx: EditorContext) {
+        ctx = ctx.readonlyRef();
         for (let node of this.nodes) {
             if (node.deleted) {
                 continue;
@@ -293,7 +294,7 @@ export default class TubeTool extends EditorTool {
                         _pos.copy(cTube!.value[index].position)
                             .applyMatrix4(node.getWorldMatrix());
                     } else {
-                        for (let node of ctx.model.getSelectedNodes()) {
+                        for (let node of ctx.readonlyRef().model.getSelectedNodes()) {
                             if (node.isValidChild('Tube')) {
                                 _pos.setFromMatrixPosition(node.getWorldMatrix());
                                 break;

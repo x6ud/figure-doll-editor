@@ -1,15 +1,50 @@
+import {BufferGeometry, LineBasicMaterial, LineSegments, Matrix4, Vector3} from 'three';
 import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
-import {Object3DUserData} from '../model/components/CObject3D';
+import CObject3D, {Object3DUserData} from '../model/components/CObject3D';
 import EditorTool from '../tools/EditorTool';
+import {xyCirclePoints} from '../utils/geometry/helper';
+import {getScaleScalar} from '../utils/math';
 import SelectionRect from '../utils/SelectionRect';
 import UpdateSystem from '../utils/UpdateSystem';
+
+const _forward = new Vector3(0, 0, 1);
+const _pos = new Vector3();
+const _invMat = new Matrix4();
+const _normal = new Vector3();
 
 export default class ToolSystem extends UpdateSystem<EditorContext> {
 
     private prevTool?: EditorTool;
+
     private selectionRect = new SelectionRect();
     private dragMovedFramesCount = 0;
+
+    private sculptIndicator = new LineSegments(
+        new BufferGeometry().setFromPoints([
+            ...xyCirclePoints(1),
+            ...xyCirclePoints(0.05)
+        ]),
+        new LineBasicMaterial({
+            fog: false,
+            toneMapped: false,
+            transparent: true,
+            color: 0xf3982d,
+            opacity: 1,
+        }),
+    );
+    private sculptIndicatorSym = new LineSegments(
+        this.sculptIndicator.geometry.clone(),
+        this.sculptIndicator.material.clone(),
+    );
+
+    setup(ctx: EditorContext) {
+        this.sculptIndicator.visible = false;
+        ctx.scene.add(this.sculptIndicator);
+        this.sculptIndicatorSym.visible = false;
+        this.sculptIndicatorSym.material.opacity = 0.33;
+        ctx.scene.add(this.sculptIndicatorSym);
+    }
 
     begin(ctx: EditorContext): void {
         const tool = ctx.tool;
@@ -106,6 +141,83 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
             this.selectionRect.hide();
             ctx.selectionRectDragging = false;
         }
+
+        // sculpt brush indicator
+        do {
+            this.sculptIndicator.visible = false;
+            this.sculptIndicatorSym.visible = false;
+            ctx.sculptHovered = false;
+            ctx.sculptSym = ctx.symmetry !== 'no';
+            if (!tool.sculpt) {
+                break;
+            }
+            const clay = ctx.readonlyRef().model.getSelectedNodes().filter(node => node.type === 'Clay')[0];
+            if (!clay) {
+                break;
+            }
+            const obj = clay.value(CObject3D);
+            if (!obj) {
+                break;
+            }
+            for (let view of ctx.views) {
+                view = toRaw(view);
+                if (!view.enabled) {
+                    continue;
+                }
+                const input = view.input;
+                if (!input.mouseOver) {
+                    continue;
+                }
+                const result = view.raycaster.intersectObject(obj)[0];
+                if (!result) {
+                    break;
+                }
+                if (result.face) {
+                    ctx.sculptHovered = true;
+
+                    this.sculptIndicator.visible = true;
+                    this.sculptIndicatorSym.visible = ctx.sculptSym;
+
+                    this.sculptIndicator.position.copy(result.point);
+                    this.sculptIndicator.quaternion.setFromUnitVectors(_forward, result.face.normal);
+                    _pos.copy(result.point).project(view.camera.get());
+                    _pos.x += tool.brushRadius / view.height;
+                    _pos.unproject(view.camera.get());
+                    const brushSize = _pos.distanceTo(result.point);
+                    this.sculptIndicator.scale.setScalar(brushSize);
+
+                    const mat = clay.getWorldMatrix();
+                    _invMat.copy(mat).invert();
+                    ctx.sculptRadius = brushSize * getScaleScalar(_invMat);
+                    ctx.sculptLocal.copy(result.point).applyMatrix4(_invMat);
+                    ctx.sculptNormal.copy(result.face.normal).applyMatrix4(_invMat);
+                    ctx.sculptLocalSym.copy(ctx.sculptLocal);
+                    ctx.sculptNormalSym.copy(ctx.sculptNormal);
+                    switch (ctx.symmetry) {
+                        case 'x':
+                            ctx.sculptLocalSym.x *= -1;
+                            ctx.sculptNormalSym.x *= -1;
+                            break;
+                        case 'y':
+                            ctx.sculptLocalSym.y *= -1;
+                            ctx.sculptNormalSym.y *= -1;
+                            break;
+                        case 'z':
+                            ctx.sculptLocalSym.z *= -1;
+                            ctx.sculptNormalSym.z *= -1;
+                            break;
+                    }
+
+                    if (this.sculptIndicatorSym.visible) {
+                        this.sculptIndicatorSym.position.copy(ctx.sculptLocalSym).applyMatrix4(mat);
+                        _normal.copy(ctx.sculptNormalSym).transformDirection(mat);
+                        this.sculptIndicatorSym.quaternion.setFromUnitVectors(_forward, _normal);
+                        this.sculptIndicatorSym.scale.copy(this.sculptIndicator.scale);
+                    }
+                }
+                break;
+            }
+        } while (false);
 
         tool.begin(ctx);
 

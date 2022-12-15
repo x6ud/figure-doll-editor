@@ -73,7 +73,7 @@
                                  v-model:value="editorContext.tool.brushRadius"
                                  label="Radius"
                                  :min="5"
-                                 :max="200"
+                                 :max="400"
                                  :step="1"
                                  :fraction-digits="0"
                     />

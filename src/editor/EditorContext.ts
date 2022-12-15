@@ -1,4 +1,4 @@
-import {Object3D, Scene, Vector2, WebGLRenderer} from 'three';
+import {Object3D, Scene, Vector2, Vector3, WebGLRenderer} from 'three';
 import {toRaw} from 'vue';
 import EditorView from './EditorView';
 import Model from './model/Model';
@@ -72,7 +72,15 @@ export default class EditorContext {
         ToolSeperator.instance,
         new SculptBrushTool(),
     ];
+
     symmetry: 'no' | 'x' | 'y' | 'z' = 'x';
+    sculptHovered = false;
+    sculptSym = false;
+    sculptRadius = 0;
+    sculptLocal = new Vector3();
+    sculptNormal = new Vector3();
+    sculptLocalSym = new Vector3();
+    sculptNormalSym = new Vector3();
 
     canvas: HTMLCanvasElement;
     renderer: WebGLRenderer;
