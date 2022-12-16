@@ -415,27 +415,18 @@ export default class ModelHistory {
         return true;
     }
 
-    setVertices(node: ModelNode, triIndices: number[], positions: Float32Array) {
+    updateVertices(node: ModelNode, verticesIndices: number[], positions: Float32Array) {
         const nodeId = node.id;
         const vertices = node.value(CVertices);
         let oldPos = new Float32Array(positions.length);
-        for (let j = 0, len = triIndices.length; j < len; ++j) {
-            const i = triIndices[j];
-            for (let k = 0; k < 9; ++k) {
-                oldPos[j * 9 + k] = vertices[i * 9 + k];
+        for (let j = 0, len = verticesIndices.length; j < len; ++j) {
+            const i = verticesIndices[j];
+            for (let c = 0; c < 3; ++c) {
+                oldPos[j * 3 + c] = vertices[i * 3 + c];
             }
         }
-        let equal = true;
-        for (let i = 0, len = positions.length; i < len; ++i) {
-            if (Math.abs(positions[i] - oldPos[i]) >= 1e-7) {
-                equal = false;
-            }
-        }
-        if (equal) {
-            return false;
-        }
-        let oldIndices = triIndices;
-        let newIndices = triIndices;
+        let oldIndices = verticesIndices;
+        let newIndices = verticesIndices;
         let newPos = positions;
 
         const hash = nodeId + '#' + CVertices.name;
@@ -443,17 +434,17 @@ export default class ModelHistory {
         this.currentFrameRecords.push({
             hash,
             redo: () => {
-                this.model.setVertices(this.model.getNode(nodeId), newIndices, newPos);
+                this.model.updateVertices(this.model.getNode(nodeId), newIndices, newPos);
             },
             undo: () => {
-                this.model.setVertices(this.model.getNode(nodeId), oldIndices, oldPos);
+                this.model.updateVertices(this.model.getNode(nodeId), oldIndices, oldPos);
                 this.model.addSelection(nodeId);
             },
             setCtx: ([oldIndices0, oldPos0, newIndices0, newPos0]: [number[], Float32Array, number[], Float32Array]) => {
                 // undo ctx
                 {
                     const allChangedIndices = new Set([...oldIndices0, ...oldIndices]);
-                    const oldPos1 = new Float32Array(allChangedIndices.size * 9);
+                    const oldPos1 = new Float32Array(allChangedIndices.size * 3);
                     for (let i = 0, len = oldPos0.length; i < len; ++i) {
                         oldPos1[i] = oldPos0[i];
                     }
@@ -464,10 +455,10 @@ export default class ModelHistory {
                         const i = oldIndices[j];
                         if (!existed.has(i)) {
                             oldIndices1.push(i);
-                            for (let k = 0; k < 9; ++k) {
-                                oldPos1[offset + k] = oldPos[j * 9 + k];
+                            for (let c = 0; c < 3; ++c) {
+                                oldPos1[offset + c] = oldPos[j * 3 + c];
                             }
-                            offset += 9;
+                            offset += 3;
                         }
                     }
                     oldIndices = oldIndices1;
@@ -477,7 +468,7 @@ export default class ModelHistory {
                 // redo ctx
                 {
                     const allChangedIndices = new Set([...newIndices, ...newIndices0]);
-                    const newPos1 = new Float32Array(allChangedIndices.size * 9);
+                    const newPos1 = new Float32Array(allChangedIndices.size * 3);
                     for (let i = 0, len = newPos.length; i < len; ++i) {
                         newPos1[i] = newPos[i];
                     }
@@ -488,10 +479,10 @@ export default class ModelHistory {
                         const i = newIndices0[j];
                         if (!existed.has(i)) {
                             newIndices1.push(i);
-                            for (let k = 0; k < 9; ++k) {
-                                newPos1[offset + k] = newPos0[j * 9 + k];
+                            for (let c = 0; c < 3; ++c) {
+                                newPos1[offset + c] = newPos0[j * 3 + c];
                             }
-                            offset += 9;
+                            offset += 3;
                         }
                     }
                     newIndices = newIndices1;

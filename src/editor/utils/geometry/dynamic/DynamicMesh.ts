@@ -7,6 +7,7 @@ const _c = new Vector3();
 const _ab = new Vector3();
 const _cb = new Vector3();
 const _center = new Vector3();
+const _n = new Vector3();
 
 const SAME_VERTEX_JUDGMENT_ACCURACY = 1e-7;
 
@@ -39,13 +40,18 @@ export default class DynamicMesh {
     triBox: Float32Array = new Float32Array();
     /** Num of triangles */
     triNum: number = 0;
+    /** Triangle vertex index to shared vertex index map */
+    sharedVertexMap = new Uint32Array();
+    /** Shared vertex index to all others related vertices indices */
+    sharedVertexIndices = new Map<number, number[]>();
     /** Triangle edge index to neighbor triangle edge index map */
     edgeNeighborMap = new Uint32Array();
     /** Whether edge of triangle borders a hole */
     holes = new Uint8Array();
     octree: OctreeNode = new OctreeNode();
+
     /** Indices of triangles that were modified */
-    private dirtyIndices: Set<number> = new Set();
+    private dirtyTriangles: Set<number> = new Set();
 
     buildFromTriangles(position: Float32Array) {
         const aPos = this.aPosition = new Float32Array(position.length);
@@ -117,8 +123,9 @@ export default class DynamicMesh {
         // build triangle vertex index to shared vertex index map
         const triNum = this.triNum;
         const aPos = this.aPosition;
-        const sharedVertexMap = new Uint32Array(triNum * 3);
-        let sharedPointIndexCount = 0;
+        const sharedVertexMap = this.sharedVertexMap = new Uint32Array(triNum * 3);
+        const sharedVertexIndices = this.sharedVertexIndices;
+        sharedVertexIndices.clear();
         const pointIdxMap = new Map<string, number>();
         for (let vertexIdx = 0, len = triNum * 3; vertexIdx < len; ++vertexIdx) {
             let vx = aPos[vertexIdx * 3];
@@ -132,8 +139,11 @@ export default class DynamicMesh {
             const hash = `${vx},${vy},${vz}`;
             let sharedIdx = pointIdxMap.get(hash);
             if (sharedIdx == null) {
-                sharedIdx = sharedPointIndexCount++;
+                sharedIdx = vertexIdx;
                 pointIdxMap.set(hash, sharedIdx);
+                sharedVertexIndices.set(sharedIdx, []);
+            } else {
+                sharedVertexIndices.get(sharedIdx)!.push(vertexIdx);
             }
             sharedVertexMap[vertexIdx] = sharedIdx;
         }
@@ -216,14 +226,38 @@ export default class DynamicMesh {
     }
 
     getTriangle(outA: Vector3, outB: Vector3, outC: Vector3, i: number) {
-        outA.fromArray(this.aPosition, i * 3 * 3);
-        outB.fromArray(this.aPosition, (i * 3 + 1) * 3);
-        outC.fromArray(this.aPosition, (i * 3 + 2) * 3);
+        outA.fromArray(this.aPosition, this.sharedVertexMap[i * 3] * 3);
+        outB.fromArray(this.aPosition, this.sharedVertexMap[i * 3 + 1] * 3);
+        outC.fromArray(this.aPosition, this.sharedVertexMap[i * 3 + 2] * 3);
+    }
+
+    getSharedVertex(out: Vector3, vertexIdx: number) {
+        return out.fromArray(this.aPosition, this.sharedVertexMap[vertexIdx] * 3);
+    }
+
+    getVertex(out: Vector3, vertexIdx: number) {
+        return out.fromArray(this.aPosition, vertexIdx * 3);
     }
 
     getNormal(out: Vector3, i: number) {
         out.fromArray(this.aNormal, i * 3 * 3);
         return out;
+    }
+
+    getAverageNormal(out: Vector3, triIndices: number[]) {
+        out.set(0, 0, 0);
+        for (let i of triIndices) {
+            out.add(this.getNormal(_n, i));
+        }
+        return out.normalize();
+    }
+
+    getAverageCenter(out: Vector3, triIndices: number[]) {
+        out.set(0, 0, 0);
+        for (let i of triIndices) {
+            out.add(this.getTriangleCenter(_center, i));
+        }
+        return out.divideScalar(triIndices.length);
     }
 
     toThree(obj?: Object3D): Object3D {
@@ -253,22 +287,33 @@ export default class DynamicMesh {
         return this.octree.intersectSphere(this, sphere);
     }
 
-    setPosition(triIndices: number[], position: Float32Array) {
+    getVertexTriangleIndex(vertexIdx: number) {
+        return (vertexIdx - (vertexIdx % 3)) / 3;
+    }
+
+    updateVertices(verticesIndices: number[], position: Float32Array) {
         const aPos = this.aPosition;
-        for (let j = 0, len = triIndices.length; j < len; ++j) {
-            const i = triIndices[j];
-            for (let k = 0; k < 9; ++k) {
-                aPos[i * 9 + k] = position[j * 9 + k];
+        for (let j = 0, len = verticesIndices.length; j < len; ++j) {
+            const vertexIdx = this.sharedVertexMap[verticesIndices[j]];
+            this.dirtyTriangles.add(this.getVertexTriangleIndex(vertexIdx));
+            for (let c = 0; c < 3; ++c) {
+                aPos[vertexIdx * 3 + c] = position[j * 3 + c];
             }
-        }
-        for (let i of triIndices) {
-            this.dirtyIndices.add(i);
+            const related = this.sharedVertexIndices.get(vertexIdx);
+            if (related) {
+                for (let v of related) {
+                    this.dirtyTriangles.add(this.getVertexTriangleIndex(v));
+                    for (let c = 0; c < 3; ++c) {
+                        aPos[v * 3 + c] = position[j * 3 + c];
+                    }
+                }
+            }
         }
     }
 
     update() {
-        const indices = Array.from(this.dirtyIndices);
-        this.dirtyIndices.clear();
+        const indices = Array.from(this.dirtyTriangles);
+        this.dirtyTriangles.clear();
         const position = this.aPosition;
         const normal = this.aNormal;
         const triCenter = this.triCenter;

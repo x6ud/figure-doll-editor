@@ -203,18 +203,23 @@ export default class Model {
         }
     }
 
-    setVertices(node: ModelNode, triIndices: number[], position: Float32Array) {
+    updateVertices(node: ModelNode, verticesIndices: number[], position: Float32Array) {
         const cVertices = node.get(CVertices);
         const val = cVertices.value;
-        for (let j = 0, len = triIndices.length; j < len; ++j) {
-            const i = triIndices[j];
-            for (let k = 0; k < 9; ++k) {
-                val[i * 9 + k] = position[j * 9 + k];
-            }
-        }
         const cObject3D = node.get(CObject3D);
         if (cObject3D.mesh) {
-            cObject3D.mesh.setPosition(triIndices, position);
+            const mesh = cObject3D.mesh;
+            mesh.updateVertices(verticesIndices, position);
+            for (let i = 0, len = val.length; i < len; ++i) {
+                val[i] = mesh.aPosition[i];
+            }
+        } else {
+            for (let j = 0, len = verticesIndices.length; j < len; ++j) {
+                const i = verticesIndices[j];
+                for (let c = 0; c < 3; ++c) {
+                    val[i * 3 + c] = position[j * 3 + c];
+                }
+            }
         }
         node.dirty = true;
         this.dirty = true;
@@ -222,5 +227,4 @@ export default class Model {
             watcher.onValueChanged(this, node, CVertices);
         }
     }
-
 }

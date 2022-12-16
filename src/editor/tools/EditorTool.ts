@@ -43,15 +43,42 @@ export default abstract class EditorTool {
     onUnselected(ctx: EditorContext): void {
     }
 
-    getSculptPicking(ctx: EditorContext, mesh: DynamicMesh): { indices: number[], indicesSym?: number[] } {
+    getSculptPicking(ctx: EditorContext, mesh: DynamicMesh): {
+        triangles: number[],
+        indices: number[],
+        trianglesSym?: number[],
+        indicesSym?: number[],
+    } {
         _sphere.set(ctx.sculptLocal, ctx.sculptRadius);
-        const indices = mesh.intersectSphere(_sphere);
+        const triangles = mesh.intersectSphere(_sphere);
+        const indices: number[] = [];
+        const visited = new Set<number>();
+        for (let tri of triangles) {
+            for (let v = 0; v < 3; ++v) {
+                const vertexIdx = mesh.sharedVertexMap[tri * 3 + v];
+                if (!visited.has(vertexIdx)) {
+                    visited.add(vertexIdx);
+                    indices.push(vertexIdx);
+                }
+            }
+        }
         if (!ctx.sculptSym) {
-            return {indices};
+            return {triangles, indices};
         }
         _sphere.set(ctx.sculptLocalSym, ctx.sculptRadius);
-        const indicesSym = mesh.intersectSphere(_sphere);
-        return {indices, indicesSym: indicesSym};
+        const trianglesSym = mesh.intersectSphere(_sphere);
+        const indicesSym: number[] = [];
+        visited.clear();
+        for (let tri of trianglesSym) {
+            for (let v = 0; v < 3; ++v) {
+                const vertexIdx = mesh.sharedVertexMap[tri * 3 + v];
+                if (!visited.has(vertexIdx)) {
+                    visited.add(vertexIdx);
+                    indicesSym.push(vertexIdx);
+                }
+            }
+        }
+        return {triangles, indices, trianglesSym, indicesSym};
     }
 
     sculptFalloff(dist: number) {

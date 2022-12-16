@@ -38,6 +38,8 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
         this.sculptIndicator.geometry.clone(),
         this.sculptIndicator.material.clone(),
     );
+    private prevMouseX = 0;
+    private prevMouseY = 0;
 
     setup(ctx: EditorContext) {
         this.sculptIndicator.visible = false;
@@ -150,6 +152,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
             ctx.sculptNodeId = 0;
             ctx.sculptActiveView = -1;
             ctx.sculptSym = ctx.symmetry !== 'no';
+            ctx.sculptMoved = false;
             if (!tool.sculpt) {
                 break;
             }
@@ -185,8 +188,10 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
 
                 ctx.sculptNodeId = clay.id;
 
-                this.sculptIndicator.visible = true;
-                this.sculptIndicatorSym.visible = ctx.sculptSym;
+                if (!input.mouseLeft) {
+                    this.sculptIndicator.visible = true;
+                    this.sculptIndicatorSym.visible = ctx.sculptSym;
+                }
 
                 this.sculptIndicator.position.copy(result.point).applyMatrix4(mat);
                 _normal.copy(result.normal).transformDirection(mat);
@@ -223,6 +228,17 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                     _normal.copy(ctx.sculptNormalSym).transformDirection(mat);
                     this.sculptIndicatorSym.quaternion.setFromUnitVectors(_forward, _normal);
                     this.sculptIndicatorSym.scale.copy(this.sculptIndicator.scale);
+                }
+
+                if (input.mouseLeft) {
+                    if (input.mouseLeftDownThisFrame
+                        || this.prevMouseX !== input.mouseX
+                        || this.prevMouseY !== input.mouseY
+                    ) {
+                        ctx.sculptMoved = true;
+                    }
+                    this.prevMouseX = input.mouseX;
+                    this.prevMouseY = input.mouseY;
                 }
                 break;
             }

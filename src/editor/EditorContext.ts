@@ -82,6 +82,7 @@ export default class EditorContext {
     sculptNormal = new Vector3();
     sculptLocalSym = new Vector3();
     sculptNormalSym = new Vector3();
+    sculptMoved = false;
 
     canvas: HTMLCanvasElement;
     renderer: WebGLRenderer;

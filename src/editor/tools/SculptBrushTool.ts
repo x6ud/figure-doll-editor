@@ -13,6 +13,9 @@ export default class SculptBrushTool extends EditorTool {
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
+        if (!ctx.sculptMoved) {
+            return;
+        }
         if (!ctx.sculptNodeId) {
             return;
         }
@@ -27,17 +30,33 @@ export default class SculptBrushTool extends EditorTool {
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
         const picking = this.getSculptPicking(ctx, mesh);
-        let strength = this.brushStrength * ctx.detSec * (this.brushOperator ? 1 : -1);
-        ctx.history.setVertices(
+        let strength = this.brushStrength * ctx.detSec * (this.brushOperator ? 1 : -1) * 0.1;
+        const center = new Vector3();
+        const normal = new Vector3();
+        ctx.history.updateVertices(
             node, picking.indices,
-            this.stroke(mesh, picking.indices, strength, ctx.sculptNormal, ctx.sculptLocal, ctx.sculptRadius)
+            this.stroke(
+                mesh,
+                picking.indices,
+                strength,
+                mesh.getAverageNormal(normal, picking.triangles),
+                mesh.getAverageCenter(center, picking.triangles),
+                ctx.sculptRadius
+            )
         );
         if (ctx.sculptSym) {
             ctx.history.applyModifications();
             mesh.update();
-            ctx.history.setVertices(
+            ctx.history.updateVertices(
                 node, picking.indicesSym!,
-                this.stroke(mesh, picking.indicesSym!, strength, ctx.sculptNormalSym, ctx.sculptLocalSym, ctx.sculptRadius)
+                this.stroke(
+                    mesh,
+                    picking.indicesSym!,
+                    strength,
+                    mesh.getAverageNormal(normal, picking.trianglesSym!),
+                    mesh.getAverageCenter(center, picking.trianglesSym!),
+                    ctx.sculptRadius
+                )
             );
         }
     }
@@ -50,16 +69,11 @@ export default class SculptBrushTool extends EditorTool {
         center: Vector3,
         radius: number,
     ) {
-        const position = new Float32Array(indices.length * 9);
-        const a = new Vector3();
-        const b = new Vector3();
-        const c = new Vector3();
+        const position = new Float32Array(indices.length * 3);
+        const vertex = new Vector3();
         for (let j = 0, len = indices.length; j < len; ++j) {
-            const i = indices[j];
-            mesh.getTriangle(a, b, c, i);
-            this.strokeVertex(a, normal, center, radius, strength, position, j * 9);
-            this.strokeVertex(b, normal, center, radius, strength, position, j * 9 + 3);
-            this.strokeVertex(c, normal, center, radius, strength, position, j * 9 + 6);
+            mesh.getVertex(vertex, indices[j]);
+            this.strokeVertex(vertex, normal, center, radius, strength, position, j * 3);
         }
         return position;
     }
