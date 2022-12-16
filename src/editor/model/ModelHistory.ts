@@ -142,6 +142,10 @@ export default class ModelHistory {
         this.dirty = true;
     }
 
+    applyModifications() {
+        this.update();
+    }
+
     undo() {
         const record = this.undoStack.pop();
         if (!record) {
