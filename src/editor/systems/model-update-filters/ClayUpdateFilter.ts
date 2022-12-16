@@ -27,7 +27,7 @@ export default class ClayUpdateFilter implements ModelNodeUpdateFilter {
         const cObject3D = node.get(CObject3D);
         if (!cObject3D.mesh) {
             cObject3D.mesh = new DynamicMesh();
-            cObject3D.mesh.buildFromTriangles(cVertices.value);
+            cVertices.value = new Float32Array(cObject3D.mesh.buildFromTriangles(cVertices.value));
         } else {
             cObject3D.mesh.update();
         }

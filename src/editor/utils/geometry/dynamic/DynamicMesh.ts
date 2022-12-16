@@ -8,37 +8,83 @@ const _ab = new Vector3();
 const _cb = new Vector3();
 const _center = new Vector3();
 
+const SAME_VERTEX_JUDGMENT_ACCURACY = 1e-7;
+
+function isSameVertex(a: Vector3, b: Vector3) {
+    let ax = a.x;
+    let ay = a.y;
+    let az = a.z;
+    let bx = b.x;
+    let by = b.y;
+    let bz = b.z;
+    if (SAME_VERTEX_JUDGMENT_ACCURACY) {
+        ax = Math.round(ax / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
+        ay = Math.round(ay / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
+        az = Math.round(az / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
+        bx = Math.round(bx / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
+        by = Math.round(by / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
+        bz = Math.round(bz / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
+    }
+    return ax === bx && ay === by && az === bz;
+}
+
 export default class DynamicMesh {
+    /** Triangle soup */
     aPosition: Float32Array = new Float32Array();
+    /** Normals for each vertex */
     aNormal: Float32Array = new Float32Array();
+    /** Midpoint of each triangle */
     triCenter: Float32Array = new Float32Array();
+    /** AABB of each triangle */
     triBox: Float32Array = new Float32Array();
+    /** Num of triangles */
     triNum: number = 0;
+    /** Triangle edge index to neighbor triangle edge index map */
+    edgeNeighborMap = new Uint32Array();
+    /** Whether edge of triangle borders a hole */
+    holes = new Uint8Array();
     octree: OctreeNode = new OctreeNode();
+    /** Indices of triangles that were modified */
     private dirtyIndices: Set<number> = new Set();
 
-    buildFromTriangles(position: Float32Array, normal?: Float32Array) {
-        this.aPosition = new Float32Array(position);
-        if (normal) {
-            this.aNormal = new Float32Array(normal);
-        } else {
-            const aNormal = this.aNormal = new Float32Array(position.length);
-            for (let i = 0, vertNum = position.length / 3; i < vertNum; i += 3) {
-                _a.fromArray(position, i * 3);
-                _b.fromArray(position, (i + 1) * 3);
-                _c.fromArray(position, (i + 2) * 3);
-                _ab.subVectors(_a, _b);
-                _cb.subVectors(_c, _b);
-                _cb.cross(_ab).normalize();
-                for (let k = 0; k < 3; ++k) {
-                    const j = (i + k) * 3;
-                    aNormal[j] = _cb.x;
-                    aNormal[j + 1] = _cb.y;
-                    aNormal[j + 2] = _cb.z;
-                }
+    buildFromTriangles(position: Float32Array) {
+        const aPos = this.aPosition = new Float32Array(position.length);
+        const aNormal = this.aNormal = new Float32Array(position.length);
+        let triCount = 0;
+        for (let tri = 0, len = position.length / 9; tri < len; ++tri) {
+            _a.fromArray(position, tri * 9);
+            _b.fromArray(position, tri * 9 + 3);
+            _c.fromArray(position, tri * 9 + 6);
+            // discard zero area triangles
+            if (isSameVertex(_a, _b)
+                || isSameVertex(_a, _c)
+                || isSameVertex(_b, _c)
+            ) {
+                continue;
             }
+            // copy position
+            for (let k = 0; k < 9; ++k) {
+                aPos[triCount * 9 + k] = position[tri * 9 + k];
+            }
+            // calculate normal
+            _ab.subVectors(_a, _b);
+            _cb.subVectors(_c, _b);
+            _cb.cross(_ab).normalize();
+            for (let k = 0; k < 3; ++k) {
+                const j = triCount * 9 + k * 3;
+                aNormal[j] = _cb.x;
+                aNormal[j + 1] = _cb.y;
+                aNormal[j + 2] = _cb.z;
+            }
+            triCount += 1;
+        }
+        if (triCount < position.length / 9) {
+            this.aPosition = aPos.subarray(0, triCount * 9);
+            this.aNormal = aNormal.subarray(0, triCount * 9);
+            console.info(`Discard ${position.length / 9 - triCount} zero area triangles`);
         }
         this.init();
+        return this.aPosition;
     }
 
     private init() {
@@ -46,22 +92,116 @@ export default class DynamicMesh {
         const triNum = this.triNum = position.length / 9;
         const triCenter = this.triCenter = new Float32Array(triNum * 3);
         const triBox = this.triBox = new Float32Array(triNum * 6);
-        for (let i = 0, len = triNum; i < len; ++i) {
-            _a.fromArray(position, i * 9);
-            _b.fromArray(position, i * 9 + 3);
-            _c.fromArray(position, i * 9 + 6);
+        for (let tri = 0; tri < triNum; ++tri) {
+            _a.fromArray(position, tri * 9);
+            _b.fromArray(position, tri * 9 + 3);
+            _c.fromArray(position, tri * 9 + 6);
+            // calculate triangle midpoints
             _center.copy(_a).add(_b).add(_c).multiplyScalar(1 / 3);
-            triCenter[i * 3] = _center.x;
-            triCenter[i * 3 + 1] = _center.y;
-            triCenter[i * 3 + 2] = _center.z;
-            triBox[i * 6] = Math.min(_a.x, _b.x, _c.x);
-            triBox[i * 6 + 1] = Math.min(_a.y, _b.y, _c.y);
-            triBox[i * 6 + 2] = Math.min(_a.z, _b.z, _c.z);
-            triBox[i * 6 + 3] = Math.max(_a.x, _b.x, _c.x);
-            triBox[i * 6 + 4] = Math.max(_a.y, _b.y, _c.y);
-            triBox[i * 6 + 5] = Math.max(_a.z, _b.z, _c.z);
+            triCenter[tri * 3] = _center.x;
+            triCenter[tri * 3 + 1] = _center.y;
+            triCenter[tri * 3 + 2] = _center.z;
+            // calculate triangle aabbs
+            triBox[tri * 6] = Math.min(_a.x, _b.x, _c.x);
+            triBox[tri * 6 + 1] = Math.min(_a.y, _b.y, _c.y);
+            triBox[tri * 6 + 2] = Math.min(_a.z, _b.z, _c.z);
+            triBox[tri * 6 + 3] = Math.max(_a.x, _b.x, _c.x);
+            triBox[tri * 6 + 4] = Math.max(_a.y, _b.y, _c.y);
+            triBox[tri * 6 + 5] = Math.max(_a.z, _b.z, _c.z);
         }
+        this.buildTriangleNeighborEdgeMap();
         this.octree.build(this);
+    }
+
+    private buildTriangleNeighborEdgeMap() {
+        // build triangle vertex index to shared vertex index map
+        const triNum = this.triNum;
+        const aPos = this.aPosition;
+        const sharedVertexMap = new Uint32Array(triNum * 3);
+        let sharedPointIndexCount = 0;
+        const pointIdxMap = new Map<string, number>();
+        for (let vertexIdx = 0, len = triNum * 3; vertexIdx < len; ++vertexIdx) {
+            let vx = aPos[vertexIdx * 3];
+            let vy = aPos[vertexIdx * 3 + 1];
+            let vz = aPos[vertexIdx * 3 + 2];
+            if (SAME_VERTEX_JUDGMENT_ACCURACY) {
+                vx = Math.round(vx / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
+                vy = Math.round(vy / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
+                vz = Math.round(vz / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
+            }
+            const hash = `${vx},${vy},${vz}`;
+            let sharedIdx = pointIdxMap.get(hash);
+            if (sharedIdx == null) {
+                sharedIdx = sharedPointIndexCount++;
+                pointIdxMap.set(hash, sharedIdx);
+            }
+            sharedVertexMap[vertexIdx] = sharedIdx;
+        }
+        // build shared vertex edge to triangle edge index map
+        const sharedVertexEdgeToTriangleMap = new Map<string, number>();
+        const zeroAreaTriangle = new Uint8Array(triNum);
+        let duplicate = 0;
+        let zeroTri = 0;
+        for (let tri = 0; tri < triNum; ++tri) {
+            let isZero = false;
+            for (let edge = 0; edge < 3; ++edge) {
+                const edgeIdx = tri * 3 + edge;
+                const sharedVertex0 = sharedVertexMap[edgeIdx];
+                const sharedVertex1 = sharedVertexMap[tri * 3 + ((edge + 1) % 3)];
+                if (sharedVertex0 === sharedVertex1) {
+                    isZero = true;
+                    break;
+                }
+            }
+            if (isZero) {
+                zeroTri += 1;
+                zeroAreaTriangle[tri] = 1;
+                continue;
+            }
+            for (let edge = 0; edge < 3; ++edge) {
+                const edgeIdx = tri * 3 + edge;
+                const sharedVertex0 = sharedVertexMap[edgeIdx];
+                const sharedVertex1 = sharedVertexMap[tri * 3 + ((edge + 1) % 3)];
+                const hash = `${sharedVertex0},${sharedVertex1}`;
+                const existed = sharedVertexEdgeToTriangleMap.get(hash);
+                if (existed == null) {
+                    sharedVertexEdgeToTriangleMap.set(hash, edgeIdx);
+                } else {
+                    duplicate += 1;
+                }
+            }
+        }
+        if (zeroTri) {
+            console.warn(`Mesh has ${zeroTri} zero area triangles`);
+        }
+        if (duplicate) {
+            console.warn(`Mesh has ${duplicate} duplicate edges`);
+        }
+        // build triangle neighbor edge map
+        const edgeNeighborMap = this.edgeNeighborMap = new Uint32Array(triNum * 3);
+        const holes = this.holes = new Uint8Array(triNum * 3);
+        let edgesBorderHole = 0;
+        for (let tri = 0; tri < triNum; ++tri) {
+            if (zeroAreaTriangle[tri]) {
+                continue;
+            }
+            for (let edge = 0; edge < 3; ++edge) {
+                const edgeIdx = tri * 3 + edge;
+                const sharedVertex0 = sharedVertexMap[edgeIdx];
+                const sharedVertex1 = sharedVertexMap[tri * 3 + ((edge + 1) % 3)];
+                const hash = `${sharedVertex0},${sharedVertex1}`;
+                const neighborEdgeIdx = sharedVertexEdgeToTriangleMap.get(hash);
+                if (neighborEdgeIdx == null) {
+                    holes[edgeIdx] = 1;
+                    edgesBorderHole += 1;
+                } else {
+                    edgeNeighborMap[edgeIdx] = neighborEdgeIdx;
+                }
+            }
+        }
+        if (edgesBorderHole) {
+            console.warn(`Mesh has ${edgesBorderHole} edges border hole`);
+        }
     }
 
     getTriangleCenter(out: Vector3, i: number) {
