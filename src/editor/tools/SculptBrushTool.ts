@@ -2,9 +2,10 @@ import {Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CObject3D from '../model/components/CObject3D';
-import DynamicMesh from '../utils/geometry/dynamic/DynamicMesh';
 import EditorTool from './EditorTool';
 import icon from './SculptBrush.png';
+
+const vertex = new Vector3();
 
 export default class SculptBrushTool extends EditorTool {
     label = 'Sculpt Brush';
@@ -29,66 +30,59 @@ export default class SculptBrushTool extends EditorTool {
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
-        const picking = this.getSculptPicking(ctx, mesh);
         let strength = this.brushStrength * ctx.detSec * (this.brushOperator ? 1 : -1) * 0.1;
         const center = new Vector3();
         const normal = new Vector3();
-        ctx.history.updateVertices(
-            node, picking.indices,
+        const stroke = this.makeSculptStrokeBuffer(ctx, view, node, mesh);
+        for (let picking of stroke.track) {
             this.stroke(
-                mesh,
                 picking.indices,
                 strength,
                 mesh.getAverageNormal(normal, picking.triangles),
                 mesh.getAverageCenter(center, picking.triangles),
-                ctx.sculptRadius
-            )
-        );
-        if (ctx.sculptSym) {
-            ctx.history.applyModifications();
-            mesh.update();
-            ctx.history.updateVertices(
-                node, picking.indicesSym!,
+                ctx.sculptRadius,
+                stroke.bufIdxMap,
+                stroke.position
+            );
+            if (ctx.sculptSym) {
                 this.stroke(
-                    mesh,
                     picking.indicesSym!,
                     strength,
                     mesh.getAverageNormal(normal, picking.trianglesSym!),
                     mesh.getAverageCenter(center, picking.trianglesSym!),
-                    ctx.sculptRadius
-                )
-            );
+                    ctx.sculptRadius,
+                    stroke.bufIdxMap,
+                    stroke.position
+                );
+            }
         }
+        ctx.history.updateVertices(node, stroke.indices, stroke.position);
     }
 
     private stroke(
-        mesh: DynamicMesh,
         indices: number[],
         strength: number,
         normal: Vector3,
         center: Vector3,
         radius: number,
+        bufIdxMap: Map<number, number>,
+        arr: Float32Array,
     ) {
-        const position = new Float32Array(indices.length * 3);
-        const vertex = new Vector3();
-        for (let j = 0, len = indices.length; j < len; ++j) {
-            mesh.getVertex(vertex, indices[j]);
-            this.strokeVertex(vertex, normal, center, radius, strength, position, j * 3);
+        for (let i of indices) {
+            this.strokeVertex(normal, center, radius, strength, arr, bufIdxMap.get(i)! * 3);
         }
-        return position;
     }
 
-    private strokeVertex(vertex: Vector3,
-                         normal: Vector3,
+    private strokeVertex(normal: Vector3,
                          center: Vector3,
                          radius: number,
                          strength: number,
                          arr: Float32Array,
                          offset: number,
     ) {
-        arr[offset] = vertex.x;
-        arr[offset + 1] = vertex.y;
-        arr[offset + 2] = vertex.z;
+        vertex.x = arr[offset];
+        vertex.y = arr[offset + 1];
+        vertex.z = arr[offset + 2];
         const dist = vertex.distanceTo(center) / radius;
         if (dist >= 1) {
             return;

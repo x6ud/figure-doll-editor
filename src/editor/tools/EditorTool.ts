@@ -1,9 +1,13 @@
-import {Sphere} from 'three';
+import {Matrix4, Ray, Sphere, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import ModelNode from '../model/ModelNode';
 import DynamicMesh from '../utils/geometry/dynamic/DynamicMesh';
+import {pixelLine} from '../utils/pixel';
 
 const _sphere = new Sphere();
+const _ray = new Ray();
+const _invMat = new Matrix4();
 
 export default abstract class EditorTool {
     abstract label: string;
@@ -43,42 +47,89 @@ export default abstract class EditorTool {
     onUnselected(ctx: EditorContext): void {
     }
 
-    getSculptPicking(ctx: EditorContext, mesh: DynamicMesh): {
-        triangles: number[],
-        indices: number[],
-        trianglesSym?: number[],
-        indicesSym?: number[],
-    } {
-        _sphere.set(ctx.sculptLocal, ctx.sculptRadius);
-        const triangles = mesh.intersectSphere(_sphere);
-        const indices: number[] = [];
-        const visited = new Set<number>();
-        for (let tri of triangles) {
-            for (let v = 0; v < 3; ++v) {
-                const vertexIdx = mesh.sharedVertexMap[tri * 3 + v];
-                if (!visited.has(vertexIdx)) {
-                    visited.add(vertexIdx);
-                    indices.push(vertexIdx);
+    makeSculptStrokeBuffer(
+        ctx: EditorContext, view: EditorView, node: ModelNode, mesh: DynamicMesh
+    ) {
+        const vertexIndices = new Set<number>();
+        const track: {
+            center: Vector3,
+            triangles: number[],
+            indices: number[],
+            trianglesSym?: number[],
+            indicesSym?: number[],
+        }[] = [];
+        pixelLine(
+            ctx.sculptX0, ctx.sculptY0, ctx.sculptX1, ctx.sculptY1,
+            (x, y) => {
+                if (!ctx.sculptStartThisFrame && x === ctx.sculptX0 && y === ctx.sculptY0) {
+                    return;
                 }
-            }
-        }
-        if (!ctx.sculptSym) {
-            return {triangles, indices};
-        }
-        _sphere.set(ctx.sculptLocalSym, ctx.sculptRadius);
-        const trianglesSym = mesh.intersectSphere(_sphere);
-        const indicesSym: number[] = [];
-        visited.clear();
-        for (let tri of trianglesSym) {
-            for (let v = 0; v < 3; ++v) {
-                const vertexIdx = mesh.sharedVertexMap[tri * 3 + v];
-                if (!visited.has(vertexIdx)) {
-                    visited.add(vertexIdx);
-                    indicesSym.push(vertexIdx);
+                _ray.origin.set(x / view.width * 2 - 1, (view.height - y) / view.height * 2 - 1, -1);
+                _ray.direction.copy(_ray.origin).setZ(+1);
+                _ray.origin.unproject(view.camera.get());
+                _ray.direction.unproject(view.camera.get());
+                _ray.direction.sub(_ray.origin).normalize();
+                _ray.applyMatrix4(_invMat);
+                const result = mesh.raycast(_ray, true)[0];
+                if (!result) {
+                    return;
                 }
+                _sphere.set(result.point, ctx.sculptRadius);
+                const triangles = mesh.intersectSphere(_sphere);
+                const indices: number[] = [];
+                const visited = new Set<number>();
+                for (let tri of triangles) {
+                    for (let v = 0; v < 3; ++v) {
+                        const vertexIdx = mesh.sharedVertexMap[tri * 3 + v];
+                        if (!visited.has(vertexIdx)) {
+                            visited.add(vertexIdx);
+                            indices.push(vertexIdx);
+                            vertexIndices.add(vertexIdx);
+                        }
+                    }
+                }
+                if (!ctx.sculptSym) {
+                    track.push({center: result.point, triangles, indices});
+                    return;
+                }
+                switch (ctx.symmetry) {
+                    case 'x':
+                        _sphere.center.x *= -1;
+                        break;
+                    case 'y':
+                        _sphere.center.y *= -1;
+                        break;
+                    case 'z':
+                        _sphere.center.z *= -1;
+                        break;
+                }
+                const trianglesSym = mesh.intersectSphere(_sphere);
+                const indicesSym: number[] = [];
+                visited.clear();
+                for (let tri of trianglesSym) {
+                    for (let v = 0; v < 3; ++v) {
+                        const vertexIdx = mesh.sharedVertexMap[tri * 3 + v];
+                        if (!visited.has(vertexIdx)) {
+                            visited.add(vertexIdx);
+                            indicesSym.push(vertexIdx);
+                            vertexIndices.add(vertexIdx);
+                        }
+                    }
+                }
+                track.push({center: result.point, triangles, indices, trianglesSym, indicesSym});
+                return;
+            });
+        const indices = Array.from(vertexIndices);
+        const bufIdxMap = new Map<number, number>();
+        const position = new Float32Array(indices.length * 3);
+        for (let j = 0, len = indices.length; j < len; ++j) {
+            const i = indices[j];
+            for (let k = 0; k < 3; ++k) {
+                position[j * 3 + k] = mesh.aPosition[i * 3 + k];
             }
+            bufIdxMap.set(i, j);
         }
-        return {triangles, indices, trianglesSym, indicesSym};
+        return {indices, bufIdxMap, position, track};
     }
 
     sculptFalloff(dist: number) {

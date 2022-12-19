@@ -239,8 +239,8 @@ export default class DynamicMesh {
         return out.fromArray(this.aPosition, vertexIdx * 3);
     }
 
-    getNormal(out: Vector3, i: number) {
-        out.fromArray(this.aNormal, i * 3 * 3);
+    getNormal(out: Vector3, triIdx: number) {
+        out.fromArray(this.aNormal, triIdx * 3 * 3);
         return out;
     }
 
@@ -260,6 +260,7 @@ export default class DynamicMesh {
         return out.divideScalar(triIndices.length);
     }
 
+    /** Build/update three js object */
     toThree(obj?: Object3D): Object3D {
         if (obj) {
             const mesh = obj as Mesh;
@@ -283,6 +284,7 @@ export default class DynamicMesh {
         return this.octree.raycast(this, ray, backfaceCulling);
     }
 
+    /** Return indices of triangles that intersect the sphere */
     intersectSphere(sphere: Sphere) {
         return this.octree.intersectSphere(this, sphere);
     }

@@ -38,8 +38,6 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
         this.sculptIndicator.geometry.clone(),
         this.sculptIndicator.material.clone(),
     );
-    private prevMouseX = 0;
-    private prevMouseY = 0;
 
     setup(ctx: EditorContext) {
         this.sculptIndicator.visible = false;
@@ -150,7 +148,6 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
             this.sculptIndicator.visible = false;
             this.sculptIndicatorSym.visible = false;
             ctx.sculptNodeId = 0;
-            ctx.sculptActiveView = -1;
             ctx.sculptSym = ctx.symmetry !== 'no';
             ctx.sculptMoved = false;
             if (!tool.sculpt) {
@@ -164,17 +161,36 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
             if (!mesh) {
                 break;
             }
+            ctx.sculptNodeId = clay.id;
             for (let view of ctx.views) {
                 view = toRaw(view);
                 if (!view.enabled) {
                     continue;
                 }
                 const input = view.input;
+                if (input.mouseLeft) {
+                    if (input.mouseOver || ctx.sculptActiveView === view.index) {
+                        ctx.sculptActiveView = view.index;
+                        if (input.mouseLeftDownThisFrame) {
+                            ctx.sculptMoved = true;
+                            ctx.sculptStartThisFrame = true;
+                            ctx.sculptX0 = ctx.sculptX1 = input.mouseX;
+                            ctx.sculptY0 = ctx.sculptY1 = input.mouseY;
+                        } else if (ctx.sculptX1 !== input.mouseX || ctx.sculptY1 !== input.mouseY) {
+                            ctx.sculptMoved = true;
+                            ctx.sculptStartThisFrame = false;
+                            ctx.sculptX0 = ctx.sculptX1;
+                            ctx.sculptY0 = ctx.sculptY1;
+                            ctx.sculptX1 = input.mouseX;
+                            ctx.sculptY1 = input.mouseY;
+                        }
+                    }
+                } else if (ctx.sculptActiveView === view.index) {
+                    ctx.sculptActiveView = -1;
+                }
                 if (!input.mouseOver) {
                     continue;
                 }
-
-                ctx.sculptActiveView = view.index;
 
                 const mat = clay.getWorldMatrix();
                 _invMat.copy(mat).invert();
@@ -185,8 +201,6 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 if (!result) {
                     break;
                 }
-
-                ctx.sculptNodeId = clay.id;
 
                 if (!input.mouseLeft) {
                     this.sculptIndicator.visible = true;
@@ -228,17 +242,6 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                     _normal.copy(ctx.sculptNormalSym).transformDirection(mat);
                     this.sculptIndicatorSym.quaternion.setFromUnitVectors(_forward, _normal);
                     this.sculptIndicatorSym.scale.copy(this.sculptIndicator.scale);
-                }
-
-                if (input.mouseLeft) {
-                    if (input.mouseLeftDownThisFrame
-                        || this.prevMouseX !== input.mouseX
-                        || this.prevMouseY !== input.mouseY
-                    ) {
-                        ctx.sculptMoved = true;
-                    }
-                    this.prevMouseX = input.mouseX;
-                    this.prevMouseY = input.mouseY;
                 }
                 break;
             }
