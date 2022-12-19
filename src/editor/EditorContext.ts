@@ -77,7 +77,7 @@ export default class EditorContext {
     sculptNodeId = 0;
     sculptActiveView = -1;
     sculptSym = false;
-    sculptRadius = 0;
+    sculptLocalRadius = 0;
     sculptLocal = new Vector3();
     sculptNormal = new Vector3();
     sculptLocalSym = new Vector3();

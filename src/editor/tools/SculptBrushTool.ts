@@ -34,17 +34,14 @@ export default class SculptBrushTool extends EditorTool {
         const center = new Vector3();
         const normal = new Vector3();
         const stroke = this.sculptStroke(ctx, view, mesh);
-        if (!stroke) {
-            return;
-        }
         for (let picking of stroke.track) {
             this.stroke(
                 picking.indices,
                 strength,
                 mesh.getAverageNormal(normal, picking.triangles),
                 mesh.getAverageCenter(center, picking.triangles),
-                ctx.sculptRadius,
-                stroke.bufIdxMap,
+                ctx.sculptLocalRadius,
+                stroke.offset,
                 stroke.position
             );
             if (ctx.sculptSym) {
@@ -53,8 +50,8 @@ export default class SculptBrushTool extends EditorTool {
                     strength,
                     mesh.getAverageNormal(normal, picking.trianglesSym!),
                     mesh.getAverageCenter(center, picking.trianglesSym!),
-                    ctx.sculptRadius,
-                    stroke.bufIdxMap,
+                    ctx.sculptLocalRadius,
+                    stroke.offset,
                     stroke.position
                 );
             }
@@ -68,12 +65,12 @@ export default class SculptBrushTool extends EditorTool {
         normal: Vector3,
         center: Vector3,
         radius: number,
-        bufIdxMap: Map<number, number>,
+        offset: Map<number, number>,
         arr: Float32Array,
     ) {
         center.addScaledVector(normal, -radius * Math.sign(strength) * this.brushStrength * 0.5);
         for (let i of indices) {
-            this.strokeVertex(normal, center, radius, strength, arr, bufIdxMap.get(i)! * 3);
+            this.strokeVertex(normal, center, radius, strength, arr, offset.get(i)!);
         }
     }
 

@@ -46,7 +46,28 @@ export default abstract class EditorTool {
     onUnselected(ctx: EditorContext): void {
     }
 
-    sculptStroke(ctx: EditorContext, view: EditorView, mesh: DynamicMesh) {
+    sculptStroke(ctx: EditorContext, view: EditorView, mesh: DynamicMesh):
+        {
+            /** Indices of picked vertices */
+            indices: number[],
+            /** Vertex index to position buffer map */
+            offset: Map<number, number>,
+            /** Position buffer for the vertices to be modified, filled with current vertices positions */
+            position: Float32Array,
+            /** Stroke track points */
+            track: {
+                /** Picking point in mesh's local space */
+                center: Vector3,
+                /** Picked triangle indices */
+                triangles: number[],
+                /** Picked vertices indices */
+                indices: number[],
+                /** Picked symmetry triangle indices */
+                trianglesSym?: number[],
+                /** Picked symmetry vertices indices */
+                indicesSym?: number[]
+            }[]
+        } {
         ctx = ctx.readonlyRef();
         const vertexIndices = new Set<number>();
         const track: {
@@ -63,11 +84,13 @@ export default abstract class EditorTool {
         pixelLine(
             ctx.sculptX0, ctx.sculptY0, ctx.sculptX1, ctx.sculptY1,
             (x, y) => {
+                // skip some pixels to avoid too heavy strokes
                 ctx.sculptAccWalkedPixels += 1;
                 if (ctx.sculptAccWalkedPixels < minSpacing) {
                     return;
                 }
                 ctx.sculptAccWalkedPixels = 0;
+                // raycast mesh surface
                 _ray.origin.set(x / view.width * 2 - 1, (view.height - y) / view.height * 2 - 1, -1);
                 _ray.direction.copy(_ray.origin).setZ(+1);
                 _ray.origin.unproject(view.camera.get());
@@ -78,8 +101,10 @@ export default abstract class EditorTool {
                 if (!result) {
                     return;
                 }
-                _sphere.set(result.point, ctx.sculptRadius);
+                _sphere.set(result.point, ctx.sculptLocalRadius);
+                // pick triangles in sphere
                 const triangles = mesh.intersectSphere(_sphere);
+                // list shared vertices indices from picked triangles
                 const indices: number[] = [];
                 const visited = new Set<number>();
                 for (let tri of triangles) {
@@ -124,16 +149,17 @@ export default abstract class EditorTool {
                 return;
             });
         const indices = Array.from(vertexIndices);
-        const bufIdxMap = new Map<number, number>();
+        const offset = new Map<number, number>();
         const position = new Float32Array(indices.length * 3);
+        // copy current picked vertices positions
         for (let j = 0, len = indices.length; j < len; ++j) {
             const i = indices[j];
             for (let k = 0; k < 3; ++k) {
                 position[j * 3 + k] = mesh.aPosition[i * 3 + k];
             }
-            bufIdxMap.set(i, j);
+            offset.set(i, j * 3);
         }
-        return {indices, bufIdxMap, position, track};
+        return {indices, offset, position, track};
     }
 
     sculptFalloff(dist: number) {

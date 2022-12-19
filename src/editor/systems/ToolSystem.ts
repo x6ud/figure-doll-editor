@@ -217,7 +217,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 const brushSize = _pos.distanceTo(result.point);
                 this.sculptIndicator.scale.setScalar(brushSize);
 
-                ctx.sculptRadius = brushSize * getScaleScalar(_invMat);
+                ctx.sculptLocalRadius = brushSize * getScaleScalar(_invMat);
                 ctx.sculptLocal.copy(result.point);
                 ctx.sculptNormal.copy(result.normal);
                 ctx.sculptLocalSym.copy(ctx.sculptLocal);
