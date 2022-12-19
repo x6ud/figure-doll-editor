@@ -30,7 +30,7 @@ export default class SculptBrushTool extends EditorTool {
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
-        let strength = this.brushStrength * (this.brushOperator ? 1 : -1) * 0.002;
+        let strength = this.brushStrength * (this.brushOperator ? 1 : -1) * 0.01;
         const center = new Vector3();
         const normal = new Vector3();
         const stroke = this.sculptStroke(ctx, view, mesh);

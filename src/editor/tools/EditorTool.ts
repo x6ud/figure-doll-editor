@@ -59,14 +59,15 @@ export default abstract class EditorTool {
         if (ctx.sculptStartThisFrame) {
             ctx.sculptAccWalkedPixels = 0;
         }
+        const minSpacing = Math.max(1, Math.floor(this.brushRadius * 0.2));
         pixelLine(
             ctx.sculptX0, ctx.sculptY0, ctx.sculptX1, ctx.sculptY1,
             (x, y) => {
                 ctx.sculptAccWalkedPixels += 1;
-                if (ctx.sculptAccWalkedPixels === 2) {
-                    ctx.sculptAccWalkedPixels = 0;
+                if (ctx.sculptAccWalkedPixels < minSpacing) {
                     return;
                 }
+                ctx.sculptAccWalkedPixels = 0;
                 _ray.origin.set(x / view.width * 2 - 1, (view.height - y) / view.height * 2 - 1, -1);
                 _ray.direction.copy(_ray.origin).setZ(+1);
                 _ray.origin.unproject(view.camera.get());
