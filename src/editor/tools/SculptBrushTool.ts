@@ -30,10 +30,13 @@ export default class SculptBrushTool extends EditorTool {
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
-        let strength = this.brushStrength * ctx.detSec * (this.brushOperator ? 1 : -1) * 0.1;
+        let strength = this.brushStrength * (this.brushOperator ? 1 : -1) * 0.002;
         const center = new Vector3();
         const normal = new Vector3();
-        const stroke = this.makeSculptStrokeBuffer(ctx, view, node, mesh);
+        const stroke = this.sculptStroke(ctx, view, mesh);
+        if (!stroke) {
+            return;
+        }
         for (let picking of stroke.track) {
             this.stroke(
                 picking.indices,
@@ -68,6 +71,7 @@ export default class SculptBrushTool extends EditorTool {
         bufIdxMap: Map<number, number>,
         arr: Float32Array,
     ) {
+        center.addScaledVector(normal, -radius * Math.sign(strength) * this.brushStrength * 0.5);
         for (let i of indices) {
             this.strokeVertex(normal, center, radius, strength, arr, bufIdxMap.get(i)! * 3);
         }

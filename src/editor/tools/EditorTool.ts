@@ -1,7 +1,6 @@
 import {Matrix4, Ray, Sphere, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
-import ModelNode from '../model/ModelNode';
 import DynamicMesh from '../utils/geometry/dynamic/DynamicMesh';
 import {pixelLine} from '../utils/pixel';
 
@@ -47,9 +46,8 @@ export default abstract class EditorTool {
     onUnselected(ctx: EditorContext): void {
     }
 
-    makeSculptStrokeBuffer(
-        ctx: EditorContext, view: EditorView, node: ModelNode, mesh: DynamicMesh
-    ) {
+    sculptStroke(ctx: EditorContext, view: EditorView, mesh: DynamicMesh) {
+        ctx = ctx.readonlyRef();
         const vertexIndices = new Set<number>();
         const track: {
             center: Vector3,
@@ -58,10 +56,15 @@ export default abstract class EditorTool {
             trianglesSym?: number[],
             indicesSym?: number[],
         }[] = [];
+        if (ctx.sculptStartThisFrame) {
+            ctx.sculptAccWalkedPixels = 0;
+        }
         pixelLine(
             ctx.sculptX0, ctx.sculptY0, ctx.sculptX1, ctx.sculptY1,
             (x, y) => {
-                if (!ctx.sculptStartThisFrame && x === ctx.sculptX0 && y === ctx.sculptY0) {
+                ctx.sculptAccWalkedPixels += 1;
+                if (ctx.sculptAccWalkedPixels === 2) {
+                    ctx.sculptAccWalkedPixels = 0;
                     return;
                 }
                 _ray.origin.set(x / view.width * 2 - 1, (view.height - y) / view.height * 2 - 1, -1);

@@ -84,6 +84,7 @@ export default class EditorContext {
     sculptNormalSym = new Vector3();
     sculptMoved = false;
     sculptStartThisFrame = false;
+    sculptAccWalkedPixels = 0;
     sculptX0 = 0;
     sculptY0 = 0;
     sculptX1 = 0;
