@@ -443,6 +443,8 @@ export default class ModelHistory {
             setCtx: ([oldIndices0, oldPos0, newIndices0, newPos0]: [number[], Float32Array, number[], Float32Array]) => {
                 // undo ctx
                 {
+                    // merge original positions of modified vertices
+                    // keep only the oldest
                     const allChangedIndices = new Set([...oldIndices0, ...oldIndices]);
                     const oldPos1 = new Float32Array(allChangedIndices.size * 3);
                     for (let i = 0, len = oldPos0.length; i < len; ++i) {
@@ -467,6 +469,8 @@ export default class ModelHistory {
 
                 // redo ctx
                 {
+                    // merge new positions of modified vertices
+                    // discard old ones for repetitive
                     const allChangedIndices = new Set([...newIndices, ...newIndices0]);
                     const newPos1 = new Float32Array(allChangedIndices.size * 3);
                     for (let i = 0, len = newPos.length; i < len; ++i) {

@@ -5,7 +5,7 @@ import CObject3D from '../model/components/CObject3D';
 import EditorTool from './EditorTool';
 import icon from './SculptBrush.png';
 
-const vertex = new Vector3();
+const _v = new Vector3();
 
 export default class SculptBrushTool extends EditorTool {
     label = 'Sculpt Brush';
@@ -81,10 +81,8 @@ export default class SculptBrushTool extends EditorTool {
                          arr: Float32Array,
                          offset: number,
     ) {
-        vertex.x = arr[offset];
-        vertex.y = arr[offset + 1];
-        vertex.z = arr[offset + 2];
-        const dist = vertex.distanceTo(center) / radius;
+        _v.fromArray(arr, offset);
+        const dist = _v.distanceTo(center) / radius;
         if (dist >= 1) {
             return;
         }

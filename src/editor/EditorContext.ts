@@ -28,6 +28,7 @@ import EditorTool from './tools/EditorTool';
 import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
 import SculptBrushTool from './tools/SculptBrushTool';
+import SculptSmoothTool from './tools/SculptSmoothTool';
 import ToolSeperator from './tools/ToolSeperator';
 import TranslateTool from './tools/TranslateTool';
 import TubeTool from './tools/TubeTool';
@@ -71,6 +72,7 @@ export default class EditorContext {
         new TubeTool(),
         ToolSeperator.instance,
         new SculptBrushTool(),
+        new SculptSmoothTool(),
     ];
 
     symmetry: 'no' | 'x' | 'y' | 'z' = 'x';

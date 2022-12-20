@@ -80,7 +80,7 @@
                     <label-range style="margin-right: 8px;"
                                  v-model:value="editorContext.tool.brushStrength"
                                  label="Strength"
-                                 :min="0"
+                                 :min="0.01"
                                  :max="1"
                                  :step="0.001"
                                  :fraction-digits="3"

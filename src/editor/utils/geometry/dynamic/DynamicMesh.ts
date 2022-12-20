@@ -148,7 +148,7 @@ export default class DynamicMesh {
             sharedVertexMap[vertexIdx] = sharedIdx;
         }
         // build shared vertex edge to triangle edge index map
-        const sharedVertexEdgeToTriangleMap = new Map<string, number>();
+        const sharedVertexEdgeToTriangleEdgeMap = new Map<string, number>();
         const zeroAreaTriangle = new Uint8Array(triNum);
         let duplicate = 0;
         let zeroTri = 0;
@@ -173,9 +173,9 @@ export default class DynamicMesh {
                 const sharedVertex0 = sharedVertexMap[edgeIdx];
                 const sharedVertex1 = sharedVertexMap[tri * 3 + ((edge + 1) % 3)];
                 const hash = `${sharedVertex0},${sharedVertex1}`;
-                const existed = sharedVertexEdgeToTriangleMap.get(hash);
+                const existed = sharedVertexEdgeToTriangleEdgeMap.get(hash);
                 if (existed == null) {
-                    sharedVertexEdgeToTriangleMap.set(hash, edgeIdx);
+                    sharedVertexEdgeToTriangleEdgeMap.set(hash, edgeIdx);
                 } else {
                     duplicate += 1;
                 }
@@ -199,8 +199,8 @@ export default class DynamicMesh {
                 const edgeIdx = tri * 3 + edge;
                 const sharedVertex0 = sharedVertexMap[edgeIdx];
                 const sharedVertex1 = sharedVertexMap[tri * 3 + ((edge + 1) % 3)];
-                const hash = `${sharedVertex0},${sharedVertex1}`;
-                const neighborEdgeIdx = sharedVertexEdgeToTriangleMap.get(hash);
+                const hash = `${sharedVertex1},${sharedVertex0}`;
+                const neighborEdgeIdx = sharedVertexEdgeToTriangleEdgeMap.get(hash);
                 if (neighborEdgeIdx == null) {
                     holes[edgeIdx] = 1;
                     edgesBorderHole += 1;

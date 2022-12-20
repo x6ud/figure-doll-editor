@@ -62,6 +62,8 @@ export default abstract class EditorTool {
                 triangles: number[],
                 /** Picked vertices indices */
                 indices: number[],
+                /** Symmetry picking point in mesh's local space */
+                centerSym?: Vector3,
                 /** Picked symmetry triangle indices */
                 trianglesSym?: number[],
                 /** Picked symmetry vertices indices */
@@ -74,6 +76,7 @@ export default abstract class EditorTool {
             center: Vector3,
             triangles: number[],
             indices: number[],
+            centerSym?: Vector3,
             trianglesSym?: number[],
             indicesSym?: number[],
         }[] = [];
@@ -145,7 +148,10 @@ export default abstract class EditorTool {
                         }
                     }
                 }
-                track.push({center: result.point, triangles, indices, trianglesSym, indicesSym});
+                track.push({
+                    center: result.point, triangles, indices,
+                    centerSym: new Vector3().copy(_sphere.center), trianglesSym, indicesSym
+                });
                 return;
             });
         const indices = Array.from(vertexIndices);
