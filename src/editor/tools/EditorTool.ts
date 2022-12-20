@@ -11,17 +11,25 @@ const _invMat = new Matrix4();
 export default abstract class EditorTool {
     abstract label: string;
     abstract icon: string;
+    /** Is it a seperator */
     sep: boolean = false;
     /** Text set to status bar when tool is selected */
     tips: string = '';
+    /** Whether to show transform controls */
     enableTransformControls: boolean = false;
+    /** Whether to delete selected nodes when pressing delete */
     enableDefaultDeleteShortcut: boolean = true;
+    /** Whether to show the selection rect when dragging */
     enableSelectionRect: boolean = false;
+    /** Allow selecting nodes with selection rect */
     enableDefaultSelectionBehavior: boolean = false;
+    /** Whether to show sculpting toolbar and brush indicator */
     sculpt: boolean = false;
     brushRadius: number = 50;
     brushStrength: number = 0.5;
-    brushOperator: boolean = true;
+    hasDirection: boolean = false;
+    hasThirdDirection: boolean = false;
+    brushDirection: number = 1;
 
     /** Called once on load */
     setup(ctx: EditorContext): void {
@@ -46,11 +54,12 @@ export default abstract class EditorTool {
     onUnselected(ctx: EditorContext): void {
     }
 
+    /** Pick the vertices in brush sphere range and create a buffer for the vertices to be modified */
     sculptStroke(ctx: EditorContext, view: EditorView, mesh: DynamicMesh):
         {
             /** Indices of picked vertices */
             indices: number[],
-            /** Vertex index to position buffer map */
+            /** Vertex index to position buffer index map */
             offset: Map<number, number>,
             /** Position buffer for the vertices to be modified, filled with current vertices positions */
             position: Float32Array,

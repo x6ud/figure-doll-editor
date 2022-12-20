@@ -90,10 +90,10 @@ export default class SculptSmoothTool extends EditorTool {
         }
         let triIdx = mesh.getVertexTriangleIndex(mesh.edgeNeighborMap[vertexIdx]);
         const triIdx0 = triIdx;
-        let weight = 0;
         let px = 0;
         let py = 0;
         let pz = 0;
+        let weight = 0;
         let loopSafe = 50;
         _visited.clear();
         do {
@@ -135,7 +135,7 @@ export default class SculptSmoothTool extends EditorTool {
                 }
             }
             if (currTriIdx === triIdx) {
-                // neighbor not found
+                // no unvisited neighbor found
                 break;
             }
             if (loopSafe-- <= 0) {

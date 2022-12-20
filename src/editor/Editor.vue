@@ -87,16 +87,24 @@
                     />
                     <div class="button-group cols" style="margin-right: 8px"
                          title="Direction"
+                         v-if="editorContext.tool.hasDirection"
                     >
                         <button class="normal-button toggle-button"
-                                :class="{active: editorContext.tool.brushOperator}"
-                                @click="editorContext.tool.brushOperator = true"
+                                :class="{active: editorContext.tool.brushDirection === 1}"
+                                @click="editorContext.tool.brushDirection = 1"
                         >
                             +
                         </button>
                         <button class="normal-button toggle-button"
-                                :class="{active: !editorContext.tool.brushOperator}"
-                                @click="editorContext.tool.brushOperator = false"
+                                :class="{active: editorContext.tool.brushDirection === 0}"
+                                @click="editorContext.tool.brushDirection = 0"
+                                v-if="editorContext.tool.hasThirdDirection"
+                        >
+                            o
+                        </button>
+                        <button class="normal-button toggle-button"
+                                :class="{active: editorContext.tool.brushDirection === -1}"
+                                @click="editorContext.tool.brushDirection = -1"
                         >
                             -
                         </button>

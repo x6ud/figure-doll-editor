@@ -3,15 +3,18 @@ import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CObject3D from '../model/components/CObject3D';
 import EditorTool from './EditorTool';
-import icon from './SculptBrush.png';
+import icon from './SculptFlatten.png';
 
 const _v = new Vector3();
+const _det = new Vector3();
 
-export default class SculptBrushTool extends EditorTool {
-    label = 'Sculpt Brush';
+export default class SculptFlattenTool extends EditorTool {
+    label = 'Sculpt Flatten';
     icon = icon;
     sculpt = true;
+    brushRadius = 100;
     hasDirection = true;
+    hasThirdDirection = true;
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -31,16 +34,16 @@ export default class SculptBrushTool extends EditorTool {
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
-        const strength = this.brushStrength * this.brushDirection * 0.01;
         const center = new Vector3();
         const normal = new Vector3();
         const stroke = this.sculptStroke(ctx, view, mesh);
         for (let picking of stroke.track) {
             this.stroke(
                 picking.indices,
-                strength,
+                this.brushStrength,
                 mesh.getAverageNormal(normal, picking.triangles),
                 mesh.getAverageCenter(center, picking.triangles),
+                picking.center,
                 ctx.sculptLocalRadius,
                 stroke.offset,
                 stroke.position
@@ -48,9 +51,10 @@ export default class SculptBrushTool extends EditorTool {
             if (ctx.sculptSym) {
                 this.stroke(
                     picking.indicesSym!,
-                    strength,
+                    this.brushStrength,
                     mesh.getAverageNormal(normal, picking.trianglesSym!),
                     mesh.getAverageCenter(center, picking.trianglesSym!),
+                    picking.centerSym!,
                     ctx.sculptLocalRadius,
                     stroke.offset,
                     stroke.position
@@ -65,29 +69,34 @@ export default class SculptBrushTool extends EditorTool {
         strength: number,
         normal: Vector3,
         center: Vector3,
+        brushCenter: Vector3,
         radius: number,
         offset: Map<number, number>,
         arr: Float32Array,
     ) {
-        center.addScaledVector(normal, -radius * Math.sign(strength) * this.brushStrength * 0.5);
         for (let i of indices) {
-            this.strokeVertex(normal, center, radius, strength, arr, offset.get(i)!);
+            this.strokeVertex(normal, center, brushCenter, radius, strength, arr, offset.get(i)!);
         }
     }
 
     private strokeVertex(normal: Vector3,
                          center: Vector3,
+                         brushCenter: Vector3,
                          radius: number,
                          strength: number,
                          arr: Float32Array,
                          offset: number,
     ) {
         _v.fromArray(arr, offset);
-        const dist = _v.distanceTo(center) / radius;
-        if (dist >= 1) {
+        const brushDist = _v.distanceTo(brushCenter) / radius;
+        if (brushDist >= 1) {
             return;
         }
-        const det = this.sculptFalloff(dist) * strength;
+        const panelDist = _det.subVectors(center, _v).dot(normal);
+        if (this.brushDirection === -Math.sign(panelDist)) {
+            return;
+        }
+        const det = this.sculptFalloff(brushDist) * strength * panelDist;
         arr[offset] += normal.x * det;
         arr[offset + 1] += normal.y * det;
         arr[offset + 2] += normal.z * det;
