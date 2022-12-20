@@ -1,4 +1,4 @@
-import {Object3D, Scene, Vector2, Vector3, WebGLRenderer} from 'three';
+import {Object3D, Scene, Vector2, WebGLRenderer} from 'three';
 import {toRaw} from 'vue';
 import EditorView from './EditorView';
 import Model from './model/Model';
@@ -30,6 +30,7 @@ import RotateTool from './tools/RotateTool';
 import SculptBrushTool from './tools/SculptBrushTool';
 import SculptFlattenTool from './tools/SculptFlattenTool';
 import SculptInflateTool from './tools/SculptInflateTool';
+import SculptPinchTool from './tools/SculptPinchTool';
 import SculptSmoothTool from './tools/SculptSmoothTool';
 import ToolSeperator from './tools/ToolSeperator';
 import TranslateTool from './tools/TranslateTool';
@@ -75,6 +76,7 @@ export default class EditorContext {
         ToolSeperator.instance,
         new SculptBrushTool(),
         new SculptInflateTool(),
+        new SculptPinchTool(),
         new SculptFlattenTool(),
         new SculptSmoothTool(),
     ];

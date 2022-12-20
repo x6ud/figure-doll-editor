@@ -450,6 +450,19 @@ export default defineComponent({
             }
             const position = new Vector3();
             getTranslation(position, node.getWorldMatrix());
+            if (node.has(CObject3D)) {
+                const obj = node.value(CObject3D) as Mesh;
+                if (obj) {
+                    const geometry = obj.geometry;
+                    if (geometry) {
+                        if (!geometry.boundingSphere) {
+                            geometry.computeBoundingSphere();
+                        }
+                        position.copy(geometry.boundingSphere!.center);
+                        position.applyMatrix4(node.getWorldMatrix());
+                    }
+                }
+            }
             for (let view of editorContext.value!.views) {
                 view.camera.target.copy(position);
             }
