@@ -28,6 +28,7 @@ import EditorTool from './tools/EditorTool';
 import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
 import SculptBrushTool from './tools/SculptBrushTool';
+import SculptCreaseTool from './tools/SculptCreaseTool';
 import SculptFlattenTool from './tools/SculptFlattenTool';
 import SculptInflateTool from './tools/SculptInflateTool';
 import SculptPinchTool from './tools/SculptPinchTool';
@@ -76,6 +77,7 @@ export default class EditorContext {
         ToolSeperator.instance,
         new SculptBrushTool(),
         new SculptInflateTool(),
+        new SculptCreaseTool(),
         new SculptPinchTool(),
         new SculptFlattenTool(),
         new SculptSmoothTool(),

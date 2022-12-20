@@ -27,6 +27,7 @@ export default abstract class EditorTool {
     /** Whether to show sculpting toolbar and brush indicator */
     sculpt: boolean = false;
     brushRadius: number = 50;
+    brushStepSpacingRadiusRatio: number = 0.2;
     brushStrength: number = 0.5;
     hasDirection: boolean = false;
     hasThirdDirection: boolean = false;
@@ -94,7 +95,7 @@ export default abstract class EditorTool {
         if (ctx.sculptStartThisFrame) {
             ctx.sculptAccWalkedPixels = 0;
         }
-        const minSpacing = Math.max(1, Math.floor(this.brushRadius * 0.2));
+        const minSpacing = Math.max(1, Math.floor(this.brushRadius * this.brushStepSpacingRadiusRatio));
         pixelLine(
             ctx.sculptX0, ctx.sculptY0, ctx.sculptX1, ctx.sculptY1,
             (x, y) => {
