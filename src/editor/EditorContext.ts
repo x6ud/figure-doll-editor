@@ -29,6 +29,7 @@ import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
 import SculptBrushTool from './tools/SculptBrushTool';
 import SculptFlattenTool from './tools/SculptFlattenTool';
+import SculptInflateTool from './tools/SculptInflateTool';
 import SculptSmoothTool from './tools/SculptSmoothTool';
 import ToolSeperator from './tools/ToolSeperator';
 import TranslateTool from './tools/TranslateTool';
@@ -73,6 +74,7 @@ export default class EditorContext {
         new TubeTool(),
         ToolSeperator.instance,
         new SculptBrushTool(),
+        new SculptInflateTool(),
         new SculptFlattenTool(),
         new SculptSmoothTool(),
     ];
@@ -82,10 +84,6 @@ export default class EditorContext {
     sculptActiveView = -1;
     sculptSym = false;
     sculptLocalRadius = 0;
-    sculptLocal = new Vector3();
-    sculptNormal = new Vector3();
-    sculptLocalSym = new Vector3();
-    sculptNormalSym = new Vector3();
     sculptMoved = false;
     sculptStartThisFrame = false;
     sculptAccWalkedPixels = 0;

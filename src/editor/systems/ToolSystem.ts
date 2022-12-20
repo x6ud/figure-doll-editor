@@ -218,28 +218,26 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 this.sculptIndicator.scale.setScalar(brushSize);
 
                 ctx.sculptLocalRadius = brushSize * getScaleScalar(_invMat);
-                ctx.sculptLocal.copy(result.point);
-                ctx.sculptNormal.copy(result.normal);
-                ctx.sculptLocalSym.copy(ctx.sculptLocal);
-                ctx.sculptNormalSym.copy(ctx.sculptNormal);
+                _pos.copy(result.point);
+                _normal.copy(result.normal);
                 switch (ctx.symmetry) {
                     case 'x':
-                        ctx.sculptLocalSym.x *= -1;
-                        ctx.sculptNormalSym.x *= -1;
+                        _pos.x *= -1;
+                        _normal.x *= -1;
                         break;
                     case 'y':
-                        ctx.sculptLocalSym.y *= -1;
-                        ctx.sculptNormalSym.y *= -1;
+                        _pos.y *= -1;
+                        _normal.y *= -1;
                         break;
                     case 'z':
-                        ctx.sculptLocalSym.z *= -1;
-                        ctx.sculptNormalSym.z *= -1;
+                        _pos.z *= -1;
+                        _normal.z *= -1;
                         break;
                 }
 
                 if (this.sculptIndicatorSym.visible) {
-                    this.sculptIndicatorSym.position.copy(ctx.sculptLocalSym).applyMatrix4(mat);
-                    _normal.copy(ctx.sculptNormalSym).transformDirection(mat);
+                    this.sculptIndicatorSym.position.copy(_pos).applyMatrix4(mat);
+                    _normal.transformDirection(mat);
                     this.sculptIndicatorSym.quaternion.setFromUnitVectors(_forward, _normal);
                     this.sculptIndicatorSym.scale.copy(this.sculptIndicator.scale);
                 }

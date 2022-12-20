@@ -36,25 +36,25 @@ export default class SculptFlattenTool extends EditorTool {
         const mesh = cObject3D.mesh!;
         const center = new Vector3();
         const normal = new Vector3();
-        const stroke = this.sculptStroke(ctx, view, mesh);
-        for (let picking of stroke.track) {
+        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        for (let point of stroke.track) {
             this.stroke(
-                picking.indices,
+                point.indices,
                 this.brushStrength,
-                mesh.getAverageNormal(normal, picking.triangles),
-                mesh.getAverageCenter(center, picking.triangles),
-                picking.center,
+                mesh.getAverageNormal(normal, point.triangles),
+                mesh.getAverageCenter(center, point.triangles),
+                point.center,
                 ctx.sculptLocalRadius,
                 stroke.offset,
                 stroke.position
             );
             if (ctx.sculptSym) {
                 this.stroke(
-                    picking.indicesSym!,
+                    point.indicesSym!,
                     this.brushStrength,
-                    mesh.getAverageNormal(normal, picking.trianglesSym!),
-                    mesh.getAverageCenter(center, picking.trianglesSym!),
-                    picking.centerSym!,
+                    mesh.getAverageNormal(normal, point.trianglesSym!),
+                    mesh.getAverageCenter(center, point.trianglesSym!),
+                    point.centerSym!,
                     ctx.sculptLocalRadius,
                     stroke.offset,
                     stroke.position

@@ -1,6 +1,7 @@
 import {Matrix4, Ray, Sphere, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import ModelNode from '../model/ModelNode';
 import DynamicMesh from '../utils/geometry/dynamic/DynamicMesh';
 import {pixelLine} from '../utils/pixel';
 
@@ -55,7 +56,7 @@ export default abstract class EditorTool {
     }
 
     /** Pick the vertices in brush sphere range and create a buffer for the vertices to be modified */
-    sculptStroke(ctx: EditorContext, view: EditorView, mesh: DynamicMesh):
+    sculptPickStrokeVertices(ctx: EditorContext, node: ModelNode, view: EditorView, mesh: DynamicMesh):
         {
             /** Indices of picked vertices */
             indices: number[],
@@ -80,6 +81,7 @@ export default abstract class EditorTool {
             }[]
         } {
         ctx = ctx.readonlyRef();
+        _invMat.copy(node.getWorldMatrix()).invert();
         const vertexIndices = new Set<number>();
         const track: {
             center: Vector3,

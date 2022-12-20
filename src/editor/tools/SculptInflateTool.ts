@@ -4,18 +4,18 @@ import EditorView from '../EditorView';
 import CObject3D from '../model/components/CObject3D';
 import DynamicMesh from '../utils/geometry/dynamic/DynamicMesh';
 import EditorTool from './EditorTool';
-import icon from './SculptSmooth.png';
+import icon from './SculptInflate.png';
 
 const _v = new Vector3();
-const _v2 = new Vector3();
 const _visited = new Set<number>();
+const _n = new Vector3();
+const _triN = new Vector3();
+const _triC = new Vector3();
 
-export default class SculptSmoothTool extends EditorTool {
-    label = 'Sculpt Smooth';
+export default class SculptInflateTool extends EditorTool {
+    label = 'Sculpt Inflate';
     icon = icon;
     sculpt = true;
-    brushStrength = 1.0;
-    brushRadius = 100;
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -35,12 +35,13 @@ export default class SculptSmoothTool extends EditorTool {
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
+        const strength = this.brushStrength * 0.01;
         const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
         for (let point of stroke.track) {
             this.stroke(
                 mesh,
                 point.indices,
-                this.brushStrength,
+                strength,
                 point.center,
                 ctx.sculptLocalRadius,
                 stroke.offset,
@@ -50,7 +51,7 @@ export default class SculptSmoothTool extends EditorTool {
                 this.stroke(
                     mesh,
                     point.indicesSym!,
-                    this.brushStrength,
+                    strength,
                     point.centerSym!,
                     ctx.sculptLocalRadius,
                     stroke.offset,
@@ -88,28 +89,17 @@ export default class SculptSmoothTool extends EditorTool {
         if (dist >= 1) {
             return;
         }
+        _n.set(0, 0, 0);
         let triIdx = mesh.getVertexTriangleIndex(mesh.edgeNeighborMap[vertexIdx]);
         const triIdx0 = triIdx;
-        let px = 0;
-        let py = 0;
-        let pz = 0;
-        let weight = 0;
         let loopSafe = 50;
         _visited.clear();
         do {
             _visited.add(triIdx);
-            // accumulate neighbour vertices
-            for (let vertex = 0; vertex < 3; ++vertex) {
-                const vertexIdx2 = mesh.sharedVertexMap[triIdx * 3 + vertex];
-                if (vertexIdx2 !== vertexIdx) {
-                    mesh.getVertex(_v2, vertexIdx2);
-                    const dist = _v2.distanceTo(_v);
-                    px += _v2.x * dist;
-                    py += _v2.y * dist;
-                    pz += _v2.z * dist;
-                    weight += dist;
-                }
-            }
+            mesh.getNormal(_triN, triIdx);
+            mesh.getTriangleCenter(_triC, triIdx);
+            _n.addScaledVector(_triN, _v.distanceTo(_triC));
+
             // find next neighbour triangle
             const currTriIdx = triIdx;
             for (let edge = 0; edge < 3; ++edge) {
@@ -143,13 +133,10 @@ export default class SculptSmoothTool extends EditorTool {
                 break;
             }
         } while (triIdx0 !== triIdx);
-        weight = 1 / weight;
-        px *= weight;
-        py *= weight;
-        pz *= weight;
+        _n.normalize();
         const det = this.sculptFalloff(dist) * strength;
-        arr[offset] += (px - _v.x) * det;
-        arr[offset + 1] += (py - _v.y) * det;
-        arr[offset + 2] += (pz - _v.z) * det;
+        arr[offset] += _n.x * det;
+        arr[offset + 1] += _n.y * det;
+        arr[offset + 2] += _n.z * det;
     }
 }

@@ -34,23 +34,23 @@ export default class SculptBrushTool extends EditorTool {
         const strength = this.brushStrength * this.brushDirection * 0.01;
         const center = new Vector3();
         const normal = new Vector3();
-        const stroke = this.sculptStroke(ctx, view, mesh);
-        for (let picking of stroke.track) {
+        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        for (let point of stroke.track) {
             this.stroke(
-                picking.indices,
+                point.indices,
                 strength,
-                mesh.getAverageNormal(normal, picking.triangles),
-                mesh.getAverageCenter(center, picking.triangles),
+                mesh.getAverageNormal(normal, point.triangles),
+                mesh.getAverageCenter(center, point.triangles),
                 ctx.sculptLocalRadius,
                 stroke.offset,
                 stroke.position
             );
             if (ctx.sculptSym) {
                 this.stroke(
-                    picking.indicesSym!,
+                    point.indicesSym!,
                     strength,
-                    mesh.getAverageNormal(normal, picking.trianglesSym!),
-                    mesh.getAverageCenter(center, picking.trianglesSym!),
+                    mesh.getAverageNormal(normal, point.trianglesSym!),
+                    mesh.getAverageCenter(center, point.trianglesSym!),
                     ctx.sculptLocalRadius,
                     stroke.offset,
                     stroke.position
