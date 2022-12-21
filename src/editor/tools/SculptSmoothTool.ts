@@ -11,7 +11,7 @@ const _v2 = new Vector3();
 const _visited = new Set<number>();
 
 export default class SculptSmoothTool extends EditorTool {
-    label = 'Sculpt Smooth';
+    label = 'Sculpt Smooth (Shift)';
     icon = icon;
     sculpt = true;
     brushStrength = 1.0;
@@ -32,6 +32,10 @@ export default class SculptSmoothTool extends EditorTool {
         if (!input.mouseLeft) {
             return;
         }
+        this.doStroke(ctx, view, this.brushStrength);
+    }
+
+    doStroke(ctx: EditorContext, view: EditorView, brushStrength: number) {
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
@@ -40,7 +44,7 @@ export default class SculptSmoothTool extends EditorTool {
             this.stroke(
                 mesh,
                 point.indices,
-                this.brushStrength,
+                brushStrength,
                 point.center,
                 ctx.sculptLocalRadius,
                 stroke.offset,
@@ -50,7 +54,7 @@ export default class SculptSmoothTool extends EditorTool {
                 this.stroke(
                     mesh,
                     point.indicesSym!,
-                    this.brushStrength,
+                    brushStrength,
                     point.centerSym!,
                     ctx.sculptLocalRadius,
                     stroke.offset,

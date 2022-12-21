@@ -15,7 +15,7 @@ export default class SculptFlattenTool extends EditorTool {
     brushRadius = 100;
     hasDirection = true;
     hasThirdDirection = true;
-    brushDirection = -1;
+    brushDirection = 0;
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -31,6 +31,9 @@ export default class SculptFlattenTool extends EditorTool {
         const input = view.input;
         if (!input.mouseLeft) {
             return;
+        }
+        if (input.isKeyPressed('Shift')) {
+            return ctx.sculptSmoothTool.doStroke(ctx, view, this.brushStrength);
         }
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);

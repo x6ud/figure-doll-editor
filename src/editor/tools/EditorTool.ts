@@ -9,6 +9,30 @@ const _sphere = new Sphere();
 const _ray = new Ray();
 const _invMat = new Matrix4();
 
+export type SculptToolStroke = {
+    /** Indices of picked vertices */
+    indices: number[],
+    /** Vertex index to position buffer index map */
+    offset: Map<number, number>,
+    /** Position buffer for the vertices to be modified, filled with current vertices positions */
+    position: Float32Array,
+    /** Stroke track points */
+    track: {
+        /** Picking point in mesh's local space */
+        center: Vector3,
+        /** Picked triangle indices */
+        triangles: number[],
+        /** Picked vertices indices */
+        indices: number[],
+        /** Symmetry picking point in mesh's local space */
+        centerSym?: Vector3,
+        /** Picked symmetry triangle indices */
+        trianglesSym?: number[],
+        /** Picked symmetry vertices indices */
+        indicesSym?: number[]
+    }[]
+};
+
 export default abstract class EditorTool {
     abstract label: string;
     abstract icon: string;
@@ -57,30 +81,7 @@ export default abstract class EditorTool {
     }
 
     /** Pick the vertices in brush sphere range and create a buffer for the vertices to be modified */
-    sculptPickStrokeVertices(ctx: EditorContext, node: ModelNode, view: EditorView, mesh: DynamicMesh):
-        {
-            /** Indices of picked vertices */
-            indices: number[],
-            /** Vertex index to position buffer index map */
-            offset: Map<number, number>,
-            /** Position buffer for the vertices to be modified, filled with current vertices positions */
-            position: Float32Array,
-            /** Stroke track points */
-            track: {
-                /** Picking point in mesh's local space */
-                center: Vector3,
-                /** Picked triangle indices */
-                triangles: number[],
-                /** Picked vertices indices */
-                indices: number[],
-                /** Symmetry picking point in mesh's local space */
-                centerSym?: Vector3,
-                /** Picked symmetry triangle indices */
-                trianglesSym?: number[],
-                /** Picked symmetry vertices indices */
-                indicesSym?: number[]
-            }[]
-        } {
+    sculptPickStrokeVertices(ctx: EditorContext, node: ModelNode, view: EditorView, mesh: DynamicMesh): SculptToolStroke {
         ctx = ctx.readonlyRef();
         _invMat.copy(node.getWorldMatrix()).invert();
         const vertexIndices = new Set<number>();
@@ -92,10 +93,10 @@ export default abstract class EditorTool {
             trianglesSym?: number[],
             indicesSym?: number[],
         }[] = [];
-        if (ctx.sculptStartThisFrame) {
-            ctx.sculptAccWalkedPixels = 0;
-        }
         const minSpacing = Math.max(1, Math.floor(this.brushRadius * this.brushStepSpacingRadiusRatio));
+        if (ctx.sculptStartThisFrame) {
+            ctx.sculptAccWalkedPixels = minSpacing;
+        }
         pixelLine(
             ctx.sculptX0, ctx.sculptY0, ctx.sculptX1, ctx.sculptY1,
             (x, y) => {

@@ -1,4 +1,5 @@
 import {Box3, BufferAttribute, BufferGeometry, Mesh, MeshStandardMaterial, Object3D, Ray, Sphere, Vector3} from 'three';
+import {hashFloat32x3, hashUint32x2} from '../../hash';
 import OctreeNode from './OctreeNode';
 
 const _a = new Vector3();
@@ -136,7 +137,8 @@ export default class DynamicMesh {
                 vy = Math.round(vy / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
                 vz = Math.round(vz / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
             }
-            const hash = `${vx},${vy},${vz}`;
+            // const hash = `${vx},${vy},${vz}`;
+            const hash = hashFloat32x3(vx, vy, vz);
             let sharedIdx = pointIdxMap.get(hash);
             if (sharedIdx == null) {
                 sharedIdx = vertexIdx;
@@ -172,7 +174,8 @@ export default class DynamicMesh {
                 const edgeIdx = tri * 3 + edge;
                 const sharedVertex0 = sharedVertexMap[edgeIdx];
                 const sharedVertex1 = sharedVertexMap[tri * 3 + ((edge + 1) % 3)];
-                const hash = `${sharedVertex0},${sharedVertex1}`;
+                // const hash = `${sharedVertex0},${sharedVertex1}`;
+                const hash = hashUint32x2(sharedVertex0, sharedVertex1);
                 const existed = sharedVertexEdgeToTriangleEdgeMap.get(hash);
                 if (existed == null) {
                     sharedVertexEdgeToTriangleEdgeMap.set(hash, edgeIdx);
@@ -199,7 +202,8 @@ export default class DynamicMesh {
                 const edgeIdx = tri * 3 + edge;
                 const sharedVertex0 = sharedVertexMap[edgeIdx];
                 const sharedVertex1 = sharedVertexMap[tri * 3 + ((edge + 1) % 3)];
-                const hash = `${sharedVertex1},${sharedVertex0}`;
+                // const hash = `${sharedVertex1},${sharedVertex0}`;
+                const hash = hashUint32x2(sharedVertex1, sharedVertex0);
                 const neighborEdgeIdx = sharedVertexEdgeToTriangleEdgeMap.get(hash);
                 if (neighborEdgeIdx == null) {
                     holes[edgeIdx] = 1;

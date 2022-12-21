@@ -28,6 +28,9 @@ export default class SculptBrushTool extends EditorTool {
         if (!input.mouseLeft) {
             return;
         }
+        if (input.isKeyPressed('Shift')) {
+            return ctx.sculptSmoothTool.doStroke(ctx, view, this.brushStrength);
+        }
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;

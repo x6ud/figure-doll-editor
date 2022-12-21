@@ -31,6 +31,7 @@ import SculptBrushTool from './tools/SculptBrushTool';
 import SculptCreaseTool from './tools/SculptCreaseTool';
 import SculptFlattenTool from './tools/SculptFlattenTool';
 import SculptInflateTool from './tools/SculptInflateTool';
+import SculptMoveTool from './tools/SculptMoveTool';
 import SculptPinchTool from './tools/SculptPinchTool';
 import SculptSmoothTool from './tools/SculptSmoothTool';
 import ToolSeperator from './tools/ToolSeperator';
@@ -65,6 +66,7 @@ export default class EditorContext {
         new CallbackFireSystem(),
     ];
 
+    sculptSmoothTool = new SculptSmoothTool();
     tools: EditorTool[] = [
         new CursorTool(),
         ToolSeperator.instance,
@@ -80,10 +82,11 @@ export default class EditorContext {
         new SculptCreaseTool(),
         new SculptPinchTool(),
         new SculptFlattenTool(),
-        new SculptSmoothTool(),
+        new SculptMoveTool(),
+        this.sculptSmoothTool,
     ];
 
-    symmetry: 'no' | 'x' | 'y' | 'z' = 'x';
+    symmetry: 'no' | 'x' | 'y' | 'z' = 'no';
     sculptNodeId = 0;
     sculptActiveView = -1;
     sculptSym = false;
