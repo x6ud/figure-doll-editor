@@ -308,7 +308,7 @@ const midPoints = new Float32Array(12 * 3);
 //  d-----------c
 export function marchingCubes(
     positions: number[],
-    normals: number[],
+    normals: number[] | null | undefined,
     x0: number, y0: number, z0: number,
     cubeSize: number,
     a: number, b: number, c: number, d: number,
@@ -430,38 +430,22 @@ export function marchingCubes(
         const x2 = midPoints[edgeIndex2 * 3];
         const y2 = midPoints[edgeIndex2 * 3 + 1];
         const z2 = midPoints[edgeIndex2 * 3 + 2];
-
-        const ax = x1 - x0;
-        const ay = y1 - y0;
-        const az = z1 - z0;
-        const bx = x1 - x2;
-        const by = y1 - y2;
-        const bz = z1 - z2;
-        const cx = ay * bz - az * by;
-        const cy = az * bx - ax * bz;
-        const cz = ax * by - ay * bx;
-        const invLen = 1 / Math.sqrt(cx ** 2 + cy ** 2 + cz ** 2);
-        const nx = -cx * invLen;
-        const ny = -cy * invLen;
-        const nz = -cz * invLen;
-
-        positions.push(x0);
-        positions.push(y0);
-        positions.push(z0);
-        normals.push(nx);
-        normals.push(ny);
-        normals.push(nz);
-        positions.push(x1);
-        positions.push(y1);
-        positions.push(z1);
-        normals.push(nx);
-        normals.push(ny);
-        normals.push(nz);
-        positions.push(x2);
-        positions.push(y2);
-        positions.push(z2);
-        normals.push(nx);
-        normals.push(ny);
-        normals.push(nz);
+        positions.push(x0, y0, z0, x1, y1, z1, x2, y2, z2);
+        if (normals) {
+            const ax = x1 - x0;
+            const ay = y1 - y0;
+            const az = z1 - z0;
+            const bx = x1 - x2;
+            const by = y1 - y2;
+            const bz = z1 - z2;
+            const cx = ay * bz - az * by;
+            const cy = az * bx - ax * bz;
+            const cz = ax * by - ay * bx;
+            const invLen = 1 / Math.sqrt(cx ** 2 + cy ** 2 + cz ** 2);
+            const nx = -cx * invLen;
+            const ny = -cy * invLen;
+            const nz = -cz * invLen;
+            normals.push(nx, ny, nz, nx, ny, nz, nx, ny, nz);
+        }
     }
 }

@@ -14,4 +14,5 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 export default class CVertices extends ModelNodeComponent<Float32Array> {
     value = new Float32Array();
     dirty = true;
+    partialUpdate = false;
 }

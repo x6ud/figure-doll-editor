@@ -55,6 +55,7 @@ export function getScaleScalar(matrix: Matrix4) {
     return _decomposeScale.x;
 }
 
+// https://github.com/x6ud/closest-points-between-two-lines
 export function closestPointsBetweenTwoLines(
     out1: Vector3 | null, out2: Vector3 | null,
     p1: Vector3, n1: Vector3, p2: Vector3, n2: Vector3
@@ -191,3 +192,91 @@ export function intersectPointRect(point: Vector2 | Vector3, rectStart: Vector2,
         y = point.y;
     return !(x < x0 || x > x1 || y < y0 || y > y1);
 }
+
+// https://github.com/embree/embree/blob/master/tutorials/common/math/closest_point.h
+export const closestPointToTriangle = (function () {
+    const ap = new Vector3();
+    const bp = new Vector3();
+    const cp = new Vector3();
+    return function (
+        out: Vector3,
+        p: Vector3,
+        a: Vector3, b: Vector3, c: Vector3,
+        ab: Vector3, ac: Vector3, bc: Vector3
+    ): Vector3 {
+        ap.subVectors(p, a);
+        const d1 = ab.dot(ap);
+        const d2 = ac.dot(ap);
+        if (d1 <= 0 && d2 <= 0) {
+            return out.copy(a);
+        }
+        bp.subVectors(p, b);
+        const d3 = ab.dot(bp);
+        const d4 = ac.dot(bp);
+        if (d3 >= 0 && d4 <= d3) {
+            return out.copy(b);
+        }
+        cp.subVectors(p, c);
+        const d5 = ab.dot(cp);
+        const d6 = ac.dot(cp);
+        if (d6 >= 0 && d5 <= d6) {
+            return out.copy(c);
+        }
+        const vc = d1 * d4 - d3 * d2;
+        if (vc <= 0 && d1 >= 0 && d3 <= 0) {
+            const v = d1 / (d1 - d3);
+            return out.copy(a).addScaledVector(ab, v);
+        }
+        const vb = d5 * d2 - d1 * d6;
+        if (vb <= 0 && d2 >= 0 && d6 <= 0) {
+            const v = d2 / (d2 - d6);
+            return out.copy(a).addScaledVector(ac, v);
+        }
+        const va = d3 * d6 - d5 * d4;
+        if (va <= 0 && d4 - d3 >= 0 && d5 - d6 >= 0) {
+            const v = (d4 - d3) / ((d4 - d3) + (d5 - d6));
+            return out.copy(b).addScaledVector(bc, v);
+        }
+        const denom = 1 / (va + vb + vc);
+        const v = vb * denom;
+        const w = vc * denom;
+        return out.copy(a).addScaledVector(ab, v).addScaledVector(ac, w);
+    };
+})();
+
+export const rayTriangleIntersect = (function () {
+    const diff = new Vector3();
+    const n = new Vector3();
+    const cross1 = new Vector3();
+    const cross2 = new Vector3();
+    return function (o: Vector3, dir: Vector3, a: Vector3, ab: Vector3, ac: Vector3) {
+        n.crossVectors(ab, ac);
+        let dirDotN = dir.dot(n);
+        let sign;
+        if (dirDotN > 0) {
+            sign = 1;
+        } else if (dirDotN < 0) {
+            sign = -1;
+            dirDotN = -dirDotN;
+        } else {
+            return -1;
+        }
+        diff.subVectors(o, a);
+        const dirDotQxE2 = sign * dir.dot(cross2.crossVectors(diff, ac));
+        if (dirDotQxE2 < 0) {
+            return -1;
+        }
+        const dirDotE1xQ = sign * dir.dot(cross1.crossVectors(ab, diff));
+        if (dirDotE1xQ < 0) {
+            return -1;
+        }
+        if (dirDotE1xQ + dirDotQxE2 > dirDotN) {
+            return -1;
+        }
+        const qDotN = -sign * diff.dot(n);
+        if (qDotN < 0) {
+            return -1;
+        }
+        return qDotN / dirDotN;
+    };
+})();

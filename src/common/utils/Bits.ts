@@ -2,8 +2,8 @@ export default class Bits {
 
     private bits: Uint32Array;
 
-    constructor(capacity: number = 1) {
-        this.bits = new Uint32Array(capacity);
+    constructor(len: number = 0) {
+        this.bits = new Uint32Array((len >>> 5) + 1);
     }
 
     private checkCapacity(len: number) {

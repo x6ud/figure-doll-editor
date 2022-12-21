@@ -167,11 +167,11 @@ export default class SdfMeshBuilder {
         }
         const aPosition: number[] = [];
         const aNormal: number[] = [];
-        for (let ix = 0; ix < xRange; ++ix) {
+        for (let ix = 0; ix < xRange - 1; ++ix) {
             const x = x0 + ix * step;
-            for (let iy = 0; iy < yRange; ++iy) {
+            for (let iy = 0; iy < yRange - 1; ++iy) {
                 const y = y0 + iy * step;
-                for (let iz = 0; iz < zRange; ++iz) {
+                for (let iz = 0; iz < zRange - 1; ++iz) {
                     const z = z0 + iz * step;
                     if (!mask.get(ix * yRange * zRange + iy * zRange + iz)) {
                         continue;

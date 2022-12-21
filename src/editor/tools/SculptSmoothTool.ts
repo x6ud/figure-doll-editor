@@ -10,6 +10,7 @@ const _v = new Vector3();
 const _v2 = new Vector3();
 const _visited = new Set<number>();
 
+// Modified from https://github.com/stephomi/sculptgl/blob/master/src/editing/tools/Smooth.js
 export default class SculptSmoothTool extends EditorTool {
     label = 'Sculpt Smooth (Shift)';
     icon = icon;
@@ -148,6 +149,9 @@ export default class SculptSmoothTool extends EditorTool {
             }
         } while (triIdx0 !== triIdx);
         weight = 1 / weight;
+        if (!isFinite(weight)) {
+            return;
+        }
         px *= weight;
         py *= weight;
         pz *= weight;

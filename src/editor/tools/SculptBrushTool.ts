@@ -7,6 +7,7 @@ import icon from './SculptBrush.png';
 
 const _v = new Vector3();
 
+// Modified from https://github.com/stephomi/sculptgl/blob/master/src/editing/tools/Brush.js
 export default class SculptBrushTool extends EditorTool {
     label = 'Sculpt Brush';
     icon = icon;

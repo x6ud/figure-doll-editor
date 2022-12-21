@@ -90,12 +90,14 @@
                          v-if="editorContext.tool.hasDirection"
                     >
                         <button class="normal-button toggle-button"
+                                style="font-size: 14px;"
                                 :class="{active: editorContext.tool.brushDirection === 1}"
                                 @click="editorContext.tool.brushDirection = 1"
                         >
                             +
                         </button>
                         <button class="normal-button toggle-button"
+                                style="font-size: 12px;"
                                 :class="{active: editorContext.tool.brushDirection === 0}"
                                 @click="editorContext.tool.brushDirection = 0"
                                 v-if="editorContext.tool.hasThirdDirection"
@@ -103,6 +105,7 @@
                             o
                         </button>
                         <button class="normal-button toggle-button"
+                                style="font-size: 14px;"
                                 :class="{active: editorContext.tool.brushDirection === -1}"
                                 @click="editorContext.tool.brushDirection = -1"
                         >
@@ -111,12 +114,37 @@
                     </div>
                     <select v-model="editorContext.symmetry"
                             title="Symmetry"
+                            style="margin-right: 8px"
                     >
                         <option>no</option>
                         <option>x</option>
                         <option>y</option>
                         <option>z</option>
                     </select>
+                    <popup-menu title="Remesh"
+                                class-name="normal-button dropdown"
+                                v-if="canRemesh"
+                    >
+                        <div class="properties">
+                            <div class="property inline">
+                                <label>Voxel size</label>
+                                <input-number class="value"
+                                              style="width: 6em; text-align: right;"
+                                              :min="0.0001"
+                                              :max="1"
+                                              :value="editorContext.remeshVoxelSize"
+                                              @input="editorContext.remeshVoxelSize = $event"
+                                />
+                                <span>&nbsp;m</span>
+                            </div>
+                            <button class="normal-button"
+                                    style="width: 100%"
+                                    @click="onRemesh"
+                            >
+                                Remesh
+                            </button>
+                        </div>
+                    </popup-menu>
                 </template>
 
                 <div class="fill"></div>

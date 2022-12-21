@@ -10,7 +10,6 @@ export default class EditorView {
     index: number;
     enabled: boolean = true;
     element: HTMLElement;
-    grids: Object3D;
     camera = new ArcRotateCamera();
     zoomLevel = 0;
     left: number = 0;
@@ -32,14 +31,11 @@ export default class EditorView {
                 element: HTMLElement,
                 cameraAlpha: number,
                 cameraBeta: number,
-                cameraPerspective: boolean,
-                grids: Object3D
+                cameraPerspective: boolean
     ) {
         this.ctx = ctx;
         this.index = index;
         this.element = element;
-        this.grids = grids;
-        ctx.scene.add(grids);
         this.input.setup(element);
         this.camera.alpha = cameraAlpha;
         this.camera.beta = cameraBeta;

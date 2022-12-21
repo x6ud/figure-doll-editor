@@ -12,6 +12,7 @@ const _n = new Vector3();
 const _triN = new Vector3();
 const _triC = new Vector3();
 
+// Modified from https://github.com/stephomi/sculptgl/blob/master/src/editing/tools/Inflate.js
 export default class SculptInflateTool extends EditorTool {
     label = 'Sculpt Inflate';
     icon = icon;

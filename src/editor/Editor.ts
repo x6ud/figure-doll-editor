@@ -4,6 +4,7 @@ import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
 import FullscreenLoading from './components/FullscreenLoading/FullscreenLoading.vue';
+import InputNumber from './components/input/InputNumber/InputNumber.vue';
 import LabelRange from './components/LabelRange/LabelRange.vue';
 import ModelNodeProperties from './components/ModelNodeProperties/ModelNodeProperties.vue';
 import ModelTree from './components/ModelTree/ModelTree.vue';
@@ -27,6 +28,7 @@ import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} fro
 import ProjectReader from './ProjectReader';
 import ProjectWriter from './ProjectWriter';
 import {dataUrlToArrayBuffer} from './utils/convert';
+import {voxelizeRemesh} from './utils/geometry/voxelize-remesh';
 import {getTranslation} from './utils/math';
 
 const extension = '.model';
@@ -39,6 +41,7 @@ const localStorageKey = 'puppet-editor-options';
 export default defineComponent({
     components: {
         FullscreenLoading,
+        InputNumber,
         LabelRange,
         ModelNodeProperties,
         ModelTree,
@@ -599,6 +602,52 @@ export default defineComponent({
             ctx.history.removeNode(node.id);
         }
 
+        const canRemesh = computed(function () {
+            const ctx = editorContext.value;
+            if (!ctx) {
+                return false;
+            }
+            const nodeId = ctx.model.selected[0];
+            if (!nodeId) {
+                return false;
+            }
+            return ctx.model.getNode(nodeId).type === 'Clay';
+        });
+
+        async function onRemesh() {
+            const ctx = editorContext.value?.readonlyRef();
+            if (!ctx) {
+                return;
+            }
+            const nodeId = ctx.model.selected[0];
+            if (!nodeId) {
+                return;
+            }
+            const node = ctx.model.getNode(nodeId);
+            const cObject3D = node.get(CObject3D);
+            const mesh = cObject3D.mesh;
+            if (!mesh) {
+                return;
+            }
+            try {
+                fullscreenLoading.value = true;
+                await nextTick();
+                await new Promise(function (resolve) {
+                    setTimeout(resolve, 50);
+                }); // make sure loading shows up
+                const position = voxelizeRemesh(
+                    mesh.aPosition,
+                    mesh.triBox,
+                    mesh.octree.box,
+                    ctx.remeshVoxelSize
+                );
+                ctx.history.enableMerge = false;
+                ctx.history.setValue(node, CVertices, position, 'remesh');
+            } finally {
+                fullscreenLoading.value = false;
+            }
+        }
+
         return {
             dom,
             editorContext,
@@ -610,6 +659,7 @@ export default defineComponent({
             modelTreePanelWidth,
             modelNodePropertiesPanelWidth,
             validChildNodeDefs,
+            canRemesh,
             onCanvasMounted,
             onBeforeCanvasUnmount,
             onUndo,
@@ -630,6 +680,7 @@ export default defineComponent({
             onCopy,
             onPaste,
             onConvertToClay,
+            onRemesh,
         };
     }
 });

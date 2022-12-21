@@ -38,7 +38,6 @@ import SculptSmoothTool from './tools/SculptSmoothTool';
 import ToolSeperator from './tools/ToolSeperator';
 import TranslateTool from './tools/TranslateTool';
 import TubeTool from './tools/TubeTool';
-import Grids from './utils/geometry/Grids';
 import UpdateSystem from './utils/UpdateSystem';
 
 const GRIDS_SIZE = 200;
@@ -100,6 +99,7 @@ export default class EditorContext {
     sculptY0 = 0;
     sculptX1 = 0;
     sculptY1 = 0;
+    remeshVoxelSize: number = 0.005;
 
     canvas: HTMLCanvasElement;
     renderer: WebGLRenderer;
@@ -143,23 +143,13 @@ export default class EditorContext {
         this.mainViewIndex = 1;
         this.views = [
             // top
-            new EditorView(this, 0, view1, -Math.PI / 2, -Math.PI / 2, false,
-                new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555, false)
-            ),
+            new EditorView(this, 0, view1, -Math.PI / 2, -Math.PI / 2, false),
             // main
-            new EditorView(this, 1, view2, -Math.PI / 8, -Math.PI / 4, true,
-                new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x2F83E3, 0x555555)
-            ),
+            new EditorView(this, 1, view2, -Math.PI / 8, -Math.PI / 4, true),
             // front
-            new EditorView(this, 2, view3, 0, -Math.PI / 2, false,
-                new Grids(GRIDS_SIZE, GRIDS_SIZE, 0xF63652, 0x6FA51B, 0x555555, false)
-                    .rotateX(Math.PI / 2)
-            ),
+            new EditorView(this, 2, view3, 0, -Math.PI / 2, false),
             // right
-            new EditorView(this, 3, view4, 0, 0, false,
-                new Grids(GRIDS_SIZE, GRIDS_SIZE, 0x6FA51B, 0x2F83E3, 0x555555, false)
-                    .rotateZ(Math.PI / 2)
-            ),
+            new EditorView(this, 3, view4, 0, 0, false),
         ];
         this.scene.add(this.dummyObject);
         for (let system of this.systems) {

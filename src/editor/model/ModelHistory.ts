@@ -35,8 +35,8 @@ type ModelNodeCreationInfo = {
 };
 
 export default class ModelHistory {
-    private model: Model;
-    private enableMerge = true;
+    model: Model;
+    enableMerge = true;
     private currentFrameRecords: Record[] = [];
     private redoStack: Record[] = [];
     private undoStack: Record[] = [];
@@ -126,7 +126,7 @@ export default class ModelHistory {
             }
         } else {
             const top = this.undoStack[this.undoStack.length - 1];
-            if (top) {
+            if (top && !top.hash.endsWith('!')) {
                 top.hash += '!'; // prevent merge
             }
         }
@@ -140,10 +140,6 @@ export default class ModelHistory {
 
         this.currentFrameRecords.length = 0;
         this.dirty = true;
-    }
-
-    applyModifications() {
-        this.update();
     }
 
     undo() {
@@ -388,7 +384,7 @@ export default class ModelHistory {
         }
     }
 
-    setValue<T>(node: ModelNode, componentClass: Class<ModelNodeComponent<T>>, value: T): boolean {
+    setValue<T>(node: ModelNode, componentClass: Class<ModelNodeComponent<T>>, value: T, hash?: string): boolean {
         const nodeId = node.id;
         const oldValue = node.value(componentClass);
         if (oldValue === value) {
@@ -400,7 +396,7 @@ export default class ModelHistory {
                 return false;
             }
         }
-        const hash = nodeId + '#' + componentClass.name;
+        hash = nodeId + '#' + (hash || componentClass.name);
         this.currentFrameRecords = this.currentFrameRecords.filter(record => record.hash !== hash);
         this.currentFrameRecords.push({
             hash,
@@ -416,6 +412,9 @@ export default class ModelHistory {
     }
 
     updateVertices(node: ModelNode, verticesIndices: number[], positions: Float32Array) {
+        if (!verticesIndices.length) {
+            return false;
+        }
         const nodeId = node.id;
         const vertices = node.value(CVertices);
         let oldPos = new Float32Array(positions.length);

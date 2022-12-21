@@ -1,6 +1,6 @@
 <template>
     <button class="popup-menu-trigger"
-            :class="{active: visible}"
+            :class="className"
             :disabled="disabled"
             @mousedown.stop="onTriggerMouseDown"
             @mouseover="onTriggerMouseOver"

@@ -43,7 +43,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     },
     {
         name: 'Shape',
-        label: 'Tube Shape',
+        label: 'Tube',
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CSdfDirty, CSdfSymmetry],
         canBeRoot: true,
         validChildTypes: ['Tube'],
@@ -64,7 +64,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     },
     {
         name: 'Image',
-        label: 'Import Image',
+        label: 'Image',
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
         canBeRoot: true,
         validChildTypes: [],

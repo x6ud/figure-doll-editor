@@ -223,6 +223,7 @@ export default class Model {
         }
         node.dirty = true;
         this.dirty = true;
+        cVertices.partialUpdate = true;
         for (let watcher of this.watchers) {
             watcher.onValueChanged(this, node, CVertices);
         }

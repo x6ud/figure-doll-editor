@@ -17,7 +17,8 @@ export default defineComponent({
             type: String,
             default: 'bottom'
         },
-        disabled: Boolean
+        disabled: Boolean,
+        className: String
     },
     setup(props) {
         const trigger = ref<HTMLElement>();

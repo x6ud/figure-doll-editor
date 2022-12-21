@@ -137,7 +137,6 @@ export default class DynamicMesh {
                 vy = Math.round(vy / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
                 vz = Math.round(vz / SAME_VERTEX_JUDGMENT_ACCURACY) * SAME_VERTEX_JUDGMENT_ACCURACY;
             }
-            // const hash = `${vx},${vy},${vz}`;
             const hash = hashFloat32x3(vx, vy, vz);
             let sharedIdx = pointIdxMap.get(hash);
             if (sharedIdx == null) {
@@ -174,7 +173,6 @@ export default class DynamicMesh {
                 const edgeIdx = tri * 3 + edge;
                 const sharedVertex0 = sharedVertexMap[edgeIdx];
                 const sharedVertex1 = sharedVertexMap[tri * 3 + ((edge + 1) % 3)];
-                // const hash = `${sharedVertex0},${sharedVertex1}`;
                 const hash = hashUint32x2(sharedVertex0, sharedVertex1);
                 const existed = sharedVertexEdgeToTriangleEdgeMap.get(hash);
                 if (existed == null) {
@@ -188,7 +186,7 @@ export default class DynamicMesh {
             console.warn(`Mesh has ${zeroTri} zero area triangles`);
         }
         if (duplicate) {
-            console.warn(`Mesh has ${duplicate} duplicate edges`);
+            console.warn(`Mesh has ${duplicate} duplicate edges (embedded faces may exist)`);
         }
         // build triangle neighbor edge map
         const edgeNeighborMap = this.edgeNeighborMap = new Uint32Array(triNum * 3);
@@ -202,7 +200,6 @@ export default class DynamicMesh {
                 const edgeIdx = tri * 3 + edge;
                 const sharedVertex0 = sharedVertexMap[edgeIdx];
                 const sharedVertex1 = sharedVertexMap[tri * 3 + ((edge + 1) % 3)];
-                // const hash = `${sharedVertex1},${sharedVertex0}`;
                 const hash = hashUint32x2(sharedVertex1, sharedVertex0);
                 const neighborEdgeIdx = sharedVertexEdgeToTriangleEdgeMap.get(hash);
                 if (neighborEdgeIdx == null) {
@@ -233,10 +230,6 @@ export default class DynamicMesh {
         outA.fromArray(this.aPosition, this.sharedVertexMap[i * 3] * 3);
         outB.fromArray(this.aPosition, this.sharedVertexMap[i * 3 + 1] * 3);
         outC.fromArray(this.aPosition, this.sharedVertexMap[i * 3 + 2] * 3);
-    }
-
-    getSharedVertex(out: Vector3, vertexIdx: number) {
-        return out.fromArray(this.aPosition, this.sharedVertexMap[vertexIdx] * 3);
     }
 
     getVertex(out: Vector3, vertexIdx: number) {

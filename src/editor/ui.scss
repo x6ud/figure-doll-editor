@@ -267,7 +267,8 @@ input[type=range] {
     background: #555;
   }
 
-  .popup-menu-trigger, & > button {
+  & > .popup-menu-trigger:not(.normal-button),
+  & > button:not(.normal-button) {
     display: inline-flex;
     align-items: center;
     height: 24px;
@@ -312,11 +313,23 @@ input[type=range] {
     }
   }
 
-  .toggle-button {
+  .normal-button {
     min-width: 20px;
     height: 18px;
     line-height: 18px;
     padding: 0 4px;
+    font-size: 8px;
+  }
+
+  .dropdown:after {
+    content: '';
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 2px;
+    transform: rotate(45deg);
+    vertical-align: middle;
+    margin: -3px 2px 0 4px;
   }
 
   select {

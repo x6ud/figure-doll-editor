@@ -8,6 +8,7 @@ import icon from './SculptFlatten.png';
 const _v = new Vector3();
 const _det = new Vector3();
 
+// Modified from https://github.com/stephomi/sculptgl/blob/master/src/editing/tools/Flatten.js
 export default class SculptFlattenTool extends EditorTool {
     label = 'Sculpt Flatten';
     icon = icon;

@@ -11,6 +11,7 @@ const _det = new Vector3();
 const _detSym = new Vector3();
 const _v = new Vector3();
 
+// Modified from https://github.com/stephomi/sculptgl/blob/master/src/editing/tools/Drag.js
 export default class SculptDragTool extends EditorTool {
     label = 'Sculpt Move';
     icon = icon;
