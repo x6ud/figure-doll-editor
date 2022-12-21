@@ -29,6 +29,7 @@ import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
 import SculptBrushTool from './tools/SculptBrushTool';
 import SculptCreaseTool from './tools/SculptCreaseTool';
+import SculptDragTool from './tools/SculptDragTool';
 import SculptFlattenTool from './tools/SculptFlattenTool';
 import SculptInflateTool from './tools/SculptInflateTool';
 import SculptMoveTool from './tools/SculptMoveTool';
@@ -83,6 +84,7 @@ export default class EditorContext {
         new SculptPinchTool(),
         new SculptFlattenTool(),
         new SculptMoveTool(),
+        new SculptDragTool(),
         this.sculptSmoothTool,
     ];
 
