@@ -120,9 +120,13 @@ export default class OctreeNode {
                     break;
                 }
                 let needsUpdate = false;
-                const unchangedIndices = node.indices.filter(i => !dirtyIndices.has(i));
-                needsUpdate = unchangedIndices.length !== node.indices.length;
-                node.indices = unchangedIndices;
+                if (node.depth === 1) {
+                    needsUpdate = true;
+                } else {
+                    const unchangedIndices = node.indices.filter(i => !dirtyIndices.has(i));
+                    needsUpdate = unchangedIndices.length !== node.indices.length;
+                    node.indices = unchangedIndices;
+                }
                 if (needsUpdate) {
                     if (node.indices.length) {
                         dirtyNodes.add(node);
@@ -145,7 +149,9 @@ export default class OctreeNode {
                 const node = pair[0];
                 const indices = pair[1];
                 dirtyNodes.add(node);
-                node.indices.push(...indices);
+                if (node.depth !== 1) {
+                    node.indices.push(...indices);
+                }
                 if (node.isLeaf) {
                     if (node.indices.length <= OctreeNode.MAX_TRI_PER_NODE
                         || node.depth >= OctreeNode.MAX_DEPTH

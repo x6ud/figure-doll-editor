@@ -1,4 +1,4 @@
-import {Vector3} from 'three';
+import {Mesh, Vector3} from 'three';
 import EditorContext from '../../EditorContext';
 import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
 import CVertices from '../../model/components/CVertices';
@@ -29,7 +29,7 @@ export default class ClayUpdateFilter implements ModelNodeUpdateFilter {
             cObject3D.mesh = new DynamicMesh();
             cVertices.value = new Float32Array(cObject3D.mesh.buildFromTriangles(cVertices.value));
         } else {
-            cObject3D.mesh.update();
+            cObject3D.mesh.update((cObject3D.value as Mesh)?.geometry);
         }
         if (cObject3D.value) {
             cObject3D.mesh.toThree(cObject3D.value);

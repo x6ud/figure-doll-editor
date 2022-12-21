@@ -272,7 +272,6 @@ export default class DynamicMesh {
             position.needsUpdate = true;
             const normal = mesh.geometry.getAttribute('normal');
             normal.needsUpdate = true;
-            mesh.geometry.computeBoundingSphere();
             return mesh;
         } else {
             return new Mesh(
@@ -317,13 +316,31 @@ export default class DynamicMesh {
         }
     }
 
-    update() {
+    update(geometry?: BufferGeometry) {
         const indices = Array.from(this.dirtyTriangles);
         this.dirtyTriangles.clear();
         const position = this.aPosition;
         const normal = this.aNormal;
         const triCenter = this.triCenter;
         const triBox = this.triBox;
+        let x0 = 0;
+        let y0 = 0;
+        let z0 = 0;
+        let x1 = 0;
+        let y1 = 0;
+        let z1 = 0;
+        let updateBoundingSphere = false;
+        if (geometry?.boundingSphere) {
+            updateBoundingSphere = true;
+            const center = geometry.boundingSphere.center;
+            const r = geometry.boundingSphere.radius;
+            x0 = center.x - r;
+            y0 = center.y - r;
+            z0 = center.z - r;
+            x1 = center.x + r;
+            y1 = center.y + r;
+            z1 = center.z + r;
+        }
         for (let i of indices) {
             _a.fromArray(position, i * 9);
             _b.fromArray(position, i * 9 + 3);
@@ -347,6 +364,30 @@ export default class DynamicMesh {
             triBox[i * 6 + 3] = Math.max(_a.x, _b.x, _c.x);
             triBox[i * 6 + 4] = Math.max(_a.y, _b.y, _c.y);
             triBox[i * 6 + 5] = Math.max(_a.z, _b.z, _c.z);
+            if (updateBoundingSphere) {
+                x0 = Math.min(triBox[i * 6], x0);
+                y0 = Math.min(triBox[i * 6 + 1], y0);
+                z0 = Math.min(triBox[i * 6 + 2], z0);
+                x1 = Math.max(triBox[i * 6 + 3], x1);
+                y1 = Math.max(triBox[i * 6 + 4], y1);
+                z1 = Math.max(triBox[i * 6 + 5], z1);
+            }
+        }
+        if (updateBoundingSphere) {
+            const sphere = geometry!.boundingSphere!;
+            sphere.center.set(
+                (x1 + x0) / 2,
+                (y1 + y0) / 2,
+                (z1 + z0) / 2
+            );
+            sphere.radius = Math.max(
+                x1 - sphere.center.x,
+                sphere.center.x - x0,
+                y1 - sphere.center.y,
+                sphere.center.y - y0,
+                z1 - sphere.center.z,
+                sphere.center.z - z0,
+            );
         }
         this.octree.update(this, indices);
     }
