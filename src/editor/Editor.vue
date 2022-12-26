@@ -116,10 +116,10 @@
                             title="Symmetry"
                             style="margin-right: 8px"
                     >
-                        <option>no</option>
-                        <option>x</option>
-                        <option>y</option>
-                        <option>z</option>
+                        <option value="no">No Symm</option>
+                        <option value="x">Symm X</option>
+                        <option value="y">Symm Y</option>
+                        <option value="z">Symm Z</option>
                     </select>
                     <popup-menu title="Remesh"
                                 class-name="normal-button dropdown"

@@ -19,8 +19,14 @@ export function voxelizeRemesh(
     position: Float32Array,
     triBox: Float32Array,
     boundingBox: Box3,
-    step: number = 0.005
+    voxelSize: number = 0.005
 ) {
+    const size = Math.max(
+        boundingBox.max.x - boundingBox.min.x,
+        boundingBox.max.y - boundingBox.min.y,
+        boundingBox.max.z - boundingBox.min.z,
+    );
+    const step = size / (Math.ceil(size / voxelSize) + 0.5);
     const invStep = 1 / step;
     const triNum = position.length / 9;
     const x0 = boundingBox.min.x - step;
@@ -48,18 +54,18 @@ export function voxelizeRemesh(
     const crossed = new Bits(dataLen * 3);
     // sampling
     for (let tri = 0; tri < triNum; ++tri) {
-        const tx0 = triBox[tri * 6];
-        const ty0 = triBox[tri * 6 + 1];
-        const tz0 = triBox[tri * 6 + 2];
-        const tx1 = triBox[tri * 6 + 3];
-        const ty1 = triBox[tri * 6 + 4];
-        const tz1 = triBox[tri * 6 + 5];
-        const tix0 = Math.floor(tx0 * invStep) - 1;
-        const tiy0 = Math.floor(ty0 * invStep) - 1;
-        const tiz0 = Math.floor(tz0 * invStep) - 1;
-        const tix1 = Math.ceil(tx1 * invStep) + 1;
-        const tiy1 = Math.ceil(ty1 * invStep) + 1;
-        const tiz1 = Math.ceil(tz1 * invStep) + 1;
+        const tx0 = triBox[tri * 6] - step;
+        const ty0 = triBox[tri * 6 + 1] - step;
+        const tz0 = triBox[tri * 6 + 2] - step;
+        const tx1 = triBox[tri * 6 + 3] + step;
+        const ty1 = triBox[tri * 6 + 4] + step;
+        const tz1 = triBox[tri * 6 + 5] + step;
+        const tix0 = Math.floor(tx0 * invStep);
+        const tiy0 = Math.floor(ty0 * invStep);
+        const tiz0 = Math.floor(tz0 * invStep);
+        const tix1 = Math.ceil(tx1 * invStep);
+        const tiy1 = Math.ceil(ty1 * invStep);
+        const tiz1 = Math.ceil(tz1 * invStep);
         const txRange = tix1 - tix0;
         const tyRange = tiy1 - tiy0;
         const tzRange = tiz1 - tiz0;

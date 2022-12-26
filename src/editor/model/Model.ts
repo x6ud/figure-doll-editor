@@ -7,6 +7,7 @@ import ModelNodeComponent from './ModelNodeComponent';
 import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 import {getModelNodeDef} from './ModelNodeDef';
 import BoxWatcher from './watchers/BoxWatcher';
+import IkNodeWatcher from './watchers/IkNodeWatcher';
 import ClayWatcher from './watchers/ClayWatcher';
 import CustomShapeWatcher from './watchers/CustomShapeWatcher';
 import ImageWatcher from './watchers/ImageWatcher';
@@ -20,6 +21,7 @@ export default class Model {
     nodes: ModelNode[] = [];
     watchers: ModelNodeChangedWatcher[] = [
         new TransformWatcher(),
+        new IkNodeWatcher(),
         new OpacityWatcher(),
         new ImageWatcher(),
         new ImportModelWatcher(),

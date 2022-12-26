@@ -1,4 +1,5 @@
 import EditorContext from '../../EditorContext';
+import CIkNode from '../../model/components/CIkNode';
 import CObject3D from '../../model/components/CObject3D';
 import CPosition from '../../model/components/CPosition';
 import CRotation from '../../model/components/CRotation';
@@ -22,6 +23,11 @@ export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
                     }
                     if (node.has(CScale)) {
                         mesh.scale.x = mesh.scale.y = mesh.scale.z = node.value(CScale);
+                    }
+                    if (node.has(CIkNode)) {
+                        const cIkNode = node.get(CIkNode);
+                        mesh.position.copy(cIkNode.start);
+                        mesh.quaternion.copy(cIkNode.quaternion);
                     }
                     mesh.updateMatrix();
                     cObject3D.localTransformChanged = false;

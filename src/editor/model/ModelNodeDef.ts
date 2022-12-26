@@ -1,5 +1,8 @@
 import Class from '../../common/type/Class';
 import CBoxSize from './components/CBoxSize';
+import CIkNode from './components/CIkNode';
+import CIkNodeLength from './components/CIkNodeLength';
+import CIkNodeRotation from './components/CIkNodeRotation';
 import CImage from './components/CImage';
 import CImportFbx from './components/CImportFbx';
 import CImportObj from './components/CImportObj';
@@ -32,7 +35,21 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Container',
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
-        validChildTypes: ['Container', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay'],
+        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay'],
+    },
+    {
+        name: 'IKChain',
+        label: 'IK Chain',
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
+        canBeRoot: true,
+        validChildTypes: ['IKNode'],
+    },
+    {
+        name: 'IKNode',
+        label: 'IK Node',
+        components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation],
+        canBeRoot: false,
+        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay'],
     },
     {
         name: 'Box',

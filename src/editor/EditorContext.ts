@@ -12,6 +12,7 @@ import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
 import ClayUpdateFilter from './systems/model-update-filters/ClayUpdateFilter';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
 import CustomShapeUpdateFilter from './systems/model-update-filters/CustomShapeUpdateFilter';
+import IkChainUpdateFilter from './systems/model-update-filters/IkChainUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
 import ImportModelUpdateFilter from './systems/model-update-filters/ImportModelUpdateFilter';
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
@@ -25,6 +26,8 @@ import ToolSystem from './systems/ToolSystem';
 import BoxTool from './tools/BoxTool';
 import CursorTool from './tools/CursorTool';
 import EditorTool from './tools/EditorTool';
+import IkBindTool from './tools/IkBindTool';
+import IkRotateTool from './tools/IkRotateTool';
 import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
 import SculptBrushTool from './tools/SculptBrushTool';
@@ -40,8 +43,6 @@ import TranslateTool from './tools/TranslateTool';
 import TubeTool from './tools/TubeTool';
 import UpdateSystem from './utils/UpdateSystem';
 
-const GRIDS_SIZE = 200;
-
 export default class EditorContext {
 
     systems: UpdateSystem<EditorContext>[] = [
@@ -53,6 +54,7 @@ export default class EditorContext {
             new TubeUpdateFilter(),
             new ClayUpdateFilter(),
             new ContainerUpdateFilter(),
+            new IkChainUpdateFilter(),
             new Object3DRelationshipUpdateFilter(),
             new TransformUpdateFilter(),
             new OpacityUpdateFilter(),
@@ -73,6 +75,9 @@ export default class EditorContext {
         new TranslateTool(),
         new RotateTool(),
         new RescaleTool(),
+        ToolSeperator.instance,
+        new IkBindTool(),
+        new IkRotateTool(),
         ToolSeperator.instance,
         new BoxTool(),
         new TubeTool(),
