@@ -8,6 +8,7 @@ import CallbackFireSystem from './systems/CallbackFireSystem';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
 import DefaultLightUpdateSystem from './systems/DefaultLightUpdateSystem';
 import HistorySystem from './systems/HistorySystem';
+import IkBoneVisibleUpdateSystem from './systems/IkBoneVisibleUpdateSystem';
 import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
 import ClayUpdateFilter from './systems/model-update-filters/ClayUpdateFilter';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
@@ -62,6 +63,7 @@ export default class EditorContext {
         new MouseSystem(),
         new ToolSystem(),
         new HistorySystem(),
+        new IkBoneVisibleUpdateSystem(),
         new DefaultLightUpdateSystem(),
         new RenderSystem(),
         new CameraDraggingSystem(),
@@ -134,6 +136,7 @@ export default class EditorContext {
     keepTransformUnchangedWhileMoving: boolean = true;
     quadView: boolean = false;
     showGrids: boolean = true;
+    showIkBones: boolean = false;
 
     constructor(
         canvas: HTMLCanvasElement,

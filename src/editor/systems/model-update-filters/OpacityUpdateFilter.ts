@@ -1,6 +1,6 @@
 import {Group, Mesh, Object3D} from 'three';
 import EditorContext from '../../EditorContext';
-import CObject3D from '../../model/components/CObject3D';
+import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
 import COpacity from '../../model/components/COpacity';
 import ModelNode from '../../model/ModelNode';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
@@ -12,7 +12,7 @@ function setOpacity(obj: Object3D, opacity: number) {
         }
     } else {
         const mesh = obj as Mesh;
-        if (mesh.material) {
+        if ((mesh.userData as Object3DUserData).node && mesh.material) {
             if (Array.isArray(mesh.material)) {
                 for (let material of mesh.material) {
                     if (material.opacity !== opacity) {
