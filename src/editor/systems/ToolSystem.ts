@@ -148,7 +148,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
             this.sculptIndicator.visible = false;
             this.sculptIndicatorSym.visible = false;
             ctx.sculptNodeId = 0;
-            ctx.sculptSym = ctx.symmetry !== 'no';
+            ctx.sculptSym = ctx.options.symmetry !== 'no';
             ctx.sculptMoved = false;
             if (!tool.sculpt) {
                 break;
@@ -220,7 +220,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 ctx.sculptLocalRadius = brushSize * getScaleScalar(_invMat);
                 _pos.copy(result.point);
                 _normal.copy(result.normal);
-                switch (ctx.symmetry) {
+                switch (ctx.options.symmetry) {
                     case 'x':
                         _pos.x *= -1;
                         _normal.x *= -1;

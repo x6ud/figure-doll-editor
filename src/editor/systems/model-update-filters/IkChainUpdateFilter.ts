@@ -47,7 +47,7 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
                     color: 0x777777
                 });
                 mesh.renderOrder = 1;
-                mesh.visible = ctx.showIkBones;
+                mesh.visible = ctx.options.showIkBones;
                 cObject3D.value.add(mesh);
             }
             const mesh = cIkNode.mesh as Mesh;

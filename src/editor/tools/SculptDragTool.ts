@@ -74,7 +74,7 @@ export default class SculptDragTool extends EditorTool {
         const position = new Float32Array(this.stroke0.position);
         if (ctx.sculptSym) {
             _detSym.copy(_det);
-            switch (ctx.symmetry) {
+            switch (ctx.options.symmetry) {
                 case 'x':
                     _detSym.x *= -1;
                     break;

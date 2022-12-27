@@ -137,7 +137,7 @@ export default abstract class EditorTool {
                     track.push({center: result.point, triangles, indices});
                     return;
                 }
-                switch (ctx.symmetry) {
+                switch (ctx.options.symmetry) {
                     case 'x':
                         _sphere.center.x *= -1;
                         break;

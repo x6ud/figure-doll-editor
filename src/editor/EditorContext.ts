@@ -1,5 +1,6 @@
 import {Object3D, Scene, Vector2, WebGLRenderer} from 'three';
 import {toRaw} from 'vue';
+import EditorOptions from './EditorOptions';
 import EditorView from './EditorView';
 import Model from './model/Model';
 import ModelHistory from './model/ModelHistory';
@@ -94,7 +95,6 @@ export default class EditorContext {
         this.sculptSmoothTool,
     ];
 
-    symmetry: 'no' | 'x' | 'y' | 'z' = 'no';
     sculptNodeId = 0;
     sculptActiveView = -1;
     sculptSym = false;
@@ -106,7 +106,6 @@ export default class EditorContext {
     sculptY0 = 0;
     sculptX1 = 0;
     sculptY1 = 0;
-    remeshVoxelSize: number = 0.005;
 
     canvas: HTMLCanvasElement;
     renderer: WebGLRenderer;
@@ -133,10 +132,7 @@ export default class EditorContext {
     nextFrameCallbacks: (() => void)[] = [];
     throttleTasks: Map<string, { time: number, callback: () => void }> = new Map();
 
-    keepTransformUnchangedWhileMoving: boolean = true;
-    quadView: boolean = false;
-    showGrids: boolean = true;
-    showIkBones: boolean = false;
+    options = new EditorOptions();
 
     constructor(
         canvas: HTMLCanvasElement,
@@ -190,7 +186,7 @@ export default class EditorContext {
 
         for (let i = 0; i < this.views.length; ++i) {
             const view = this.views[i];
-            view.enabled = i === this.mainViewIndex || this.quadView;
+            view.enabled = i === this.mainViewIndex || this.options.quadView;
             if (i === this.mainViewIndex) {
                 const camera = view.camera;
                 camera.perspective =

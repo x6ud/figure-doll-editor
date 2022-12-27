@@ -13,7 +13,7 @@
          ref="dom"
     >
         <div class="toolbar">
-            <template v-if="editorContext">
+            <template v-if="editorCtx">
                 <popup-menu title="File">
                     <popup-menu-item title="New" @click="onNew"/>
                     <popup-menu-item title="Open" popup hotkey="Ctrl+O" @click="onOpen"/>
@@ -31,46 +31,50 @@
                     <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"/>
                     <popup-menu-item sep/>
                     <popup-menu-item title="Keep Global Transformation Unchanged When Moving Nodes"
-                                     @click="editorContext.keepTransformUnchangedWhileMoving = !editorContext.keepTransformUnchangedWhileMoving"
-                                     :checked="editorContext.keepTransformUnchangedWhileMoving"
+                                     @click="editorCtx.options.keepTransformUnchangedWhileMoving = !editorCtx.options.keepTransformUnchangedWhileMoving"
+                                     :checked="editorCtx.options.keepTransformUnchangedWhileMoving"
                     />
                 </popup-menu>
                 <popup-menu title="View">
                     <popup-menu-item title="Window">
                         <popup-menu>
                             <popup-menu-item title="Tools"
-                                             :checked="showTools"
-                                             @click="showTools = !showTools"
+                                             :checked="uiOptions.showTools"
+                                             @click="uiOptions.showTools = !uiOptions.showTools"
                             />
                             <popup-menu-item title="Nodes Panel"
-                                             :checked="showModelTree"
-                                             @click="showModelTree = !showModelTree"
+                                             :checked="uiOptions.showModelTree"
+                                             @click="uiOptions.showModelTree = !uiOptions.showModelTree"
                             />
                             <popup-menu-item title="Properties Panel"
-                                             :checked="showProperties"
-                                             @click="showProperties = !showProperties"
+                                             :checked="uiOptions.showProperties"
+                                             @click="uiOptions.showProperties = !uiOptions.showProperties"
                             />
                             <popup-menu-item title="Status Bar"
-                                             :checked="showStatusBar"
-                                             @click="showStatusBar = !showStatusBar"
+                                             :checked="uiOptions.showStatusBar"
+                                             @click="uiOptions.showStatusBar = !uiOptions.showStatusBar"
                             />
                         </popup-menu>
                     </popup-menu-item>
                     <popup-menu-item sep/>
                     <popup-menu-item title="Grids"
-                                     :checked="editorContext.showGrids"
-                                     @click="editorContext.showGrids = !editorContext.showGrids"
+                                     :checked="editorCtx.options.showGrids"
+                                     @click="editorCtx.options.showGrids = !editorCtx.options.showGrids"
+                    />
+                    <popup-menu-item title="IK Bones"
+                                     :checked="editorCtx.options.showIkBones"
+                                     @click="editorCtx.options.showIkBones = !editorCtx.options.showIkBones"
                     />
                     <popup-menu-item title="Quad Views"
-                                     :checked="editorContext.quadView"
-                                     @click="editorContext.quadView = !editorContext.quadView"
+                                     :checked="editorCtx.options.quadView"
+                                     @click="editorCtx.options.quadView = !editorCtx.options.quadView"
                     />
                 </popup-menu>
 
-                <template v-if="editorContext.tool.sculpt">
+                <template v-if="editorCtx.tool.sculpt">
                     <div class="separator"></div>
                     <label-range style="margin-right: 4px;"
-                                 v-model:value="editorContext.tool.brushRadius"
+                                 v-model:value="editorCtx.tool.brushRadius"
                                  label="Radius"
                                  :min="5"
                                  :max="400"
@@ -78,7 +82,7 @@
                                  :fraction-digits="0"
                     />
                     <label-range style="margin-right: 8px;"
-                                 v-model:value="editorContext.tool.brushStrength"
+                                 v-model:value="editorCtx.tool.brushStrength"
                                  label="Strength"
                                  :min="0.01"
                                  :max="1"
@@ -87,32 +91,32 @@
                     />
                     <div class="button-group cols" style="margin-right: 8px"
                          title="Direction"
-                         v-if="editorContext.tool.hasDirection"
+                         v-if="editorCtx.tool.hasDirection"
                     >
                         <button class="normal-button toggle-button"
                                 style="font-size: 14px;"
-                                :class="{active: editorContext.tool.brushDirection === 1}"
-                                @click="editorContext.tool.brushDirection = 1"
+                                :class="{active: editorCtx.tool.brushDirection === 1}"
+                                @click="editorCtx.tool.brushDirection = 1"
                         >
                             +
                         </button>
                         <button class="normal-button toggle-button"
                                 style="font-size: 12px;"
-                                :class="{active: editorContext.tool.brushDirection === 0}"
-                                @click="editorContext.tool.brushDirection = 0"
-                                v-if="editorContext.tool.hasThirdDirection"
+                                :class="{active: editorCtx.tool.brushDirection === 0}"
+                                @click="editorCtx.tool.brushDirection = 0"
+                                v-if="editorCtx.tool.hasThirdDirection"
                         >
                             o
                         </button>
                         <button class="normal-button toggle-button"
                                 style="font-size: 14px;"
-                                :class="{active: editorContext.tool.brushDirection === -1}"
-                                @click="editorContext.tool.brushDirection = -1"
+                                :class="{active: editorCtx.tool.brushDirection === -1}"
+                                @click="editorCtx.tool.brushDirection = -1"
                         >
                             -
                         </button>
                     </div>
-                    <select v-model="editorContext.symmetry"
+                    <select v-model="editorCtx.options.symmetry"
                             title="Symmetry"
                             style="margin-right: 8px"
                     >
@@ -132,8 +136,8 @@
                                               style="width: 6em; text-align: right;"
                                               :min="0.0001"
                                               :max="1"
-                                              :value="editorContext.remeshVoxelSize"
-                                              @input="editorContext.remeshVoxelSize = $event"
+                                              :value="editorCtx.options.remeshVoxelSize"
+                                              @input="editorCtx.options.remeshVoxelSize = $event"
                                 />
                                 <span>&nbsp;m</span>
                             </div>
@@ -148,25 +152,25 @@
                 </template>
 
                 <div class="fill"></div>
-                <div style="font-size: 8px;">FPS: {{ editorContext.fps }}</div>
+                <div style="font-size: 8px;">FPS: {{ editorCtx.fps }}</div>
             </template>
         </div>
 
         <div class="cols fill">
             <div class="tools scrollable"
-                 v-if="showTools"
+                 v-if="uiOptions.showTools"
             >
                 <div class="scroll">
-                    <div v-if="editorContext">
-                        <template v-for="tool in editorContext.tools">
+                    <div v-if="editorCtx">
+                        <template v-for="tool in editorCtx.tools">
                             <template v-if="tool.sep">
                                 <hr>
                             </template>
                             <template v-if="!tool.sep">
                                 <button class="tool icon-button toggle-button"
                                         :title="tool.label"
-                                        :class="{active: editorContext.tool === tool}"
-                                        @click="editorContext.tool = tool"
+                                        :class="{active: editorCtx.tool === tool}"
+                                        @click="editorCtx.tool = tool"
                                 >
                                     <img :src="tool.icon" alt="">
                                 </button>
@@ -177,12 +181,12 @@
             </div>
 
             <side-panel direction="right"
-                        v-model:width="modelTreePanelWidth"
+                        v-model:width="uiOptions.modelTreePanelWidth"
                         style="border-left: none;"
-                        v-if="showModelTree"
+                        v-if="uiOptions.showModelTree"
             >
                 <div class="rows" style="width: 100%; height: 100%;"
-                     v-if="editorContext"
+                     v-if="editorCtx"
                 >
                     <div class="toolbar"
                          @click.self="onSelect([])"
@@ -196,14 +200,14 @@
                                              @click="onAddNode(def.name)"
                             />
                         </popup-menu>
-                        <button :disabled="!editorContext.model.selected.length"
+                        <button :disabled="!editorCtx.model.selected.length"
                                 @click="onDelete"
                         >
                             Delete
                         </button>
                     </div>
                     <model-tree class="fill"
-                                :model="editorContext.model"
+                                :model="editorCtx.model"
                                 @select="onSelect"
                                 @set-value="onSetValue"
                                 @move-node="onMoveNode"
@@ -218,21 +222,21 @@
             </side-panel>
 
             <side-panel direction="right"
-                        v-model:width="modelNodePropertiesPanelWidth"
+                        v-model:width="uiOptions.modelNodePropertiesPanelWidth"
                         style="border-left: none;"
-                        v-if="showProperties"
+                        v-if="uiOptions.showProperties"
             >
-                <template v-if="editorContext">
-                    <model-node-properties :editor-context="editorContext"
+                <template v-if="editorCtx">
+                    <model-node-properties :editor-context="editorCtx"
                                            @set-data="onSetNodeProperty"
                     />
                 </template>
             </side-panel>
 
             <quad-view class="fill"
-                       :editor-context="editorContext"
-                       :quad-view="editorContext?.quadView"
-                       :main-view="editorContext?.mainViewIndex"
+                       :editor-context="editorCtx"
+                       :quad-view="editorCtx?.options?.quadView"
+                       :main-view="editorCtx?.mainViewIndex"
                        @mounted="onCanvasMounted"
                        @before-unmount="onBeforeCanvasUnmount"
                        @set-view="onSetView"
@@ -240,9 +244,9 @@
         </div>
 
         <div class="status-bar"
-             v-if="showStatusBar"
+             v-if="uiOptions.showStatusBar"
         >
-            {{ editorContext?.statusBarMessage }}
+            {{ editorCtx?.statusBarMessage }}
         </div>
     </div>
 

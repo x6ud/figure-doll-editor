@@ -52,25 +52,25 @@ export default defineComponent({
     },
     setup() {
         const dom = ref<HTMLElement>();
-        const editorContext = ref<EditorContext>();
+        const editorCtx = ref<EditorContext>();
         const renderLoop = new RenderLoop(function () {
-            editorContext.value?.update();
+            editorCtx.value?.update();
         });
-
-        const showTools = ref(true);
-        const showModelTree = ref(true);
-        const showProperties = ref(true);
-        const showStatusBar = ref(true);
-
+        const uiOptions = ref({
+            showTools: true,
+            showModelTree: true,
+            showProperties: true,
+            showStatusBar: true,
+            modelTreePanelWidth: 200,
+            modelNodePropertiesPanelWidth: 200,
+        });
         const fullscreenLoading = ref(false);
-        const modelTreePanelWidth = ref(200);
-        const modelNodePropertiesPanelWidth = ref(200);
 
         const filename = ref<string | null>(null);
         let fileHandle: FileSystemFileHandle | null = null;
 
         const validChildNodeDefs = computed<ModelNodeDef[]>(function () {
-            const model = editorContext.value?.model;
+            const model = editorCtx.value?.model;
             if (!model) {
                 return [];
             }
@@ -83,7 +83,7 @@ export default defineComponent({
             return getValidChildNodeDefs(model.getSelectedNodes()[0]);
         });
 
-        watch([filename, () => editorContext.value?.history?.dirty],
+        watch([filename, () => editorCtx.value?.history?.dirty],
             function ([filename, dirty]) {
                 if (filename && filename.endsWith(extension)) {
                     filename = filename.substring(0, filename.length - extension.length);
@@ -93,42 +93,32 @@ export default defineComponent({
             {immediate: true}
         );
 
-        function focus() {
-            dom.value?.focus();
-        }
-
         watch([
-            showTools,
-            showModelTree,
-            showProperties,
-            showStatusBar,
-            modelTreePanelWidth,
-            modelNodePropertiesPanelWidth,
-            () => editorContext.value?.keepTransformUnchangedWhileMoving,
-            () => editorContext.value?.showGrids,
-            () => editorContext.value?.quadView,
-        ], function () {
-            localStorage.setItem(
-                localStorageKey,
-                JSON.stringify({
-                    showTools: showTools.value,
-                    showModelTree: showModelTree.value,
-                    showProperties: showProperties.value,
-                    showStatusBar: showStatusBar.value,
-                    modelTreePanelWidth: modelTreePanelWidth.value,
-                    modelNodePropertiesPanelWidth: modelNodePropertiesPanelWidth.value,
-                    keepTransformUnchangedWhileMoving: editorContext.value?.keepTransformUnchangedWhileMoving,
-                    showGrids: editorContext.value?.showGrids,
-                    quadView: editorContext.value?.quadView,
-                })
-            );
-        });
+                uiOptions,
+                () => editorCtx.value?.options
+            ],
+            function () {
+                localStorage.setItem(
+                    localStorageKey,
+                    JSON.stringify({
+                        ui: uiOptions.value,
+                        options: editorCtx.value?.options
+                    })
+                );
+            },
+            {
+                deep: true
+            });
 
         onMounted(async function () {
             if (!('showOpenFilePicker' in window)) {
                 await showAlertDialog('This application is only available in Chrome or Edge.\nCannot open or save files in the current browser.');
             }
         });
+
+        function focus() {
+            dom.value?.focus();
+        }
 
         function onCanvasMounted(
             canvas: HTMLCanvasElement,
@@ -137,57 +127,35 @@ export default defineComponent({
             view3: HTMLElement,
             view4: HTMLElement,
         ) {
-            editorContext.value = new EditorContext(canvas, view1, view2, view3, view4);
+            editorCtx.value = new EditorContext(canvas, view1, view2, view3, view4);
             try {
                 const optionsJson = localStorage.getItem(localStorageKey);
                 if (optionsJson) {
                     const options = JSON.parse(optionsJson);
-                    if ('showTools' in options) {
-                        showTools.value = options.showTools;
+                    if ('ui' in options) {
+                        Object.assign(uiOptions.value, options.ui);
                     }
-                    if ('showModelTree' in options) {
-                        showModelTree.value = options.showModelTree;
-                    }
-                    if ('showProperties' in options) {
-                        showProperties.value = options.showProperties;
-                    }
-                    if ('showStatusBar' in options) {
-                        showStatusBar.value = options.showStatusBar;
-                    }
-                    if ('modelTreePanelWidth' in options) {
-                        modelTreePanelWidth.value = options.modelTreePanelWidth;
-                    }
-                    if ('modelNodePropertiesPanelWidth' in options) {
-                        modelNodePropertiesPanelWidth.value = options.modelNodePropertiesPanelWidth;
-                    }
-                    const ctx = editorContext.value;
-                    if ('keepTransformUnchangedWhileMoving' in options) {
-                        ctx.keepTransformUnchangedWhileMoving = options.keepTransformUnchangedWhileMoving;
-                    }
-                    if ('showGrids' in options) {
-                        ctx.showGrids = options.showGrids;
-                    }
-                    if ('quadView' in options) {
-                        ctx.quadView = options.quadView;
+                    if ('options' in options) {
+                        Object.assign(editorCtx.value.options, options.options);
                     }
                 }
             } catch (e) {
                 console.error(e);
             }
             renderLoop.start();
-            (window as any).ctx = editorContext.value!.readonlyRef();
+            (window as any).ctx = editorCtx.value!.readonlyRef();
         }
 
         function onBeforeCanvasUnmount() {
-            editorContext.value?.dispose();
-            editorContext.value = undefined;
+            editorCtx.value?.dispose();
+            editorCtx.value = undefined;
         }
 
         function onUndo(e?: KeyboardEvent | MouseEvent) {
             if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
                 return;
             }
-            editorContext.value!.history.undo();
+            editorCtx.value!.history.undo();
             focus();
         }
 
@@ -195,12 +163,12 @@ export default defineComponent({
             if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
                 return;
             }
-            editorContext.value!.history.redo();
+            editorCtx.value!.history.redo();
             focus();
         }
 
         async function historyConfirm() {
-            if (editorContext.value!.history.dirty) {
+            if (editorCtx.value!.history.dirty) {
                 return await showConfirmDialog('Unsaved changes will be lost.\nAre you sure you want to continue?');
             }
             return true;
@@ -210,9 +178,9 @@ export default defineComponent({
             if (await historyConfirm()) {
                 filename.value = null;
                 fileHandle = null;
-                editorContext.value!.reset();
+                editorCtx.value!.reset();
                 focus();
-                editorContext.value!.statusBarMessage = '';
+                editorCtx.value!.statusBarMessage = '';
             }
         }
 
@@ -227,18 +195,18 @@ export default defineComponent({
             }
             if (await historyConfirm()) {
                 try {
-                    editorContext.value!.statusBarMessage = 'Loading...';
+                    editorCtx.value!.statusBarMessage = 'Loading...';
                     fullscreenLoading.value = true;
                     await nextTick();
                     const file = await fileHandle.getFile();
                     filename.value = file.name;
                     const data = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
-                    editorContext.value!.load(data);
+                    editorCtx.value!.load(data);
                     focus();
-                    editorContext.value!.statusBarMessage = '';
+                    editorCtx.value!.statusBarMessage = '';
                 } catch (e) {
                     console.error(e);
-                    editorContext.value!.statusBarMessage = 'Failed to open file.';
+                    editorCtx.value!.statusBarMessage = 'Failed to open file.';
                 } finally {
                     fullscreenLoading.value = false;
                 }
@@ -278,26 +246,26 @@ export default defineComponent({
                 return;
             }
             try {
-                editorContext.value!.statusBarMessage = 'Saving...';
+                editorCtx.value!.statusBarMessage = 'Saving...';
                 fullscreenLoading.value = true;
                 await nextTick();
                 const stream = await fileHandle.createWritable({keepExistingData: false});
-                const bytes = new ProjectWriter().write(editorContext.value!).getBytes();
-                editorContext.value!.statusBarMessage = 'Writing files...';
+                const bytes = new ProjectWriter().write(editorCtx.value!).getBytes();
+                editorCtx.value!.statusBarMessage = 'Writing files...';
                 await nextTick();
                 await stream.write(bytes);
                 await stream.close();
-                editorContext.value!.history.save();
-                editorContext.value!.statusBarMessage = 'File saved.';
+                editorCtx.value!.history.save();
+                editorCtx.value!.statusBarMessage = 'File saved.';
             } catch (e) {
-                editorContext.value!.statusBarMessage = 'Failed to save file.';
+                editorCtx.value!.statusBarMessage = 'Failed to save file.';
             } finally {
                 fullscreenLoading.value = false;
             }
         }
 
         function onSetView(face: string) {
-            const ctx = editorContext.value!;
+            const ctx = editorCtx.value!;
             const view = ctx.views[ctx.mainViewIndex];
             const camera = view.camera;
             let alpha = camera.alpha;
@@ -361,12 +329,12 @@ export default defineComponent({
         }
 
         function onSetValue(node: ModelNode, componentClass: Class<ModelNodeComponent<any>>, value: any) {
-            editorContext.value!.history.setValue(node, componentClass, value);
+            editorCtx.value!.history.setValue(node, componentClass, value);
         }
 
         function onMoveNode(related: ModelNode, position: 'before' | 'after' | 'atFirst' | 'atLast') {
             related = toRaw(related);
-            const ctx = editorContext.value!;
+            const ctx = editorCtx.value!;
             const model = toRaw(ctx.model);
             let nodes = model.selected.map(id => model.getNode(id));
             const parent = (position === 'before' || position === 'after') ? related.parent : related;
@@ -377,7 +345,7 @@ export default defineComponent({
                 }
             }
             for (let node of nodes) {
-                const keepTransformUnchanged = ctx.keepTransformUnchangedWhileMoving;
+                const keepTransformUnchanged = ctx.options.keepTransformUnchangedWhileMoving;
                 if (position === 'before' || position === 'after') {
                     ctx.history.moveNode(node, parent, related, position === 'after', keepTransformUnchanged);
                 } else {
@@ -404,10 +372,10 @@ export default defineComponent({
         }
 
         function onAddNode(type: string) {
-            const model = editorContext.value!.model;
+            const model = editorCtx.value!.model;
             const parentId = model.selected[0];
             model.selected = [];
-            editorContext.value!.history.createNode({
+            editorCtx.value!.history.createNode({
                 type,
                 parentId,
             });
@@ -421,28 +389,28 @@ export default defineComponent({
             if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
                 return;
             }
-            if (!editorContext.value!.tool.enableDefaultDeleteShortcut
+            if (!editorCtx.value!.tool.enableDefaultDeleteShortcut
                 && e?.key === 'Delete'
             ) {
                 return;
             }
-            const model = editorContext.value!.model;
+            const model = editorCtx.value!.model;
             const targets = model.getTopmostSelectedNodes();
             for (let node of targets) {
-                editorContext.value!.history.removeNode(node.id);
+                editorCtx.value!.history.removeNode(node.id);
             }
             focus();
         }
 
         function onSelect(ids: number[]) {
-            editorContext.value!.nextFrameEnd(function () {
-                editorContext.value!.model.selected = ids;
+            editorCtx.value!.nextFrameEnd(function () {
+                editorCtx.value!.model.selected = ids;
             });
         }
 
         function onSetNodeProperty(items: { node: ModelNode, type: Class<ModelNodeComponent<any>>, value: any }[]) {
             for (let item of items) {
-                editorContext.value!.history.setValue(item.node, item.type, item.value);
+                editorCtx.value!.history.setValue(item.node, item.type, item.value);
             }
             focus();
         }
@@ -466,7 +434,7 @@ export default defineComponent({
                     }
                 }
             }
-            for (let view of editorContext.value!.views) {
+            for (let view of editorCtx.value!.views) {
                 view.camera.target.copy(position);
             }
         }
@@ -475,7 +443,7 @@ export default defineComponent({
             const targets = await onCopy(e);
             if (targets) {
                 for (let node of targets) {
-                    editorContext.value!.history.removeNode(node.id);
+                    editorCtx.value!.history.removeNode(node.id);
                 }
             }
             focus();
@@ -485,7 +453,7 @@ export default defineComponent({
             if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
                 return;
             }
-            const targets = editorContext.value!.model.getTopmostSelectedNodes();
+            const targets = editorCtx.value!.model.getTopmostSelectedNodes();
             const clipboardContext: ModelNodeJson[] = [];
             for (let node of targets) {
                 clipboardContext.push(await node.toJson());
@@ -506,7 +474,7 @@ export default defineComponent({
                 }
                 await convertJsonToRealDataType(json);
                 let target: ModelNode | undefined = e instanceof ModelNode ? e : undefined;
-                const model = editorContext.value!.model;
+                const model = editorCtx.value!.model;
                 if (!target) {
                     model.forEach(node => {
                         if (model.selected.includes(node.id)) {
@@ -516,7 +484,7 @@ export default defineComponent({
                     });
                 }
                 let changed = false;
-                const history = editorContext.value!.history;
+                const history = editorCtx.value!.history;
                 for (let item of json) {
                     if (target) {
                         if (getModelNodeDef(target.type).validChildTypes.includes(item.type)) {
@@ -566,7 +534,7 @@ export default defineComponent({
 
         function onConvertToClay(node: ModelNode) {
             node = toRaw(node);
-            const ctx = editorContext.value!;
+            const ctx = editorCtx.value!;
             const parent = node.parent;
             let vertices: Float32Array;
             switch (node.type) {
@@ -603,7 +571,7 @@ export default defineComponent({
         }
 
         const canRemesh = computed(function () {
-            const ctx = editorContext.value;
+            const ctx = editorCtx.value;
             if (!ctx) {
                 return false;
             }
@@ -615,7 +583,7 @@ export default defineComponent({
         });
 
         async function onRemesh() {
-            const ctx = editorContext.value?.readonlyRef();
+            const ctx = editorCtx.value?.readonlyRef();
             if (!ctx) {
                 return;
             }
@@ -639,7 +607,7 @@ export default defineComponent({
                     mesh.aPosition,
                     mesh.triBox,
                     mesh.octree.box,
-                    ctx.remeshVoxelSize
+                    ctx.options.remeshVoxelSize
                 );
                 ctx.history.enableMerge = false;
                 ctx.history.setValue(node, CVertices, position, 'remesh');
@@ -650,14 +618,9 @@ export default defineComponent({
 
         return {
             dom,
-            editorContext,
+            editorCtx,
             fullscreenLoading,
-            showTools,
-            showModelTree,
-            showProperties,
-            showStatusBar,
-            modelTreePanelWidth,
-            modelNodePropertiesPanelWidth,
+            uiOptions,
             validChildNodeDefs,
             canRemesh,
             onCanvasMounted,
