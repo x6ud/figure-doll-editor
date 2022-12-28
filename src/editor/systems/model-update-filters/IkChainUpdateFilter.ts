@@ -1,4 +1,15 @@
-import {ConeGeometry, Group, Mesh, MeshBasicMaterial, Sprite, SpriteMaterial, TextureLoader} from 'three';
+import {
+    BufferGeometry,
+    ConeGeometry,
+    Group,
+    Mesh,
+    MeshBasicMaterial,
+    NearestFilter,
+    Points,
+    PointsMaterial,
+    TextureLoader,
+    Vector3
+} from 'three';
 import EditorContext from '../../EditorContext';
 import CIkNode from '../../model/components/CIkNode';
 import CIkNodeLength from '../../model/components/CIkNodeLength';
@@ -10,8 +21,10 @@ import ikMoveHandler from './ik-move-handler.png';
 import ikRotateHandler from './ik-rotate-handler.png';
 
 const texLoader = new TextureLoader();
-let texIkMoveHandler = texLoader.load(ikMoveHandler);
-let texIkRotateHandler = texLoader.load(ikRotateHandler);
+const texIkMoveHandler = texLoader.load(ikMoveHandler);
+texIkMoveHandler.minFilter = texIkMoveHandler.magFilter = NearestFilter;
+const texIkRotateHandler = texLoader.load(ikRotateHandler);
+texIkRotateHandler.minFilter = texIkRotateHandler.magFilter = NearestFilter;
 
 export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, ikChain: ModelNode): void {
@@ -56,30 +69,33 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
             mesh.geometry = new ConeGeometry(0.025, length, 6)
                 .translate(0, curr.value(CIkNodeLength) / 2, 0)
                 .rotateZ(-Math.PI / 2);
-            const handlerScale = 24 / Math.min(ctx.views[ctx.mainViewIndex].width, ctx.views[ctx.mainViewIndex].height);
             if (!cIkNode.moveHandler) {
-                cIkNode.moveHandler = new Sprite(new SpriteMaterial({
-                    map: texIkMoveHandler,
-                    sizeAttenuation: false,
-                    depthTest: false,
-                    depthWrite: false,
-                    transparent: true,
-                }));
+                cIkNode.moveHandler = new Points(
+                    new BufferGeometry().setFromPoints([new Vector3()]),
+                    new PointsMaterial({
+                        map: texIkMoveHandler,
+                        sizeAttenuation: false,
+                        depthTest: false,
+                        depthWrite: false,
+                        transparent: true,
+                        size: 24,
+                    }));
                 cIkNode.moveHandler.renderOrder = 2;
-                cIkNode.moveHandler.scale.set(handlerScale, handlerScale, 1);
                 cObject3D.value.add(cIkNode.moveHandler);
                 cIkNode.moveHandler.visible = false;
             }
             if (!cIkNode.rotateHandler) {
-                cIkNode.rotateHandler = new Sprite(new SpriteMaterial({
-                    map: texIkRotateHandler,
-                    sizeAttenuation: false,
-                    depthTest: false,
-                    depthWrite: false,
-                    transparent: true,
-                }));
+                cIkNode.rotateHandler = new Points(
+                    new BufferGeometry().setFromPoints([new Vector3()]),
+                    new PointsMaterial({
+                        map: texIkRotateHandler,
+                        sizeAttenuation: false,
+                        depthTest: false,
+                        depthWrite: false,
+                        transparent: true,
+                        size: 24,
+                    }));
                 cIkNode.rotateHandler.renderOrder = 2;
-                cIkNode.rotateHandler.scale.set(handlerScale, handlerScale, 1);
                 cObject3D.value.add(cIkNode.rotateHandler);
                 cIkNode.rotateHandler.visible = false;
             }

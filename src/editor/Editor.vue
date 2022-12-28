@@ -30,10 +30,23 @@
                     <popup-menu-item title="Paste" hotkey="Ctrl+V" @click="onPaste"/>
                     <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"/>
                     <popup-menu-item sep/>
-                    <popup-menu-item title="Keep Global Transformation Unchanged When Moving Nodes"
-                                     @click="editorCtx.options.keepTransformUnchangedWhileMoving = !editorCtx.options.keepTransformUnchangedWhileMoving"
-                                     :checked="editorCtx.options.keepTransformUnchangedWhileMoving"
-                    />
+                    <popup-menu-item title="Options">
+                        <popup-menu>
+                            <popup-menu-item title="Keep World Position Unchanged When Moving Nodes"
+                                             @click="editorCtx.options.keepTransformUnchangedWhileMoving = !editorCtx.options.keepTransformUnchangedWhileMoving"
+                                             :checked="editorCtx.options.keepTransformUnchangedWhileMoving"
+                            />
+                            <popup-menu-item sep/>
+                            <popup-menu-item title="Allow Modification of Bone Length When Modifying IK Bindings"
+                                             @click="editorCtx.options.allowModifyingBoneLengthWhenBindingIk = !editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
+                                             :checked="editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
+                            />
+                            <popup-menu-item title="Keep Internal Object Position Unchanged When Modifying IK Bindings"
+                                             @click="editorCtx.options.keepInternalTransformWhenBindingIk = !editorCtx.options.keepInternalTransformWhenBindingIk"
+                                             :checked="editorCtx.options.keepInternalTransformWhenBindingIk"
+                            />
+                        </popup-menu>
+                    </popup-menu-item>
                 </popup-menu>
                 <popup-menu title="View">
                     <popup-menu-item title="Window">

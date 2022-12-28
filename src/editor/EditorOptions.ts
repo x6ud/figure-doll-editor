@@ -3,6 +3,9 @@ export default class EditorOptions {
     remeshVoxelSize: number = 0.005;
 
     keepTransformUnchangedWhileMoving: boolean = true;
+    allowModifyingBoneLengthWhenBindingIk: boolean = true;
+    keepInternalTransformWhenBindingIk: boolean = true;
+
     quadView: boolean = false;
     showGrids: boolean = true;
     showIkBones: boolean = false;
