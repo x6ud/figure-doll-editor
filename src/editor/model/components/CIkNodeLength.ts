@@ -13,5 +13,5 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     inputComponentProps: {min: 0}
 })
 export default class CIkNodeLength extends ModelNodeComponent<number> {
-    value = 1;
+    value = 0.2;
 }

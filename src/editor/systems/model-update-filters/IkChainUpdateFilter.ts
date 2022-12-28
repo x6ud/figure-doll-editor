@@ -66,7 +66,7 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
             const mesh = cIkNode.mesh as Mesh;
             mesh.geometry?.dispose();
             const length = curr.value(CIkNodeLength);
-            mesh.geometry = new ConeGeometry(0.025, length, 6)
+            mesh.geometry = new ConeGeometry(0.01, length, 6)
                 .translate(0, curr.value(CIkNodeLength) / 2, 0)
                 .rotateZ(-Math.PI / 2);
             if (!cIkNode.moveHandler) {

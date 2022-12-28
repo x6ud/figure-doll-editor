@@ -1,6 +1,7 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import CIkNodeRotation from '../model/components/CIkNodeRotation';
 import CPosition from '../model/components/CPosition';
 import CRotation from '../model/components/CRotation';
 import ModelNode from '../model/ModelNode';
@@ -22,7 +23,9 @@ export default class RotateTool extends EditorTool {
     private dragging = false;
 
     begin(ctx: EditorContext): void {
-        this.nodes = ctx.model.getTopmostSelectedNodes().filter(node => node.has(CRotation));
+        this.nodes = ctx.model.getTopmostSelectedNodes().filter(
+            node => node.has(CRotation) || node.has(CIkNodeRotation)
+        );
         if (!this.nodes.length) {
             this.enableTransformControls = false;
             return;
@@ -64,7 +67,12 @@ export default class RotateTool extends EditorTool {
                 if (i > 0) {
                     _mat.multiply(this.detMat[i - 1]);
                 }
-                ctx.history.setValue(node, CRotation, new Euler().setFromQuaternion(getRotation(new Quaternion(), _mat)));
+                const val = new Euler().setFromQuaternion(getRotation(new Quaternion(), _mat));
+                if (node.has(CRotation)) {
+                    ctx.history.setValue(node, CRotation, val);
+                } else if (node.has(CIkNodeRotation)) {
+                    ctx.history.setValue(node, CIkNodeRotation, val);
+                }
                 if (i > 0) {
                     if (node.has(CPosition)) {
                         ctx.history.setValue(node, CPosition, getTranslation(new Vector3(), _mat));

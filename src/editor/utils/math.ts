@@ -280,3 +280,17 @@ export const rayTriangleIntersect = (function () {
         return qDotN / dirDotN;
     };
 })();
+
+export const closestPointOnLine = (function () {
+    const det = new Vector3();
+    return function (out: Vector3, o: Vector3, dir: Vector3, p: Vector3) {
+        return out.copy(o).addScaledVector(dir, det.subVectors(p, o).dot(dir));
+    };
+})();
+
+export const angleBetween2VectorsInPanel = (function () {
+    const cross = new Vector3();
+    return function (panelNormal: Vector3, a: Vector3, b: Vector3) {
+        return Math.atan2(cross.crossVectors(a, b).dot(panelNormal), a.dot(b));
+    };
+})();

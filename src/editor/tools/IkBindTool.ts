@@ -33,16 +33,25 @@ export default class IkBindTool extends EditorTool {
     icon = icon;
 
     private activeView = -1;
+    /** Selected ik chain nodes */
     private ikChains: ModelNode[] = [];
-    private draggingNode?: ModelNode;
+    /** Ik node being dragged */
+    private node?: ModelNode;
+    /** Dragging with rotation handler or chain root moving handler */
     private rotate = false;
+    /** Dragging start mouse position in world space */
     private mouse0 = new Vector3();
     private nodeInvMat = new Matrix4();
     private chainInvMat = new Matrix4();
+    /** Dragging start ik chain's translation in local space */
     private chainPosition0 = new Vector3();
+    /** Dragging start ik node's start position in ik chain local space */
     private nodeStart0 = new Vector3();
+    /** Dragging start ik nodes local matrices */
     private nodeLocalMat0 = new Map<number, Matrix4>();
+    /** Dragging start ik nodes transformations */
     private nodeIkState0 = new Map<number, { length: number, rotation: Euler }>();
+    /** Dragging start ik nodes internal objects world matrices */
     private objWorldMat0 = new Map<number, Matrix4>();
 
     begin(ctx: EditorContext) {
@@ -105,7 +114,7 @@ export default class IkBindTool extends EditorTool {
                         }
                     }
                     if (hoveredNode && hoveredCIkNode) {
-                        this.draggingNode = hoveredNode;
+                        this.node = hoveredNode;
                         this.rotate = hoveredCIkNode.rotateHandlerHovered;
                         this.activeView = view.index;
                         const chain = hoveredNode.parent!;
@@ -131,15 +140,16 @@ export default class IkBindTool extends EditorTool {
                                 this.objWorldMat0.set(internalObj.id, new Matrix4().copy(internalObj.getWorldMatrix()));
                             }
                         }
-                        ctx.model.addSelection(this.draggingNode.id);
+                        ctx.model.addSelection(this.node.id);
                     }
                 }
-            } else if (this.activeView === view.index && this.draggingNode && !this.draggingNode.deleted) {
-                const chain = this.draggingNode.parent!;
+            } else if (this.activeView === view.index && this.node && !this.node.deleted) {
+                // drag move
+                const chain = this.node.parent!;
                 linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.mouse0, view.mouseRayN);
                 if (this.rotate) {
                     // drag rotate / resize length
-                    const state0 = this.nodeIkState0.get(this.draggingNode.id);
+                    const state0 = this.nodeIkState0.get(this.node.id);
                     if (!state0) {
                         return;
                     }
@@ -149,13 +159,13 @@ export default class IkBindTool extends EditorTool {
                     _v1.normalize();
                     _rotation.setFromUnitVectors(_v0, _v1);
                     let changed = ctx.history.setValue(
-                        this.draggingNode,
+                        this.node,
                         CIkNodeRotation,
                         new Euler().setFromQuaternion(_rotation)
                     );
                     if (ctx.options.allowModifyingBoneLengthWhenBindingIk) {
                         changed = ctx.history.setValue(
-                            this.draggingNode,
+                            this.node,
                             CIkNodeLength,
                             nodeLength
                         ) || changed;
@@ -165,11 +175,11 @@ export default class IkBindTool extends EditorTool {
                         // boneWorldMat1 * objLocalMat1 = objWorldMat0
                         // objLocalMat1 = inv(boneWorldMat1) * objWorldMat0
                         // objLocalMat1 = inv(chainWorldMat * boneLocalMat1) * objWorldMat0
-                        let i = chain.children.indexOf(this.draggingNode);
+                        let i = chain.children.indexOf(this.node);
                         if (i < 0) {
                             return;
                         }
-                        _nodeTranslation.copy(this.draggingNode.get(CIkNode).start);
+                        _nodeTranslation.copy(this.node.get(CIkNode).start);
                         _nodeRotation.copy(_rotation);
                         _nodeScale.set(1, 1, 1);
                         const chainMat = chain.getWorldMatrix();
@@ -245,7 +255,7 @@ export default class IkBindTool extends EditorTool {
         } else if (this.activeView === view.index) {
             // drag end
             this.activeView = -1;
-            this.draggingNode = undefined;
+            this.node = undefined;
         }
     }
 
@@ -254,6 +264,7 @@ export default class IkBindTool extends EditorTool {
     }
 
     private cleanup(ctx: EditorContext) {
+        // hide handlers
         for (let chain of this.ikChains) {
             if (chain.deleted) {
                 continue;
