@@ -10,6 +10,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     equal: vectorsEqual,
     label: 'Position',
     inputComponent: InputVector3,
+    inputComponentProps: {resettable: true},
     clone(val: Vector3) {
         return new Vector3().copy(val);
     },

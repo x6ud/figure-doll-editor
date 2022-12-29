@@ -3,6 +3,7 @@ export default class EditorOptions {
     remeshVoxelSize: number = 0.005;
 
     keepTransformUnchangedWhileMoving: boolean = true;
+    useLocalSpaceForTransformControl: boolean = true;
     allowModifyingBoneLengthWhenBindingIk: boolean = true;
     keepInternalTransformWhenBindingIk: boolean = true;
 

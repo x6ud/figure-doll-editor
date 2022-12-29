@@ -6,6 +6,7 @@ export default defineComponent({
         value: {type: Euler, required: true},
         readonly: Boolean,
         disabled: Boolean,
+        resettable: Boolean,
     },
     emits: ['input'],
     setup(props, ctx) {
@@ -20,6 +21,10 @@ export default defineComponent({
                 onPost();
                 document.removeEventListener('mousedown', postOnMouseDown);
             }
+        }
+
+        function format(val: number) {
+            return Number((val / Math.PI * 180).toFixed(1));
         }
 
         function onChange() {
@@ -43,17 +48,18 @@ export default defineComponent({
             }
         }
 
-        function format(val: number) {
-            return Number((val / Math.PI * 180).toFixed(1));
+        function onReset() {
+            ctx.emit('input', new Euler());
         }
 
         return {
             input0,
             input1,
             input2,
+            format,
             onChange,
             onPost,
-            format,
+            onReset,
         };
     }
 });

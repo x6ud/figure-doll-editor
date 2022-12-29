@@ -9,7 +9,8 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
         return Math.abs(a - b) < 1e-8;
     },
     label: 'Scale',
-    inputComponent: InputNumber
+    inputComponent: InputNumber,
+    inputComponentProps: {resettable: true, defaultValue: 1},
 })
 export default class CScale extends ModelNodeComponent<number> {
     value = 1.0;

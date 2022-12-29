@@ -7,7 +7,9 @@ export default defineComponent({
         disabled: Boolean,
         min: Number,
         max: Number,
-        step: Number
+        step: Number,
+        resettable: Boolean,
+        defaultValue: Number,
     },
     emits: ['input'],
     setup(props, ctx) {
@@ -57,6 +59,10 @@ export default defineComponent({
             }
         }
 
-        return {inputDom, onChange, onPost};
+        function onReset() {
+            ctx.emit('input', props.defaultValue || 0);
+        }
+
+        return {inputDom, onChange, onPost, onReset};
     }
 });

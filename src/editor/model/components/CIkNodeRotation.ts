@@ -13,6 +13,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     },
     label: 'Rotation',
     inputComponent: InputEuler,
+    inputComponentProps: {resettable: true},
     clone(val: Euler) {
         return new Euler().copy(val);
     },

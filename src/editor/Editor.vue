@@ -37,6 +37,11 @@
                                              :checked="editorCtx.options.keepTransformUnchangedWhileMoving"
                             />
                             <popup-menu-item sep/>
+                            <popup-menu-item title="Use Local Space for Transform Control"
+                                             @click="editorCtx.options.useLocalSpaceForTransformControl = !editorCtx.options.useLocalSpaceForTransformControl"
+                                             :checked="editorCtx.options.useLocalSpaceForTransformControl"
+                            />
+                            <popup-menu-item sep/>
                             <popup-menu-item title="Allow Modification of Bone Length When Modifying IK Bindings"
                                              @click="editorCtx.options.allowModifyingBoneLengthWhenBindingIk = !editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
                                              :checked="editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
@@ -242,7 +247,7 @@
             >
                 <template v-if="editorCtx">
                     <model-node-properties :editor-context="editorCtx"
-                                           @set-data="onSetNodeProperty"
+                                           @set-data="onSetNodesProperties"
                     />
                 </template>
             </side-panel>

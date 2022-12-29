@@ -408,11 +408,10 @@ export default defineComponent({
             });
         }
 
-        function onSetNodeProperty(items: { node: ModelNode, type: Class<ModelNodeComponent<any>>, value: any }[]) {
+        function onSetNodesProperties(items: { node: ModelNode, type: Class<ModelNodeComponent<any>>, value: any }[]) {
             for (let item of items) {
                 editorCtx.value!.history.setValue(item.node, item.type, item.value);
             }
-            focus();
         }
 
         function onFocus(node?: ModelNode) {
@@ -698,7 +697,7 @@ export default defineComponent({
             onAddNode,
             onDelete,
             onSelect,
-            onSetNodeProperty,
+            onSetNodesProperties,
             onFocus,
             onCut,
             onCopy,

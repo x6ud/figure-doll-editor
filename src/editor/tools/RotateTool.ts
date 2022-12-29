@@ -58,6 +58,7 @@ export default class RotateTool extends EditorTool {
         }
         const control = view.transformControls;
         control.setMode('rotate');
+        control.setSpace(ctx.options.useLocalSpaceForTransformControl ? 'local' : 'world');
         control.setRotationSnap(view.input.isKeyPressed('Shift') ? 0.25 * Math.PI : null);
         if (control.dragging) {
             this.dragging = true;
