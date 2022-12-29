@@ -1,4 +1,4 @@
-import {Mesh, Vector3} from 'three';
+import {BufferGeometry, Mesh, Vector3} from 'three';
 import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
@@ -536,7 +536,7 @@ export default defineComponent({
             node = toRaw(node);
             const ctx = editorCtx.value!;
             const parent = node.parent;
-            let vertices: Float32Array;
+            let verticesArr: Float32Array[] = [];
             switch (node.type) {
                 case 'Shape': {
                     const cSdfDirty = node.get(CSdfDirty);
@@ -550,23 +550,84 @@ export default defineComponent({
                     }
                     const mesh = node.value(CObject3D) as Mesh;
                     const geometry = mesh.geometry;
-                    vertices = new Float32Array(geometry.getAttribute('position').array);
+                    verticesArr = [new Float32Array(geometry.getAttribute('position').array)];
                 }
                     break;
-                default:
-                    return;
-            }
-            ctx.history.createNode({
-                type: 'Clay',
-                parentId: parent ? parent.id : 0,
-                data: {
-                    [CName.name]: node.value(CName),
-                    [CPosition.name]: node.cloneValue(CPosition),
-                    [CRotation.name]: node.cloneValue(CRotation),
-                    [CScale.name]: node.cloneValue(CScale),
-                    [CVertices.name]: vertices,
+                default: {
+                    if (!node.has(CObject3D)) {
+                        return;
+                    }
+                    const mesh = node.value(CObject3D);
+                    if (!mesh) {
+                        return;
+                    }
+                    const geometries: BufferGeometry[] = [];
+                    if ((mesh as Mesh).geometry) {
+                        geometries.push((mesh as Mesh).geometry);
+                    } else {
+                        for (let child of mesh.children) {
+                            if ((child as Mesh).geometry) {
+                                geometries.push((child as Mesh).geometry);
+                            }
+                        }
+                    }
+                    const _a = new Vector3();
+                    const _b = new Vector3();
+                    const _c = new Vector3();
+                    for (let geometry of geometries) {
+                        if (!geometry.isBufferGeometry) {
+                            continue;
+                        }
+                        const attrPos = geometry.getAttribute('position');
+                        if (!attrPos) {
+                            continue;
+                        }
+                        const index = geometry.index;
+                        if (index) {
+                            const arr = new Float32Array(index.count * 3);
+                            for (let i = 0, len = index.count; i < len; i += 3) {
+                                _a.fromBufferAttribute(attrPos, index.getX(i));
+                                _b.fromBufferAttribute(attrPos, index.getX(i + 1));
+                                _c.fromBufferAttribute(attrPos, index.getX(i + 2));
+                                const j = i * 3;
+                                arr[j] = _a.x;
+                                arr[j + 1] = _a.y;
+                                arr[j + 2] = _a.z;
+                                arr[j + 3] = _b.x;
+                                arr[j + 4] = _b.y;
+                                arr[j + 5] = _b.z;
+                                arr[j + 6] = _c.x;
+                                arr[j + 7] = _c.y;
+                                arr[j + 8] = _c.z;
+                            }
+                            if (arr.length) {
+                                verticesArr.push(arr);
+                            }
+                        } else {
+                            if (attrPos.array.length) {
+                                verticesArr.push(new Float32Array(attrPos.array));
+                            }
+                        }
+                    }
                 }
-            });
+                    break;
+            }
+            if (!verticesArr.length) {
+                return;
+            }
+            for (let vertices of verticesArr) {
+                ctx.history.createNode({
+                    type: 'Clay',
+                    parentId: parent ? parent.id : 0,
+                    data: {
+                        [CName.name]: node.value(CName),
+                        [CPosition.name]: node.cloneValue(CPosition),
+                        [CRotation.name]: node.cloneValue(CRotation),
+                        [CScale.name]: node.cloneValue(CScale),
+                        [CVertices.name]: vertices,
+                    }
+                });
+            }
             ctx.history.removeNode(node.id);
         }
 

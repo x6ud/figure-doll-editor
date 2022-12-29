@@ -73,7 +73,11 @@ export default defineComponent({
 
         const contextMenuNode = ref<ModelNode>();
         const canConvertToClay = computed(function () {
-            return ['Shape'].includes(contextMenuNode.value?.type || '');
+            const node = contextMenuNode.value;
+            if (!node) {
+                return false;
+            }
+            return ['Shape', 'Box', 'ObjModel', 'FbxModel'].includes(node.type);
         });
 
         function onContextMenu(node: ModelNode | undefined, e: PointerEvent) {
