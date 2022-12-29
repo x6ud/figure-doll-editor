@@ -48,7 +48,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
     }
 
     begin(ctx: EditorContext): void {
-        const tool = ctx.tool;
+        const tool = toRaw(ctx.tool);
 
         // selection rect
         ctx.selectionRectSetThisFrame = false;
