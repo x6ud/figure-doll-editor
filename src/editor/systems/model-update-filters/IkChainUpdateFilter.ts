@@ -36,7 +36,6 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
             cObject3D.value = new Group();
             (cObject3D.value.userData as Object3DUserData) = {node: ikChain};
         }
-        const group = cObject3D.value;
         for (let i = 0, len = ikChain.children.length; i < len; ++i) {
             const curr = ikChain.children[i];
             const cObject3D = curr.get(CObject3D);
@@ -48,8 +47,8 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
             if (!cIkNode.dirty) {
                 continue;
             }
-            if (!cIkNode.mesh) {
-                const mesh = cIkNode.mesh = new Mesh();
+            if (!cIkNode.boneMesh) {
+                const mesh = cIkNode.boneMesh = new Mesh();
                 mesh.material = new MeshBasicMaterial({
                     depthWrite: false,
                     depthTest: false,
@@ -63,7 +62,7 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
                 mesh.visible = ctx.options.showIkBones;
                 cObject3D.value.add(mesh);
             }
-            const mesh = cIkNode.mesh as Mesh;
+            const mesh = cIkNode.boneMesh as Mesh;
             mesh.geometry?.dispose();
             const length = curr.value(CIkNodeLength);
             mesh.geometry = new ConeGeometry(0.01, length, 6)
@@ -100,12 +99,14 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
                 cIkNode.rotateHandler.visible = false;
             }
             cIkNode.dirty = false;
+            cIkNode.quaternion.setFromEuler(curr.value(CIkNodeRotation));
             if (i > 0) {
-                cIkNode.start.copy(ikChain.children[i - 1].get(CIkNode).end);
+                const prev = ikChain.children[i - 1].get(CIkNode);
+                cIkNode.start.copy(prev.end);
+                cIkNode.quaternion.multiplyQuaternions(prev.quaternion, cIkNode.quaternion).normalize();
             } else {
                 cIkNode.start.set(0, 0, 0);
             }
-            cIkNode.quaternion.setFromEuler(curr.value(CIkNodeRotation));
             cIkNode.end
                 .set(curr.value(CIkNodeLength), 0, 0)
                 .applyQuaternion(cIkNode.quaternion)

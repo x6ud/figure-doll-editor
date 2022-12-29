@@ -2,7 +2,6 @@ import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CIkNode from '../model/components/CIkNode';
-import CIkNodeLength from '../model/components/CIkNodeLength';
 import CIkNodeRotation from '../model/components/CIkNodeRotation';
 import {Object3DUserData} from '../model/components/CObject3D';
 import ModelNode from '../model/ModelNode';
@@ -22,6 +21,7 @@ const _forward = new Vector3();
 const _up = new Vector3();
 const _dir = new Vector3();
 const _o = new Vector3();
+const _invQuat = new Quaternion();
 
 export default class IkRotateTool extends EditorTool {
     label = 'Rotate Bone';
@@ -46,8 +46,8 @@ export default class IkRotateTool extends EditorTool {
     private nodeStart0 = new Vector3();
     /** Dragged node's end position in ik chain's local space */
     private nodeEnd0 = new Vector3();
-    /** Dragging start ik nodes transformations */
-    private nodeIkState0 = new Map<number, { length: number, rotation: Euler }>();
+    /** Dragged node's rotation in ik chain's local space */
+    private rotation0 = new Quaternion();
 
     begin(ctx: EditorContext) {
         this.cleanup(ctx);
@@ -66,8 +66,8 @@ export default class IkRotateTool extends EditorTool {
             for (let i = 0, len = chain.children.length; i < len; ++i) {
                 const node = chain.children[i];
                 const cIkNode = node.get(CIkNode);
-                if (cIkNode.mesh) {
-                    cIkNode.mesh.visible = true;
+                if (cIkNode.boneMesh) {
+                    cIkNode.boneMesh.visible = true;
                 }
                 if (cIkNode.rotateHandler) {
                     cIkNode.rotateHandler.visible = true;
@@ -109,13 +109,7 @@ export default class IkRotateTool extends EditorTool {
                         this.invMat.copy(chainMat).invert();
                         this.nodeStart0.copy(hoveredCIkNode.start);
                         this.nodeEnd0.copy(hoveredCIkNode.end);
-                        this.nodeIkState0.clear();
-                        for (let node of chain.children) {
-                            this.nodeIkState0.set(node.id, {
-                                length: node.value(CIkNodeLength),
-                                rotation: new Euler().copy(node.value(CIkNodeRotation))
-                            });
-                        }
+                        this.rotation0.copy(hoveredCIkNode.quaternion);
                         ctx.model.addSelection(this.node.id);
                     } else {
                         // clicked on internal object
@@ -147,15 +141,8 @@ export default class IkRotateTool extends EditorTool {
                         const cIkNode = node.get(CIkNode);
                         this.boneAxis.subVectors(cIkNode.end, cIkNode.start).normalize();
                         closestPointOnLine(this.origin, cIkNode.start, this.boneAxis, _local0);
-                        this.nodeIkState0.clear();
                         this.boneAxis.transformDirection(mat);
-                        const chain = node.parent!;
-                        for (let node of chain.children) {
-                            this.nodeIkState0.set(node.id, {
-                                length: node.value(CIkNodeLength),
-                                rotation: new Euler().copy(node.value(CIkNodeRotation))
-                            });
-                        }
+                        this.rotation0.copy(cIkNode.quaternion);
                         if (this.origin.distanceTo(_local0) < 1e-8) {
                             this.node = undefined;
                         } else {
@@ -169,10 +156,6 @@ export default class IkRotateTool extends EditorTool {
                 if (this.swing) {
                     // swing
                     linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.mouse0, view.mouseRayN);
-                    const state0 = this.nodeIkState0.get(this.node.id);
-                    if (!state0) {
-                        return;
-                    }
                     _local0.copy(this.mouse0).applyMatrix4(this.invMat);
                     _local1.copy(_mouse1).applyMatrix4(this.invMat);
                     _det.subVectors(_local1, _local0);
@@ -208,23 +191,17 @@ export default class IkRotateTool extends EditorTool {
                     }
                 }
                 // apply rotation
+                _forward.set(0, 0, 1).applyQuaternion(this.rotation0).applyQuaternion(_detRot);
+                _up.set(0, 1, 0).applyQuaternion(this.rotation0).applyQuaternion(_detRot);
+                quatFromForwardUp(_rotation, _forward, _up);
                 const chain = this.node.parent!;
-                const i0 = chain.children.indexOf(this.node);
-                if (i0 < 0) {
-                    return;
+                const index = chain.children.indexOf(this.node);
+                if (index > 0) {
+                    const prev = chain.children[index - 1];
+                    _invQuat.copy(prev.get(CIkNode).quaternion).invert();
+                    _rotation.multiplyQuaternions(_invQuat, _rotation);
                 }
-                for (let i = i0, len = chain.children.length; i < len; ++i) {
-                    const node = chain.children[i];
-                    const state0 = this.nodeIkState0.get(node.id)!;
-                    _rotation.setFromEuler(state0.rotation);
-                    _forward.set(0, 0, 1).applyQuaternion(_rotation).applyQuaternion(_detRot);
-                    _up.set(0, 1, 0).applyQuaternion(_rotation).applyQuaternion(_detRot);
-                    quatFromForwardUp(_rotation, _forward, _up);
-                    const changed = ctx.history.setValue(node, CIkNodeRotation, new Euler().setFromQuaternion(_rotation));
-                    if (!changed && i === i0) {
-                        break;
-                    }
-                }
+                ctx.history.setValue(this.node, CIkNodeRotation, new Euler().setFromQuaternion(_rotation));
             }
         } else if (this.activeView === view.index) {
             // drag end

@@ -1,6 +1,7 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import CIkNode from '../model/components/CIkNode';
 import CIkNodeRotation from '../model/components/CIkNodeRotation';
 import CPosition from '../model/components/CPosition';
 import CRotation from '../model/components/CRotation';
@@ -67,11 +68,19 @@ export default class RotateTool extends EditorTool {
                 if (i > 0) {
                     _mat.multiply(this.detMat[i - 1]);
                 }
-                const val = new Euler().setFromQuaternion(getRotation(new Quaternion(), _mat));
                 if (node.has(CRotation)) {
+                    const val = new Euler().setFromQuaternion(getRotation(new Quaternion(), _mat));
                     ctx.history.setValue(node, CRotation, val);
                 } else if (node.has(CIkNodeRotation)) {
-                    ctx.history.setValue(node, CIkNodeRotation, val);
+                    const quat = getRotation(new Quaternion(), _mat);
+                    const chain = node.parent!;
+                    const index = chain.children.indexOf(node);
+                    if (index > 0) {
+                        const prev = chain.children[index - 1];
+                        const invQuat = new Quaternion().copy(prev.get(CIkNode).quaternion).invert();
+                        quat.multiplyQuaternions(invQuat, quat);
+                    }
+                    ctx.history.setValue(node, CIkNodeRotation, new Euler().setFromQuaternion(quat));
                 }
                 if (i > 0) {
                     if (node.has(CPosition)) {

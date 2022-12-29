@@ -261,7 +261,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
 
         tool.end(ctx);
 
-        if (this.prevTool !== tool) {
+        if (this.prevTool?.label !== tool.label) {
             this.prevTool?.onUnselected(ctx);
             this.prevTool = tool;
             ctx.statusBarMessage = tool.tips;

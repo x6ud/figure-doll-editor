@@ -8,7 +8,7 @@ import CPosition from '../model/components/CPosition';
 import CRotation from '../model/components/CRotation';
 import CScale from '../model/components/CScale';
 import ModelNode from '../model/ModelNode';
-import {linePanelIntersection} from '../utils/math';
+import {linePanelIntersection, quatFromForwardUp} from '../utils/math';
 import EditorTool from './EditorTool';
 import icon from './IkBind.png';
 
@@ -21,9 +21,14 @@ const _invNodeMat = new Matrix4();
 const _mat1 = new Matrix4();
 const _translation = new Vector3();
 const _rotation = new Quaternion();
+const _detRot = new Quaternion();
+const _quat = new Quaternion();
+const _invQuat = new Quaternion();
 const _scale = new Vector3();
 const _v0 = new Vector3();
 const _v1 = new Vector3();
+const _forward = new Vector3();
+const _up = new Vector3();
 const _nodeTranslation = new Vector3();
 const _nodeRotation = new Quaternion();
 const _nodeScale = new Vector3();
@@ -43,14 +48,16 @@ export default class IkBindTool extends EditorTool {
     private mouse0 = new Vector3();
     private nodeInvMat = new Matrix4();
     private chainInvMat = new Matrix4();
-    /** Dragging start ik chain's translation in local space */
+    /** Dragging start ik chain translation in local space */
     private chainPosition0 = new Vector3();
-    /** Dragging start ik node's start position in ik chain local space */
+    /** Dragging start ik node start position in ik chain local space */
     private nodeStart0 = new Vector3();
+    /** Dragging start ik node end position in ik chain local space */
+    private nodeEnd0 = new Vector3();
+    /** Dragging start ik node rotation in ik chain local space */
+    private nodeRotation0 = new Quaternion();
     /** Dragging start ik nodes local matrices */
     private nodeLocalMat0 = new Map<number, Matrix4>();
-    /** Dragging start ik nodes transformations */
-    private nodeIkState0 = new Map<number, { length: number, rotation: Euler }>();
     /** Dragging start ik nodes internal objects world matrices */
     private objWorldMat0 = new Map<number, Matrix4>();
 
@@ -71,8 +78,8 @@ export default class IkBindTool extends EditorTool {
             for (let i = 0, len = chain.children.length; i < len; ++i) {
                 const node = chain.children[i];
                 const cIkNode = node.get(CIkNode);
-                if (cIkNode.mesh) {
-                    cIkNode.mesh.visible = true;
+                if (cIkNode.boneMesh) {
+                    cIkNode.boneMesh.visible = true;
                 }
                 if (i === 0) {
                     if (cIkNode.moveHandler) {
@@ -126,16 +133,13 @@ export default class IkBindTool extends EditorTool {
                         this.nodeInvMat.copy(chainMat).invert();
                         this.chainInvMat.copy(chain.getParentWorldMatrix()).invert();
                         this.nodeStart0.copy(hoveredCIkNode.start);
+                        this.nodeEnd0.copy(hoveredCIkNode.end);
+                        this.nodeRotation0.copy(hoveredCIkNode.quaternion);
                         this.chainPosition0.copy(chain.value(CPosition));
                         this.nodeLocalMat0.clear();
-                        this.nodeIkState0.clear();
                         this.objWorldMat0.clear();
                         for (let node of chain.children) {
                             this.nodeLocalMat0.set(node.id, new Matrix4().copy(node.getLocalMatrix()));
-                            this.nodeIkState0.set(node.id, {
-                                length: node.value(CIkNodeLength),
-                                rotation: new Euler().copy(node.value(CIkNodeRotation))
-                            });
                             for (let internalObj of node.children) {
                                 this.objWorldMat0.set(internalObj.id, new Matrix4().copy(internalObj.getWorldMatrix()));
                             }
@@ -149,15 +153,24 @@ export default class IkBindTool extends EditorTool {
                 linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.mouse0, view.mouseRayN);
                 if (this.rotate) {
                     // drag rotate / resize length
-                    const state0 = this.nodeIkState0.get(this.node.id);
-                    if (!state0) {
-                        return;
-                    }
-                    _v0.set(1, 0, 0);
-                    _v1.copy(_mouse1).applyMatrix4(this.nodeInvMat).sub(this.nodeStart0);
+                    _local0.copy(this.mouse0).applyMatrix4(this.nodeInvMat);
+                    _local1.copy(_mouse1).applyMatrix4(this.nodeInvMat);
+                    _det.subVectors(_local1, _local0);
+                    _v0.subVectors(this.nodeEnd0, this.nodeStart0).normalize();
+                    _v1.copy(this.nodeEnd0).add(_det).sub(this.nodeStart0);
                     let nodeLength = _v1.length();
                     _v1.normalize();
-                    _rotation.setFromUnitVectors(_v0, _v1);
+                    _detRot.setFromUnitVectors(_v0, _v1);
+                    _forward.set(0, 0, 1).applyQuaternion(this.nodeRotation0).applyQuaternion(_detRot);
+                    _up.set(0, 1, 0).applyQuaternion(this.nodeRotation0).applyQuaternion(_detRot);
+                    quatFromForwardUp(_rotation, _forward, _up);
+                    _nodeRotation.copy(_rotation);
+                    const index = chain.children.indexOf(this.node);
+                    if (index > 0) {
+                        const prev = chain.children[index - 1];
+                        _invQuat.copy(prev.get(CIkNode).quaternion).invert();
+                        _rotation.multiplyQuaternions(_invQuat, _rotation);
+                    }
                     let changed = ctx.history.setValue(
                         this.node,
                         CIkNodeRotation,
@@ -180,7 +193,6 @@ export default class IkBindTool extends EditorTool {
                             return;
                         }
                         _nodeTranslation.copy(this.node.get(CIkNode).start);
-                        _nodeRotation.copy(_rotation);
                         _nodeScale.set(1, 1, 1);
                         const chainMat = chain.getWorldMatrix();
                         for (let len = chain.children.length; i < len; ++i) {
@@ -206,7 +218,7 @@ export default class IkBindTool extends EditorTool {
                                 _det.set(nodeLength, 0, 0).applyQuaternion(_nodeRotation);
                                 _nodeTranslation.add(_det);
                                 const next = chain.children[j];
-                                _nodeRotation.setFromEuler(next.value(CIkNodeRotation));
+                                _nodeRotation.multiply(_quat.setFromEuler(next.value(CIkNodeRotation)));
                                 nodeLength = next.value(CIkNodeLength);
                             }
                         }

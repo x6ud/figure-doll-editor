@@ -12,11 +12,15 @@ const _scr = new Vector3();
 @registerModelComponent({})
 export default class CIkNode extends ModelNodeComponent<void> {
     value = undefined;
+
     dirty = true;
+    /** Ik bone start position in ik chain local space */
     start = new Vector3();
+    /** Ik bone end position in ik chain local space */
     end = new Vector3();
+    /** Ik bone rotation in ik chain local space */
     quaternion = new Quaternion();
-    mesh?: Object3D;
+    boneMesh?: Object3D;
     moveHandler?: Points;
     rotateHandler?: Points;
     moveHandlerHovered = false;
@@ -25,8 +29,8 @@ export default class CIkNode extends ModelNodeComponent<void> {
     rotateHandlerZ = 0;
 
     onRemoved() {
-        if (this.mesh) {
-            disposeObject3D(this.mesh);
+        if (this.boneMesh) {
+            disposeObject3D(this.boneMesh);
         }
         if (this.moveHandler) {
             this.moveHandler.geometry.dispose();
@@ -75,8 +79,8 @@ export default class CIkNode extends ModelNodeComponent<void> {
     resetHandlers(ctx: EditorContext) {
         this.moveHandlerHovered = false;
         this.rotateHandlerHovered = false;
-        if (this.mesh) {
-            this.mesh.visible = ctx.options.showIkBones;
+        if (this.boneMesh) {
+            this.boneMesh.visible = ctx.options.showIkBones;
         }
         if (this.moveHandler) {
             this.moveHandler.visible = false;

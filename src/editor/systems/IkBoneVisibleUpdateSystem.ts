@@ -16,8 +16,8 @@ export default class IkBoneVisibleUpdateSystem extends UpdateSystem<EditorContex
             ctx.model.forEach(node => {
                 if (node.has(CIkNode)) {
                     const cIkNode = node.get(CIkNode);
-                    if (cIkNode.mesh) {
-                        cIkNode.mesh.visible = ctx.options.showIkBones;
+                    if (cIkNode.boneMesh) {
+                        cIkNode.boneMesh.visible = ctx.options.showIkBones;
                     }
                 }
             });
