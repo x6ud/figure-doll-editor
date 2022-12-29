@@ -24,6 +24,7 @@
                      @click.stop="toggleExpanded"
                 ></div>
             </div>
+            <img class="node-icon" :src="icon" alt="">
             <span>{{ name }}</span>
         </div>
     </div>
@@ -135,16 +136,27 @@
         border-right: solid 1px #555;
     }
 
+    .node-icon {
+        width: 24px;
+        height: 24px;
+        margin-left: -2px;
+        pointer-events: none;
+    }
+
     .name {
         display: flex;
         align-items: center;
         flex: 1 1;
         overflow: hidden;
 
-        .expand {
-            flex: 0 0 24px;
-            width: 24px;
+        & > .expand {
+            flex: 0 0 18px;
+            width: 18px;
             height: 24px;
+
+            .icon {
+                width: 100%;
+            }
         }
     }
 }

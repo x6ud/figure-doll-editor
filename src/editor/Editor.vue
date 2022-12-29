@@ -210,6 +210,7 @@
                             <popup-menu-item v-for="def in validChildNodeDefs"
                                              :key="def.name"
                                              :title="def.label"
+                                             :icon="def.icon"
                                              @click="onAddNode(def.name)"
                             />
                         </popup-menu>

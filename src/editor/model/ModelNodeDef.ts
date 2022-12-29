@@ -18,12 +18,23 @@ import CSdfSymmetry from './components/CSdfSymmetry';
 import CTube from './components/CTube';
 import CVertices from './components/CVertices';
 import CVisible from './components/CVisible';
+import iconBox from './icons/Box.png';
+import iconClay from './icons/Clay.png';
+import iconContainer from './icons/Container.png';
+import iconFbxModel from './icons/FbxModel.png';
+import iconIKChain from './icons/IKChain.png';
+import iconIKNode from './icons/IKNode.png';
+import iconImage from './icons/Image.png';
+import iconObjModel from './icons/ObjModel.png';
+import iconShape from './icons/Shape.png';
+import iconTube from './icons/Tube.png';
 import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
 
 export type ModelNodeDef = {
     name: string;
     label: string;
+    icon: string;
     components: Class<ModelNodeComponent<any>>[];
     canBeRoot: boolean;
     validChildTypes: string[];
@@ -33,6 +44,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'Container',
         label: 'Container',
+        icon: iconContainer,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
         validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay'],
@@ -40,6 +52,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'IKChain',
         label: 'IK Chain',
+        icon: iconIKChain,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
         validChildTypes: ['IKNode'],
@@ -47,6 +60,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'IKNode',
         label: 'IK Node',
+        icon: iconIKNode,
         components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation],
         canBeRoot: false,
         validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay'],
@@ -54,13 +68,15 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'Box',
         label: 'Box',
+        icon: iconBox,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CBoxSize],
         canBeRoot: true,
         validChildTypes: [],
     },
     {
         name: 'Shape',
-        label: 'Tube',
+        label: 'SDF Shape',
+        icon: iconShape,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CSdfDirty, CSdfSymmetry],
         canBeRoot: true,
         validChildTypes: ['Tube'],
@@ -68,6 +84,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'Tube',
         label: 'Tube',
+        icon: iconTube,
         components: [CName, CObject3D, CSdfOperator, CTube],
         canBeRoot: false,
         validChildTypes: [],
@@ -75,6 +92,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'Clay',
         label: 'Clay',
+        icon: iconClay,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CVertices],
         canBeRoot: true,
         validChildTypes: [],
@@ -82,6 +100,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'Image',
         label: 'Image',
+        icon: iconImage,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
         canBeRoot: true,
         validChildTypes: [],
@@ -89,6 +108,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'ObjModel',
         label: 'Import .obj',
+        icon: iconObjModel,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CImportObj],
         canBeRoot: true,
         validChildTypes: [],
@@ -96,6 +116,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     {
         name: 'FbxModel',
         label: 'Import .fbx',
+        icon: iconFbxModel,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CImportFbx],
         canBeRoot: true,
         validChildTypes: [],

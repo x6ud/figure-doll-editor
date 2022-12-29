@@ -5,6 +5,7 @@ import CVisible from '../../model/components/CVisible';
 import Model from '../../model/Model';
 import ModelNode from '../../model/ModelNode';
 import ModelNodeComponent from '../../model/ModelNodeComponent';
+import {getModelNodeDef} from '../../model/ModelNodeDef';
 
 export default defineComponent({
     name: 'model-tree-node',
@@ -37,6 +38,9 @@ export default defineComponent({
         const name = computed(function () {
             const node = props.node;
             return (node.has(CName) ? node.value(CName) : '') || `${node.type}#${node.id}`;
+        });
+        const icon = computed(function () {
+            return getModelNodeDef(props.node.type).icon;
         });
         const hasVisible = computed(function () {
             return props.node.has(CVisible);
@@ -127,6 +131,7 @@ export default defineComponent({
         return {
             dom,
             name,
+            icon,
             hasVisible,
             visible,
             onSetValue,
