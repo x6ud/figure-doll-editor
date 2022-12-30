@@ -211,10 +211,12 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 _normal.copy(result.normal).transformDirection(mat);
                 this.sculptIndicator.quaternion.setFromUnitVectors(_forward, _normal);
 
-                _pos.copy(result.point).project(view.camera.get());
-                _pos.x += tool.brushRadius / view.height;
-                _pos.unproject(view.camera.get());
-                const brushSize = _pos.distanceTo(result.point);
+                let brushSize = tool.brushRadius / view.height;
+                if (view.camera.perspective) {
+                    brushSize *= this.sculptIndicator.position.distanceTo(view.camera._position);
+                } else {
+                    brushSize *= (view.camera.orthographicCamera.top - view.camera.orthographicCamera.bottom);
+                }
                 this.sculptIndicator.scale.setScalar(brushSize);
 
                 ctx.sculptLocalRadius = brushSize * getScaleScalar(_invMat);

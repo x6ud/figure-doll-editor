@@ -1,4 +1,15 @@
-import {Box3, BufferAttribute, BufferGeometry, Mesh, MeshStandardMaterial, Object3D, Ray, Sphere, Vector3} from 'three';
+import {
+    Box3,
+    BufferAttribute,
+    BufferGeometry,
+    Float32BufferAttribute,
+    Mesh,
+    MeshStandardMaterial,
+    Object3D,
+    Ray,
+    Sphere,
+    Vector3
+} from 'three';
 import Bits from '../../../../common/utils/Bits';
 import {hashFloat32x3, hashUint32x2} from '../../hash';
 import OctreeNode from './OctreeNode';
@@ -265,9 +276,16 @@ export default class DynamicMesh {
         if (obj) {
             const mesh = obj as Mesh;
             const position = mesh.geometry.getAttribute('position');
-            position.needsUpdate = true;
-            const normal = mesh.geometry.getAttribute('normal');
-            normal.needsUpdate = true;
+            if (position.array === this.aPosition) {
+                position.needsUpdate = true;
+                const normal = mesh.geometry.getAttribute('normal');
+                normal.needsUpdate = true;
+            } else {
+                mesh.geometry.dispose();
+                mesh.geometry = new BufferGeometry();
+                mesh.geometry.setAttribute('position', new Float32BufferAttribute(this.aPosition, 3));
+                mesh.geometry.setAttribute('normal', new Float32BufferAttribute(this.aNormal, 3));
+            }
             return mesh;
         } else {
             return new Mesh(
@@ -292,26 +310,25 @@ export default class DynamicMesh {
         return (vertexIdx - (vertexIdx % 3)) / 3;
     }
 
+    private markTriangleDirty(triIdx: number) {
+        if (!this.dirtyTrianglesMask.get(triIdx)) {
+            this.dirtyTrianglesMask.set(triIdx);
+            this.dirtyTriangles.push(triIdx);
+        }
+    }
+
     updateVertices(verticesIndices: number[], position: Float32Array) {
         const aPos = this.aPosition;
         for (let j = 0, len = verticesIndices.length; j < len; ++j) {
             const vertexIdx = this.sharedVertexMap[verticesIndices[j]];
-            const tri = this.getVertexTriangleIndex(vertexIdx);
-            if (!this.dirtyTrianglesMask.get(tri)) {
-                this.dirtyTrianglesMask.set(tri);
-                this.dirtyTriangles.push(tri);
-            }
+            this.markTriangleDirty(this.getVertexTriangleIndex(vertexIdx));
             for (let c = 0; c < 3; ++c) {
                 aPos[vertexIdx * 3 + c] = position[j * 3 + c];
             }
             const related = this.sharedVertexIndices.get(vertexIdx);
             if (related) {
                 for (let vertexIdx of related) {
-                    const tri = this.getVertexTriangleIndex(vertexIdx);
-                    if (!this.dirtyTrianglesMask.get(tri)) {
-                        this.dirtyTrianglesMask.set(tri);
-                        this.dirtyTriangles.push(tri);
-                    }
+                    this.markTriangleDirty(this.getVertexTriangleIndex(vertexIdx));
                     for (let c = 0; c < 3; ++c) {
                         aPos[vertexIdx * 3 + c] = position[j * 3 + c];
                     }

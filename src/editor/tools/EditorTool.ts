@@ -182,6 +182,6 @@ export default abstract class EditorTool {
     }
 
     sculptFalloff(dist: number) {
-        return 3 * dist ** 4 - 4 * dist ** 3 + 1;
+        return (3 * dist - 4) * dist ** 3 + 1;
     }
 }

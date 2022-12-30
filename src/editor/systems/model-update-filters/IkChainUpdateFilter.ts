@@ -55,7 +55,7 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
                     fog: false,
                     toneMapped: false,
                     transparent: true,
-                    opacity: 0.5,
+                    opacity: 0.75,
                     color: 0x777777
                 });
                 mesh.renderOrder = 1;
