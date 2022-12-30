@@ -73,7 +73,7 @@ export default class SculptBrushTool extends EditorTool {
         offset: Map<number, number>,
         arr: Float32Array,
     ) {
-        center.addScaledVector(normal, -radius * Math.sign(strength) * this.brushStrength * 0.5);
+        center.addScaledVector(normal, -radius * Math.sign(strength) * 0.5);
         for (let i of indices) {
             this.strokeVertex(normal, center, radius, strength, arr, offset.get(i)!);
         }
