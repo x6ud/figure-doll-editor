@@ -16,7 +16,6 @@ export default class SculptSmoothTool extends EditorTool {
     icon = icon;
     sculpt = true;
     brushStrength = 1.0;
-    brushRadius = 100;
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -33,10 +32,10 @@ export default class SculptSmoothTool extends EditorTool {
         if (!input.mouseLeft) {
             return;
         }
-        this.doStroke(ctx, view, this.brushStrength);
+        this.doStroke(ctx, view);
     }
 
-    doStroke(ctx: EditorContext, view: EditorView, brushStrength: number) {
+    doStroke(ctx: EditorContext, view: EditorView) {
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
@@ -45,7 +44,7 @@ export default class SculptSmoothTool extends EditorTool {
             this.stroke(
                 mesh,
                 point.indices,
-                brushStrength,
+                this.brushStrength,
                 point.center,
                 ctx.sculptLocalRadius,
                 stroke.offset,
@@ -55,7 +54,7 @@ export default class SculptSmoothTool extends EditorTool {
                 this.stroke(
                     mesh,
                     point.indicesSym!,
-                    brushStrength,
+                    this.brushStrength,
                     point.centerSym!,
                     ctx.sculptLocalRadius,
                     stroke.offset,

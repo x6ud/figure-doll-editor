@@ -13,7 +13,7 @@ export default class SculptFlattenTool extends EditorTool {
     label = 'Sculpt Flatten';
     icon = icon;
     sculpt = true;
-    brushRadius = 100;
+    brushStrength = 0.2;
     hasDirection = true;
     hasThirdDirection = true;
     brushDirection = 0;
@@ -34,7 +34,7 @@ export default class SculptFlattenTool extends EditorTool {
             return;
         }
         if (input.isKeyPressed('Shift')) {
-            return ctx.sculptSmoothTool.doStroke(ctx, view, this.brushStrength);
+            return ctx.sculptSmoothTool.doStroke(ctx, view);
         }
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);

@@ -16,7 +16,6 @@ export default class SculptMoveTool extends EditorTool {
     label = 'Sculpt Move';
     icon = icon;
     sculpt = true;
-    brushRadius = 100;
     brushStrength = 1;
 
     private nodeId: number = 0;
@@ -41,7 +40,7 @@ export default class SculptMoveTool extends EditorTool {
             return;
         }
         if (input.isKeyPressed('Shift')) {
-            return ctx.sculptSmoothTool.doStroke(ctx, view, this.brushStrength);
+            return ctx.sculptSmoothTool.doStroke(ctx, view);
         }
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
