@@ -6,12 +6,16 @@ export default class Bits {
         this.bits = new Uint32Array((len >>> 5) + 1);
     }
 
-    private checkCapacity(len: number) {
-        if (len > this.bits.length) {
-            const newArr = new Uint32Array(len);
+    private checkCapacity(capacity: number) {
+        if (capacity > this.bits.length) {
+            const newArr = new Uint32Array(capacity);
             newArr.set(this.bits, 0);
             this.bits = newArr;
         }
+    }
+
+    expandCapacity(len: number) {
+        this.checkCapacity((len >>> 5) + 1);
     }
 
     clear() {

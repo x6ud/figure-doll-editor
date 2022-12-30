@@ -1,4 +1,5 @@
 import {Box3, BufferAttribute, BufferGeometry, Mesh, MeshStandardMaterial, Object3D, Ray, Sphere, Vector3} from 'three';
+import Bits from '../../../../common/utils/Bits';
 import {hashFloat32x3, hashUint32x2} from '../../hash';
 import OctreeNode from './OctreeNode';
 
@@ -52,7 +53,8 @@ export default class DynamicMesh {
     octree: OctreeNode = new OctreeNode();
 
     /** Indices of triangles that were modified */
-    private dirtyTriangles: Set<number> = new Set();
+    private dirtyTriangles: number[] = [];
+    private dirtyTrianglesMask = new Bits();
 
     buildFromTriangles(position: Float32Array) {
         const aPos = this.aPosition = new Float32Array(position.length);
@@ -118,6 +120,7 @@ export default class DynamicMesh {
         }
         this.buildTriangleNeighborEdgeMap();
         this.octree.build(this);
+        this.dirtyTrianglesMask.expandCapacity(triNum);
     }
 
     private buildTriangleNeighborEdgeMap() {
@@ -293,16 +296,24 @@ export default class DynamicMesh {
         const aPos = this.aPosition;
         for (let j = 0, len = verticesIndices.length; j < len; ++j) {
             const vertexIdx = this.sharedVertexMap[verticesIndices[j]];
-            this.dirtyTriangles.add(this.getVertexTriangleIndex(vertexIdx));
+            const tri = this.getVertexTriangleIndex(vertexIdx);
+            if (!this.dirtyTrianglesMask.get(tri)) {
+                this.dirtyTrianglesMask.set(tri);
+                this.dirtyTriangles.push(tri);
+            }
             for (let c = 0; c < 3; ++c) {
                 aPos[vertexIdx * 3 + c] = position[j * 3 + c];
             }
             const related = this.sharedVertexIndices.get(vertexIdx);
             if (related) {
-                for (let v of related) {
-                    this.dirtyTriangles.add(this.getVertexTriangleIndex(v));
+                for (let vertexIdx of related) {
+                    const tri = this.getVertexTriangleIndex(vertexIdx);
+                    if (!this.dirtyTrianglesMask.get(tri)) {
+                        this.dirtyTrianglesMask.set(tri);
+                        this.dirtyTriangles.push(tri);
+                    }
                     for (let c = 0; c < 3; ++c) {
-                        aPos[v * 3 + c] = position[j * 3 + c];
+                        aPos[vertexIdx * 3 + c] = position[j * 3 + c];
                     }
                 }
             }
@@ -310,8 +321,7 @@ export default class DynamicMesh {
     }
 
     update(geometry?: BufferGeometry) {
-        const indices = Array.from(this.dirtyTriangles);
-        this.dirtyTriangles.clear();
+        const indices = this.dirtyTriangles;
         const position = this.aPosition;
         const normal = this.aNormal;
         const triCenter = this.triCenter;
@@ -383,5 +393,7 @@ export default class DynamicMesh {
             );
         }
         this.octree.update(this, indices);
+        this.dirtyTriangles.length = 0;
+        this.dirtyTrianglesMask.clear();
     }
 }

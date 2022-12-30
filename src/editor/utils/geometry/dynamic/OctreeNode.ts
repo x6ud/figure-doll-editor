@@ -1,4 +1,5 @@
 import {Box3, Ray, Sphere, Vector3} from 'three';
+import Bits from '../../../../common/utils/Bits';
 import DynamicMesh from './DynamicMesh';
 
 const _triCenter = new Vector3();
@@ -110,7 +111,10 @@ export default class OctreeNode {
         if (!indices.length) {
             return;
         }
-        const dirtyIndices = new Set(indices);
+        const dirtyIndices = new Bits(mesh.triNum);
+        for (let i of indices) {
+            dirtyIndices.set(i);
+        }
         const dirtyNodes: Set<OctreeNode> = new Set();
         {
             const stack: OctreeNode[] = [this];
@@ -123,7 +127,7 @@ export default class OctreeNode {
                 if (node.depth === 1) {
                     needsUpdate = true;
                 } else {
-                    const unchangedIndices = node.indices.filter(i => !dirtyIndices.has(i));
+                    const unchangedIndices = node.indices.filter(i => !dirtyIndices.get(i));
                     needsUpdate = unchangedIndices.length !== node.indices.length;
                     node.indices = unchangedIndices;
                 }
