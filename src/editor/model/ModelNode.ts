@@ -33,6 +33,7 @@ export default class ModelNode {
     dirty: boolean = true;
     deleted: boolean = false;
     opacity: number = 1;
+    visible: boolean = true;
 
     get<T extends ModelNodeComponent<any>>(componentClass: Class<T>): T {
         const component = this.components[componentClass.name];

@@ -96,8 +96,8 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                             const result = view.mousePick();
                             let id = 0;
                             for (let obj of result) {
-                                const node = (result[0].object.userData as Object3DUserData).node;
-                                if (node) {
+                                const node = (obj.object.userData as Object3DUserData).node;
+                                if (node?.visible) {
                                     id = node.id;
                                     break;
                                 }

@@ -1,4 +1,5 @@
 import EditorContext from '../EditorContext';
+import CVisible from '../model/components/CVisible';
 import ModelNode from '../model/ModelNode';
 import UpdateSystem from '../utils/UpdateSystem';
 
@@ -21,6 +22,11 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         ctx = ctx.readonlyRef();
         if (ctx.model.dirty) {
             ctx.model.forEach(node => {
+                if (node.parent && !node.parent.visible) {
+                    node.visible = false;
+                } else {
+                    node.visible = node.has(CVisible) ? node.value(CVisible) : true;
+                }
                 if (node.dirty) {
                     dirtyNodes.push(node);
                 }
