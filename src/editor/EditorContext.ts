@@ -29,6 +29,7 @@ import BoxTool from './tools/BoxTool';
 import CursorTool from './tools/CursorTool';
 import EditorTool from './tools/EditorTool';
 import IkBindTool from './tools/IkBindTool';
+import IkMoveTool from './tools/IkMoveTool';
 import IkRotateTool from './tools/IkRotateTool';
 import RescaleTool from './tools/RescaleTool';
 import RotateTool from './tools/RotateTool';
@@ -81,6 +82,7 @@ export default class EditorContext {
         ToolSeperator.instance,
         new IkBindTool(),
         new IkRotateTool(),
+        new IkMoveTool(),
         ToolSeperator.instance,
         new BoxTool(),
         new TubeTool(),

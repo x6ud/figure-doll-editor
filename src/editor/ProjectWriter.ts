@@ -104,7 +104,7 @@ export default class ProjectWriter {
                 const name = item[1];
                 const val = item[2];
                 this.writeUint32(dataType);
-                this.writeString(name.substring(1))
+                this.writeString(name.substring(1));
                 switch (dataType) {
                     case DataType.NUMBER:
                         this.writeFloat64(val);

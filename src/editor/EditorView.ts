@@ -1,4 +1,4 @@
-import {DirectionalLight, Object3D, Raycaster, Vector2, Vector3} from 'three';
+import {DirectionalLight, Raycaster, Vector2, Vector3} from 'three';
 import {TransformControls} from 'three/examples/jsm/controls/TransformControls';
 import EditorContext from './EditorContext';
 import {Object3DUserData} from './model/components/CObject3D';

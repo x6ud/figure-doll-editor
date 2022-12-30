@@ -1,6 +1,6 @@
 export default class EditorOptions {
     symmetry: 'no' | 'x' | 'y' | 'z' = 'no';
-    remeshVoxelSize: number = 0.005;
+    remeshVoxelSize: number = 0.003;
 
     keepTransformUnchangedWhileMoving: boolean = true;
     useLocalSpaceForTransformControl: boolean = true;

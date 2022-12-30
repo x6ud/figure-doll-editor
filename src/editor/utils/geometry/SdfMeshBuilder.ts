@@ -74,7 +74,7 @@ class SdfRoundCone implements SdfShape {
 const _p = new Vector3();
 
 export default class SdfMeshBuilder {
-    resolution = 0.005;
+    resolution = 0.003;
     maxResolutionSeg = 100;
     symmetryAxis = -1;
     smoothRange = 0.01;
