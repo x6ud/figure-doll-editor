@@ -8,6 +8,7 @@ import {pixelLine} from '../utils/pixel';
 const _sphere = new Sphere();
 const _ray = new Ray();
 const _invMat = new Matrix4();
+const _n = new Vector3();
 
 export type SculptToolStroke = {
     /** Indices of picked vertices */
@@ -91,7 +92,8 @@ export default abstract class EditorTool {
         ctx: EditorContext,
         node: ModelNode,
         view: EditorView,
-        mesh: DynamicMesh
+        mesh: DynamicMesh,
+        backfaceCulling?: boolean
     ): SculptToolStroke {
         ctx = ctx.readonlyRef();
         _invMat.copy(node.getWorldMatrix()).invert();
@@ -135,6 +137,12 @@ export default abstract class EditorTool {
                 const indices: number[] = [];
                 const visited = new Set<number>();
                 for (let tri of triangles) {
+                    if (backfaceCulling) {
+                        mesh.getNormal(_n, tri);
+                        if (_n.dot(_ray.direction) >= 0) {
+                            continue;
+                        }
+                    }
                     for (let v = 0; v < 3; ++v) {
                         const vertexIdx = mesh.sharedVertexMap[tri * 3 + v];
                         if (!visited.has(vertexIdx)) {
@@ -151,18 +159,27 @@ export default abstract class EditorTool {
                 switch (ctx.options.symmetry) {
                     case 'x':
                         _sphere.center.x *= -1;
+                        _ray.direction.x *= -1;
                         break;
                     case 'y':
                         _sphere.center.y *= -1;
+                        _ray.direction.y *= -1;
                         break;
                     case 'z':
                         _sphere.center.z *= -1;
+                        _ray.direction.z *= -1;
                         break;
                 }
                 const trianglesSym = mesh.intersectSphere(_sphere);
                 const indicesSym: number[] = [];
                 visited.clear();
                 for (let tri of trianglesSym) {
+                    if (backfaceCulling) {
+                        mesh.getNormal(_n, tri);
+                        if (_n.dot(_ray.direction) >= 0) {
+                            continue;
+                        }
+                    }
                     for (let v = 0; v < 3; ++v) {
                         const vertexIdx = mesh.sharedVertexMap[tri * 3 + v];
                         if (!visited.has(vertexIdx)) {

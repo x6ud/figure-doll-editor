@@ -41,7 +41,7 @@ export default class SculptPaintTool extends EditorTool {
         const mesh = cObject3D.mesh!;
         const pressure = ctx.options.enablePressure ? 1 : input.pressure;
         const strength = this.brushStrength * pressure;
-        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh, true);
         const colors = new Float32Array(stroke.position);
         for (let j = 0, len = stroke.indices.length; j < len; ++j) {
             const i = stroke.indices[j];
