@@ -108,7 +108,7 @@ export default class RescaleTool extends EditorTool {
                 this.dragging = false;
                 this.draggingViewIndex = -1;
             }
-        } else if (input.mouseOver) {
+        } else if (input.pointerOver) {
             if (input.mouseLeftDownThisFrame) {
                 this.mat0.copy(this.nodes[0].getWorldMatrix());
                 getTranslation(this.pos0, this.mat0);

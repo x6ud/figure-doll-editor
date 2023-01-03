@@ -38,7 +38,8 @@ export default class SculptCreaseTool extends EditorTool {
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
-        const strength = this.brushStrength * this.brushDirection;
+        const pressure = ctx.options.enablePressure ? 1 : input.pressure;
+        const strength = this.brushStrength * this.brushDirection * pressure;
         const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
         const normal = new Vector3();
         for (let point of stroke.track) {

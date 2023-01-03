@@ -56,7 +56,7 @@ export default class CameraDraggingSystem extends UpdateSystem<EditorContext> {
                         const dy = view.mouseNdc.y - state.mouseNdc0.y;
                         view.camera.alpha = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, state.eulerX0 + dy * Math.PI / 2));
                         view.camera.beta = (state.eulerY0 - dx * Math.PI / 2) % (Math.PI * 2);
-                    } else if (input.mouseOver && input.mouseRightDownThisFrame) {
+                    } else if (input.pointerOver && input.mouseRightDownThisFrame) {
                         state.rotating = true;
                         state.mouseNdc0.copy(view.mouseNdc);
                         state.eulerX0 = view.camera.alpha;
@@ -81,7 +81,7 @@ export default class CameraDraggingSystem extends UpdateSystem<EditorContext> {
                     _det.subVectors(_mouse1, _mouse0);
                     view.camera.target.subVectors(state.target0, _det);
                     changedIndex = view.index;
-                } else if (input.mouseOver && input.mouseMiddleDownThisFrame) {
+                } else if (input.pointerOver && input.mouseMiddleDownThisFrame) {
                     state.moving = true;
                     state.target0.copy(view.camera.target);
                     state.mouseNdc0.copy(view.mouseNdc);
@@ -92,7 +92,7 @@ export default class CameraDraggingSystem extends UpdateSystem<EditorContext> {
             }
 
             // zoom
-            if (input.wheelDetY && input.mouseOver) {
+            if (input.wheelDetY && input.pointerOver) {
                 view.zoomLevel = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, view.zoomLevel + input.wheelDetY));
                 changedIndex = view.index;
             }

@@ -59,7 +59,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                     continue;
                 }
                 const input = view.input;
-                if (input.mouseOver) {
+                if (input.pointerOver) {
                     if (input.mouseLeft) {
                         const x = Math.max(-1, Math.min(1, view.mouseNdc.x));
                         const y = Math.max(-1, Math.min(1, view.mouseNdc.y));
@@ -169,26 +169,26 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 }
                 const input = view.input;
                 if (input.mouseLeft) {
-                    if (input.mouseOver || ctx.sculptActiveView === view.index) {
+                    if (input.pointerOver || ctx.sculptActiveView === view.index) {
                         ctx.sculptActiveView = view.index;
                         if (input.mouseLeftDownThisFrame) {
                             ctx.sculptMoved = true;
                             ctx.sculptStartThisFrame = true;
-                            ctx.sculptX0 = ctx.sculptX1 = input.mouseX;
-                            ctx.sculptY0 = ctx.sculptY1 = input.mouseY;
-                        } else if (ctx.sculptX1 !== input.mouseX || ctx.sculptY1 !== input.mouseY) {
+                            ctx.sculptX0 = ctx.sculptX1 = input.pointerX;
+                            ctx.sculptY0 = ctx.sculptY1 = input.pointerY;
+                        } else if (ctx.sculptX1 !== input.pointerX || ctx.sculptY1 !== input.pointerY) {
                             ctx.sculptMoved = true;
                             ctx.sculptStartThisFrame = false;
                             ctx.sculptX0 = ctx.sculptX1;
                             ctx.sculptY0 = ctx.sculptY1;
-                            ctx.sculptX1 = input.mouseX;
-                            ctx.sculptY1 = input.mouseY;
+                            ctx.sculptX1 = input.pointerX;
+                            ctx.sculptY1 = input.pointerY;
                         }
                     }
                 } else if (ctx.sculptActiveView === view.index) {
                     ctx.sculptActiveView = -1;
                 }
-                if (!input.mouseOver) {
+                if (!input.pointerOver) {
                     continue;
                 }
 

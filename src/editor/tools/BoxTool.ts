@@ -90,7 +90,7 @@ export default class BoxTool extends EditorTool {
             if (this.activeViewIndex !== view.index) {
                 return;
             }
-            if (input.mouseOver && input.mouseLeft && ctx.model.isNodeExists(this.draggingFaceNodeId, 'Box')) {
+            if (input.pointerOver && input.mouseLeft && ctx.model.isNodeExists(this.draggingFaceNodeId, 'Box')) {
                 if (_cross.crossVectors(this.faceNormalWorld0, view.mouseRayN).lengthSq() < 1e-6) {
                     return;
                 }
@@ -196,7 +196,7 @@ export default class BoxTool extends EditorTool {
                 }
                 return;
             }
-            if (!input.mouseOver) {
+            if (!input.pointerOver) {
                 return;
             }
 
@@ -286,7 +286,7 @@ export default class BoxTool extends EditorTool {
             return;
         }
 
-        if (input.mouseOver) {
+        if (input.pointerOver) {
             // find hovered box face
             for (let result of view.mousePick()) {
                 const node = (result.object.userData as Object3DUserData).node;

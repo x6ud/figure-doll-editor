@@ -40,11 +40,12 @@ export default class SculptSmoothTool extends EditorTool {
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
         const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        const pressure = ctx.options.enablePressure ? 1 : view.input.pressure;
         for (let point of stroke.track) {
             this.stroke(
                 mesh,
                 point.indices,
-                this.brushStrength,
+                this.brushStrength * pressure,
                 point.center,
                 ctx.sculptLocalRadius,
                 stroke.offset,
@@ -54,7 +55,7 @@ export default class SculptSmoothTool extends EditorTool {
                 this.stroke(
                     mesh,
                     point.indicesSym!,
-                    this.brushStrength,
+                    this.brushStrength * pressure,
                     point.centerSym!,
                     ctx.sculptLocalRadius,
                     stroke.offset,

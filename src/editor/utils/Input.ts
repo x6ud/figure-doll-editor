@@ -3,26 +3,25 @@ import {MouseButton} from './MouseButton';
 export default class Input {
 
     element?: HTMLElement;
-    mouseOver: boolean = false;
-    mouseX: number = 0;
-    mouseY: number = 0;
+    pointerOver: boolean = false;
+    pointerX: number = 0;
+    pointerY: number = 0;
+    pressure: number = 0;
     mouseLeft: boolean = false;
     mouseLeftDownThisFrame: boolean = false;
     mouseRight: boolean = false;
     mouseRightDownThisFrame: boolean = false;
     mouseMiddle: boolean = false;
     mouseMiddleDownThisFrame: boolean = false;
-    click: boolean = false;
     wheelDetX: number = 0;
     wheelDetY: number = 0;
 
     private readonly onContextmenu: (e: MouseEvent) => void;
-    private readonly onMouseMove: (e: MouseEvent) => void;
-    private readonly onMouseDown: (e: MouseEvent) => void;
-    private readonly onMouseUp: (e: MouseEvent) => void;
-    private readonly onClick: (e: MouseEvent) => void;
-    private readonly onMouseLeave: () => void;
-    private readonly onMouseOut: (e: MouseEvent) => void;
+    private readonly onPointerMove: (e: PointerEvent) => void;
+    private readonly onPointerDown: (e: PointerEvent) => void;
+    private readonly onPointerUp: (e: PointerEvent) => void;
+    private readonly onPointerLeave: () => void;
+    private readonly onPointerOut: (e: PointerEvent) => void;
     private readonly onWheel: (e: WheelEvent) => void;
     private readonly onKeyDown: (e: KeyboardEvent) => void;
     private readonly onKeyUp: (e: KeyboardEvent) => void;
@@ -39,18 +38,20 @@ export default class Input {
             }
             e.preventDefault();
         };
-        this.onMouseMove = (e: MouseEvent) => {
+        this.onPointerMove = (e: PointerEvent) => {
             if (e.target !== this.element) {
                 return;
             }
-            this.mouseOver = true;
-            this.mouseX = e.offsetX;
-            this.mouseY = e.offsetY;
+            this.pressure = e.pressure;
+            this.pointerOver = true;
+            this.pointerX = e.offsetX;
+            this.pointerY = e.offsetY;
         };
-        this.onMouseDown = (e: MouseEvent) => {
+        this.onPointerDown = (e: PointerEvent) => {
             if (e.target !== this.element) {
                 return;
             }
+            this.pressure = e.pressure;
             switch (e.button) {
                 case MouseButton.LEFT:
                     this.mouseLeft = true;
@@ -66,7 +67,8 @@ export default class Input {
                     break;
             }
         };
-        this.onMouseUp = (e: MouseEvent) => {
+        this.onPointerUp = (e: PointerEvent) => {
+            this.pressure = e.pressure;
             switch (e.button) {
                 case MouseButton.LEFT:
                     this.mouseLeft = false;
@@ -82,17 +84,13 @@ export default class Input {
                     break;
             }
         };
-        this.onClick = (e: MouseEvent) => {
-            if (e.target !== this.element) {
-                return;
-            }
-            this.click = true;
+        this.onPointerLeave = () => {
+            this.pressure = 0;
+            this.pointerOver = false;
         };
-        this.onMouseLeave = () => {
-            this.mouseOver = false;
-        };
-        this.onMouseOut = (e) => {
+        this.onPointerOut = (e: PointerEvent) => {
             if (e.clientY <= 0 || e.clientX <= 0 || (e.clientX >= window.innerWidth || e.clientY >= window.innerHeight)) {
+                this.pressure = 0;
                 this.mouseLeft = false;
                 this.mouseLeftDownThisFrame = false;
                 this.mouseRight = false;
@@ -132,12 +130,11 @@ export default class Input {
         this.unload();
         this.element = element;
         element.addEventListener('contextmenu', this.onContextmenu);
-        element.addEventListener('mousemove', this.onMouseMove);
-        element.addEventListener('mousedown', this.onMouseDown);
-        element.addEventListener('click', this.onClick);
-        element.addEventListener('mouseleave', this.onMouseLeave);
-        document.addEventListener('mouseup', this.onMouseUp);
-        document.addEventListener('mouseout', this.onMouseOut);
+        element.addEventListener('pointermove', this.onPointerMove);
+        element.addEventListener('pointerdown', this.onPointerDown);
+        element.addEventListener('pointerleave', this.onPointerLeave);
+        document.addEventListener('pointerup', this.onPointerUp);
+        document.addEventListener('pointerout', this.onPointerOut);
         element.addEventListener('wheel', this.onWheel);
         window.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('keyup', this.onKeyUp);
@@ -150,12 +147,11 @@ export default class Input {
             return;
         }
         element.removeEventListener('contextmenu', this.onContextmenu);
-        element.removeEventListener('mousemove', this.onMouseMove);
-        element.removeEventListener('mousedown', this.onMouseDown);
-        element.removeEventListener('click', this.onClick);
-        element.removeEventListener('mouseleave', this.onMouseLeave);
-        document.removeEventListener('mouseup', this.onMouseUp);
-        document.removeEventListener('mouseout', this.onMouseOut);
+        element.removeEventListener('pointermove', this.onPointerMove);
+        element.removeEventListener('pointerdown', this.onPointerDown);
+        element.removeEventListener('pointerleave', this.onPointerLeave);
+        document.removeEventListener('pointerup', this.onPointerUp);
+        document.removeEventListener('pointerout', this.onPointerOut);
         element.removeEventListener('wheel', this.onWheel);
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
@@ -167,7 +163,6 @@ export default class Input {
         this.mouseLeftDownThisFrame = false;
         this.mouseRightDownThisFrame = false;
         this.mouseMiddleDownThisFrame = false;
-        this.click = false;
         this.wheelDetX = 0;
         this.wheelDetY = 0;
         this.timestamp = Date.now();

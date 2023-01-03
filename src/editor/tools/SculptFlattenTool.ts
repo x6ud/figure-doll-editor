@@ -42,10 +42,11 @@ export default class SculptFlattenTool extends EditorTool {
         const center = new Vector3();
         const normal = new Vector3();
         const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        const pressure = ctx.options.enablePressure ? 1 : input.pressure;
         for (let point of stroke.track) {
             this.stroke(
                 point.indices,
-                this.brushStrength,
+                this.brushStrength * pressure,
                 mesh.getAverageNormal(normal, point.triangles),
                 mesh.getAverageCenter(center, point.triangles),
                 point.center,
@@ -56,7 +57,7 @@ export default class SculptFlattenTool extends EditorTool {
             if (ctx.sculptSym) {
                 this.stroke(
                     point.indicesSym!,
-                    this.brushStrength,
+                    this.brushStrength * pressure,
                     mesh.getAverageNormal(normal, point.trianglesSym!),
                     mesh.getAverageCenter(center, point.trianglesSym!),
                     point.centerSym!,

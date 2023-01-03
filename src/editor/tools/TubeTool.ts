@@ -203,7 +203,7 @@ export default class TubeTool extends EditorTool {
             }
         }
         // find hovered
-        if (input.mouseOver && !(this.dragging || this.creating)) {
+        if (input.pointerOver && !(this.dragging || this.creating)) {
             let resize = false;
             for (let node of this.nodes) {
                 const cTube = node.get(CTube);
@@ -276,7 +276,7 @@ export default class TubeTool extends EditorTool {
         if (this.creating) {
             if (input.isKeyPressed('Alt')) {
                 this.enableSelectionRect = false;
-                if (input.mouseOver) {
+                if (input.pointerOver) {
                     // find insert position
                     let node: ModelNode | null = null;
                     let cTube: CTube | null = null;

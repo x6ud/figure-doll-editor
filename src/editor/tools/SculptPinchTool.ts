@@ -36,7 +36,8 @@ export default class SculptPinchTool extends EditorTool {
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
-        const strength = this.brushStrength * this.brushDirection * 0.1;
+        const pressure = ctx.options.enablePressure ? 1 : input.pressure;
+        const strength = this.brushStrength * this.brushDirection * pressure * 0.1;
         const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
         for (let point of stroke.track) {
             this.stroke(

@@ -7,8 +7,8 @@ export default class MouseSystem extends UpdateSystem<EditorContext> {
         ctx = ctx.readonlyRef();
         for (let view of ctx.views) {
             if (view.enabled) {
-                view.mouseScr.x = view.input.mouseX;
-                view.mouseScr.y = view.height - view.input.mouseY;
+                view.mouseScr.x = view.input.pointerX;
+                view.mouseScr.y = view.height - view.input.pointerY;
                 view.mouseNdc.x = view.mouseScr.x / view.width * 2 - 1;
                 view.mouseNdc.y = view.mouseScr.y / view.height * 2 - 1;
                 view.mouseRay0.copy(view.mouseNdc);

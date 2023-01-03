@@ -91,7 +91,7 @@
 
                 <template v-if="editorCtx.tool.sculpt">
                     <div class="separator"></div>
-                    <label-range style="margin-right: 4px;"
+                    <label-range style="margin-right: 6px;"
                                  v-model:value="editorCtx.tool.brushRadius"
                                  label="Radius"
                                  :min="5"
@@ -99,7 +99,7 @@
                                  :step="1"
                                  :fraction-digits="0"
                     />
-                    <label-range style="margin-right: 8px;"
+                    <label-range style="margin-right: 2px;"
                                  v-model:value="editorCtx.tool.brushStrength"
                                  label="Strength"
                                  :min="0.01"
@@ -107,36 +107,41 @@
                                  :step="0.001"
                                  :fraction-digits="3"
                     />
-                    <div class="button-group cols" style="margin-right: 8px"
+                    <button class="normal-button toggle-button"
+                            title="Enable Tablet Pressure Sensitivity"
+                            style="margin-right: 6px;"
+                            :class="{active: editorCtx.options.enablePressure}"
+                            @click="editorCtx.options.enablePressure = !editorCtx.options.enablePressure"
+                    >
+                        <img src="./icons/pressure.png" alt="">
+                    </button>
+                    <div class="button-group cols" style="margin-right: 6px"
                          title="Direction"
                          v-if="editorCtx.tool.hasDirection"
                     >
                         <button class="normal-button toggle-button"
-                                style="font-size: 14px;"
                                 :class="{active: editorCtx.tool.brushDirection === 1}"
                                 @click="editorCtx.tool.brushDirection = 1"
                         >
-                            +
+                            <img src="./icons/plus.png" alt="">
                         </button>
                         <button class="normal-button toggle-button"
-                                style="font-size: 12px;"
                                 :class="{active: editorCtx.tool.brushDirection === 0}"
                                 @click="editorCtx.tool.brushDirection = 0"
                                 v-if="editorCtx.tool.hasThirdDirection"
                         >
-                            o
+                            <img src="./icons/zero.png" alt="">
                         </button>
                         <button class="normal-button toggle-button"
-                                style="font-size: 14px;"
                                 :class="{active: editorCtx.tool.brushDirection === -1}"
                                 @click="editorCtx.tool.brushDirection = -1"
                         >
-                            -
+                            <img src="./icons/minus.png" alt="">
                         </button>
                     </div>
                     <select v-model="editorCtx.options.symmetry"
                             title="Symmetry"
-                            style="margin-right: 8px"
+                            style="margin-right: 6px"
                     >
                         <option value="no">No Symm</option>
                         <option value="x">Symm X</option>

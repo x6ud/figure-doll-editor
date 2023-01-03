@@ -81,7 +81,7 @@ export default class IkRotateTool extends EditorTool {
         if (input.mouseLeft) {
             if (input.mouseLeftDownThisFrame) {
                 // drag start
-                if (input.mouseOver) {
+                if (input.pointerOver) {
                     // find mouse over handler
                     let topHoveredZ = Infinity;
                     let hoveredNode: ModelNode | null = null;

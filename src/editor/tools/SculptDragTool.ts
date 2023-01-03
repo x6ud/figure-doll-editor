@@ -86,9 +86,10 @@ export default class SculptDragTool extends EditorTool {
                     break;
             }
         }
+        const pressure = ctx.options.enablePressure ? 1 : input.pressure;
         this.stroke(
             this.stroke0.indices,
-            this.brushStrength,
+            this.brushStrength * pressure,
             ctx.sculptSym,
             _det,
             _detSym,
