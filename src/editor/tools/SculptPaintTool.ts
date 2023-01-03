@@ -10,11 +10,14 @@ const _v = new Vector3();
 const _c0 = new Vector3();
 const _c1 = new Vector3();
 
+// Modified from https://github.com/stephomi/sculptgl/blob/master/src/editing/tools/Paint.js
 export default class SculptPaintTool extends EditorTool {
     label = 'Paint';
     icon = icon;
     sculpt = true;
+    brushRadius = 25;
     brushStrength = 1;
+    hasHardness = true;
     hasColor = true;
 
     update(ctx: EditorContext, view: EditorView) {
@@ -97,7 +100,8 @@ export default class SculptPaintTool extends EditorTool {
         if (dist >= 1) {
             return;
         }
-        const alpha = this.sculptFalloff(dist) * strength;
+        const falloff = Math.pow(1 - dist, 2 * (1 - this.brushHardness));
+        const alpha = falloff * strength;
         _c0.fromArray(color, offset).lerp(_c1, alpha);
         color[offset] = _c0.x;
         color[offset + 1] = _c0.y;
