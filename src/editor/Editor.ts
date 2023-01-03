@@ -34,12 +34,12 @@ import {dataUrlToArrayBuffer} from './utils/convert';
 import {voxelizeRemesh} from './utils/geometry/voxelize-remesh';
 import {getTranslation} from './utils/math';
 
-const extension = '.model';
+const extension = '.doll';
 const filePickerAcceptType: FilePickerAcceptType = {
     description: 'Model',
-    accept: {'application/puppet-editor': [extension]}
+    accept: {'application/figure-doll-editor': [extension]}
 };
-const localStorageKey = 'puppet-editor-options';
+const localStorageKey = 'figure-doll-editor-options';
 
 export default defineComponent({
     components: {
@@ -95,7 +95,7 @@ export default defineComponent({
                 if (filename && filename.endsWith(extension)) {
                     filename = filename.substring(0, filename.length - extension.length);
                 }
-                document.title = (filename || 'Untitled') + (dirty ? '*' : '') + ' - Puppet Editor';
+                document.title = (filename || 'Untitled') + (dirty ? '*' : '') + ' - Figure Doll Editor';
             },
             {immediate: true}
         );
