@@ -45,6 +45,8 @@ function isSameVertex(a: Vector3, b: Vector3) {
 export default class DynamicMesh {
     /** Triangle soup */
     aPosition: Float32Array = new Float32Array();
+    /** Colors for each vertex */
+    aColor: Float32Array = new Float32Array();
     /** Normals for each vertex */
     aNormal: Float32Array = new Float32Array();
     /** Midpoint of each triangle */
@@ -66,10 +68,16 @@ export default class DynamicMesh {
     /** Indices of triangles that were modified */
     private dirtyTriangles: number[] = [];
     private dirtyTrianglesMask = new Bits();
+    private positionNeedsUpdate = false;
+    private colorNeedsUpdate = false;
 
-    buildFromTriangles(position: Float32Array) {
+    buildFromTriangles(position: Float32Array, color?: Float32Array) {
         const aPos = this.aPosition = new Float32Array(position.length);
         const aNormal = this.aNormal = new Float32Array(position.length);
+        const aColor = this.aColor = new Float32Array(position.length);
+        if (color?.length !== aColor.length) {
+            color = undefined;
+        }
         let triCount = 0;
         for (let tri = 0, len = position.length / 9; tri < len; ++tri) {
             _a.fromArray(position, tri * 9);
@@ -86,6 +94,16 @@ export default class DynamicMesh {
             for (let k = 0; k < 9; ++k) {
                 aPos[triCount * 9 + k] = position[tri * 9 + k];
             }
+            // copy color
+            if (color) {
+                for (let k = 0; k < 9; ++k) {
+                    aColor[triCount * 9 + k] = color[tri * 9 + k];
+                }
+            } else {
+                for (let k = 0; k < 9; ++k) {
+                    aColor[triCount * 9 + k] = 1;
+                }
+            }
             // calculate normal
             _ab.subVectors(_a, _b);
             _cb.subVectors(_c, _b);
@@ -101,10 +119,10 @@ export default class DynamicMesh {
         if (triCount < position.length / 9) {
             this.aPosition = aPos.subarray(0, triCount * 9);
             this.aNormal = aNormal.subarray(0, triCount * 9);
+            this.aColor = aColor.subarray(0, triCount * 9);
             console.info(`Discard ${position.length / 9 - triCount} zero area triangles`);
         }
         this.init();
-        return this.aPosition;
     }
 
     private init() {
@@ -277,22 +295,34 @@ export default class DynamicMesh {
             const mesh = obj as Mesh;
             const position = mesh.geometry.getAttribute('position');
             if (position.array === this.aPosition) {
-                position.needsUpdate = true;
-                const normal = mesh.geometry.getAttribute('normal');
-                normal.needsUpdate = true;
+                if (this.positionNeedsUpdate) {
+                    this.positionNeedsUpdate = false;
+                    position.needsUpdate = true;
+                    const normal = mesh.geometry.getAttribute('normal');
+                    normal.needsUpdate = true;
+                }
+                if (this.colorNeedsUpdate) {
+                    this.colorNeedsUpdate = false;
+                    const color = mesh.geometry.getAttribute('color');
+                    color.needsUpdate = true;
+                }
             } else {
                 mesh.geometry.dispose();
                 mesh.geometry = new BufferGeometry();
                 mesh.geometry.setAttribute('position', new Float32BufferAttribute(this.aPosition, 3));
                 mesh.geometry.setAttribute('normal', new Float32BufferAttribute(this.aNormal, 3));
+                mesh.geometry.setAttribute('color', new Float32BufferAttribute(this.aColor, 3));
             }
             return mesh;
         } else {
             return new Mesh(
                 new BufferGeometry()
                     .setAttribute('position', new BufferAttribute(this.aPosition, 3))
-                    .setAttribute('normal', new BufferAttribute(this.aNormal, 3)),
-                new MeshStandardMaterial()
+                    .setAttribute('normal', new BufferAttribute(this.aNormal, 3))
+                    .setAttribute('color', new BufferAttribute(this.aColor, 3)),
+                new MeshStandardMaterial({
+                    vertexColors: true
+                })
             );
         }
     }
@@ -335,6 +365,26 @@ export default class DynamicMesh {
                 }
             }
         }
+        this.positionNeedsUpdate = true;
+    }
+
+    updateColors(verticesIndices: number[], color: Float32Array) {
+        const aColor = this.aColor;
+        for (let j = 0, len = verticesIndices.length; j < len; ++j) {
+            const vertexIdx = this.sharedVertexMap[verticesIndices[j]];
+            for (let c = 0; c < 3; ++c) {
+                aColor[vertexIdx * 3 + c] = color[j * 3 + c];
+            }
+            const related = this.sharedVertexIndices.get(vertexIdx);
+            if (related) {
+                for (let vertexIdx of related) {
+                    for (let c = 0; c < 3; ++c) {
+                        aColor[vertexIdx * 3 + c] = color[j * 3 + c];
+                    }
+                }
+            }
+        }
+        this.colorNeedsUpdate = true;
     }
 
     update(geometry?: BufferGeometry) {

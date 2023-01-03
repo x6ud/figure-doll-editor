@@ -177,17 +177,18 @@ export default class SdfMeshBuilder {
                         continue;
                     }
                     marchingCubes(
-                        aPosition, aNormal,
+                        aPosition, aNormal, null,
                         x, y, z,
                         step,
-                        sample[ix * yRange * zRange + iy * zRange + iz],
-                        sample[(ix + 1) * yRange * zRange + iy * zRange + iz],
-                        sample[(ix + 1) * yRange * zRange + iy * zRange + (iz + 1)],
-                        sample[ix * yRange * zRange + iy * zRange + (iz + 1)],
-                        sample[ix * yRange * zRange + (iy + 1) * zRange + iz],
-                        sample[(ix + 1) * yRange * zRange + (iy + 1) * zRange + iz],
-                        sample[(ix + 1) * yRange * zRange + (iy + 1) * zRange + (iz + 1)],
-                        sample[ix * yRange * zRange + (iy + 1) * zRange + (iz + 1)],
+                        sample, null,
+                        ix * yRange * zRange + iy * zRange + iz,
+                        (ix + 1) * yRange * zRange + iy * zRange + iz,
+                        (ix + 1) * yRange * zRange + iy * zRange + (iz + 1),
+                        ix * yRange * zRange + iy * zRange + (iz + 1),
+                        ix * yRange * zRange + (iy + 1) * zRange + iz,
+                        (ix + 1) * yRange * zRange + (iy + 1) * zRange + iz,
+                        (ix + 1) * yRange * zRange + (iy + 1) * zRange + (iz + 1),
+                        ix * yRange * zRange + (iy + 1) * zRange + (iz + 1),
                     );
                 }
             }

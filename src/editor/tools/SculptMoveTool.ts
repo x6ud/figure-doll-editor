@@ -2,6 +2,7 @@ import {Matrix4, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CObject3D from '../model/components/CObject3D';
+import CVertices from '../model/components/CVertices';
 import {linePanelIntersection} from '../utils/math';
 import EditorTool, {SculptToolStroke} from './EditorTool';
 import icon from './SculptMove.png';
@@ -99,7 +100,7 @@ export default class SculptMoveTool extends EditorTool {
             this.stroke0.offset,
             position
         );
-        ctx.history.updateVertices(node, this.stroke0.indices, position);
+        ctx.history.updateVertices(node, CVertices, this.stroke0.indices, position);
     }
 
     private stroke(

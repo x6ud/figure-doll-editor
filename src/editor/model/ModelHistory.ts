@@ -1,6 +1,7 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import Class from '../../common/type/Class';
 import {getScaleScalar} from '../utils/math';
+import CColors from './components/CColors';
 import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
@@ -411,89 +412,89 @@ export default class ModelHistory {
         return true;
     }
 
-    updateVertices(node: ModelNode, verticesIndices: number[], positions: Float32Array) {
-        if (!verticesIndices.length) {
+    updateVertices(node: ModelNode, componentClass: Class<CVertices | CColors>, indices: number[], data: Float32Array) {
+        if (!indices.length) {
             return false;
         }
         const nodeId = node.id;
-        const vertices = node.value(CVertices);
-        let oldPos = new Float32Array(positions.length);
-        for (let j = 0, len = verticesIndices.length; j < len; ++j) {
-            const i = verticesIndices[j];
+        const vertices = node.value(componentClass);
+        let oldData = new Float32Array(data.length);
+        for (let j = 0, len = indices.length; j < len; ++j) {
+            const i = indices[j];
             for (let c = 0; c < 3; ++c) {
-                oldPos[j * 3 + c] = vertices[i * 3 + c];
+                oldData[j * 3 + c] = vertices[i * 3 + c];
             }
         }
-        let oldIndices = verticesIndices;
-        let newIndices = verticesIndices;
-        let newPos = positions;
+        let oldIndices = indices;
+        let newIndices = indices;
+        let newData = data;
 
-        const hash = nodeId + '#' + CVertices.name;
+        const hash = nodeId + '#' + componentClass.name;
         this.currentFrameRecords = this.currentFrameRecords.filter(record => record.hash !== hash);
         this.currentFrameRecords.push({
             hash,
             redo: () => {
-                this.model.updateVertices(this.model.getNode(nodeId), newIndices, newPos);
+                this.model.updateVertices(this.model.getNode(nodeId), componentClass, newIndices, newData);
             },
             undo: () => {
-                this.model.updateVertices(this.model.getNode(nodeId), oldIndices, oldPos);
+                this.model.updateVertices(this.model.getNode(nodeId), componentClass, oldIndices, oldData);
                 this.model.addSelection(nodeId);
             },
-            setCtx: ([oldIndices0, oldPos0, newIndices0, newPos0]: [number[], Float32Array, number[], Float32Array]) => {
+            setCtx: ([oldIndices0, oldData0, newIndices0, newData0]: [number[], Float32Array, number[], Float32Array]) => {
                 // undo ctx
                 {
-                    // merge original positions of modified vertices
+                    // merge original positions/colors of modified vertices
                     // keep only the oldest
                     const allChangedIndices = new Set([...oldIndices0, ...oldIndices]);
-                    const oldPos1 = new Float32Array(allChangedIndices.size * 3);
-                    for (let i = 0, len = oldPos0.length; i < len; ++i) {
-                        oldPos1[i] = oldPos0[i];
+                    const oldData1 = new Float32Array(allChangedIndices.size * 3);
+                    for (let i = 0, len = oldData0.length; i < len; ++i) {
+                        oldData1[i] = oldData0[i];
                     }
                     const oldIndices1 = [...oldIndices0];
                     const existed = new Set(oldIndices0);
-                    let offset = oldPos0.length;
+                    let offset = oldData0.length;
                     for (let j = 0, len = oldIndices.length; j < len; ++j) {
                         const i = oldIndices[j];
                         if (!existed.has(i)) {
                             oldIndices1.push(i);
                             for (let c = 0; c < 3; ++c) {
-                                oldPos1[offset + c] = oldPos[j * 3 + c];
+                                oldData1[offset + c] = oldData[j * 3 + c];
                             }
                             offset += 3;
                         }
                     }
                     oldIndices = oldIndices1;
-                    oldPos = oldPos1;
+                    oldData = oldData1;
                 }
 
                 // redo ctx
                 {
-                    // merge new positions of modified vertices
+                    // merge new positions/colors of modified vertices
                     // discard old ones for repetitive
                     const allChangedIndices = new Set([...newIndices, ...newIndices0]);
-                    const newPos1 = new Float32Array(allChangedIndices.size * 3);
-                    for (let i = 0, len = newPos.length; i < len; ++i) {
-                        newPos1[i] = newPos[i];
+                    const newData1 = new Float32Array(allChangedIndices.size * 3);
+                    for (let i = 0, len = newData.length; i < len; ++i) {
+                        newData1[i] = newData[i];
                     }
                     const newIndices1 = [...newIndices];
                     const existed = new Set(newIndices);
-                    let offset = newPos.length;
+                    let offset = newData.length;
                     for (let j = 0, len = newIndices0.length; j < len; ++j) {
                         const i = newIndices0[j];
                         if (!existed.has(i)) {
                             newIndices1.push(i);
                             for (let c = 0; c < 3; ++c) {
-                                newPos1[offset + c] = newPos0[j * 3 + c];
+                                newData1[offset + c] = newData0[j * 3 + c];
                             }
                             offset += 3;
                         }
                     }
                     newIndices = newIndices1;
-                    newPos = newPos1;
+                    newData = newData1;
                 }
             },
             getCtx: () => {
-                return [oldIndices, oldPos, newIndices, newPos];
+                return [oldIndices, oldData, newIndices, newData];
             },
         });
         return true;

@@ -1,4 +1,5 @@
 import Class from '../../common/type/Class';
+import CColors from './components/CColors';
 import CObject3D from './components/CObject3D';
 import CVertices from './components/CVertices';
 import ModelNode from './ModelNode';
@@ -205,29 +206,35 @@ export default class Model {
         }
     }
 
-    updateVertices(node: ModelNode, verticesIndices: number[], position: Float32Array) {
-        const cVertices = node.get(CVertices);
-        const val = cVertices.value;
+    updateVertices(node: ModelNode, componentClass: Class<CVertices | CColors>, indices: number[], data: Float32Array) {
+        const component = node.get(componentClass);
+        const val = component.value;
         const cObject3D = node.get(CObject3D);
         if (cObject3D.mesh) {
             const mesh = cObject3D.mesh;
-            mesh.updateVertices(verticesIndices, position);
-            for (let i = 0, len = val.length; i < len; ++i) {
-                val[i] = mesh.aPosition[i];
-            }
-        } else {
-            for (let j = 0, len = verticesIndices.length; j < len; ++j) {
-                const i = verticesIndices[j];
-                for (let c = 0; c < 3; ++c) {
-                    val[i * 3 + c] = position[j * 3 + c];
+            if (componentClass === CVertices) {
+                mesh.updateVertices(indices, data);
+                for (let i = 0, len = val.length; i < len; ++i) {
+                    val[i] = mesh.aPosition[i];
                 }
+            } else if (componentClass === CColors) {
+                mesh.updateColors(indices, data);
+                for (let i = 0, len = val.length; i < len; ++i) {
+                    val[i] = mesh.aColor[i];
+                }
+            }
+        }
+        for (let j = 0, len = indices.length; j < len; ++j) {
+            const i = indices[j];
+            for (let c = 0; c < 3; ++c) {
+                val[i * 3 + c] = data[j * 3 + c];
             }
         }
         node.dirty = true;
         this.dirty = true;
-        cVertices.partialUpdate = true;
+        component.partialUpdate = true;
         for (let watcher of this.watchers) {
-            watcher.onValueChanged(this, node, CVertices);
+            watcher.onValueChanged(this, node, componentClass);
         }
     }
 }

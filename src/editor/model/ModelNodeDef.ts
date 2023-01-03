@@ -1,5 +1,6 @@
 import Class from '../../common/type/Class';
 import CBoxSize from './components/CBoxSize';
+import CColors from './components/CColors';
 import CIkNode from './components/CIkNode';
 import CIkNodeLength from './components/CIkNodeLength';
 import CIkNodeRotation from './components/CIkNodeRotation';
@@ -93,7 +94,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'Clay',
         label: 'Clay',
         icon: iconClay,
-        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CVertices],
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CVertices, CColors],
         canBeRoot: true,
         validChildTypes: [],
     },

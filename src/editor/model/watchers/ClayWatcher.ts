@@ -1,4 +1,5 @@
 import Class from '../../../common/type/Class';
+import CColors from '../components/CColors';
 import CVertices from '../components/CVertices';
 import Model from '../Model';
 import ModelNode from '../ModelNode';
@@ -9,6 +10,8 @@ export default class ClayWatcher implements ModelNodeChangedWatcher {
     onValueChanged(model: Model, node: ModelNode, componentClass: Class<ModelNodeComponent<any>>): void {
         if (componentClass === CVertices) {
             node.get(CVertices).dirty = true;
+        } else if (componentClass === CColors) {
+            node.get(CColors).dirty = true;
         }
     }
 

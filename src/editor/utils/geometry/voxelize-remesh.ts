@@ -6,6 +6,10 @@ import {marchingCubes} from './marching-cubes';
 const _a = new Vector3();
 const _b = new Vector3();
 const _c = new Vector3();
+const _colorA = new Vector3();
+const _colorB = new Vector3();
+const _colorC = new Vector3();
+const _color = new Vector3();
 const _ab = new Vector3();
 const _ac = new Vector3();
 const _bc = new Vector3();
@@ -17,6 +21,7 @@ const _edgeDir = new Vector3(1, 0, 0);
 // Modified from https://github.com/stephomi/sculptgl/blob/master/src/editing/Remesh.js
 export function voxelizeRemesh(
     position: Float32Array,
+    color: Float32Array,
     triBox: Float32Array,
     boundingBox: Box3,
     voxelSize: number = 0.005
@@ -46,6 +51,7 @@ export function voxelizeRemesh(
     const zRange = iz1 - iz0;
     const dataLen = xRange * yRange * zRange;
     const sdfSample = new Float32Array(dataLen);
+    const colorSample = new Float32Array(dataLen * 3);
     for (let i = 0; i < dataLen; ++i) {
         sdfSample[i] = step;
     }
@@ -72,6 +78,10 @@ export function voxelizeRemesh(
         _a.fromArray(position, tri * 9);
         _b.fromArray(position, tri * 9 + 3);
         _c.fromArray(position, tri * 9 + 6);
+        _colorA.fromArray(color, tri * 9);
+        _colorB.fromArray(color, tri * 9 + 3);
+        _colorC.fromArray(color, tri * 9 + 6);
+        _color.addVectors(_colorA, _colorB).add(_colorC).multiplyScalar(1 / 3);
         _ab.subVectors(_b, _a);
         _ac.subVectors(_c, _a);
         _bc.subVectors(_c, _b);
@@ -93,7 +103,12 @@ export function voxelizeRemesh(
                         continue;
                     }
                     mask.set(pointIdx);
-                    sdfSample[pointIdx] = Math.min(dist, sdfSample[pointIdx]);
+                    if (dist <= sdfSample[pointIdx]) {
+                        sdfSample[pointIdx] = dist;
+                        colorSample[pointIdx * 3] = _color.x;
+                        colorSample[pointIdx * 3 + 1] = _color.y;
+                        colorSample[pointIdx * 3 + 2] = _color.z;
+                    }
                     // check if cube edge crossed the triangle
                     for (let axis = 0; axis < 3; ++axis) {
                         const det = _det.getComponent(axis);
@@ -176,6 +191,7 @@ export function voxelizeRemesh(
     }
     // marching cubes
     const aPosition: number[] = [];
+    const aColor: number[] = [];
     for (let ix = 0; ix < xRange - 1; ++ix) {
         const x = x0 + ix * step;
         for (let iy = 0; iy < yRange - 1; ++iy) {
@@ -183,20 +199,22 @@ export function voxelizeRemesh(
             for (let iz = 0; iz < zRange - 1; ++iz) {
                 const z = z0 + iz * step;
                 marchingCubes(
-                    aPosition, null,
+                    aPosition, null, aColor,
                     x, y, z,
                     step,
-                    sdfSample[ix * yRange * zRange + iy * zRange + iz],
-                    sdfSample[(ix + 1) * yRange * zRange + iy * zRange + iz],
-                    sdfSample[(ix + 1) * yRange * zRange + iy * zRange + (iz + 1)],
-                    sdfSample[ix * yRange * zRange + iy * zRange + (iz + 1)],
-                    sdfSample[ix * yRange * zRange + (iy + 1) * zRange + iz],
-                    sdfSample[(ix + 1) * yRange * zRange + (iy + 1) * zRange + iz],
-                    sdfSample[(ix + 1) * yRange * zRange + (iy + 1) * zRange + (iz + 1)],
-                    sdfSample[ix * yRange * zRange + (iy + 1) * zRange + (iz + 1)],
+                    sdfSample,
+                    colorSample,
+                    ix * yRange * zRange + iy * zRange + iz,
+                    (ix + 1) * yRange * zRange + iy * zRange + iz,
+                    (ix + 1) * yRange * zRange + iy * zRange + (iz + 1),
+                    ix * yRange * zRange + iy * zRange + (iz + 1),
+                    ix * yRange * zRange + (iy + 1) * zRange + iz,
+                    (ix + 1) * yRange * zRange + (iy + 1) * zRange + iz,
+                    (ix + 1) * yRange * zRange + (iy + 1) * zRange + (iz + 1),
+                    ix * yRange * zRange + (iy + 1) * zRange + (iz + 1),
                 );
             }
         }
     }
-    return new Float32Array(aPosition);
+    return {position: new Float32Array(aPosition), color: new Float32Array(aColor)};
 }

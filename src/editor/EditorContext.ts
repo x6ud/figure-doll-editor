@@ -39,6 +39,7 @@ import SculptDragTool from './tools/SculptDragTool';
 import SculptFlattenTool from './tools/SculptFlattenTool';
 import SculptInflateTool from './tools/SculptInflateTool';
 import SculptMoveTool from './tools/SculptMoveTool';
+import SculptPaintTool from './tools/SculptPaintTool';
 import SculptPinchTool from './tools/SculptPinchTool';
 import SculptSmoothTool from './tools/SculptSmoothTool';
 import ToolSeperator from './tools/ToolSeperator';
@@ -95,6 +96,7 @@ export default class EditorContext {
         new SculptMoveTool(),
         new SculptDragTool(),
         this.sculptSmoothTool,
+        new SculptPaintTool(),
     ];
 
     sculptNodeId = 0;

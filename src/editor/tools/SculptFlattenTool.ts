@@ -2,6 +2,7 @@ import {Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CObject3D from '../model/components/CObject3D';
+import CVertices from '../model/components/CVertices';
 import EditorTool from './EditorTool';
 import icon from './SculptFlatten.png';
 
@@ -67,7 +68,7 @@ export default class SculptFlattenTool extends EditorTool {
                 );
             }
         }
-        ctx.history.updateVertices(node, stroke.indices, stroke.position);
+        ctx.history.updateVertices(node, CVertices, stroke.indices, stroke.position);
     }
 
     private stroke(

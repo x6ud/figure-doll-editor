@@ -1,4 +1,6 @@
 // http://paulbourke.net/geometry/polygonise/
+import {Vector3} from 'three';
+
 const TRI_TABLE = new Int8Array([
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -292,11 +294,14 @@ const EDGE_TABLE = new Uint16Array([
     0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0,
 ]);
 
-function lerp(side: number, a: number, b: number) {
-    return side * a / (a - b);
+function getAlpha(a: number, b: number) {
+    return a / (a - b);
 }
 
 const midPoints = new Float32Array(12 * 3);
+const midPointColors = new Float32Array(12 * 3);
+const color0 = new Vector3();
+const color1 = new Vector3();
 
 //    e-----------f
 //   /|          /|
@@ -309,11 +314,23 @@ const midPoints = new Float32Array(12 * 3);
 export function marchingCubes(
     positions: number[],
     normals: number[] | null | undefined,
+    colors: number[] | null | undefined,
     x0: number, y0: number, z0: number,
     cubeSize: number,
-    a: number, b: number, c: number, d: number,
-    e: number, f: number, g: number, h: number,
+    sample: ArrayLike<number>,
+    colorSample: ArrayLike<number> | null | undefined,
+    iA: number, iB: number, iC: number, iD: number,
+    iE: number, iF: number, iG: number, iH: number,
 ) {
+    const a = sample[iA],
+        b = sample[iB],
+        c = sample[iC],
+        d = sample[iD],
+        e = sample[iE],
+        f = sample[iF],
+        g = sample[iG],
+        h = sample[iH];
+    const hasColor = !!(colors && colorSample);
     let cubeIndex = 0;
     if (a < 0) {
         cubeIndex |= (1 << 0);
@@ -344,75 +361,183 @@ export function marchingCubes(
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 0)) {
         // ab
-        midPoints[0] = x0 + lerp(cubeSize, a, b);
+        const alpha = getAlpha(a, b);
+        midPoints[0] = x0 + alpha * cubeSize;
         midPoints[1] = y0;
         midPoints[2] = z0;
+        if (hasColor) {
+            color0.fromArray(colorSample, iA * 3);
+            color1.fromArray(colorSample, iB * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[0] = color0.x;
+            midPointColors[1] = color0.y;
+            midPointColors[2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 1)) {
         // bc
+        const alpha = getAlpha(b, c);
         midPoints[3] = x0 + cubeSize;
         midPoints[3 + 1] = y0;
-        midPoints[3 + 2] = z0 + lerp(cubeSize, b, c);
+        midPoints[3 + 2] = z0 + alpha * cubeSize;
+        if (hasColor) {
+            color0.fromArray(colorSample, iB * 3);
+            color1.fromArray(colorSample, iC * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3] = color0.x;
+            midPointColors[3 + 1] = color0.y;
+            midPointColors[3 + 2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 2)) {
         // cd
-        midPoints[3 * 2] = x0 + lerp(cubeSize, d, c);
+        const alpha = getAlpha(d, c);
+        midPoints[3 * 2] = x0 + alpha * cubeSize;
         midPoints[3 * 2 + 1] = y0;
         midPoints[3 * 2 + 2] = z0 + cubeSize;
+        if (hasColor) {
+            color0.fromArray(colorSample, iD * 3);
+            color1.fromArray(colorSample, iC * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3 * 2] = color0.x;
+            midPointColors[3 * 2 + 1] = color0.y;
+            midPointColors[3 * 2 + 2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 3)) {
         // da
+        const alpha = getAlpha(a, d);
         midPoints[3 * 3] = x0;
         midPoints[3 * 3 + 1] = y0;
-        midPoints[3 * 3 + 2] = z0 + lerp(cubeSize, a, d);
+        midPoints[3 * 3 + 2] = z0 + alpha * cubeSize;
+        if (hasColor) {
+            color0.fromArray(colorSample, iA * 3);
+            color1.fromArray(colorSample, iD * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3 * 3] = color0.x;
+            midPointColors[3 * 3 + 1] = color0.y;
+            midPointColors[3 * 3 + 2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 4)) {
         // ef
-        midPoints[3 * 4] = x0 + lerp(cubeSize, e, f);
+        const alpha = getAlpha(e, f);
+        midPoints[3 * 4] = x0 + alpha * cubeSize;
         midPoints[3 * 4 + 1] = y0 + cubeSize;
         midPoints[3 * 4 + 2] = z0;
+        if (hasColor) {
+            color0.fromArray(colorSample, iE * 3);
+            color1.fromArray(colorSample, iF * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3 * 4] = color0.x;
+            midPointColors[3 * 4 + 1] = color0.y;
+            midPointColors[3 * 4 + 2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 5)) {
         // fg
+        const alpha = getAlpha(f, g);
         midPoints[3 * 5] = x0 + cubeSize;
         midPoints[3 * 5 + 1] = y0 + cubeSize;
-        midPoints[3 * 5 + 2] = z0 + lerp(cubeSize, f, g);
+        midPoints[3 * 5 + 2] = z0 + alpha * cubeSize;
+        if (hasColor) {
+            color0.fromArray(colorSample, iF * 3);
+            color1.fromArray(colorSample, iG * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3 * 5] = color0.x;
+            midPointColors[3 * 5 + 1] = color0.y;
+            midPointColors[3 * 5 + 2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 6)) {
         // gh
-        midPoints[3 * 6] = x0 + lerp(cubeSize, h, g);
+        const alpha = getAlpha(h, g);
+        midPoints[3 * 6] = x0 + alpha * cubeSize;
         midPoints[3 * 6 + 1] = y0 + cubeSize;
         midPoints[3 * 6 + 2] = z0 + cubeSize;
+        if (hasColor) {
+            color0.fromArray(colorSample, iH * 3);
+            color1.fromArray(colorSample, iG * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3 * 6] = color0.x;
+            midPointColors[3 * 6 + 1] = color0.y;
+            midPointColors[3 * 6 + 2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 7)) {
         // he
+        const alpha = getAlpha(e, h);
         midPoints[3 * 7] = x0;
         midPoints[3 * 7 + 1] = y0 + cubeSize;
-        midPoints[3 * 7 + 2] = z0 + lerp(cubeSize, e, h);
+        midPoints[3 * 7 + 2] = z0 + alpha * cubeSize;
+        if (hasColor) {
+            color0.fromArray(colorSample, iE * 3);
+            color1.fromArray(colorSample, iH * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3 * 7] = color0.x;
+            midPointColors[3 * 7 + 1] = color0.y;
+            midPointColors[3 * 7 + 2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 8)) {
         // ae
+        const alpha = getAlpha(a, e);
         midPoints[3 * 8] = x0;
-        midPoints[3 * 8 + 1] = y0 + lerp(cubeSize, a, e);
+        midPoints[3 * 8 + 1] = y0 + alpha * cubeSize;
         midPoints[3 * 8 + 2] = z0;
+        if (hasColor) {
+            color0.fromArray(colorSample, iA * 3);
+            color1.fromArray(colorSample, iE * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3 * 8] = color0.x;
+            midPointColors[3 * 8 + 1] = color0.y;
+            midPointColors[3 * 8 + 2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 9)) {
         // bf
+        const alpha = getAlpha(b, f);
         midPoints[3 * 9] = x0 + cubeSize;
-        midPoints[3 * 9 + 1] = y0 + lerp(cubeSize, b, f);
+        midPoints[3 * 9 + 1] = y0 + alpha * cubeSize;
         midPoints[3 * 9 + 2] = z0;
+        if (hasColor) {
+            color0.fromArray(colorSample, iB * 3);
+            color1.fromArray(colorSample, iF * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3 * 9] = color0.x;
+            midPointColors[3 * 9 + 1] = color0.y;
+            midPointColors[3 * 9 + 2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 10)) {
         // cg
+        const alpha = getAlpha(c, g);
         midPoints[3 * 10] = x0 + cubeSize;
-        midPoints[3 * 10 + 1] = y0 + lerp(cubeSize, c, g);
+        midPoints[3 * 10 + 1] = y0 + alpha * cubeSize;
         midPoints[3 * 10 + 2] = z0 + cubeSize;
+        if (hasColor) {
+            color0.fromArray(colorSample, iC * 3);
+            color1.fromArray(colorSample, iG * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3 * 10] = color0.x;
+            midPointColors[3 * 10 + 1] = color0.y;
+            midPointColors[3 * 10 + 2] = color0.z;
+        }
     }
     if (EDGE_TABLE[cubeIndex] & (1 << 11)) {
         // dh
+        const alpha = getAlpha(d, h);
         midPoints[3 * 11] = x0;
-        midPoints[3 * 11 + 1] = y0 + lerp(cubeSize, d, h);
+        midPoints[3 * 11 + 1] = y0 + alpha * cubeSize;
         midPoints[3 * 11 + 2] = z0 + cubeSize;
+        if (hasColor) {
+            color0.fromArray(colorSample, iD * 3);
+            color1.fromArray(colorSample, iH * 3);
+            color0.lerp(color1, alpha);
+            midPointColors[3 * 11] = color0.x;
+            midPointColors[3 * 11 + 1] = color0.y;
+            midPointColors[3 * 11 + 2] = color0.z;
+        }
     }
     for (let i = 0; ; i += 3) {
         const edgeIndex0 = TRI_TABLE[cubeIndex * 16 + i];
@@ -431,6 +556,19 @@ export function marchingCubes(
         const y2 = midPoints[edgeIndex2 * 3 + 1];
         const z2 = midPoints[edgeIndex2 * 3 + 2];
         positions.push(x0, y0, z0, x1, y1, z1, x2, y2, z2);
+        if (hasColor) {
+            colors.push(
+                midPointColors[edgeIndex0 * 3],
+                midPointColors[edgeIndex0 * 3 + 1],
+                midPointColors[edgeIndex0 * 3 + 2],
+                midPointColors[edgeIndex1 * 3],
+                midPointColors[edgeIndex1 * 3 + 1],
+                midPointColors[edgeIndex1 * 3 + 2],
+                midPointColors[edgeIndex2 * 3],
+                midPointColors[edgeIndex2 * 3 + 1],
+                midPointColors[edgeIndex2 * 3 + 2],
+            );
+        }
         if (normals) {
             const ax = x1 - x0;
             const ay = y1 - y0;

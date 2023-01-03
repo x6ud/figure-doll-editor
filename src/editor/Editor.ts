@@ -14,6 +14,7 @@ import QuadView from './components/QuadView/QuadView.vue';
 import SidePanel from './components/SidePanel/SidePanel.vue';
 import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
+import CColors from './model/components/CColors';
 import CName from './model/components/CName';
 import CObject3D from './model/components/CObject3D';
 import CPosition from './model/components/CPosition';
@@ -536,6 +537,7 @@ export default defineComponent({
             const ctx = editorCtx.value!;
             const parent = node.parent;
             let verticesArr: Float32Array[] = [];
+            let colorsArr: (Float32Array | null)[] = [];
             switch (node.type) {
                 case 'Shape': {
                     const cSdfDirty = node.get(CSdfDirty);
@@ -550,6 +552,11 @@ export default defineComponent({
                     const mesh = node.value(CObject3D) as Mesh;
                     const geometry = mesh.geometry;
                     verticesArr = [new Float32Array(geometry.getAttribute('position').array)];
+                    if (geometry.hasAttribute('color')) {
+                        colorsArr = [new Float32Array(geometry.getAttribute('color').array)];
+                    } else {
+                        colorsArr = [null];
+                    }
                 }
                     break;
                 default: {
@@ -583,28 +590,58 @@ export default defineComponent({
                         }
                         const index = geometry.index;
                         if (index) {
-                            const arr = new Float32Array(index.count * 3);
+                            const vertices = new Float32Array(index.count * 3);
+                            const colors = new Float32Array(index.count * 3);
                             for (let i = 0, len = index.count; i < len; i += 3) {
                                 _a.fromBufferAttribute(attrPos, index.getX(i));
                                 _b.fromBufferAttribute(attrPos, index.getX(i + 1));
                                 _c.fromBufferAttribute(attrPos, index.getX(i + 2));
                                 const j = i * 3;
-                                arr[j] = _a.x;
-                                arr[j + 1] = _a.y;
-                                arr[j + 2] = _a.z;
-                                arr[j + 3] = _b.x;
-                                arr[j + 4] = _b.y;
-                                arr[j + 5] = _b.z;
-                                arr[j + 6] = _c.x;
-                                arr[j + 7] = _c.y;
-                                arr[j + 8] = _c.z;
+                                vertices[j] = _a.x;
+                                vertices[j + 1] = _a.y;
+                                vertices[j + 2] = _a.z;
+                                vertices[j + 3] = _b.x;
+                                vertices[j + 4] = _b.y;
+                                vertices[j + 5] = _b.z;
+                                vertices[j + 6] = _c.x;
+                                vertices[j + 7] = _c.y;
+                                vertices[j + 8] = _c.z;
                             }
-                            if (arr.length) {
-                                verticesArr.push(arr);
+                            if (geometry.hasAttribute('color')) {
+                                const attrColor = geometry.getAttribute('color');
+                                for (let i = 0, len = index.count; i < len; i += 3) {
+                                    _a.fromBufferAttribute(attrColor, index.getX(i));
+                                    _b.fromBufferAttribute(attrColor, index.getX(i + 1));
+                                    _c.fromBufferAttribute(attrColor, index.getX(i + 2));
+                                    const j = i * 3;
+                                    colors[j] = _a.x;
+                                    colors[j + 1] = _a.y;
+                                    colors[j + 2] = _a.z;
+                                    colors[j + 3] = _b.x;
+                                    colors[j + 4] = _b.y;
+                                    colors[j + 5] = _b.z;
+                                    colors[j + 6] = _c.x;
+                                    colors[j + 7] = _c.y;
+                                    colors[j + 8] = _c.z;
+                                }
+                            } else {
+                                for (let i = 0, len = colors.length; i < len; ++i) {
+                                    colors[i] = 1;
+                                }
+                            }
+                            if (vertices.length) {
+                                verticesArr.push(vertices);
+                                colorsArr.push(colors);
                             }
                         } else {
                             if (attrPos.array.length) {
                                 verticesArr.push(new Float32Array(attrPos.array));
+                                if (geometry.hasAttribute('color')) {
+                                    const attrColor = geometry.getAttribute('color');
+                                    colorsArr.push(new Float32Array(attrColor.array));
+                                } else {
+                                    colorsArr.push(null);
+                                }
                             }
                         }
                     }
@@ -614,7 +651,9 @@ export default defineComponent({
             if (!verticesArr.length) {
                 return;
             }
-            for (let vertices of verticesArr) {
+            for (let i = 0, len = verticesArr.length; i < len; ++i) {
+                const vertices = verticesArr[i];
+                const colors = colorsArr[i];
                 ctx.history.createNode({
                     type: 'Clay',
                     parentId: parent ? parent.id : 0,
@@ -624,6 +663,7 @@ export default defineComponent({
                         [CRotation.name]: node.cloneValue(CRotation),
                         [CScale.name]: node.cloneValue(CScale),
                         [CVertices.name]: vertices,
+                        [CColors.name]: colors || undefined,
                     }
                 });
             }
@@ -663,14 +703,16 @@ export default defineComponent({
                 await new Promise(function (resolve) {
                     setTimeout(resolve, 50);
                 }); // make sure loading shows up
-                const position = voxelizeRemesh(
+                const vertices = voxelizeRemesh(
                     mesh.aPosition,
+                    mesh.aColor,
                     mesh.triBox,
                     mesh.octree.box,
                     ctx.options.remeshVoxelSize
                 );
                 ctx.history.enableMerge = false;
-                ctx.history.setValue(node, CVertices, position, 'remesh');
+                ctx.history.setValue(node, CVertices, vertices.position, 'remesh-position');
+                ctx.history.setValue(node, CColors, vertices.color, 'remesh-color');
             } finally {
                 fullscreenLoading.value = false;
             }

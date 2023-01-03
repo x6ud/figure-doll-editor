@@ -81,7 +81,12 @@ export default abstract class EditorTool {
     }
 
     /** Pick the vertices in brush sphere range and create a buffer for the vertices to be modified */
-    sculptPickStrokeVertices(ctx: EditorContext, node: ModelNode, view: EditorView, mesh: DynamicMesh): SculptToolStroke {
+    sculptPickStrokeVertices(
+        ctx: EditorContext,
+        node: ModelNode,
+        view: EditorView,
+        mesh: DynamicMesh
+    ): SculptToolStroke {
         ctx = ctx.readonlyRef();
         _invMat.copy(node.getWorldMatrix()).invert();
         const vertexIndices = new Set<number>();

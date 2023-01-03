@@ -1,22 +1,20 @@
 import {Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import CColors from '../model/components/CColors';
 import CObject3D from '../model/components/CObject3D';
-import CVertices from '../model/components/CVertices';
 import EditorTool from './EditorTool';
-import icon from './SculptCrease.png';
+import icon from './SculptPaint.png';
 
 const _v = new Vector3();
-const _n = new Vector3();
+const _c0 = new Vector3();
+const _c1 = new Vector3();
 
-// Modified from https://github.com/stephomi/sculptgl/blob/master/src/editing/tools/Crease.js
-export default class SculptCreaseTool extends EditorTool {
-    label = 'Sculpt Crease';
+export default class SculptPaintTool extends EditorTool {
+    label = 'Paint';
     icon = icon;
     sculpt = true;
-    hasDirection = true;
-    brushStrength = 0.25;
-    brushStepSpacingRadiusRatio = 0.1;
+    brushStrength = 1;
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -33,77 +31,75 @@ export default class SculptCreaseTool extends EditorTool {
         if (!input.mouseLeft) {
             return;
         }
-        if (input.isKeyPressed('Shift')) {
-            return ctx.sculptSmoothTool.doStroke(ctx, view);
-        }
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
         const pressure = ctx.options.enablePressure ? 1 : input.pressure;
-        const strength = this.brushStrength * this.brushDirection * pressure;
+        const strength = this.brushStrength * pressure;
         const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
-        const normal = new Vector3();
+        const colors = new Float32Array(stroke.position);
+        for (let j = 0, len = stroke.indices.length; j < len; ++j) {
+            const i = stroke.indices[j];
+            for (let k = 0; k < 3; ++k) {
+                colors[j * 3 + k] = mesh.aColor[i * 3 + k];
+            }
+        }
+        _c1.set(1, 0, 0); // todo
         for (let point of stroke.track) {
             this.stroke(
                 point.indices,
                 strength,
-                mesh.getAverageNormal(normal, point.triangles),
                 point.center,
                 ctx.sculptLocalRadius,
                 stroke.offset,
-                stroke.position
+                stroke.position,
+                colors
             );
             if (ctx.sculptSym) {
                 this.stroke(
                     point.indicesSym!,
                     strength,
-                    mesh.getAverageNormal(normal, point.trianglesSym!),
                     point.centerSym!,
                     ctx.sculptLocalRadius,
                     stroke.offset,
-                    stroke.position
+                    stroke.position,
+                    colors
                 );
             }
         }
-        ctx.history.updateVertices(node, CVertices, stroke.indices, stroke.position);
+        ctx.history.updateVertices(node, CColors, stroke.indices, colors);
     }
 
     private stroke(
         indices: number[],
         strength: number,
-        normal: Vector3,
         center: Vector3,
         radius: number,
         offset: Map<number, number>,
-        arr: Float32Array,
+        position: Float32Array,
+        color: Float32Array,
     ) {
         for (let i of indices) {
-            this.strokeVertex(normal, center, radius, strength, arr, offset.get(i)!);
+            this.strokeVertex(center, radius, strength, position, color, offset.get(i)!);
         }
     }
 
-    private strokeVertex(normal: Vector3,
-                         center: Vector3,
+    private strokeVertex(center: Vector3,
                          radius: number,
                          strength: number,
-                         arr: Float32Array,
+                         position: Float32Array,
+                         color: Float32Array,
                          offset: number,
     ) {
-        _v.fromArray(arr, offset);
+        _v.fromArray(position, offset);
         const dist = _v.distanceTo(center) / radius;
         if (dist >= 1) {
             return;
         }
-        const falloff = this.sculptFalloff(dist);
-        const det1 = falloff ** 5 * strength * -0.01;
-        arr[offset] += normal.x * det1;
-        arr[offset + 1] += normal.y * det1;
-        arr[offset + 2] += normal.z * det1;
-        _v.fromArray(arr, offset);
-        _n.subVectors(center, _v);
-        const det2 = falloff * strength * 0.1;
-        arr[offset] += _n.x * det2;
-        arr[offset + 1] += _n.y * det2;
-        arr[offset + 2] += _n.z * det2;
+        const alpha = this.sculptFalloff(dist) * strength;
+        _c0.fromArray(color, offset).lerp(_c1, alpha);
+        color[offset] = _c0.x;
+        color[offset + 1] = _c0.y;
+        color[offset + 2] = _c0.z;
     }
 }
