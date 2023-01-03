@@ -3,11 +3,13 @@ import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
+import ColorPicker from './components/ColorPicker/ColorPicker.vue';
 import FullscreenLoading from './components/FullscreenLoading/FullscreenLoading.vue';
 import InputNumber from './components/input/InputNumber/InputNumber.vue';
 import LabelRange from './components/LabelRange/LabelRange.vue';
 import ModelNodeProperties from './components/ModelNodeProperties/ModelNodeProperties.vue';
 import ModelTree from './components/ModelTree/ModelTree.vue';
+import PopupDialog from './components/popup/PopupDialog/PopupDialog.vue';
 import PopupMenu from './components/popup/PopupMenu/PopupMenu.vue';
 import PopupMenuItem from './components/popup/PopupMenu/PopupMenuItem.vue';
 import QuadView from './components/QuadView/QuadView.vue';
@@ -41,11 +43,13 @@ const localStorageKey = 'puppet-editor-options';
 
 export default defineComponent({
     components: {
+        ColorPicker,
         FullscreenLoading,
         InputNumber,
         LabelRange,
         ModelNodeProperties,
         ModelTree,
+        PopupDialog,
         PopupMenu,
         PopupMenuItem,
         QuadView,
@@ -64,6 +68,8 @@ export default defineComponent({
             showStatusBar: true,
             modelTreePanelWidth: 200,
             modelNodePropertiesPanelWidth: 200,
+            colorPanelX: 250,
+            colorPanelY: 50,
         });
         const fullscreenLoading = ref(false);
 

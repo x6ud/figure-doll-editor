@@ -34,6 +34,8 @@
 
 <style lang="scss" scoped>
 .popup-dialog__mask {
+    position: fixed;
+    z-index: 2000;
     display: none;
 
     &.visible {
@@ -41,8 +43,6 @@
     }
 
     &.modal {
-        position: fixed;
-        z-index: 2000;
         left: 0;
         top: 0;
         right: 0;
@@ -99,7 +99,6 @@
 
         & > .popup-dialog__body {
             padding: 6px 12px;
-            min-width: 320px;
             box-sizing: border-box;
         }
 

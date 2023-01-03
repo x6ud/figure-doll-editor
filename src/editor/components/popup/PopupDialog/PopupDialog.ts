@@ -11,8 +11,10 @@ export default defineComponent({
         height: String,
         closable: Boolean,
         visible: Boolean,
+        x: Number,
+        y: Number,
     },
-    emits: ['update:visible', 'close'],
+    emits: ['update:visible', 'update:x', 'update:y', 'close'],
     setup(props, ctx) {
         const dialog = ref<HTMLElement>();
         const x = ref(0);
@@ -30,9 +32,19 @@ export default defineComponent({
             return style;
         });
         watch(
+            [() => props.x, () => props.y],
+            function ([x_, y_]) {
+                if (x_ != null && y_ != null) {
+                    x.value = x_;
+                    y.value = y_;
+                }
+            },
+            {immediate: true}
+        );
+        watch(
             () => props.visible,
             async function (visible) {
-                if (visible) {
+                if (visible && (props.x == null || props.y == null)) {
                     x.value = 0;
                     y.value = 0;
                     await nextTick();
@@ -69,6 +81,8 @@ export default defineComponent({
                         const rect = dialog.value.getBoundingClientRect();
                         x.value = Math.max(0, Math.min(documentRect.width - rect.width, x0 + dx));
                         y.value = Math.max(0, Math.min(documentRect.height - rect.height, y0 + dy));
+                        ctx.emit('update:x', x.value);
+                        ctx.emit('update:y', y.value);
                     }
                 }
             );

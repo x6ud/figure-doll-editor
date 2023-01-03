@@ -15,6 +15,7 @@ export default class SculptPaintTool extends EditorTool {
     icon = icon;
     sculpt = true;
     brushStrength = 1;
+    hasColor = true;
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -44,7 +45,7 @@ export default class SculptPaintTool extends EditorTool {
                 colors[j * 3 + k] = mesh.aColor[i * 3 + k];
             }
         }
-        _c1.set(1, 0, 0); // todo
+        _c1.set(ctx.options.paintColor[0], ctx.options.paintColor[1], ctx.options.paintColor[2]);
         for (let point of stroke.track) {
             this.stroke(
                 point.indices,

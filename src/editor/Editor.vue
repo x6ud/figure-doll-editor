@@ -274,6 +274,15 @@
         </div>
     </div>
 
+    <popup-dialog title="Color"
+                  v-if="editorCtx"
+                  :visible="editorCtx.tool.hasColor"
+                  v-model:x="uiOptions.colorPanelX"
+                  v-model:y="uiOptions.colorPanelY"
+    >
+        <color-picker v-model:value="editorCtx.options.paintColor"/>
+    </popup-dialog>
+
     <fullscreen-loading v-if="fullscreenLoading"/>
 </template>
 

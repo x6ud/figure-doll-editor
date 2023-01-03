@@ -56,6 +56,8 @@ export default abstract class EditorTool {
     hasDirection: boolean = false;
     hasThirdDirection: boolean = false;
     brushDirection: number = 1;
+    /** Whether to show color panel */
+    hasColor: boolean = false;
 
     /** Called once on load */
     setup(ctx: EditorContext): void {
