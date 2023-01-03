@@ -18,6 +18,7 @@ export default class SculptMoveTool extends EditorTool {
     icon = icon;
     sculpt = true;
     brushStrength = 1;
+    optionsProps = ['brushRadius', 'brushStrength'];
 
     private nodeId: number = 0;
     private stroke0?: SculptToolStroke;

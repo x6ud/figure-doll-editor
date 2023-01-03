@@ -19,6 +19,7 @@ export default class SculptPaintTool extends EditorTool {
     brushStrength = 1;
     hasHardness = true;
     hasColor = true;
+    optionsProps = ['brushRadius', 'brushStrength', 'brushHardness'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();

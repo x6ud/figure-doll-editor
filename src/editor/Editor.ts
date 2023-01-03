@@ -30,6 +30,7 @@ import {DataType, getModelNodeComponentDef} from './model/ModelNodeComponentDef'
 import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} from './model/ModelNodeDef';
 import ProjectReader from './ProjectReader';
 import ProjectWriter from './ProjectWriter';
+import EditorTool from './tools/EditorTool';
 import {dataUrlToArrayBuffer} from './utils/convert';
 import {voxelizeRemesh} from './utils/geometry/voxelize-remesh';
 import {getTranslation} from './utils/math';
@@ -144,6 +145,15 @@ export default defineComponent({
                     }
                     if ('options' in options) {
                         Object.assign(editorCtx.value.options, options.options);
+                        for (let name in editorCtx.value.options.tools) {
+                            const toolOptions = editorCtx.value.options.tools[name];
+                            const tool = editorCtx.value.tools.find(tool => tool.constructor.name === name);
+                            if (tool) {
+                                for (let prop in toolOptions) {
+                                    (tool[prop as keyof EditorTool] as any) = toolOptions[prop];
+                                }
+                            }
+                        }
                     }
                 }
             } catch (e) {

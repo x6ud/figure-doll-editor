@@ -15,6 +15,7 @@ export default class SculptPinchTool extends EditorTool {
     icon = icon;
     sculpt = true;
     hasDirection = true;
+    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();

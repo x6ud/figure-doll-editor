@@ -60,6 +60,8 @@ export default abstract class EditorTool {
     hasHardness: boolean = false;
     /** Whether to show color panel */
     hasColor: boolean = false;
+    /** Properties that need to be remembered */
+    optionsProps: string[] = [];
 
     /** Called once on load */
     setup(ctx: EditorContext): void {

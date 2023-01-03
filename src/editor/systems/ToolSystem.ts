@@ -263,10 +263,17 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
 
         tool.end(ctx);
 
-        if (this.prevTool?.label !== tool.label) {
+        if (toRaw(this.prevTool) !== tool) {
             this.prevTool?.onUnselected(ctx);
             this.prevTool = tool;
             ctx.statusBarMessage = tool.tips;
+        }
+
+        if (tool.optionsProps.length) {
+            const options = ctx.options.tools[tool.constructor.name] = ctx.options.tools[tool.constructor.name] || {};
+            for (let prop of tool.optionsProps) {
+                options[prop] = tool[prop as keyof EditorTool];
+            }
         }
     }
 

@@ -17,6 +17,7 @@ export default class SculptSmoothTool extends EditorTool {
     icon = icon;
     sculpt = true;
     brushStrength = 1.0;
+    optionsProps = ['brushRadius', 'brushStrength'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();

@@ -14,6 +14,7 @@ export default class SculptBrushTool extends EditorTool {
     icon = icon;
     sculpt = true;
     hasDirection = true;
+    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();

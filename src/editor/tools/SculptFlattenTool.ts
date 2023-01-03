@@ -18,6 +18,7 @@ export default class SculptFlattenTool extends EditorTool {
     hasDirection = true;
     hasThirdDirection = true;
     brushDirection = 0;
+    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();

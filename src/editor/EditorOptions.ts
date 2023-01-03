@@ -12,4 +12,6 @@ export default class EditorOptions {
     quadView: boolean = false;
     showGrids: boolean = true;
     showIkBones: boolean = false;
+
+    tools: { [name: string]: { [prop: string]: any } } = {};
 }

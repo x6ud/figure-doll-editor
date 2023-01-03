@@ -37,6 +37,7 @@ const _nz = new Vector3();
 const SNAP = 0.25;
 
 export default class BoxTool extends EditorTool {
+    name = BoxTool.name;
     label = 'Box';
     icon = icon;
     tips = 'Hold [Alt] to create a box';

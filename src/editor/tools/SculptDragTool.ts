@@ -19,6 +19,7 @@ export default class SculptDragTool extends EditorTool {
     sculpt = true;
     brushRadius = 100;
     brushStrength = 1;
+    optionsProps = ['brushRadius', 'brushStrength'];
 
     private nodeId: number = 0;
     private stroke0?: SculptToolStroke;

@@ -19,6 +19,7 @@ export default class SculptInflateTool extends EditorTool {
     icon = icon;
     sculpt = true;
     brushStrength = 0.2;
+    optionsProps = ['brushRadius', 'brushStrength'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();

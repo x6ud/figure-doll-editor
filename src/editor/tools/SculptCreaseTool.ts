@@ -17,6 +17,7 @@ export default class SculptCreaseTool extends EditorTool {
     hasDirection = true;
     brushStrength = 0.25;
     brushStepSpacingRadiusRatio = 0.1;
+    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
