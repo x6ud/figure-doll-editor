@@ -118,7 +118,7 @@
                     />
                     <button class="normal-button toggle-button"
                             title="Enable Tablet Pressure Sensitivity"
-                            style="margin-right: 6px;"
+                            style="margin-right: 6px; padding: 0;"
                             :class="{active: editorCtx.options.enablePressure}"
                             @click="editorCtx.options.enablePressure = !editorCtx.options.enablePressure"
                     >
@@ -129,12 +129,14 @@
                          v-if="editorCtx.tool.hasDirection"
                     >
                         <button class="normal-button toggle-button"
+                                style="padding: 0;"
                                 :class="{active: editorCtx.tool.brushDirection === 1}"
                                 @click="editorCtx.tool.brushDirection = 1"
                         >
                             <img src="./icons/plus.png" alt="">
                         </button>
                         <button class="normal-button toggle-button"
+                                style="padding: 0;"
                                 :class="{active: editorCtx.tool.brushDirection === 0}"
                                 @click="editorCtx.tool.brushDirection = 0"
                                 v-if="editorCtx.tool.hasThirdDirection"
@@ -142,6 +144,7 @@
                             <img src="./icons/zero.png" alt="">
                         </button>
                         <button class="normal-button toggle-button"
+                                style="padding: 0;"
                                 :class="{active: editorCtx.tool.brushDirection === -1}"
                                 @click="editorCtx.tool.brushDirection = -1"
                         >
