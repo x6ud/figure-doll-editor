@@ -4,6 +4,7 @@ import CBoxSize from './components/CBoxSize';
 import CCastShadow from './components/CCastShadow';
 import CColor from './components/CColor';
 import CColors from './components/CColors';
+import CGroundColor from './components/CGroundColor';
 import CIkNode from './components/CIkNode';
 import CIkNodeLength from './components/CIkNodeLength';
 import CIkNodeRotation from './components/CIkNodeRotation';
@@ -24,6 +25,7 @@ import CSdfDirty from './components/CSdfDirty';
 import CSdfOperator from './components/CSdfOperator';
 import CSdfSymmetry from './components/CSdfSymmetry';
 import CShadowMappingRange from './components/CShadowMappingRange';
+import CSkyColor from './components/CSkyColor';
 import CTube from './components/CTube';
 import CVertices from './components/CVertices';
 import CVisible from './components/CVisible';
@@ -86,8 +88,19 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [CName, CVisible, CCastShadow, CMapSize, CShadowMappingRange, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
         validChildTypes: ['Target'],
-        defaultData: {[CPosition.name]: new Vector3(0, 1, 0)},
+        defaultData: {[CPosition.name]: new Vector3(0, 3, 0)},
         defaultChildren: [{type: 'Target'}],
+    },
+    {
+        name: 'HemisphereLight',
+        label: 'Hemisphere Light',
+        icon: iconLight,
+        showInList: true,
+        deletable: true,
+        components: [CName, CVisible, CPosition, CObject3D, CLightHelper, CIntensity, CSkyColor, CGroundColor],
+        canBeRoot: true,
+        validChildTypes: [],
+        defaultData: {[CIntensity.name]: 0.2, [CPosition.name]: new Vector3(0, 3, 0)},
     },
     {
         name: 'Container',

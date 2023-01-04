@@ -1,12 +1,21 @@
-import {AmbientLight, CameraHelper, DirectionalLight, DirectionalLightHelper} from 'three';
+import {
+    AmbientLight,
+    CameraHelper,
+    DirectionalLight,
+    DirectionalLightHelper,
+    HemisphereLight,
+    HemisphereLightHelper
+} from 'three';
 import EditorContext from '../../EditorContext';
 import CCastShadow from '../../model/components/CCastShadow';
 import CColor from '../../model/components/CColor';
+import CGroundColor from '../../model/components/CGroundColor';
 import CIntensity from '../../model/components/CIntensity';
 import CLightHelper from '../../model/components/CLightHelper';
 import CMapSize from '../../model/components/CMapSize';
 import CObject3D from '../../model/components/CObject3D';
 import CShadowMappingRange from '../../model/components/CShadowMappingRange';
+import CSkyColor from '../../model/components/CSkyColor';
 import ModelNode from '../../model/ModelNode';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
@@ -66,6 +75,27 @@ export default class LightUpdateFilter implements ModelNodeUpdateFilter {
                     ctx.scene.add(targetCObject3D.value);
                 }
             }
+                break;
+            case 'HemisphereLight': {
+                const cObject3D = node.get(CObject3D);
+                if (!cObject3D.value) {
+                    cObject3D.value = new HemisphereLight();
+                }
+                const light = cObject3D.value as HemisphereLight;
+                const skyColor = node.value(CSkyColor);
+                light.color.setRGB(skyColor[0], skyColor[1], skyColor[2]);
+                const groundColor = node.value(CGroundColor);
+                light.groundColor.setRGB(groundColor[0], groundColor[1], groundColor[2]);
+                light.intensity = node.value(CIntensity);
+                const cLightHelper = node.get(CLightHelper);
+                if (!cLightHelper.value) {
+                    cLightHelper.value = new HemisphereLightHelper(light, 0.25);
+                    ctx.scene.add(cLightHelper.value);
+                }
+            }
+                break;
+            default:
+                break;
         }
     }
 }

@@ -4,7 +4,7 @@ import CLightHelper from '../model/components/CLightHelper';
 import CObject3D from '../model/components/CObject3D';
 import UpdateSystem from '../utils/UpdateSystem';
 
-const LIGHT_TYPES = new Set(['AmbientLight', 'DirectionalLight']);
+const LIGHT_TYPES = new Set(['AmbientLight', 'DirectionalLight', 'HemisphereLight']);
 
 export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
     private ambientLight = new AmbientLight(0xffffff, 0.5);

@@ -1,4 +1,4 @@
-import {DirectionalLightHelper, PointLightHelper} from 'three';
+import {DirectionalLightHelper, HemisphereLightHelper, PointLightHelper} from 'three';
 import EditorContext from '../../EditorContext';
 import CLightHelper from '../../model/components/CLightHelper';
 import ModelNode from '../../model/ModelNode';
@@ -9,7 +9,7 @@ export default class LightHelperUpdateFilter implements ModelNodeUpdateFilter {
         if (node.has(CLightHelper)) {
             const cLightHelper = node.get(CLightHelper);
             const lightHelper = cLightHelper.value as (
-                DirectionalLightHelper | PointLightHelper
+                DirectionalLightHelper | HemisphereLightHelper | PointLightHelper
                 );
             if (lightHelper) {
                 lightHelper.update();
