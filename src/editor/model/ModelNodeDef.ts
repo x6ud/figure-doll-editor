@@ -1,5 +1,6 @@
 import Class from '../../common/type/Class';
 import CBoxSize from './components/CBoxSize';
+import CColor from './components/CColor';
 import CColors from './components/CColors';
 import CIkNode from './components/CIkNode';
 import CIkNodeLength from './components/CIkNodeLength';
@@ -7,6 +8,8 @@ import CIkNodeRotation from './components/CIkNodeRotation';
 import CImage from './components/CImage';
 import CImportFbx from './components/CImportFbx';
 import CImportObj from './components/CImportObj';
+import CIntensity from './components/CIntensity';
+import CLightHelper from './components/CLightHelper';
 import CName from './components/CName';
 import CObject3D from './components/CObject3D';
 import COpacity from './components/COpacity';
@@ -26,19 +29,24 @@ import iconFbxModel from './icons/FbxModel.png';
 import iconIKChain from './icons/IKChain.png';
 import iconIKNode from './icons/IKNode.png';
 import iconImage from './icons/Image.png';
+import iconLight from './icons/Light.png';
 import iconObjModel from './icons/ObjModel.png';
 import iconShape from './icons/Shape.png';
+import iconTarget from './icons/Target.png';
 import iconTube from './icons/Tube.png';
-import ModelNode from './ModelNode';
+import ModelNode, {ModelNodeChildJson} from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
 
 export type ModelNodeDef = {
     name: string;
     label: string;
     icon: string;
+    showInList: boolean;
+    deletable: boolean;
     components: Class<ModelNodeComponent<any>>[];
     canBeRoot: boolean;
     validChildTypes: string[];
+    defaultChildren?: ModelNodeChildJson[];
 };
 
 export const modelNodeDefs: ModelNodeDef[] = [
@@ -46,14 +54,49 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'Container',
         label: 'Container',
         icon: iconContainer,
+        showInList: true,
+        deletable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
         validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay'],
     },
     {
+        name: 'Target',
+        label: 'Target',
+        icon: iconTarget,
+        showInList: false,
+        deletable: false,
+        components: [CPosition, CObject3D],
+        canBeRoot: false,
+        validChildTypes: [],
+    },
+    {
+        name: 'AmbientLight',
+        label: 'Ambient Light',
+        icon: iconLight,
+        showInList: true,
+        deletable: true,
+        components: [CName, CVisible, CObject3D, CIntensity, CColor],
+        canBeRoot: true,
+        validChildTypes: [],
+    },
+    {
+        name: 'DirectionalLight',
+        label: 'Directional Light',
+        icon: iconLight,
+        showInList: true,
+        deletable: true,
+        components: [CName, CVisible, CPosition, CObject3D, CIntensity, CColor, CLightHelper],
+        canBeRoot: true,
+        validChildTypes: ['Target'],
+        defaultChildren: [{type: 'Target'}],
+    },
+    {
         name: 'IKChain',
         label: 'IK Chain',
         icon: iconIKChain,
+        showInList: true,
+        deletable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
         validChildTypes: ['IKNode'],
@@ -62,6 +105,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'IKNode',
         label: 'IK Node',
         icon: iconIKNode,
+        showInList: true,
+        deletable: true,
         components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation],
         canBeRoot: false,
         validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay'],
@@ -70,6 +115,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'Box',
         label: 'Box',
         icon: iconBox,
+        showInList: true,
+        deletable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CBoxSize],
         canBeRoot: true,
         validChildTypes: [],
@@ -78,6 +125,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'Shape',
         label: 'SDF Shape',
         icon: iconShape,
+        showInList: true,
+        deletable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CSdfDirty, CSdfSymmetry],
         canBeRoot: true,
         validChildTypes: ['Tube'],
@@ -86,6 +135,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'Tube',
         label: 'Tube',
         icon: iconTube,
+        showInList: true,
+        deletable: true,
         components: [CName, CObject3D, CSdfOperator, CTube],
         canBeRoot: false,
         validChildTypes: [],
@@ -94,6 +145,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'Clay',
         label: 'Clay',
         icon: iconClay,
+        showInList: true,
+        deletable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CVertices, CColors],
         canBeRoot: true,
         validChildTypes: [],
@@ -102,6 +155,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'Image',
         label: 'Image',
         icon: iconImage,
+        showInList: true,
+        deletable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
         canBeRoot: true,
         validChildTypes: [],
@@ -110,6 +165,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'ObjModel',
         label: 'Import .obj',
         icon: iconObjModel,
+        showInList: true,
+        deletable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CImportObj],
         canBeRoot: true,
         validChildTypes: [],
@@ -118,6 +175,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'FbxModel',
         label: 'Import .fbx',
         icon: iconFbxModel,
+        showInList: true,
+        deletable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CImportFbx],
         canBeRoot: true,
         validChildTypes: [],

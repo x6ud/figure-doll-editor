@@ -10,7 +10,7 @@ const UNIT_MAT4 = new Matrix4();
 
 type ModelNodeJsonData = string | number | boolean | number[];
 
-type ModelNodeChildJson = {
+export type ModelNodeChildJson = {
     type: string;
     data?: { [name: string]: ModelNodeJsonData };
     children?: ModelNodeChildJson[];
@@ -101,6 +101,9 @@ export default class ModelNode {
     }
 
     getParentWorldMatrix(): Matrix4 {
+        if (this.type === 'Target') {
+            return UNIT_MAT4;
+        }
         return this.parent ? this.parent.getWorldMatrix() : UNIT_MAT4;
     }
 

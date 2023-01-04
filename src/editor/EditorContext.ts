@@ -1,4 +1,4 @@
-import {Object3D, Scene, Vector2, WebGLRenderer} from 'three';
+import {Object3D, PCFSoftShadowMap, Scene, Vector2, WebGLRenderer} from 'three';
 import {toRaw} from 'vue';
 import EditorOptions from './EditorOptions';
 import EditorView from './EditorView';
@@ -17,6 +17,8 @@ import CustomShapeUpdateFilter from './systems/model-update-filters/CustomShapeU
 import IkChainUpdateFilter from './systems/model-update-filters/IkChainUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
 import ImportModelUpdateFilter from './systems/model-update-filters/ImportModelUpdateFilter';
+import LightHelperUpdateFilter from './systems/model-update-filters/LightHelperUpdateFilter';
+import LightUpdateFilter from './systems/model-update-filters/LightUpdateFilter';
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import OpacityUpdateFilter from './systems/model-update-filters/OpacityUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
@@ -51,6 +53,7 @@ export default class EditorContext {
 
     systems: UpdateSystem<EditorContext>[] = [
         new ModelUpdateSystem([
+            new LightUpdateFilter(),
             new ImageUpdateFilter(),
             new ImportModelUpdateFilter(),
             new BoxUpdateFilter(),
@@ -61,6 +64,7 @@ export default class EditorContext {
             new IkChainUpdateFilter(),
             new Object3DRelationshipUpdateFilter(),
             new TransformUpdateFilter(),
+            new LightHelperUpdateFilter(),
             new OpacityUpdateFilter(),
         ]),
         new MouseSystem(),
@@ -148,6 +152,8 @@ export default class EditorContext {
         this.history.setup();
         this.canvas = canvas;
         this.renderer = new WebGLRenderer({canvas});
+        this.renderer.shadowMap.enabled = true;
+        this.renderer.shadowMap.type = PCFSoftShadowMap;
         this.mainViewIndex = 1;
         this.views = [
             // top

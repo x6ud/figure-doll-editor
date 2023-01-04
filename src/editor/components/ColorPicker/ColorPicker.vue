@@ -27,7 +27,7 @@
             <span>#</span><input type="text" :value="hex" @input="onTextInput">
         </div>
 
-        <div class="color-box">
+        <div class="color-box" v-if="colorBox">
             <div class="color"
                  v-for="(hex, i) in colorBoxHex"
                  :style="{'background-color': `#${hex}`}"

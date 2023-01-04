@@ -21,6 +21,9 @@ export default class TransformWatcher implements ModelNodeChangedWatcher {
                 cObject3D.worldTransformChanged = true;
             }
         }
+        if (node.type === 'Target') {
+            node.parent && (node.parent.dirty = true);
+        }
     }
 
     onMoved(model: Model, node: ModelNode, oldParent: ModelNode | null, newParent: ModelNode | null): void {

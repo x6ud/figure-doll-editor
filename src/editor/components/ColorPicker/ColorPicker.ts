@@ -10,7 +10,8 @@ export default defineComponent({
         value: {
             type: Array as PropType<number[]>,
             default: [1, 1, 1]
-        }
+        },
+        colorBox: Boolean,
     },
     emits: ['update:value'],
     setup(props, ctx) {
@@ -50,9 +51,15 @@ export default defineComponent({
             console.error(e);
         }
         watch(colorBox, function () {
+            if (!props.colorBox) {
+                return;
+            }
             localStorage.setItem(boxLocalStorageKey, JSON.stringify(colorBox));
         }, {deep: true});
         watch(activeBox, function () {
+            if (!props.colorBox) {
+                return;
+            }
             localStorage.setItem(activeLocalStorageKey, JSON.stringify(activeBox.value));
         });
 

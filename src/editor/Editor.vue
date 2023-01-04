@@ -244,7 +244,7 @@
                                              @click="onAddNode(def.name)"
                             />
                         </popup-menu>
-                        <button :disabled="!editorCtx.model.selected.length"
+                        <button :disabled="!canDelete"
                                 @click="onDelete"
                         >
                             Delete
@@ -300,7 +300,9 @@
                   v-model:x="uiOptions.colorPanelX"
                   v-model:y="uiOptions.colorPanelY"
     >
-        <color-picker v-model:value="editorCtx.options.paintColor"/>
+        <color-picker v-model:value="editorCtx.options.paintColor"
+                      color-box
+        />
     </popup-dialog>
 
     <fullscreen-loading v-if="fullscreenLoading"/>

@@ -88,7 +88,18 @@ export default defineComponent({
             if (model.selected.length > 1) {
                 return [];
             }
-            return getValidChildNodeDefs(model.getSelectedNodes()[0]);
+            return getValidChildNodeDefs(model.getSelectedNodes()[0]).filter(def => def.showInList);
+        });
+
+        const canDelete = computed(function () {
+            const model = editorCtx.value?.model;
+            if (!model) {
+                return false;
+            }
+            return model.getSelectedNodes().filter(node => {
+                const def = getModelNodeDef(node.type);
+                return def.deletable;
+            }).length;
         });
 
         watch([filename, () => editorCtx.value?.history?.dirty],
@@ -392,10 +403,15 @@ export default defineComponent({
             const model = editorCtx.value!.model;
             const parentId = model.selected[0];
             model.selected = [];
-            editorCtx.value!.history.createNode({
+            const json: ModelNodeJson = {
                 type,
                 parentId,
-            });
+            };
+            const def = getModelNodeDef(type);
+            if (def.defaultChildren) {
+                json.children = def.defaultChildren;
+            }
+            editorCtx.value!.history.createNode(json);
             focus();
         }
 
@@ -414,7 +430,10 @@ export default defineComponent({
             const model = editorCtx.value!.model;
             const targets = model.getTopmostSelectedNodes();
             for (let node of targets) {
-                editorCtx.value!.history.removeNode(node.id);
+                const def = getModelNodeDef(node.type);
+                if (def.deletable) {
+                    editorCtx.value!.history.removeNode(node.id);
+                }
             }
             focus();
         }
@@ -740,6 +759,7 @@ export default defineComponent({
             fullscreenLoading,
             uiOptions,
             validChildNodeDefs,
+            canDelete,
             canRemesh,
             onCanvasMounted,
             onBeforeCanvasUnmount,
