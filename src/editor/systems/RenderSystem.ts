@@ -39,11 +39,12 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
         renderer.setScissorTest(true);
         renderer.setClearColor(0x000000, 0.0);
         renderer.clear();
+        const useDefaultLight = ctx.options.shadingMode === 'solid';
         for (let curr of ctx.views) {
             for (let view of ctx.views) {
                 const active = curr === view;
                 view.transformControls.visible = active && ctx.tool.enableTransformControls;
-                view.defaultLight.visible = active;
+                view.defaultLight.visible = useDefaultLight && active;
             }
             if (curr.enabled && curr.width && curr.height) {
                 const camera = curr.camera;

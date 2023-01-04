@@ -1,4 +1,6 @@
 export default class EditorOptions {
+    shadingMode: 'solid' | 'rendered' = 'solid';
+
     enablePressure: boolean = true;
     symmetry: 'no' | 'x' | 'y' | 'z' = 'no';
     remeshVoxelSize: number = 0.003;

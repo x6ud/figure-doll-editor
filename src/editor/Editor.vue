@@ -193,9 +193,25 @@
                         </div>
                     </popup-menu>
                 </template>
-
                 <div class="fill"></div>
-                <div style="font-size: 8px;">FPS: {{ editorCtx.fps }}</div>
+                <div class="button-group cols">
+                    <button class="normal-button toggle-button"
+                            title="Default Light Shading"
+                            style="padding: 0;"
+                            :class="{active: editorCtx.options.shadingMode === 'solid'}"
+                            @click="editorCtx.options.shadingMode = 'solid'"
+                    >
+                        <img src="./icons/shading-solid.png" alt="">
+                    </button>
+                    <button class="normal-button toggle-button"
+                            title="Rendered Light Shading"
+                            style="padding: 0;"
+                            :class="{active: editorCtx.options.shadingMode === 'rendered'}"
+                            @click="editorCtx.options.shadingMode = 'rendered'"
+                    >
+                        <img src="./icons/shading-rendered.png" alt="">
+                    </button>
+                </div>
             </template>
         </div>
 
@@ -287,10 +303,12 @@
             />
         </div>
 
-        <div class="status-bar"
-             v-if="uiOptions.showStatusBar"
+        <div class="status-bar cols"
+             v-if="uiOptions.showStatusBar && editorCtx"
         >
-            {{ editorCtx?.statusBarMessage }}
+            <div>{{ editorCtx.statusBarMessage }}</div>
+            <div class="fill"></div>
+            <div>FPS: {{ editorCtx.fps }}</div>
         </div>
     </div>
 

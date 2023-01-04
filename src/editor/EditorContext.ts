@@ -7,7 +7,7 @@ import ModelHistory from './model/ModelHistory';
 import {ProjectReaderResult} from './ProjectReader';
 import CallbackFireSystem from './systems/CallbackFireSystem';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
-import DefaultLightUpdateSystem from './systems/DefaultLightUpdateSystem';
+import LightUpdateSystem from './systems/LightUpdateSystem';
 import HistorySystem from './systems/HistorySystem';
 import IkBoneVisibleUpdateSystem from './systems/IkBoneVisibleUpdateSystem';
 import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
@@ -73,7 +73,7 @@ export default class EditorContext {
         new ToolSystem(),
         new HistorySystem(),
         new IkBoneVisibleUpdateSystem(),
-        new DefaultLightUpdateSystem(),
+        new LightUpdateSystem(),
         new RenderSystem(),
         new CameraDraggingSystem(),
         new CallbackFireSystem(),
