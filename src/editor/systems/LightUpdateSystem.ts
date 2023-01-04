@@ -1,5 +1,6 @@
 import {AmbientLight, Light} from 'three';
 import EditorContext from '../EditorContext';
+import CLightHelper from '../model/components/CLightHelper';
 import CObject3D from '../model/components/CObject3D';
 import UpdateSystem from '../utils/UpdateSystem';
 
@@ -30,11 +31,24 @@ export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
             this.ambientLight.visible = false;
         }
         const useRealLights = ctx.options.shadingMode === 'rendered';
+        const showLightHelpers = ctx.options.showLightHelpers;
         for (let node of ctx.model.nodes) {
             if (LIGHT_TYPES.has(node.type)) {
                 const light = node.value(CObject3D) as Light;
+                const visible = node.visible;
                 if (light) {
-                    light.visible = useRealLights;
+                    light.visible = useRealLights && visible;
+                }
+                if (node.has(CLightHelper)) {
+                    const cLightHelper = node.get(CLightHelper);
+                    const selected = ctx.model.selected.includes(node.id)
+                        || (!!node.children.length && ctx.model.selected.includes(node.children[0].id));
+                    if (cLightHelper.value) {
+                        cLightHelper.value.visible = visible && (showLightHelpers || selected);
+                    }
+                    if (cLightHelper.camera) {
+                        cLightHelper.camera.visible = useRealLights && light.castShadow && visible && (showLightHelpers || selected);
+                    }
                 }
             }
         }

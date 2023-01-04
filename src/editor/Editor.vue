@@ -79,6 +79,10 @@
                                      :checked="editorCtx.options.showGrids"
                                      @click="editorCtx.options.showGrids = !editorCtx.options.showGrids"
                     />
+                    <popup-menu-item title="Lights"
+                                     :checked="editorCtx.options.showLightHelpers"
+                                     @click="editorCtx.options.showLightHelpers = !editorCtx.options.showLightHelpers"
+                    />
                     <popup-menu-item title="IK Bones"
                                      :checked="editorCtx.options.showIkBones"
                                      @click="editorCtx.options.showIkBones = !editorCtx.options.showIkBones"
@@ -196,7 +200,7 @@
                 <div class="fill"></div>
                 <div class="button-group cols">
                     <button class="normal-button toggle-button"
-                            title="Default Light Shading"
+                            title="Shadow Off"
                             style="padding: 0;"
                             :class="{active: editorCtx.options.shadingMode === 'solid'}"
                             @click="editorCtx.options.shadingMode = 'solid'"
@@ -204,7 +208,7 @@
                         <img src="./icons/shading-solid.png" alt="">
                     </button>
                     <button class="normal-button toggle-button"
-                            title="Rendered Light Shading"
+                            title="Shadow On"
                             style="padding: 0;"
                             :class="{active: editorCtx.options.shadingMode === 'rendered'}"
                             @click="editorCtx.options.shadingMode = 'rendered'"

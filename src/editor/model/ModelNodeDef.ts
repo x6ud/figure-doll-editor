@@ -12,6 +12,7 @@ import CImportFbx from './components/CImportFbx';
 import CImportObj from './components/CImportObj';
 import CIntensity from './components/CIntensity';
 import CLightHelper from './components/CLightHelper';
+import CMapSize from './components/CMapSize';
 import CName from './components/CName';
 import CObject3D from './components/CObject3D';
 import COpacity from './components/COpacity';
@@ -22,6 +23,7 @@ import CScale from './components/CScale';
 import CSdfDirty from './components/CSdfDirty';
 import CSdfOperator from './components/CSdfOperator';
 import CSdfSymmetry from './components/CSdfSymmetry';
+import CShadowMappingRange from './components/CShadowMappingRange';
 import CTube from './components/CTube';
 import CVertices from './components/CVertices';
 import CVisible from './components/CVisible';
@@ -81,7 +83,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconLight,
         showInList: true,
         deletable: true,
-        components: [CName, CVisible, CCastShadow, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
+        components: [CName, CVisible, CCastShadow, CMapSize, CShadowMappingRange, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
         validChildTypes: ['Target'],
         defaultData: {[CPosition.name]: new Vector3(0, 1, 0)},

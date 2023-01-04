@@ -37,6 +37,10 @@ export function registerModelComponent(params: Omit<ModelNodeComponentDef, 'cons
     };
 }
 
+export function isModelNodeComponentDefExists(name: string) {
+    return !!modelNodeComponentDefs[name];
+}
+
 export function getModelNodeComponentDef(name: string): ModelNodeComponentDef {
     const ret = modelNodeComponentDefs[name];
     if (!ret) {

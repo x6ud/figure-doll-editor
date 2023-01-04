@@ -14,6 +14,10 @@ export default class LightHelperUpdateFilter implements ModelNodeUpdateFilter {
             if (lightHelper) {
                 lightHelper.update();
             }
+            const cameraHelper = cLightHelper.camera;
+            if (cameraHelper) {
+                cameraHelper.update();
+            }
         }
     }
 }

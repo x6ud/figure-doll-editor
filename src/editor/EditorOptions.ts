@@ -13,6 +13,7 @@ export default class EditorOptions {
 
     quadView: boolean = false;
     showGrids: boolean = true;
+    showLightHelpers: boolean = false;
     showIkBones: boolean = false;
 
     tools: { [name: string]: { [prop: string]: any } } = {};
