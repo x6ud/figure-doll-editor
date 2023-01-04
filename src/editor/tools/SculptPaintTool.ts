@@ -1,4 +1,4 @@
-import {Vector3} from 'three';
+import {Matrix4, Ray, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CColors from '../model/components/CColors';
@@ -9,11 +9,14 @@ import icon from './SculptPaint.png';
 const _v = new Vector3();
 const _c0 = new Vector3();
 const _c1 = new Vector3();
+const _ray = new Ray();
+const _invMat = new Matrix4();
 
 // Modified from https://github.com/stephomi/sculptgl/blob/master/src/editing/tools/Paint.js
 export default class SculptPaintTool extends EditorTool {
     label = 'Paint';
     icon = icon;
+    tips = 'Press [P] to pick color';
     sculpt = true;
     brushRadius = 25;
     brushStrength = 1;
@@ -23,17 +26,38 @@ export default class SculptPaintTool extends EditorTool {
     optionsProps = ['brushRadius', 'brushStrength', 'brushHardness', 'frontFacesOnly'];
 
     update(ctx: EditorContext, view: EditorView) {
-        ctx = ctx.readonlyRef();
-        if (!ctx.sculptMoved) {
+        if (!ctx.sculptNodeId) {
             return;
         }
-        if (!ctx.sculptNodeId) {
+        const input = view.input;
+        if (input.pointerOver && input.isKeyPressed('p')) {
+            // pick color
+            const node = ctx.model.getNode(ctx.sculptNodeId);
+            const cObject3D = node.get(CObject3D);
+            const mesh = cObject3D.mesh!;
+            _invMat.copy(node.getWorldMatrix()).invert();
+            _ray.origin.copy(view.mouseRay0);
+            _ray.direction.copy(view.mouseRayN);
+            _ray.applyMatrix4(_invMat);
+            const result = mesh.raycast(_ray, true)[0];
+            if (result) {
+                const tri = result.triangleIndex;
+                _c0.set(0, 0, 0);
+                _c0.add(_c1.fromArray(mesh.aColor, tri * 9));
+                _c0.add(_c1.fromArray(mesh.aColor, tri * 9 + 3));
+                _c0.add(_c1.fromArray(mesh.aColor, tri * 9 + 6));
+                _c0.divideScalar(3);
+                ctx.options.paintColor = [_c0.x, _c0.y, _c0.z];
+            }
+            return;
+        }
+        ctx = ctx.readonlyRef();
+        if (!ctx.sculptMoved) {
             return;
         }
         if (view.index !== ctx.sculptActiveView) {
             return;
         }
-        const input = view.input;
         if (!input.mouseLeft) {
             return;
         }
