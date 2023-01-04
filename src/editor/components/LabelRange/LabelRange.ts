@@ -22,7 +22,7 @@ export default defineComponent({
             };
         });
 
-        function onMouseDown(e: MouseEvent) {
+        function onMouseDown(e: PointerEvent) {
             addGlobalDragListener(
                 e,
                 function (e) {

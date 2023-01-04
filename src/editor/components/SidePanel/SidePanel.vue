@@ -7,11 +7,11 @@
         </div>
         <div class="resizer-handler left"
              v-if="direction === 'left'"
-             @mousedown.left="onResize"
+             @pointerdown="onResize"
         ></div>
         <div class="resizer-handler right"
              v-if="direction === 'right'"
-             @mousedown.left="onResize"
+             @pointerdown="onResize"
         ></div>
     </div>
 </template>
@@ -38,6 +38,7 @@
         top: 0;
         bottom: 0;
         cursor: ew-resize;
+        touch-action: none;
 
         &.left {
             left: -2px;

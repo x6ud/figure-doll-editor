@@ -5,31 +5,31 @@
  * @param onDragEnd
  */
 export function addGlobalDragListener(
-    immediatelyTriggerEvent: MouseEvent | null,
-    onDragMove: (e: MouseEvent) => void,
-    onDragEnd?: (e: MouseEvent) => void
+    immediatelyTriggerEvent: PointerEvent | null,
+    onDragMove: (e: PointerEvent) => void,
+    onDragEnd?: (e: PointerEvent) => void
 ) {
-    let onMouseUp: (e: MouseEvent) => void;
-    let onMouseOutOfWindow: (e: MouseEvent) => void;
-    let _onDragMove = (e: MouseEvent) => {
+    let onPointerUp: (e: PointerEvent) => void;
+    let onPointerOut: (e: PointerEvent) => void;
+    let _onDragMove = (e: PointerEvent) => {
         return onDragMove(e);
     };
-    let _onDragEnd = (e: MouseEvent) => {
-        document.removeEventListener('mousemove', _onDragMove);
-        document.removeEventListener('mouseup', onMouseUp);
-        document.removeEventListener('mouseout', onMouseOutOfWindow);
+    let _onDragEnd = (e: PointerEvent) => {
+        document.removeEventListener('pointermove', _onDragMove);
+        document.removeEventListener('pointerup', onPointerUp);
+        document.removeEventListener('pointerout', onPointerOut);
         return onDragEnd && onDragEnd(e);
     };
-    onMouseUp = _onDragEnd;
-    onMouseOutOfWindow = (e: MouseEvent) => {
+    onPointerUp = _onDragEnd;
+    onPointerOut = (e: PointerEvent) => {
         if (!e.relatedTarget || ((e.relatedTarget as HTMLElement).nodeName === 'HTML')) {
             _onDragEnd(e);
         }
     };
 
-    document.addEventListener('mousemove', _onDragMove);
-    document.addEventListener('mouseup', onMouseUp);
-    document.addEventListener('mouseout', onMouseOutOfWindow);
+    document.addEventListener('pointermove', _onDragMove);
+    document.addEventListener('pointerup', onPointerUp);
+    document.addEventListener('pointerout', onPointerOut);
 
     if (immediatelyTriggerEvent) {
         _onDragMove(immediatelyTriggerEvent);

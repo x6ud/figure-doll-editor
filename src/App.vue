@@ -14,17 +14,12 @@
 <script src="./App.ts"></script>
 
 <style lang="css">
-html {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-body {
+html, body {
     width: 100%;
     height: 100%;
     margin: 0;
     overflow: hidden;
+    touch-action: none;
 }
 
 #app {

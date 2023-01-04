@@ -21,13 +21,16 @@ export default defineComponent({
         },
     },
     setup(props, ctx) {
-        function onResize(e: MouseEvent) {
+        function onResize(e: PointerEvent) {
+            if (e.button !== 0) {
+                return;
+            }
             const size0 = props.width;
             const x0 = e.clientX;
 
             addGlobalDragListener(
                 e,
-                function (e: MouseEvent) {
+                function (e) {
                     const det = (e.clientX - x0) * (props.direction === 'left' ? -1 : 1);
                     const size = Math.min(Math.max(size0 + det, props.minWidth), props.maxWidth);
                     ctx.emit('update:width', size);

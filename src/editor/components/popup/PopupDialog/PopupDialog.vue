@@ -8,7 +8,7 @@
                  ref="dialog"
             >
                 <div class="popup-dialog__title"
-                     @mousedown="onTitleMouseDown"
+                     @pointerdown="onTitleMouseDown"
                 >
                     <div class="popup-dialog__title-text">{{ title }}</div>
                     <button class="popup-dialog__btn-close"
@@ -65,6 +65,7 @@
             align-items: center;
             background: #444;
             padding: 4px 4px 4px 12px;
+            touch-action: none;
 
             .popup-dialog__title-text {
                 flex: 1 1;

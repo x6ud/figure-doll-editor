@@ -66,14 +66,14 @@ export default defineComponent({
             ctx.emit('close');
         }
 
-        function onTitleMouseDown(e: MouseEvent) {
+        function onTitleMouseDown(e: PointerEvent) {
             const xStart = e.clientX;
             const yStart = e.clientY;
             const x0 = x.value;
             const y0 = y.value;
             addGlobalDragListener(
                 e,
-                (e: MouseEvent) => {
+                (e) => {
                     if (dialog.value) {
                         const dx = e.clientX - xStart;
                         const dy = e.clientY - yStart;

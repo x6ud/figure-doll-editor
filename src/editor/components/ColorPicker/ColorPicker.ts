@@ -99,7 +99,7 @@ export default defineComponent({
             };
         });
 
-        function onHueRingMouseDown(e: MouseEvent) {
+        function onHueRingMouseDown(e: PointerEvent) {
             e.stopPropagation();
             const rect = hueRing.value!.getBoundingClientRect();
             const cx = RING_RADIUS;
@@ -124,7 +124,7 @@ export default defineComponent({
             );
         }
 
-        function onSvRectMouseDown(e: MouseEvent) {
+        function onSvRectMouseDown(e: PointerEvent) {
             e.stopPropagation();
             const rect = svRect.value!.getBoundingClientRect();
             addGlobalDragListener(

@@ -3,7 +3,7 @@
     >
         <div class="resizer-handler"
              :class="{fixed}"
-             @mousedown="onMouseDown"
+             @pointerdown="onMouseDown"
         ></div>
     </div>
 </template>
@@ -24,6 +24,7 @@
         top: 0;
         bottom: 0;
         cursor: ew-resize;
+        touch-action: none;
 
         &.fixed {
             cursor: default;

@@ -75,6 +75,7 @@
         box-sizing: border-box;
         outline: none;
         user-select: none;
+        touch-action: none;
 
         &.v1, &.v2 {
             border-bottom: solid 1px rgba(0, 0, 0, .25);

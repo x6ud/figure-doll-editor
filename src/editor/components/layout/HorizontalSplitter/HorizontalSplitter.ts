@@ -13,7 +13,7 @@ export default defineComponent({
         'update:size'
     ],
     setup(props, ctx) {
-        function onMouseDown(e: MouseEvent) {
+        function onMouseDown(e: PointerEvent) {
             if (props.fixed) {
                 return;
             }
@@ -23,7 +23,7 @@ export default defineComponent({
 
             addGlobalDragListener(
                 e,
-                (e: MouseEvent) => {
+                (e) => {
                     let detX = e.clientX - x0;
                     if (!props.reverse) {
                         detX *= -1;

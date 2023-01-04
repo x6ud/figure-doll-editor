@@ -1,6 +1,6 @@
 <template>
     <div class="label-range"
-         @mousedown="onMouseDown"
+         @pointerdown="onMouseDown"
          ref="dom"
     >
         <div class="bar" :style="barStyle"></div>
@@ -23,6 +23,7 @@
     font-size: 8px;
     background: #444;
     overflow: hidden;
+    touch-action: none;
 
     &:hover {
         background-color: #555;

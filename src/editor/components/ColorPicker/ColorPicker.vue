@@ -1,7 +1,7 @@
 <template>
     <div class="color-picker">
         <div class="hue-ring"
-             @mousedown="onHueRingMouseDown"
+             @pointerdown="onHueRingMouseDown"
              ref="hueRing"
         >
             <div class="hue-ring-handler"
@@ -10,7 +10,7 @@
             <div class="hue-ring-inner">
                 <div class="sv-rect"
                      :style="svRectStyle"
-                     @mousedown="onSvRectMouseDown"
+                     @pointerdown="onSvRectMouseDown"
                      ref="svRect"
                 >
                     <div class="bg1 bg"></div>
@@ -61,6 +61,7 @@
         );
         border-radius: 50%;
         border: solid 1px #000;
+        touch-action: none;
 
         .hue-ring-handler {
             position: absolute;
@@ -103,6 +104,7 @@
                 width: calc(100% - 23px * 2);
                 height: calc(100% - 23px * 2);
                 border: solid 1px #000;
+                touch-action: none;
 
                 .bg {
                     position: absolute;
