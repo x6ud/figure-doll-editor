@@ -1,5 +1,6 @@
-import {AmbientLight, CameraHelper, DirectionalLight, DirectionalLightHelper} from 'three';
+import {AmbientLight, DirectionalLight, DirectionalLightHelper} from 'three';
 import EditorContext from '../../EditorContext';
+import CCastShadow from '../../model/components/CCastShadow';
 import CColor from '../../model/components/CColor';
 import CIntensity from '../../model/components/CIntensity';
 import CLightHelper from '../../model/components/CLightHelper';
@@ -27,7 +28,7 @@ export default class LightUpdateFilter implements ModelNodeUpdateFilter {
                     cObject3D.value = new DirectionalLight();
                 }
                 const light = cObject3D.value as DirectionalLight;
-                light.castShadow = true;
+                light.castShadow = node.value(CCastShadow);
                 const color = node.value(CColor);
                 light.color.setRGB(color[0], color[1], color[2]);
                 light.intensity = node.value(CIntensity);

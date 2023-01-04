@@ -408,6 +408,9 @@ export default defineComponent({
                 parentId,
             };
             const def = getModelNodeDef(type);
+            if (def.defaultData) {
+                json.data = def.defaultData;
+            }
             if (def.defaultChildren) {
                 json.children = def.defaultChildren;
             }
