@@ -124,6 +124,14 @@
                     >
                         <img src="./icons/pressure.png" alt="">
                     </button>
+                    <button class="normal-button toggle-button"
+                            title="Front Faces Only"
+                            style="margin-right: 6px; padding: 0;"
+                            :class="{active: editorCtx.tool.frontFacesOnly}"
+                            @click="editorCtx.tool.frontFacesOnly = !editorCtx.tool.frontFacesOnly"
+                    >
+                        <img src="src/editor/icons/front-face.png" alt="">
+                    </button>
                     <div class="button-group cols" style="margin-right: 6px"
                          title="Direction"
                          v-if="editorCtx.tool.hasDirection"

@@ -17,7 +17,7 @@ export default class SculptCreaseTool extends EditorTool {
     hasDirection = true;
     brushStrength = 0.25;
     brushStepSpacingRadiusRatio = 0.1;
-    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection'];
+    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection', 'frontFacesOnly'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -42,7 +42,7 @@ export default class SculptCreaseTool extends EditorTool {
         const mesh = cObject3D.mesh!;
         const pressure = ctx.options.enablePressure ? 1 : input.pressure;
         const strength = this.brushStrength * this.brushDirection * pressure;
-        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh, this.frontFacesOnly);
         const normal = new Vector3();
         for (let point of stroke.track) {
             this.stroke(

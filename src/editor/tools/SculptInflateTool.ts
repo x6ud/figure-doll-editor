@@ -19,7 +19,7 @@ export default class SculptInflateTool extends EditorTool {
     icon = icon;
     sculpt = true;
     brushStrength = 0.2;
-    optionsProps = ['brushRadius', 'brushStrength'];
+    optionsProps = ['brushRadius', 'brushStrength', 'frontFacesOnly'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -44,7 +44,7 @@ export default class SculptInflateTool extends EditorTool {
         const mesh = cObject3D.mesh!;
         const pressure = ctx.options.enablePressure ? 1 : input.pressure;
         const strength = this.brushStrength * pressure * 0.01;
-        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh, this.frontFacesOnly);
         for (let point of stroke.track) {
             this.stroke(
                 mesh,

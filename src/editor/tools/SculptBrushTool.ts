@@ -14,7 +14,7 @@ export default class SculptBrushTool extends EditorTool {
     icon = icon;
     sculpt = true;
     hasDirection = true;
-    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection'];
+    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection', 'frontFacesOnly'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -41,7 +41,7 @@ export default class SculptBrushTool extends EditorTool {
         const strength = this.brushStrength * this.brushDirection * pressure * 0.01;
         const center = new Vector3();
         const normal = new Vector3();
-        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh, this.frontFacesOnly);
         for (let point of stroke.track) {
             this.stroke(
                 point.indices,

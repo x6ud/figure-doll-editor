@@ -61,6 +61,7 @@ export default abstract class EditorTool {
     hasHardness: boolean = false;
     /** Whether to show color panel */
     hasColor: boolean = false;
+    frontFacesOnly: boolean = false;
     /** Properties that need to be remembered */
     optionsProps: string[] = [];
 

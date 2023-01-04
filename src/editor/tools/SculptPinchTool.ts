@@ -15,7 +15,7 @@ export default class SculptPinchTool extends EditorTool {
     icon = icon;
     sculpt = true;
     hasDirection = true;
-    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection'];
+    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection', 'frontFacesOnly'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -40,7 +40,7 @@ export default class SculptPinchTool extends EditorTool {
         const mesh = cObject3D.mesh!;
         const pressure = ctx.options.enablePressure ? 1 : input.pressure;
         const strength = this.brushStrength * this.brushDirection * pressure * 0.1;
-        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh, this.frontFacesOnly);
         for (let point of stroke.track) {
             this.stroke(
                 point.indices,

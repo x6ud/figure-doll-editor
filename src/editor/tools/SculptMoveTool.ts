@@ -18,7 +18,7 @@ export default class SculptMoveTool extends EditorTool {
     icon = icon;
     sculpt = true;
     brushStrength = 1;
-    optionsProps = ['brushRadius', 'brushStrength'];
+    optionsProps = ['brushRadius', 'brushStrength', 'frontFacesOnly'];
 
     private nodeId: number = 0;
     private stroke0?: SculptToolStroke;
@@ -49,7 +49,7 @@ export default class SculptMoveTool extends EditorTool {
         const mesh = cObject3D.mesh!;
         if (ctx.sculptStartThisFrame) {
             this.nodeId = node.id;
-            this.stroke0 = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+            this.stroke0 = this.sculptPickStrokeVertices(ctx, node, view, mesh, this.frontFacesOnly);
             if (!this.stroke0.track.length) {
                 this.nodeId = 0;
                 this.stroke0 = undefined;

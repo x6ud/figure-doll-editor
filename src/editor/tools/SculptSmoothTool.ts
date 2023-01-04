@@ -17,7 +17,7 @@ export default class SculptSmoothTool extends EditorTool {
     icon = icon;
     sculpt = true;
     brushStrength = 1.0;
-    optionsProps = ['brushRadius', 'brushStrength'];
+    optionsProps = ['brushRadius', 'brushStrength', 'frontFacesOnly'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -41,7 +41,7 @@ export default class SculptSmoothTool extends EditorTool {
         const node = ctx.model.getNode(ctx.sculptNodeId);
         const cObject3D = node.get(CObject3D);
         const mesh = cObject3D.mesh!;
-        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh, this.frontFacesOnly);
         const pressure = ctx.options.enablePressure ? 1 : view.input.pressure;
         for (let point of stroke.track) {
             this.stroke(

@@ -18,7 +18,7 @@ export default class SculptFlattenTool extends EditorTool {
     hasDirection = true;
     hasThirdDirection = true;
     brushDirection = 0;
-    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection'];
+    optionsProps = ['brushRadius', 'brushStrength', 'brushDirection', 'frontFacesOnly'];
 
     update(ctx: EditorContext, view: EditorView) {
         ctx = ctx.readonlyRef();
@@ -43,7 +43,7 @@ export default class SculptFlattenTool extends EditorTool {
         const mesh = cObject3D.mesh!;
         const center = new Vector3();
         const normal = new Vector3();
-        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh);
+        const stroke = this.sculptPickStrokeVertices(ctx, node, view, mesh, this.frontFacesOnly);
         const pressure = ctx.options.enablePressure ? 1 : input.pressure;
         for (let point of stroke.track) {
             this.stroke(
