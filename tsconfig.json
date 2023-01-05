@@ -15,7 +15,8 @@
       "esnext",
       "dom"
     ],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "allowJs": true
   },
   "include": [
     "src/**/*.ts",

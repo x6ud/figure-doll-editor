@@ -134,7 +134,7 @@
                             :class="{active: editorCtx.tool.frontFacesOnly}"
                             @click="editorCtx.tool.frontFacesOnly = !editorCtx.tool.frontFacesOnly"
                     >
-                        <img src="src/editor/icons/front-face.png" alt="">
+                        <img src="./icons/front-face.png" alt="">
                     </button>
                     <div class="button-group cols" style="margin-right: 6px"
                          title="Direction"
