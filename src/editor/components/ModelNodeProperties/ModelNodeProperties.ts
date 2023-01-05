@@ -35,6 +35,9 @@ export default defineComponent({
             const nodeDef = getModelNodeDef(node.type);
             for (let componentClass of nodeDef.components) {
                 const componentDef = getModelNodeComponentDef(componentClass.name);
+                if (node.instanceId && !componentDef.instanceable) {
+                    continue;
+                }
                 if (componentDef.inputComponent) {
                     sharedProps.add(componentClass.name);
                 }
@@ -45,6 +48,9 @@ export default defineComponent({
                 const properties = new Set<string>();
                 for (let componentClass of nodeDef.components) {
                     const componentDef = getModelNodeComponentDef(componentClass.name);
+                    if (node.instanceId && !componentDef.instanceable) {
+                        continue;
+                    }
                     if (componentDef.inputComponent) {
                         properties.add(componentClass.name);
                     }

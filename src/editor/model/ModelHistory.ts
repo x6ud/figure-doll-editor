@@ -24,6 +24,7 @@ type Record = {
 
 type ModelNodeChildCreationInfo = {
     type: string;
+    instanceId?: number;
     data?: { [name: string]: any };
     children?: ModelNodeChildCreationInfo[];
 }
@@ -31,6 +32,7 @@ type ModelNodeChildCreationInfo = {
 type ModelNodeCreationInfo = {
     type: string;
     parentId?: number;
+    instanceId?: number;
     data?: { [name: string]: any };
     children?: ModelNodeChildCreationInfo[];
 };
@@ -194,7 +196,8 @@ export default class ModelHistory {
                     nodeJson.type,
                     nodeJson.parentId ? this.model.getNode(nodeJson.parentId) : null,
                     null,
-                    nodeJson.data
+                    nodeJson.data,
+                    nodeJson.instanceId,
                 );
                 this.model.addSelection(node.id);
                 // create children
@@ -213,7 +216,8 @@ export default class ModelHistory {
                                 json.type,
                                 parent,
                                 null,
-                                json.data
+                                json.data,
+                                json.instanceId,
                             );
                             this.model.addSelection(node.id);
                             if (json.children) {
@@ -254,6 +258,7 @@ export default class ModelHistory {
             id: number;
             type: string;
             parentId: number = 0;
+            instanceId: number = 0;
             index: number = 0;
             data: { [name: string]: any };
             children: NodeRecord[];
@@ -264,6 +269,7 @@ export default class ModelHistory {
                 if (node.parent) {
                     this.parentId = node.parent.id;
                 }
+                this.instanceId = node.instanceId;
                 const list = node.parent ? node.parent.children : model.nodes;
                 this.index = list.indexOf(node);
                 this.data = node.getComponentData();
@@ -283,7 +289,8 @@ export default class ModelHistory {
                     nodeRecord.type,
                     nodeRecord.parentId ? this.model.getNode(nodeRecord.parentId) : null,
                     nodeRecord.index,
-                    nodeRecord.data
+                    nodeRecord.data,
+                    nodeRecord.instanceId,
                 );
                 this.model.addSelection(node.id);
                 const stack: [ModelNode, NodeRecord[]][] = [[node, nodeRecord.children]];
@@ -295,7 +302,14 @@ export default class ModelHistory {
                     const parent = pair[0];
                     const children = pair[1];
                     for (let nodeRecord of children) {
-                        const node = this.model.createNode(nodeRecord.id, nodeRecord.type, parent, null, nodeRecord.data);
+                        const node = this.model.createNode(
+                            nodeRecord.id,
+                            nodeRecord.type,
+                            parent,
+                            null,
+                            nodeRecord.data,
+                            nodeRecord.instanceId,
+                        );
                         this.model.addSelection(node.id);
                         if (nodeRecord.children.length) {
                             stack.push([node, nodeRecord.children]);

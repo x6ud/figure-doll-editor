@@ -8,6 +8,9 @@ import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
 export default class ImageUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
+        if (node.instanceId) {
+            return;
+        }
         if (!node.has(CImage)) {
             return;
         }
@@ -49,6 +52,7 @@ export default class ImageUpdateFilter implements ModelNodeUpdateFilter {
             node.dirty = true;
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
+            ctx.model.instanceMeshChanged(node.id);
         };
         image.src = cImage.value;
     }

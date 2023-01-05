@@ -3,6 +3,7 @@ import Class from '../../../common/type/Class';
 import Model from '../../model/Model';
 import ModelNode from '../../model/ModelNode';
 import ModelNodeComponent from '../../model/ModelNodeComponent';
+import {getModelNodeDef} from '../../model/ModelNodeDef';
 import PopupMenu from '../popup/PopupMenu/PopupMenu.vue';
 import PopupMenuItem from '../popup/PopupMenu/PopupMenuItem.vue';
 import ModelTreeNode from './ModelTreeNode.vue';
@@ -24,7 +25,8 @@ export default defineComponent({
         'copy',
         'paste',
         'delete',
-        'convertToClay'
+        'convertToClay',
+        'createInstance',
     ],
     setup(props, ctx) {
         const contextMenu = ref<{ show(trigger: HTMLElement, position: { x: number, y: number }): void }>();
@@ -72,13 +74,6 @@ export default defineComponent({
         }
 
         const contextMenuNode = ref<ModelNode>();
-        const canConvertToClay = computed(function () {
-            const node = contextMenuNode.value;
-            if (!node) {
-                return false;
-            }
-            return ['Shape', 'Box', 'ObjModel', 'FbxModel'].includes(node.type);
-        });
 
         function onContextMenu(node: ModelNode | undefined, e: PointerEvent) {
             contextMenuNode.value = node;
@@ -108,8 +103,29 @@ export default defineComponent({
             ctx.emit('delete');
         }
 
+        const canConvertToClay = computed(function () {
+            const node = contextMenuNode.value;
+            if (!node) {
+                return false;
+            }
+            return ['Shape', 'Box', 'ObjModel', 'FbxModel'].includes(node.type);
+        });
+
         function onConvertToClay() {
             ctx.emit('convertToClay', contextMenuNode.value);
+        }
+
+        const canCreateInstance = computed(function () {
+            const node = contextMenuNode.value;
+            if (!node) {
+                return false;
+            }
+            const def = getModelNodeDef(node.type);
+            return !!def.instanceable;
+        });
+
+        function onCreateInstance() {
+            ctx.emit('createInstance', contextMenuNode.value);
         }
 
         return {
@@ -130,6 +146,8 @@ export default defineComponent({
             onDelete,
             canConvertToClay,
             onConvertToClay,
+            canCreateInstance,
+            onCreateInstance,
         };
     }
 });

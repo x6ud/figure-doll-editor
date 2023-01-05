@@ -56,6 +56,7 @@ export type ModelNodeDef = {
     icon: string;
     showInList: boolean;
     deletable: boolean;
+    instanceable?: boolean;
     components: Class<ModelNodeComponent<any>>[];
     canBeRoot: boolean;
     validChildTypes: string[];
@@ -70,6 +71,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconContainer,
         showInList: true,
         deletable: true,
+        instanceable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
         validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay', 'Mirror'],
@@ -80,6 +82,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconIKChain,
         showInList: true,
         deletable: true,
+        instanceable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
         validChildTypes: ['IKNode'],
@@ -90,6 +93,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconIKNode,
         showInList: true,
         deletable: true,
+        instanceable: true,
         components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation],
         canBeRoot: false,
         validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay', 'Mirror'],
@@ -100,6 +104,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconBox,
         showInList: true,
         deletable: true,
+        instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CBoxSize],
         canBeRoot: true,
         validChildTypes: [],
@@ -110,6 +115,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconShape,
         showInList: true,
         deletable: true,
+        instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CSdfDirty, CSdfSymmetry],
         canBeRoot: true,
         validChildTypes: ['Tube'],
@@ -130,6 +136,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconClay,
         showInList: true,
         deletable: true,
+        instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CVertices, CColors],
         canBeRoot: true,
         validChildTypes: [],
@@ -140,6 +147,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconImage,
         showInList: true,
         deletable: true,
+        instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
         canBeRoot: true,
         defaultData: {
@@ -154,6 +162,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconObjModel,
         showInList: true,
         deletable: true,
+        instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImportObj],
         canBeRoot: true,
         validChildTypes: [],
@@ -164,6 +173,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconFbxModel,
         showInList: true,
         deletable: true,
+        instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImportFbx],
         canBeRoot: true,
         validChildTypes: [],

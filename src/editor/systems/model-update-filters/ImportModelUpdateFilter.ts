@@ -10,6 +10,9 @@ import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
 export default class ImportModelUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
+        if (node.instanceId) {
+            return;
+        }
         if (node.has(CImportObj)) {
             const cObj = node.get(CImportObj);
             if (!cObj.dirty) {
@@ -28,6 +31,7 @@ export default class ImportModelUpdateFilter implements ModelNodeUpdateFilter {
             }
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
+            ctx.model.instanceMeshChanged(node.id);
         } else if (node.has(CImportFbx)) {
             const cFbx = node.get(CImportFbx);
             if (!cFbx.dirty) {
@@ -52,6 +56,7 @@ export default class ImportModelUpdateFilter implements ModelNodeUpdateFilter {
                 cObject3D.localTransformChanged = true;
                 node.dirty = true;
                 ctx.model.dirty = true;
+                ctx.model.instanceMeshChanged(node.id);
             });
         }
     }

@@ -7,6 +7,9 @@ import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
 export default class BoxUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
+        if (node.instanceId) {
+            return;
+        }
         if (node.type !== 'Box') {
             return;
         }
@@ -33,5 +36,6 @@ export default class BoxUpdateFilter implements ModelNodeUpdateFilter {
             cObject3D.localTransformChanged = true;
         }
         geometry.computeBoundingSphere();
+        ctx.model.instanceMeshChanged(node.id);
     }
 }

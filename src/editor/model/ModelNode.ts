@@ -12,6 +12,7 @@ type ModelNodeJsonData = string | number | boolean | number[];
 
 export type ModelNodeChildJson = {
     type: string;
+    instanceId?: number;
     data?: { [name: string]: ModelNodeJsonData };
     children?: ModelNodeChildJson[];
 }
@@ -19,6 +20,7 @@ export type ModelNodeChildJson = {
 export type ModelNodeJson = {
     type: string;
     parentId?: number;
+    instanceId?: number;
     data?: { [name: string]: ModelNodeJsonData };
     children?: ModelNodeChildJson[];
 };
@@ -34,6 +36,8 @@ export default class ModelNode {
     deleted: boolean = false;
     opacity: number = 1;
     visible: boolean = true;
+    instanceId: number = 0;
+    instanceDirty: boolean = true;
 
     get<T extends ModelNodeComponent<any>>(componentClass: Class<T>): T {
         const component = this.components[componentClass.name];
@@ -115,15 +119,19 @@ export default class ModelNode {
         return {
             type: this.type,
             parentId: this.parent?.id,
+            instanceId: this.instanceId,
             data: await this.getComponentsDataJson(),
             children,
         };
     }
 
-    getComponentData(): { [name: string]: any } {
+    getComponentData(instanceableOnly?: boolean): { [name: string]: any } {
         const ret: { [name: string]: any } = {};
         for (let componentName in this.components) {
             const componentDef = getModelNodeComponentDef(componentName);
+            if (instanceableOnly && !componentDef.instanceable) {
+                continue;
+            }
             if (componentDef.storable) {
                 const component = this.components[componentName];
                 let val = component.value;

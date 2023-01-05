@@ -87,11 +87,15 @@ export default class ProjectWriter {
             this.writeString(node.type);
             this.writeBoolean(node.expanded);
             this.writeUint32(node.parent?.id || 0);
+            this.writeUint32(node.instanceId);
             const data: [DataType, string, any][] = [];
             for (let name in node.components) {
                 const component = node.components[name];
                 const componentDef = getModelNodeComponentDef(name);
                 if (componentDef.storable) {
+                    if (node.instanceId && !componentDef.instanceable) {
+                        continue;
+                    }
                     const val = componentDef.serialize ? componentDef.serialize(component.value) : component.value;
                     if (val != null) {
                         data.push([componentDef.dataType!, name, val]);

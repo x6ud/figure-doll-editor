@@ -15,6 +15,7 @@ export type ProjectReaderResult = {
         type: string;
         expanded: boolean;
         parentId: number;
+        instanceId: number;
         data: { [name: string]: any };
     }[];
 };
@@ -102,6 +103,7 @@ export default class ProjectReader {
             const type = this.readString();
             const expanded = this.readBoolean();
             const parentId = this.readUint32();
+            const instanceId = this.readUint32();
             const dataLen = this.readUint32();
             const data: { [name: string]: any } = {};
             for (let i = 0; i < dataLen; ++i) {
@@ -135,7 +137,7 @@ export default class ProjectReader {
                     data[name] = value;
                 }
             }
-            ret.nodes.push({id, type, expanded, parentId, data});
+            ret.nodes.push({id, type, expanded, parentId, instanceId, data});
         }
         return ret;
     }

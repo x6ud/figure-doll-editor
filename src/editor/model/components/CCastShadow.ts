@@ -5,6 +5,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 @registerModelComponent({
     storable: true,
     dataType: DataType.BOOLEAN,
+    instanceable: true,
     label: 'Cast Shadow',
     inputComponent: InputBoolean,
 })

@@ -31,6 +31,9 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
         if (ikChain.type !== 'IKChain') {
             return;
         }
+        if (ikChain.instanceId) {
+            ikChain.instanceDirty = false;
+        }
         const cObject3D = ikChain.get(CObject3D);
         if (!cObject3D.value) {
             cObject3D.value = new Group();
@@ -38,6 +41,9 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
         }
         for (let i = 0, len = ikChain.children.length; i < len; ++i) {
             const curr = ikChain.children[i];
+            if (curr.instanceId) {
+                curr.instanceDirty = false;
+            }
             const cObject3D = curr.get(CObject3D);
             if (!cObject3D.value) {
                 cObject3D.value = new Group();

@@ -756,6 +756,29 @@ export default defineComponent({
             }
         }
 
+        function onCreateInstance(node: ModelNode) {
+            const ctx = editorCtx.value!;
+            node = toRaw(node);
+            const create = makeCreationInfo(node);
+            create.parentId = node.parent?.id;
+            ctx.model.selected = [];
+            ctx.history.createNode(create);
+
+            function makeCreationInfo(node: ModelNode) {
+                const ret: ModelNodeJson = {
+                    type: node.type,
+                    instanceId: node.instanceId || node.id,
+                };
+                if (node.instanceId && ctx.model.isNodeExists(node.instanceId)) {
+                    ret.data = ctx.model.getNode(node.instanceId).getComponentData(true);
+                } else {
+                    ret.data = node.getComponentData(true);
+                }
+                ret.children = node.children.map(makeCreationInfo);
+                return ret;
+            }
+        }
+
         return {
             dom,
             editorCtx,
@@ -785,6 +808,7 @@ export default defineComponent({
             onPaste,
             onConvertToClay,
             onRemesh,
+            onCreateInstance,
         };
     }
 });

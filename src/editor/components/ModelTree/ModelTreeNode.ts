@@ -121,6 +121,7 @@ export default defineComponent({
                 'drag-over-before': dragOver && position === 'before',
                 'drag-over-inside': dragOver && (position === 'atFirst' || position === 'atLast'),
                 'drag-over-after': dragOver && position === 'after',
+                instance: !!node.instanceId,
             };
         });
 

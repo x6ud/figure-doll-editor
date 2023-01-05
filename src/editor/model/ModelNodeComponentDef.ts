@@ -14,6 +14,7 @@ export type ModelNodeComponentDef = {
     constructor: Class<ModelNodeComponent<any>>;
     storable?: boolean;
     dataType?: DataType;
+    instanceable?: boolean;
     equal?: (a: any, b: any) => boolean,
     label?: string;
     inputComponent?: Component;

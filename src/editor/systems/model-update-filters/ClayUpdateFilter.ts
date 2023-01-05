@@ -10,6 +10,9 @@ import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
 export default class ClayUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
+        if (node.instanceId) {
+            return;
+        }
         if (node.type !== 'Clay') {
             return;
         }
@@ -54,5 +57,6 @@ export default class ClayUpdateFilter implements ModelNodeUpdateFilter {
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
         }
+        ctx.model.instanceMeshChanged(node.id);
     }
 }

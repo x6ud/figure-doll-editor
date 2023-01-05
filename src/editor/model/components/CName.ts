@@ -5,6 +5,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 @registerModelComponent({
     storable: true,
     dataType: DataType.STRING,
+    instanceable: true,
     label: 'Name',
     inputComponent: InputString,
 })

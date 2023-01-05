@@ -25,6 +25,9 @@
             <template v-if="canConvertToClay">
                 <popup-menu-item title="Convert to Clay" @click="onConvertToClay"/>
             </template>
+            <template v-if="canCreateInstance">
+                <popup-menu-item title="Create Shadow Node" @click="onCreateInstance"/>
+            </template>
             <popup-menu-item sep/>
             <popup-menu-item title="Cut" hotkey="Ctrl+X" @click="onCut"
                              :disabled="!model.selected.length"

@@ -32,10 +32,12 @@ export default class Model {
     ];
     dirty: boolean = true;
     selected: number[] = [];
+    referenceMap: Map<number, number[]> = new Map();
 
     reset() {
         this.selected = [];
         this.dirty = false;
+        this.referenceMap.clear();
         for (let id of this.nodes.map(node => node.id)) {
             this.removeNode(id);
         }
@@ -100,7 +102,8 @@ export default class Model {
         type: string,
         parent: ModelNode | null = null,
         index: number | null = null,
-        data?: { [name: string]: any }
+        data?: { [name: string]: any },
+        instanceId?: number,
     ): ModelNode {
         if (this.isNodeExists(id)) {
             throw new Error(`Node #${id} already exists`);
@@ -113,6 +116,14 @@ export default class Model {
             node.components[componentConstructor.name] = new componentConstructor();
         }
         node.parent = parent;
+        if (instanceId) {
+            node.instanceId = instanceId;
+            if (this.referenceMap.has(instanceId)) {
+                this.referenceMap.get(instanceId)!.push(id);
+            } else {
+                this.referenceMap.set(instanceId, [id]);
+            }
+        }
         if (data) {
             for (let name in data) {
                 const component = node.components[name];
@@ -147,6 +158,12 @@ export default class Model {
         if (node.parent) {
             for (let watcher of this.watchers) {
                 watcher.onBeforeChildRemoved(this, node.parent, node);
+            }
+        }
+        if (node.instanceId) {
+            const refIds = this.referenceMap.get(node.instanceId);
+            if (refIds) {
+                this.referenceMap.set(node.instanceId, refIds.filter(refId => refId !== id));
             }
         }
         node.forEach(node => {
@@ -235,6 +252,18 @@ export default class Model {
         component.partialUpdate = true;
         for (let watcher of this.watchers) {
             watcher.onValueChanged(this, node, componentClass);
+        }
+    }
+
+    instanceMeshChanged(id: number) {
+        const refIds = this.referenceMap.get(id);
+        if (refIds) {
+            for (let refId of refIds) {
+                if (this.isNodeExists(refId)) {
+                    const node = this.getNode(refId);
+                    node.instanceDirty = true;
+                }
+            }
         }
     }
 }

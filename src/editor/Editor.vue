@@ -280,7 +280,8 @@
                                 @copy="onCopy"
                                 @paste="onPaste"
                                 @delete="onDelete"
-                                @convertToClay="onConvertToClay"
+                                @convert-to-clay="onConvertToClay"
+                                @create-instance="onCreateInstance"
                     />
                 </div>
             </side-panel>

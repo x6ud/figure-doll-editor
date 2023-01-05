@@ -277,7 +277,8 @@ export default class EditorContext {
                 node.type,
                 node.parentId ? this.model.getNode(node.parentId) : null,
                 null,
-                node.data
+                node.data,
+                node.instanceId,
             );
         }
     }

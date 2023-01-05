@@ -106,6 +106,12 @@
         bottom: 0;
     }
 
+    &.instance {
+        .node-icon, .name {
+            opacity: .75;
+        }
+    }
+
     .icon {
         width: 24px;
         height: 24px;

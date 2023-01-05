@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "three": "^0.146.0",
+    "three-custom-shader-material": "^4.0.0",
     "vue": "^3.2.25",
     "vue-router": "^4.1.6"
   },

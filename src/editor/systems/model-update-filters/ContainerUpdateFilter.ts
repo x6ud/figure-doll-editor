@@ -12,6 +12,9 @@ export default class ContainerUpdateFilter implements ModelNodeUpdateFilter {
                 cObject3D.value = new Group();
                 (cObject3D.value.userData as Object3DUserData) = {node};
             }
+            if (node.instanceId) {
+                node.instanceDirty = false;
+            }
         }
     }
 }

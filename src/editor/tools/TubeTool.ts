@@ -93,7 +93,7 @@ export default class TubeTool extends EditorTool {
         }
         this.enableDefaultDeleteShortcut = true;
         this.enableDeleteThisFrame = true;
-        this.nodes = ctx.model.getSelectedNodes().filter(node => node.has(CTube));
+        this.nodes = ctx.model.getSelectedNodes().filter(node => node.has(CTube) && !node.instanceId);
         for (let node of this.nodes) {
             const cTube = node.get(CTube);
             if (cTube.group) {

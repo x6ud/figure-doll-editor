@@ -304,7 +304,10 @@ export default class BoxTool extends EditorTool {
                         this.point1.copy(result.point);
 
                         // drag start
-                        if (input.mouseLeftDownThisFrame && !input.isKeyPressed('Alt')) {
+                        if (input.mouseLeftDownThisFrame
+                            && !input.isKeyPressed('Alt')
+                            && !node.instanceId
+                        ) {
                             this.draggingFace = true;
                             this.activeViewIndex = view.index;
                             this.draggingFaceNodeId = node.id;

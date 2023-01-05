@@ -11,6 +11,9 @@ import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
 export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
+        if (node.instanceId) {
+            return;
+        }
         if (node.type !== 'Shape') {
             return;
         }
@@ -67,6 +70,7 @@ export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
                 geometry.setAttribute('position', new Float32BufferAttribute(position, 3));
                 geometry.setAttribute('normal', new Float32BufferAttribute(normal, 3));
                 geometry.computeBoundingSphere();
+                ctx.model.instanceMeshChanged(node.id);
             },
             false
         );
