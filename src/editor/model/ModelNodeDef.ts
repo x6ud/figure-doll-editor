@@ -218,7 +218,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [CName, CVisible, CPosition, CObject3D, CLightHelper, CIntensity, CSkyColor, CGroundColor],
         canBeRoot: true,
         validChildTypes: [],
-        defaultData: {[CIntensity.name]: 0.2, [CPosition.name]: new Vector3(0, 3, 0)},
+        defaultData: {[CIntensity.name]: 0.2, [CPosition.name]: new Vector3(0, 1, 0)},
     },
     {
         name: 'DirectionalLight',
@@ -229,7 +229,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [CName, CVisible, CCastShadow, CMapSize, CShadowMappingRange, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
         validChildTypes: ['Target'],
-        defaultData: {[CPosition.name]: new Vector3(0, 3, 0)},
+        defaultData: {[CPosition.name]: new Vector3(0, 1, 0)},
         defaultChildren: [{type: 'Target'}],
     },
     {
@@ -241,7 +241,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [CName, CVisible, CCastShadow, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
         validChildTypes: [],
-        defaultData: {[CPosition.name]: new Vector3(0, 3, 0)},
+        defaultData: {[CPosition.name]: new Vector3(0, 1, 0)},
     },
     {
         name: 'SpotLight',
@@ -255,7 +255,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
             CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
         validChildTypes: ['Target'],
-        defaultData: {[CPosition.name]: new Vector3(0, 3, 0)},
+        defaultData: {[CPosition.name]: new Vector3(0, 1, 0)},
         defaultChildren: [{type: 'Target'}],
     },
 ];

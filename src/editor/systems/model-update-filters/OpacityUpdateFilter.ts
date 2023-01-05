@@ -34,6 +34,9 @@ function setOpacity(obj: Object3D, opacity: number) {
 
 export default class OpacityUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
+        if (node.instanceId) {
+            return;
+        }
         node.opacity = (node.parent ? node.parent.opacity : 1)
             * (node.has(COpacity) ? node.value(COpacity) : 1);
         if (node.has(CObject3D)) {

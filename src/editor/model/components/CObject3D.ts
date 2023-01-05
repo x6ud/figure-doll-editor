@@ -1,4 +1,4 @@
-import {Material, Object3D} from 'three';
+import {InstancedMesh, Material, Object3D} from 'three';
 import {Geometry} from 'three/examples/jsm/deprecated/Geometry';
 import DynamicMesh from '../../utils/geometry/dynamic/DynamicMesh';
 import ModelNode from '../ModelNode';
@@ -33,6 +33,9 @@ export type Object3DUserData = {
 export function disposeObject3D(obj: Object3D) {
     for (let child of obj.children) {
         disposeObject3D(child);
+    }
+    if ((obj as InstancedMesh).isInstancedMesh) {
+        return;
     }
     if ('geometry' in obj) {
         const geometry = obj.geometry as Geometry;

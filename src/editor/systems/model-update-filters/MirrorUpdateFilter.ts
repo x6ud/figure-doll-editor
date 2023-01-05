@@ -3,7 +3,7 @@ import {Reflector} from 'three/examples/jsm/objects/Reflector';
 import EditorContext from '../../EditorContext';
 import CColor from '../../model/components/CColor';
 import CHeight from '../../model/components/CHeight';
-import CObject3D from '../../model/components/CObject3D';
+import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
 import CTextureSize from '../../model/components/CTextureSize';
 import CWidth from '../../model/components/CWidth';
 import ModelNode from '../../model/ModelNode';
@@ -25,6 +25,7 @@ export default class MirrorUpdateFilter implements ModelNodeUpdateFilter {
                     color: new Color().setRGB(color[0], color[1], color[2]),
                 }
             );
+            (cObject3D.value.userData as Object3DUserData).node = node;
             return;
         }
         const reflector = cObject3D.value as Reflector;

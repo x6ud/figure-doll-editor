@@ -31,12 +31,14 @@ export default class Model {
         new ClayWatcher(),
     ];
     dirty: boolean = true;
+    instanceDirty: boolean = true;
     selected: number[] = [];
     referenceMap: Map<number, number[]> = new Map();
 
     reset() {
         this.selected = [];
         this.dirty = false;
+        this.instanceDirty = false;
         this.referenceMap.clear();
         for (let id of this.nodes.map(node => node.id)) {
             this.removeNode(id);
@@ -116,6 +118,7 @@ export default class Model {
             node.components[componentConstructor.name] = new componentConstructor();
         }
         node.parent = parent;
+        this.instanceMeshChanged(id);
         if (instanceId) {
             node.instanceId = instanceId;
             if (this.referenceMap.has(instanceId)) {
@@ -123,6 +126,7 @@ export default class Model {
             } else {
                 this.referenceMap.set(instanceId, [id]);
             }
+            this.instanceDirty = true;
         }
         if (data) {
             for (let name in data) {
@@ -160,11 +164,13 @@ export default class Model {
                 watcher.onBeforeChildRemoved(this, node.parent, node);
             }
         }
+        this.instanceMeshChanged(id);
         if (node.instanceId) {
             const refIds = this.referenceMap.get(node.instanceId);
             if (refIds) {
                 this.referenceMap.set(node.instanceId, refIds.filter(refId => refId !== id));
             }
+            this.instanceDirty = true;
         }
         node.forEach(node => {
             this.nodesMap.delete(node.id);
@@ -258,6 +264,7 @@ export default class Model {
     instanceMeshChanged(id: number) {
         const refIds = this.referenceMap.get(id);
         if (refIds) {
+            this.instanceDirty = true;
             for (let refId of refIds) {
                 if (this.isNodeExists(refId)) {
                     const node = this.getNode(refId);

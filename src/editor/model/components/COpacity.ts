@@ -5,7 +5,6 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 @registerModelComponent({
     storable: true,
     dataType: DataType.NUMBER,
-    instanceable: true,
     equal(a: number, b: number) {
         return Math.abs(a - b) < 1e-8;
     },

@@ -49,6 +49,7 @@ export default class ClayUpdateFilter implements ModelNodeUpdateFilter {
         if (!partialUpdate) {
             cObject3D.dispose();
         }
+        const old = cObject3D.value;
         if (cObject3D.value) {
             cObject3D.mesh.toThree(cObject3D.value);
         } else {
@@ -57,6 +58,8 @@ export default class ClayUpdateFilter implements ModelNodeUpdateFilter {
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
         }
-        ctx.model.instanceMeshChanged(node.id);
+        if (old !== cObject3D.value) {
+            ctx.model.instanceMeshChanged(node.id);
+        }
     }
 }
