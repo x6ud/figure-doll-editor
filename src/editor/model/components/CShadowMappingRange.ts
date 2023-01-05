@@ -5,7 +5,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 @registerModelComponent({
     storable: true,
     dataType: DataType.NUMBER,
-    label: 'Range',
+    label: 'Shadow Mapping Range',
     inputComponent: InputNumber,
     inputComponentProps: {min: 0}
 })

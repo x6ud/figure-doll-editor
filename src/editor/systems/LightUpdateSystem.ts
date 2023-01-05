@@ -4,7 +4,13 @@ import CLightHelper from '../model/components/CLightHelper';
 import CObject3D from '../model/components/CObject3D';
 import UpdateSystem from '../utils/UpdateSystem';
 
-const LIGHT_TYPES = new Set(['AmbientLight', 'DirectionalLight', 'HemisphereLight']);
+const LIGHT_TYPES = new Set([
+    'AmbientLight',
+    'HemisphereLight',
+    'DirectionalLight',
+    'PointLight',
+    'SpotLight',
+]);
 
 export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
     private ambientLight = new AmbientLight(0xffffff, 0.5);
@@ -16,6 +22,7 @@ export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
     begin(ctx: EditorContext): void {
         ctx = ctx.readonlyRef();
         if (ctx.options.shadingMode === 'solid') {
+            ctx.renderer.physicallyCorrectLights = false;
             this.ambientLight.visible = true;
             for (let view of ctx.views) {
                 if (!view.enabled) {
@@ -29,6 +36,7 @@ export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
             }
         } else {
             this.ambientLight.visible = false;
+            ctx.renderer.physicallyCorrectLights = true;
         }
         const useRealLights = ctx.options.shadingMode === 'rendered';
         const showLightHelpers = ctx.options.showLightHelpers;

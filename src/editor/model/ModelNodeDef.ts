@@ -17,6 +17,7 @@ import CMapSize from './components/CMapSize';
 import CName from './components/CName';
 import CObject3D from './components/CObject3D';
 import COpacity from './components/COpacity';
+import CPenumbra from './components/CPenumbra';
 import CPosition from './components/CPosition';
 import CReceiveShadow from './components/CReceiveShadow';
 import CRotation from './components/CRotation';
@@ -26,6 +27,7 @@ import CSdfOperator from './components/CSdfOperator';
 import CSdfSymmetry from './components/CSdfSymmetry';
 import CShadowMappingRange from './components/CShadowMappingRange';
 import CSkyColor from './components/CSkyColor';
+import CSpotLightAngle from './components/CSpotLightAngle';
 import CTube from './components/CTube';
 import CVertices from './components/CVertices';
 import CVisible from './components/CVisible';
@@ -58,50 +60,6 @@ export type ModelNodeDef = {
 };
 
 export const modelNodeDefs: ModelNodeDef[] = [
-    {
-        name: 'Target',
-        label: 'Target',
-        icon: iconTarget,
-        showInList: false,
-        deletable: false,
-        components: [CPosition, CObject3D],
-        canBeRoot: false,
-        validChildTypes: [],
-    },
-    {
-        name: 'AmbientLight',
-        label: 'Ambient Light',
-        icon: iconLight,
-        showInList: true,
-        deletable: true,
-        components: [CName, CVisible, CObject3D, CIntensity, CColor],
-        canBeRoot: true,
-        defaultData: {[CIntensity.name]: 0.2},
-        validChildTypes: [],
-    },
-    {
-        name: 'DirectionalLight',
-        label: 'Directional Light',
-        icon: iconLight,
-        showInList: true,
-        deletable: true,
-        components: [CName, CVisible, CCastShadow, CMapSize, CShadowMappingRange, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
-        canBeRoot: true,
-        validChildTypes: ['Target'],
-        defaultData: {[CPosition.name]: new Vector3(0, 3, 0)},
-        defaultChildren: [{type: 'Target'}],
-    },
-    {
-        name: 'HemisphereLight',
-        label: 'Hemisphere Light',
-        icon: iconLight,
-        showInList: true,
-        deletable: true,
-        components: [CName, CVisible, CPosition, CObject3D, CLightHelper, CIntensity, CSkyColor, CGroundColor],
-        canBeRoot: true,
-        validChildTypes: [],
-        defaultData: {[CIntensity.name]: 0.2, [CPosition.name]: new Vector3(0, 3, 0)},
-    },
     {
         name: 'Container',
         label: 'Container',
@@ -205,6 +163,76 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImportFbx],
         canBeRoot: true,
         validChildTypes: [],
+    },
+    {
+        name: 'Target',
+        label: 'Target',
+        icon: iconTarget,
+        showInList: false,
+        deletable: false,
+        components: [CPosition, CObject3D],
+        canBeRoot: false,
+        validChildTypes: [],
+    },
+    {
+        name: 'AmbientLight',
+        label: 'Ambient Light',
+        icon: iconLight,
+        showInList: true,
+        deletable: true,
+        components: [CName, CVisible, CObject3D, CIntensity, CColor],
+        canBeRoot: true,
+        defaultData: {[CIntensity.name]: 0.2},
+        validChildTypes: [],
+    },
+    {
+        name: 'HemisphereLight',
+        label: 'Hemisphere Light',
+        icon: iconLight,
+        showInList: true,
+        deletable: true,
+        components: [CName, CVisible, CPosition, CObject3D, CLightHelper, CIntensity, CSkyColor, CGroundColor],
+        canBeRoot: true,
+        validChildTypes: [],
+        defaultData: {[CIntensity.name]: 0.2, [CPosition.name]: new Vector3(0, 3, 0)},
+    },
+    {
+        name: 'DirectionalLight',
+        label: 'Directional Light',
+        icon: iconLight,
+        showInList: true,
+        deletable: true,
+        components: [CName, CVisible, CCastShadow, CMapSize, CShadowMappingRange, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
+        canBeRoot: true,
+        validChildTypes: ['Target'],
+        defaultData: {[CPosition.name]: new Vector3(0, 3, 0)},
+        defaultChildren: [{type: 'Target'}],
+    },
+    {
+        name: 'PointLight',
+        label: 'Point Light',
+        icon: iconLight,
+        showInList: true,
+        deletable: true,
+        components: [CName, CVisible, CCastShadow, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
+        canBeRoot: true,
+        validChildTypes: [],
+        defaultData: {[CPosition.name]: new Vector3(0, 3, 0)},
+    },
+    {
+        name: 'SpotLight',
+        label: 'Spot Light',
+        icon: iconLight,
+        showInList: true,
+        deletable: true,
+        components: [
+            CName, CVisible,
+            CCastShadow, CMapSize, CPenumbra, CSpotLightAngle,
+            CPosition, CObject3D, CLightHelper, CIntensity, CColor],
+        canBeRoot: true,
+        validChildTypes: ['Target'],
+        defaultData: {[CPosition.name]: new Vector3(0, 3, 0)},
+        defaultChildren: [{type: 'Target'}],
     },
 ];
 

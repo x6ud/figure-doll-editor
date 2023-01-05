@@ -4,7 +4,11 @@ import {
     DirectionalLight,
     DirectionalLightHelper,
     HemisphereLight,
-    HemisphereLightHelper
+    HemisphereLightHelper,
+    PointLight,
+    PointLightHelper,
+    SpotLight,
+    SpotLightHelper
 } from 'three';
 import EditorContext from '../../EditorContext';
 import CCastShadow from '../../model/components/CCastShadow';
@@ -14,8 +18,10 @@ import CIntensity from '../../model/components/CIntensity';
 import CLightHelper from '../../model/components/CLightHelper';
 import CMapSize from '../../model/components/CMapSize';
 import CObject3D from '../../model/components/CObject3D';
+import CPenumbra from '../../model/components/CPenumbra';
 import CShadowMappingRange from '../../model/components/CShadowMappingRange';
 import CSkyColor from '../../model/components/CSkyColor';
+import CSpotLightAngle from '../../model/components/CSpotLightAngle';
 import ModelNode from '../../model/ModelNode';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
@@ -31,6 +37,24 @@ export default class LightUpdateFilter implements ModelNodeUpdateFilter {
                 const color = node.value(CColor);
                 light.color.setRGB(color[0], color[1], color[2]);
                 light.intensity = node.value(CIntensity);
+            }
+                break;
+            case 'HemisphereLight': {
+                const cObject3D = node.get(CObject3D);
+                if (!cObject3D.value) {
+                    cObject3D.value = new HemisphereLight();
+                }
+                const light = cObject3D.value as HemisphereLight;
+                const skyColor = node.value(CSkyColor);
+                light.color.setRGB(skyColor[0], skyColor[1], skyColor[2]);
+                const groundColor = node.value(CGroundColor);
+                light.groundColor.setRGB(groundColor[0], groundColor[1], groundColor[2]);
+                light.intensity = node.value(CIntensity);
+                const cLightHelper = node.get(CLightHelper);
+                if (!cLightHelper.value) {
+                    cLightHelper.value = new HemisphereLightHelper(light, 0.25);
+                    ctx.scene.add(cLightHelper.value);
+                }
             }
                 break;
             case 'DirectionalLight': {
@@ -51,13 +75,12 @@ export default class LightUpdateFilter implements ModelNodeUpdateFilter {
                     light.shadow.dispose();
                 }
                 const range = node.value(CShadowMappingRange) / 2;
-                if (light.shadow.camera.top !== range) {
-                    light.shadow.camera.top = +range;
-                    light.shadow.camera.right = +range;
-                    light.shadow.camera.bottom = -range;
-                    light.shadow.camera.left = -range;
-                    light.shadow.camera.updateProjectionMatrix();
-                }
+                light.shadow.camera.top = +range;
+                light.shadow.camera.right = +range;
+                light.shadow.camera.bottom = -range;
+                light.shadow.camera.left = -range;
+                light.shadow.camera.near = 0;
+                light.shadow.camera.updateProjectionMatrix();
                 const cLightHelper = node.get(CLightHelper);
                 if (!cLightHelper.value) {
                     cLightHelper.value = new DirectionalLightHelper(light);
@@ -76,21 +99,63 @@ export default class LightUpdateFilter implements ModelNodeUpdateFilter {
                 }
             }
                 break;
-            case 'HemisphereLight': {
+            case 'PointLight': {
                 const cObject3D = node.get(CObject3D);
                 if (!cObject3D.value) {
-                    cObject3D.value = new HemisphereLight();
+                    cObject3D.value = new PointLight();
                 }
-                const light = cObject3D.value as HemisphereLight;
-                const skyColor = node.value(CSkyColor);
-                light.color.setRGB(skyColor[0], skyColor[1], skyColor[2]);
-                const groundColor = node.value(CGroundColor);
-                light.groundColor.setRGB(groundColor[0], groundColor[1], groundColor[2]);
+                const light = cObject3D.value as PointLight;
+                light.castShadow = node.value(CCastShadow);
+                const color = node.value(CColor);
+                light.color.setRGB(color[0], color[1], color[2]);
                 light.intensity = node.value(CIntensity);
+                const near = 0.005;
+                if (light.shadow.camera.near !== near) {
+                    light.shadow.camera.near = near;
+                    light.shadow.camera.updateProjectionMatrix();
+                }
                 const cLightHelper = node.get(CLightHelper);
                 if (!cLightHelper.value) {
-                    cLightHelper.value = new HemisphereLightHelper(light, 0.25);
+                    cLightHelper.value = new PointLightHelper(light, 0.25);
                     ctx.scene.add(cLightHelper.value);
+                }
+            }
+                break;
+            case 'SpotLight': {
+                const cObject3D = node.get(CObject3D);
+                if (!cObject3D.value) {
+                    cObject3D.value = new SpotLight();
+                }
+                const light = cObject3D.value as SpotLight;
+                light.castShadow = node.value(CCastShadow);
+                const color = node.value(CColor);
+                light.color.setRGB(color[0], color[1], color[2]);
+                light.intensity = node.value(CIntensity);
+                light.angle = node.value(CSpotLightAngle) / 180 * Math.PI;
+                light.penumbra = node.value(CPenumbra);
+                const mapSize = Number.parseInt(node.value(CMapSize));
+                if (light.shadow.mapSize.x !== mapSize) {
+                    light.shadow.mapSize.set(mapSize, mapSize);
+                    light.shadow.map?.setSize(mapSize, mapSize);
+                    light.shadow.mapPass?.setSize(mapSize, mapSize);
+                    light.shadow.dispose();
+                }
+                const near = 0.005;
+                if (light.shadow.camera.near !== near) {
+                    light.shadow.camera.near = near;
+                    light.shadow.camera.updateProjectionMatrix();
+                }
+                const cLightHelper = node.get(CLightHelper);
+                if (!cLightHelper.value) {
+                    cLightHelper.value = new SpotLightHelper(light);
+                    ctx.scene.add(cLightHelper.value);
+                }
+                const target = node.children[0];
+                const targetCObject3D = target.get(CObject3D);
+                targetCObject3D.parentChanged = false;
+                if (!targetCObject3D.value) {
+                    targetCObject3D.value = light.target;
+                    ctx.scene.add(targetCObject3D.value);
                 }
             }
                 break;
