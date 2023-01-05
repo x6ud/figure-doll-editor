@@ -5,6 +5,7 @@ import CCastShadow from './components/CCastShadow';
 import CColor from './components/CColor';
 import CColors from './components/CColors';
 import CGroundColor from './components/CGroundColor';
+import CHeight from './components/CHeight';
 import CIkNode from './components/CIkNode';
 import CIkNodeLength from './components/CIkNodeLength';
 import CIkNodeRotation from './components/CIkNodeRotation';
@@ -28,9 +29,11 @@ import CSdfSymmetry from './components/CSdfSymmetry';
 import CShadowMappingRange from './components/CShadowMappingRange';
 import CSkyColor from './components/CSkyColor';
 import CSpotLightAngle from './components/CSpotLightAngle';
+import CTextureSize from './components/CTextureSize';
 import CTube from './components/CTube';
 import CVertices from './components/CVertices';
 import CVisible from './components/CVisible';
+import CWidth from './components/CWidth';
 import iconBox from './icons/Box.png';
 import iconClay from './icons/Clay.png';
 import iconContainer from './icons/Container.png';
@@ -39,6 +42,7 @@ import iconIKChain from './icons/IKChain.png';
 import iconIKNode from './icons/IKNode.png';
 import iconImage from './icons/Image.png';
 import iconLight from './icons/Light.png';
+import iconMirror from './icons/Mirror.png';
 import iconObjModel from './icons/ObjModel.png';
 import iconShape from './icons/Shape.png';
 import iconTarget from './icons/Target.png';
@@ -68,7 +72,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         deletable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
-        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay'],
+        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay', 'Mirror'],
     },
     {
         name: 'IKChain',
@@ -88,7 +92,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         deletable: true,
         components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation],
         canBeRoot: false,
-        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay'],
+        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'Box', 'Shape', 'Clay', 'Mirror'],
     },
     {
         name: 'Box',
@@ -161,6 +165,16 @@ export const modelNodeDefs: ModelNodeDef[] = [
         showInList: true,
         deletable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImportFbx],
+        canBeRoot: true,
+        validChildTypes: [],
+    },
+    {
+        name: 'Mirror',
+        label: 'Mirror',
+        icon: iconMirror,
+        showInList: true,
+        deletable: true,
+        components: [CName, CVisible, CTextureSize, CPosition, CRotation, CScale, CObject3D, CWidth, CHeight, CColor],
         canBeRoot: true,
         validChildTypes: [],
     },

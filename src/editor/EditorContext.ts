@@ -19,6 +19,7 @@ import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter'
 import ImportModelUpdateFilter from './systems/model-update-filters/ImportModelUpdateFilter';
 import LightHelperUpdateFilter from './systems/model-update-filters/LightHelperUpdateFilter';
 import LightUpdateFilter from './systems/model-update-filters/LightUpdateFilter';
+import MirrorUpdateFilter from './systems/model-update-filters/MirrorUpdateFilter';
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import OpacityUpdateFilter from './systems/model-update-filters/OpacityUpdateFilter';
 import ShadowUpdateFilter from './systems/model-update-filters/ShadowUpdateFilter';
@@ -61,6 +62,7 @@ export default class EditorContext {
             new CustomShapeUpdateFilter(),
             new TubeUpdateFilter(),
             new ClayUpdateFilter(),
+            new MirrorUpdateFilter(),
             new ContainerUpdateFilter(),
             new IkChainUpdateFilter(),
             new Object3DRelationshipUpdateFilter(),
