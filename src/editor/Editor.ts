@@ -18,6 +18,7 @@ import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
 import CColors from './model/components/CColors';
 import CFlipDirection from './model/components/CFlipDirection';
+import CIkNodeRotation from './model/components/CIkNodeRotation';
 import CName from './model/components/CName';
 import CObject3D from './model/components/CObject3D';
 import CPosition from './model/components/CPosition';
@@ -828,6 +829,9 @@ export default defineComponent({
                         _axis.normalize();
                         _localRotation1.setFromAxisAngle(_axis, -angle);
                         rotation.setFromQuaternion(_localRotation1);
+                    }
+                    if (node.has(CIkNodeRotation)) {
+                        // todo
                     }
                     if (node.has(CScale)) {
                         _localScale1.setScalar(node.value(CScale));

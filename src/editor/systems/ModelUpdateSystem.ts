@@ -63,16 +63,18 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                         node.instanceMeshRebuild = false;
                         this.recreateInstanceMesh(ctx, node);
                     }
-                    ctx.throttle(
-                        `#${node.id}-update-instance-mirror-geometry`,
-                        50,
-                        () => {
-                            if (node.deleted) {
-                                return;
+                    if (node.has(CFlipDirection)) {
+                        ctx.throttle(
+                            `#${node.id}-update-instance-mirror-geometry`,
+                            50,
+                            () => {
+                                if (node.deleted) {
+                                    return;
+                                }
+                                this.updateInstanceMirrorGeometry(ctx, node);
                             }
-                            this.updateInstanceMirrorGeometry(ctx, node);
-                        }
-                    );
+                        );
+                    }
                 }
             });
             ctx.model.dirty = true;
