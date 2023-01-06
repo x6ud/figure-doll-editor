@@ -18,6 +18,7 @@ import OpacityWatcher from './watchers/OpacityWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
 
 export default class Model {
+    /** Id to node map */
     private nodesMap: Map<number, ModelNode> = new Map();
 
     nodes: ModelNode[] = [];
@@ -31,10 +32,14 @@ export default class Model {
         new CustomShapeWatcher(),
         new ClayWatcher(),
     ];
+    /** True if any node needs to be updated */
     dirty: boolean = true;
+    /** True if any shadow node's target mesh changed */
     instanceDirty: boolean = true;
-    selected: number[] = [];
+    /** Mapping node id to all shadow node ids that target it */
     referenceMap: Map<number, number[]> = new Map();
+    /** Selected node ids */
+    selected: number[] = [];
 
     reset() {
         this.selected = [];

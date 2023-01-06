@@ -36,7 +36,9 @@ export default class ModelNode {
     deleted: boolean = false;
     opacity: number = 1;
     visible: boolean = true;
+    /** Node is a shadow node when instance id is not 0. Shadow nodes always copy mesh from instance id target nodes. */
     instanceId: number = 0;
+    /** True if shadow node targets mesh changed or updated. */
     instanceMeshDirty: boolean = true;
     instanceMeshRebuild: boolean = true;
 
