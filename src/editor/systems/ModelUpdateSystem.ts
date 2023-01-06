@@ -147,6 +147,14 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         }
         if (dst.geometry === src.geometry) {
             dst.geometry = new BufferGeometry();
+            const index = src.geometry.getIndex();
+            if (index) {
+                dst.geometry.index = new BufferAttribute(
+                    new Uint32Array(index.array.length),
+                    index.itemSize
+                );
+                this.flipIndex(dst.geometry.index, index);
+            }
             const aPos = src.geometry.getAttribute('position');
             if (aPos) {
                 dst.geometry.setAttribute('position', new Float32BufferAttribute(
@@ -172,15 +180,29 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         this.mirrorGeometry(dst.geometry, src.geometry, flipDir);
     }
 
+    private flipIndex(dst: BufferAttribute, src: BufferAttribute) {
+        const arr1 = dst.array as Uint32Array;
+        const arr0 = src.array;
+        for (let i = 0, len = arr0.length; i < len; i += 3) {
+            arr1[i] = arr0[i + 2];
+            arr1[i + 1] = arr0[i + 1];
+            arr1[i + 2] = arr0[i];
+        }
+    }
+
     private mirrorGeometry(dst: BufferGeometry, src: BufferGeometry, flipDir: Vector3) {
-        this.mirrorAttribute(dst.getAttribute('position'), src.getAttribute('position'), flipDir);
-        this.mirrorAttribute(dst.getAttribute('normal'), src.getAttribute('normal'), flipDir);
-        this.flipTriangles(dst.getAttribute('color'), src.getAttribute('color'));
+        const flipTriangle = !dst.getIndex();
+        this.mirrorAttribute(dst.getAttribute('position'), src.getAttribute('position'), flipDir, flipTriangle);
+        this.mirrorAttribute(dst.getAttribute('normal'), src.getAttribute('normal'), flipDir, flipTriangle);
+        if (flipTriangle) {
+            this.flipTriangles(dst.getAttribute('color'), src.getAttribute('color'));
+        }
     }
 
     private mirrorAttribute(dst: BufferAttribute | InterleavedBufferAttribute,
                             src: BufferAttribute | InterleavedBufferAttribute,
-                            flipDir: Vector3
+                            flipDir: Vector3,
+                            flipTriangle: boolean
     ) {
         if (!dst || !src) {
             return;
@@ -190,13 +212,23 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         }
         const arr1 = dst.array as Float32Array;
         const arr0 = src.array as ArrayLike<number>;
-        for (let i = 0, len = arr0.length; i < len; i += 9) {
-            for (let j = 0; j < 9; j += 3) {
-                _v.fromArray(arr0, i + 6 - j);
+        if (flipTriangle) {
+            for (let i = 0, len = arr0.length; i < len; i += 9) {
+                for (let j = 0; j < 9; j += 3) {
+                    _v.fromArray(arr0, i + 6 - j);
+                    _v.reflect(flipDir);
+                    arr1[i + j] = _v.x;
+                    arr1[i + j + 1] = _v.y;
+                    arr1[i + j + 2] = _v.z;
+                }
+            }
+        } else {
+            for (let i = 0, len = arr0.length; i < len; i += 3) {
+                _v.fromArray(arr0, i);
                 _v.reflect(flipDir);
-                arr1[i + j] = _v.x;
-                arr1[i + j + 1] = _v.y;
-                arr1[i + j + 2] = _v.z;
+                arr1[i] = _v.x;
+                arr1[i + 1] = _v.y;
+                arr1[i + 2] = _v.z;
             }
         }
         dst.needsUpdate = true;
