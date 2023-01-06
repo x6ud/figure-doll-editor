@@ -63,7 +63,16 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                         node.instanceMeshRebuild = false;
                         this.recreateInstanceMesh(ctx, node);
                     }
-                    this.updateInstanceMirrorGeometry(ctx, node);
+                    ctx.throttle(
+                        `#${node.id}-update-instance-mirror-geometry`,
+                        50,
+                        () => {
+                            if (node.deleted) {
+                                return;
+                            }
+                            this.updateInstanceMirrorGeometry(ctx, node);
+                        }
+                    );
                 }
             });
             ctx.model.dirty = true;
@@ -152,6 +161,13 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                     aNormal.itemSize
                 ));
             }
+            const aColor = src.geometry.getAttribute('color');
+            if (aColor) {
+                dst.geometry.setAttribute('color', new Float32BufferAttribute(
+                    new Float32Array(aColor.array as ArrayLike<number>),
+                    aColor.itemSize
+                ));
+            }
         }
         this.mirrorGeometry(dst.geometry, src.geometry, flipDir);
     }
@@ -159,6 +175,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
     private mirrorGeometry(dst: BufferGeometry, src: BufferGeometry, flipDir: Vector3) {
         this.mirrorAttribute(dst.getAttribute('position'), src.getAttribute('position'), flipDir);
         this.mirrorAttribute(dst.getAttribute('normal'), src.getAttribute('normal'), flipDir);
+        this.flipTriangles(dst.getAttribute('color'), src.getAttribute('color'));
     }
 
     private mirrorAttribute(dst: BufferAttribute | InterleavedBufferAttribute,
@@ -180,6 +197,27 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                 arr1[i + j] = _v.x;
                 arr1[i + j + 1] = _v.y;
                 arr1[i + j + 2] = _v.z;
+            }
+        }
+        dst.needsUpdate = true;
+    }
+
+    private flipTriangles(dst: BufferAttribute | InterleavedBufferAttribute,
+                          src: BufferAttribute | InterleavedBufferAttribute
+    ) {
+        if (!dst || !src) {
+            return;
+        }
+        if (dst.itemSize !== 3) {
+            return;
+        }
+        const arr1 = dst.array as Float32Array;
+        const arr0 = src.array as ArrayLike<number>;
+        for (let i = 0, len = arr0.length; i < len; i += 9) {
+            for (let j = 0; j < 9; j += 3) {
+                arr1[i + j] = arr0[i + 6 - j];
+                arr1[i + j + 1] = arr0[i + 6 - j + 1];
+                arr1[i + j + 2] = arr0[i + 6 - j + 2];
             }
         }
         dst.needsUpdate = true;
