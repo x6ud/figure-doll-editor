@@ -37,7 +37,8 @@ export default class ModelNode {
     opacity: number = 1;
     visible: boolean = true;
     instanceId: number = 0;
-    instanceDirty: boolean = true;
+    instanceMeshDirty: boolean = true;
+    instanceMeshRebuild: boolean = true;
 
     get<T extends ModelNodeComponent<any>>(componentClass: Class<T>): T {
         const component = this.components[componentClass.name];

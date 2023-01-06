@@ -1,4 +1,4 @@
-import {BufferGeometry, Mesh, Vector3} from 'three';
+import {BufferGeometry, Euler, Matrix4, Mesh, Quaternion, Vector3} from 'three';
 import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
@@ -17,6 +17,7 @@ import SidePanel from './components/SidePanel/SidePanel.vue';
 import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
 import CColors from './model/components/CColors';
+import CFlipDirection from './model/components/CFlipDirection';
 import CName from './model/components/CName';
 import CObject3D from './model/components/CObject3D';
 import CPosition from './model/components/CPosition';
@@ -24,6 +25,7 @@ import CRotation from './model/components/CRotation';
 import CScale from './model/components/CScale';
 import CSdfDirty from './model/components/CSdfDirty';
 import CVertices from './model/components/CVertices';
+import {ModelNodeCreationInfo} from './model/ModelHistory';
 import ModelNode, {ModelNodeJson} from './model/ModelNode';
 import ModelNodeComponent from './model/ModelNodeComponent';
 import {DataType, getModelNodeComponentDef} from './model/ModelNodeComponentDef';
@@ -33,7 +35,7 @@ import ProjectWriter from './ProjectWriter';
 import EditorTool from './tools/EditorTool';
 import {dataUrlToArrayBuffer} from './utils/convert';
 import {voxelizeRemesh} from './utils/geometry/voxelize-remesh';
-import {getTranslation} from './utils/math';
+import {getAxisAngle, getTranslation} from './utils/math';
 
 const extension = '.doll';
 const filePickerAcceptType: FilePickerAcceptType = {
@@ -756,27 +758,93 @@ export default defineComponent({
             }
         }
 
-        function onCreateInstance(node: ModelNode) {
+        function onCreateInstance(node: ModelNode, mirror: 'none' | 'x' | 'y' | 'z') {
             const ctx = editorCtx.value!;
             node = toRaw(node);
-            const create = makeCreationInfo(node);
-            create.parentId = node.parent?.id;
-            ctx.model.selected = [];
-            ctx.history.createNode(create);
 
-            function makeCreationInfo(node: ModelNode) {
-                const ret: ModelNodeJson = {
+            const baseMat = new Matrix4();
+            const invBaseMat = new Matrix4();
+            const flipDirWorld = new Vector3();
+            const flipOriginWorld = new Vector3();
+            if (mirror !== 'none') {
+                baseMat.copy(node.getParentWorldMatrix());
+                invBaseMat.copy(baseMat).invert();
+                switch (mirror) {
+                    case 'x':
+                        flipDirWorld.set(1, 0, 0);
+                        break;
+                    case 'y':
+                        flipDirWorld.set(0, 1, 0);
+                        break;
+                    case 'z':
+                        flipDirWorld.set(0, 0, 1);
+                        break;
+                }
+                flipDirWorld.transformDirection(baseMat);
+                flipOriginWorld.applyMatrix4(baseMat);
+            }
+
+            const _localTranslation1 = new Vector3();
+            const _localRotation1 = new Quaternion();
+            const _localScale1 = new Vector3();
+            const _localMat1 = new Matrix4();
+            const _axis = new Vector3();
+
+            function makeCreationInfo(node: ModelNode, parentMat0?: Matrix4, parentMat1?: Matrix4, invParentMat1?: Matrix4) {
+                const ret: ModelNodeCreationInfo = {
                     type: node.type,
                     instanceId: node.instanceId || node.id,
                 };
                 if (node.instanceId && ctx.model.isNodeExists(node.instanceId)) {
-                    ret.data = ctx.model.getNode(node.instanceId).getComponentData(true);
-                } else {
-                    ret.data = node.getComponentData(true);
+                    node = ctx.model.getNode(node.instanceId);
                 }
-                ret.children = node.children.map(makeCreationInfo);
+                ret.data = node.getComponentData(true);
+                if (mirror !== 'none') {
+                    parentMat0 = parentMat0!;
+                    parentMat1 = parentMat1!;
+                    invParentMat1 = invParentMat1!;
+                    ret.data[CFlipDirection.name] = new Vector3().copy(flipDirWorld).transformDirection(invBaseMat);
+                    _localTranslation1.set(0, 0, 0);
+                    _localRotation1.set(0, 0, 0, 1);
+                    _localScale1.set(1, 1, 1);
+                    if (node.has(CPosition)) {
+                        const position = ret.data[CPosition.name] as Vector3;
+                        position.applyMatrix4(parentMat0);
+                        position.sub(flipOriginWorld);
+                        position.reflect(flipDirWorld);
+                        position.add(flipOriginWorld);
+                        position.applyMatrix4(invParentMat1);
+                        _localTranslation1.copy(position);
+                    }
+                    if (node.has(CRotation)) {
+                        const rotation = ret.data[CRotation.name] as Euler;
+                        _localRotation1.setFromEuler(rotation);
+                        const angle = getAxisAngle(_axis, _localRotation1);
+                        _axis.applyMatrix4(parentMat0);
+                        _axis.sub(flipOriginWorld);
+                        _axis.reflect(flipDirWorld);
+                        _axis.add(flipOriginWorld);
+                        _axis.applyMatrix4(invParentMat1);
+                        _axis.normalize();
+                        _localRotation1.setFromAxisAngle(_axis, -angle);
+                        rotation.setFromQuaternion(_localRotation1);
+                    }
+                    if (node.has(CScale)) {
+                        _localScale1.setScalar(node.value(CScale));
+                    }
+                    _localMat1.compose(_localTranslation1, _localRotation1, _localScale1);
+                    parentMat1 = new Matrix4().multiplyMatrices(parentMat1, _localMat1);
+                    invParentMat1 = new Matrix4().copy(parentMat1).invert();
+                    parentMat0 = node.getWorldMatrix();
+                }
+                ret.children = node.children.map(node => makeCreationInfo(node, parentMat0, parentMat1, invParentMat1));
                 return ret;
             }
+
+            const create = makeCreationInfo(node, baseMat, baseMat, invBaseMat);
+            create.parentId = node.parent?.id;
+            ctx.model.selected = [];
+            ctx.history.createNode(create);
         }
 
         return {

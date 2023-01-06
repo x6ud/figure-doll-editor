@@ -1,5 +1,6 @@
 import Class from '../../common/type/Class';
 import CColors from './components/CColors';
+import CFlipDirection from './components/CFlipDirection';
 import CObject3D from './components/CObject3D';
 import CVertices from './components/CVertices';
 import ModelNode from './ModelNode';
@@ -118,7 +119,7 @@ export default class Model {
             node.components[componentConstructor.name] = new componentConstructor();
         }
         node.parent = parent;
-        this.instanceMeshChanged(id);
+        this.instanceMeshUpdated(id, true);
         if (instanceId) {
             node.instanceId = instanceId;
             if (this.referenceMap.has(instanceId)) {
@@ -130,7 +131,10 @@ export default class Model {
         }
         if (data) {
             for (let name in data) {
-                const component = node.components[name];
+                let component = node.components[name];
+                if (!component && instanceId && name === CFlipDirection.name) {
+                    component = node.components[name] = new CFlipDirection();
+                }
                 if (component) {
                     const componentDef = getModelNodeComponentDef(name);
                     component.value = componentDef.clone ? componentDef.clone(data[name]) : data[name];
@@ -164,7 +168,7 @@ export default class Model {
                 watcher.onBeforeChildRemoved(this, node.parent, node);
             }
         }
-        this.instanceMeshChanged(id);
+        this.instanceMeshUpdated(id, true);
         if (node.instanceId) {
             const refIds = this.referenceMap.get(node.instanceId);
             if (refIds) {
@@ -261,14 +265,15 @@ export default class Model {
         }
     }
 
-    instanceMeshChanged(id: number) {
+    instanceMeshUpdated(id: number, rebuild: boolean) {
         const refIds = this.referenceMap.get(id);
         if (refIds) {
             this.instanceDirty = true;
             for (let refId of refIds) {
                 if (this.isNodeExists(refId)) {
                     const node = this.getNode(refId);
-                    node.instanceDirty = true;
+                    node.instanceMeshDirty = true;
+                    node.instanceMeshRebuild = rebuild;
                 }
             }
         }

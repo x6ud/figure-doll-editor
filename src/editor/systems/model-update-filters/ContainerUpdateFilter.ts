@@ -13,7 +13,7 @@ export default class ContainerUpdateFilter implements ModelNodeUpdateFilter {
                 (cObject3D.value.userData as Object3DUserData) = {node};
             }
             if (node.instanceId) {
-                node.instanceDirty = false;
+                node.instanceMeshDirty = false;
             }
         }
     }

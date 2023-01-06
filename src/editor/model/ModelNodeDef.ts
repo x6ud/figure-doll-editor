@@ -4,6 +4,7 @@ import CBoxSize from './components/CBoxSize';
 import CCastShadow from './components/CCastShadow';
 import CColor from './components/CColor';
 import CColors from './components/CColors';
+import './components/CFlipDirection';
 import CGroundColor from './components/CGroundColor';
 import CHeight from './components/CHeight';
 import CIkNode from './components/CIkNode';
@@ -147,7 +148,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconImage,
         showInList: true,
         deletable: true,
-        instanceable: true,
+        instanceable: false,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
         canBeRoot: true,
         defaultData: {

@@ -36,6 +36,6 @@ export default class BoxUpdateFilter implements ModelNodeUpdateFilter {
             cObject3D.localTransformChanged = true;
         }
         geometry.computeBoundingSphere();
-        ctx.model.instanceMeshChanged(node.id);
+        ctx.model.instanceMeshUpdated(node.id, true);
     }
 }

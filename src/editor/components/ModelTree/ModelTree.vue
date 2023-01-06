@@ -22,11 +22,17 @@
             <popup-menu-item title="Focus" @click="onFocus"
                              :disabled="!contextMenuNode"
             />
-            <template v-if="canConvertToClay">
-                <popup-menu-item title="Convert to Clay" @click="onConvertToClay"/>
-            </template>
-            <template v-if="canCreateInstance">
-                <popup-menu-item title="Create Shadow Node" @click="onCreateInstance"/>
+            <template v-if="canConvertToClay || canCreateInstance">
+                <popup-menu-item sep/>
+                <template v-if="canConvertToClay">
+                    <popup-menu-item title="Convert to Clay" @click="onConvertToClay"/>
+                </template>
+                <template v-if="canCreateInstance">
+                    <popup-menu-item title="Create Shadow Node" @click="onCreateInstance('none')"/>
+                    <popup-menu-item title="Create X-Axis Mirroring Shadow Node" @click="onCreateInstance('x')"/>
+                    <popup-menu-item title="Create Y-Axis Mirroring Shadow Node" @click="onCreateInstance('y')"/>
+                    <popup-menu-item title="Create Z-Axis Mirroring Shadow Node" @click="onCreateInstance('z')"/>
+                </template>
             </template>
             <popup-menu-item sep/>
             <popup-menu-item title="Cut" hotkey="Ctrl+X" @click="onCut"

@@ -4,7 +4,8 @@ import {defineConfig} from 'vite';
 export default defineConfig({
     base: './',
     build: {
-        minify: 'esbuild'
+        minify: 'esbuild',
+        sourcemap: true
     },
     esbuild: {
         keepNames: true

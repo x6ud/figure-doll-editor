@@ -22,14 +22,14 @@ type Record = {
     getCtx?: () => any;
 }
 
-type ModelNodeChildCreationInfo = {
+export type ModelNodeChildCreationInfo = {
     type: string;
     instanceId?: number;
     data?: { [name: string]: any };
     children?: ModelNodeChildCreationInfo[];
 }
 
-type ModelNodeCreationInfo = {
+export type ModelNodeCreationInfo = {
     type: string;
     parentId?: number;
     instanceId?: number;

@@ -124,8 +124,8 @@ export default defineComponent({
             return !!def.instanceable;
         });
 
-        function onCreateInstance() {
-            ctx.emit('createInstance', contextMenuNode.value);
+        function onCreateInstance(mirror: string) {
+            ctx.emit('createInstance', contextMenuNode.value, mirror);
         }
 
         return {

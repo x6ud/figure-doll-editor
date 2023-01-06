@@ -52,7 +52,7 @@ export default class ImageUpdateFilter implements ModelNodeUpdateFilter {
             node.dirty = true;
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
-            ctx.model.instanceMeshChanged(node.id);
+            ctx.model.instanceMeshUpdated(node.id, true);
         };
         image.src = cImage.value;
     }

@@ -294,3 +294,14 @@ export const angleBetween2VectorsInPanel = (function () {
         return Math.atan2(cross.crossVectors(a, b).dot(panelNormal), a.dot(b));
     };
 })();
+
+export function getAxisAngle(outAxis: Vector3, q: Quaternion) {
+    const rad = Math.acos(q.w) * 2;
+    const s = Math.sin(rad / 2);
+    if (s > 1e-6) {
+        outAxis.set(q.x, q.y, q.z).multiplyScalar(1 / s);
+    } else {
+        outAxis.set(1, 0, 0);
+    }
+    return rad;
+}

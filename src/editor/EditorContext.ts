@@ -271,15 +271,16 @@ export default class EditorContext {
             view.camera.beta = state.beta;
             view.camera.target.set(...state.target);
         }
-        for (let node of data.nodes) {
-            this.model.createNode(
-                node.id,
-                node.type,
-                node.parentId ? this.model.getNode(node.parentId) : null,
+        for (let nodeInfo of data.nodes) {
+            const node = this.model.createNode(
+                nodeInfo.id,
+                nodeInfo.type,
+                nodeInfo.parentId ? this.model.getNode(nodeInfo.parentId) : null,
                 null,
-                node.data,
-                node.instanceId,
+                nodeInfo.data,
+                nodeInfo.instanceId,
             );
+            node.expanded = nodeInfo.expanded;
         }
     }
 

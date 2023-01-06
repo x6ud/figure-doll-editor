@@ -31,7 +31,7 @@ export default class ImportModelUpdateFilter implements ModelNodeUpdateFilter {
             }
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
-            ctx.model.instanceMeshChanged(node.id);
+            ctx.model.instanceMeshUpdated(node.id, true);
         } else if (node.has(CImportFbx)) {
             const cFbx = node.get(CImportFbx);
             if (!cFbx.dirty) {
@@ -56,7 +56,7 @@ export default class ImportModelUpdateFilter implements ModelNodeUpdateFilter {
                 cObject3D.localTransformChanged = true;
                 node.dirty = true;
                 ctx.model.dirty = true;
-                ctx.model.instanceMeshChanged(node.id);
+                ctx.model.instanceMeshUpdated(node.id, true);
             });
         }
     }

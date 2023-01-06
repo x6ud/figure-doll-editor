@@ -32,7 +32,7 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
             return;
         }
         if (ikChain.instanceId) {
-            ikChain.instanceDirty = false;
+            ikChain.instanceMeshDirty = false;
         }
         const cObject3D = ikChain.get(CObject3D);
         if (!cObject3D.value) {
@@ -42,7 +42,7 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
         for (let i = 0, len = ikChain.children.length; i < len; ++i) {
             const curr = ikChain.children[i];
             if (curr.instanceId) {
-                curr.instanceDirty = false;
+                curr.instanceMeshDirty = false;
             }
             const cObject3D = curr.get(CObject3D);
             if (!cObject3D.value) {

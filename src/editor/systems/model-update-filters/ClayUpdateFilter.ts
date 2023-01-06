@@ -58,8 +58,6 @@ export default class ClayUpdateFilter implements ModelNodeUpdateFilter {
             cObject3D.parentChanged = true;
             cObject3D.localTransformChanged = true;
         }
-        if (old !== cObject3D.value) {
-            ctx.model.instanceMeshChanged(node.id);
-        }
+        ctx.model.instanceMeshUpdated(node.id, old !== cObject3D.value);
     }
 }
