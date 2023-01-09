@@ -66,13 +66,14 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                     if (node.has(CFlipDirection)) {
                         ctx.throttle(
                             `#${node.id}-update-instance-mirror-geometry`,
-                            50,
+                            200,
                             () => {
                                 if (node.deleted) {
                                     return;
                                 }
                                 this.updateInstanceMirrorGeometry(ctx, node);
-                            }
+                            },
+                            true
                         );
                     }
                 }

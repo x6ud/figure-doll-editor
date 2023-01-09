@@ -29,7 +29,8 @@
                 </template>
                 <template v-if="canCreateInstance">
                     <popup-menu-item title="Create Shadow Node" @click="onCreateInstance('none')"/>
-                    <popup-menu-item title="Create X-Axis Mirroring Shadow Node" @click="onCreateInstance('x')"/>
+                    <!-- Flipping on x axis will broke the ik chain -->
+                    <!-- <popup-menu-item title="Create X-Axis Mirroring Shadow Node" @click="onCreateInstance('x')"/>-->
                     <popup-menu-item title="Create Y-Axis Mirroring Shadow Node" @click="onCreateInstance('y')"/>
                     <popup-menu-item title="Create Z-Axis Mirroring Shadow Node" @click="onCreateInstance('z')"/>
                 </template>
