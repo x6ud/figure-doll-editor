@@ -510,7 +510,7 @@ export default defineComponent({
                 return;
             }
             try {
-                const json = JSON.parse(await navigator.clipboard.readText()) as ModelNodeJson[];
+                const json = JSON.parse(await navigator.clipboard.readText()) as ModelNodeCreationInfo[];
                 if (!Array.isArray(json)) {
                     return;
                 }
@@ -528,6 +528,7 @@ export default defineComponent({
                 let changed = false;
                 const history = editorCtx.value!.history;
                 for (let item of json) {
+                    item.selected = true;
                     if (target) {
                         if (getModelNodeDef(target.type).validChildTypes.includes(item.type)) {
                             const creationInfo = {...item};
@@ -554,7 +555,7 @@ export default defineComponent({
                 return;
             }
 
-            async function convertJsonToRealDataType(json: ModelNodeJson[]) {
+            async function convertJsonToRealDataType(json: ModelNodeCreationInfo[]) {
                 for (let node of json) {
                     for (let name in node.data) {
                         const componentDef = getModelNodeComponentDef(name);
@@ -570,6 +571,7 @@ export default defineComponent({
                     if (node.children) {
                         await convertJsonToRealDataType(node.children);
                     }
+                    node.selected = false;
                 }
             }
         }
@@ -886,11 +888,14 @@ export default defineComponent({
                     prevChildInvQuat1 = newChild.invQuat1;
                     newNode.children.push(newChild.creationInfo);
                 }
+                newNode.expanded = node.expanded;
+                newNode.selected = false;
                 return {creationInfo: newNode, invQuat1};
             }
 
             const create = makeNewNode(node, baseMat, baseMat, invBaseMat).creationInfo;
             create.parentId = node.parent?.id;
+            create.selected = true;
             ctx.model.selected = [];
             ctx.history.createNode(create);
         }

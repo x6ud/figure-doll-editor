@@ -27,6 +27,8 @@ export type ModelNodeChildCreationInfo = {
     instanceId?: number;
     data?: { [name: string]: any };
     children?: ModelNodeChildCreationInfo[];
+    expanded?: boolean;
+    selected?: boolean;
 }
 
 export type ModelNodeCreationInfo = {
@@ -35,6 +37,8 @@ export type ModelNodeCreationInfo = {
     instanceId?: number;
     data?: { [name: string]: any };
     children?: ModelNodeChildCreationInfo[];
+    expanded?: boolean;
+    selected?: boolean;
 };
 
 export default class ModelHistory {
@@ -199,7 +203,12 @@ export default class ModelHistory {
                     nodeJson.data,
                     nodeJson.instanceId,
                 );
-                this.model.addSelection(node.id);
+                if (nodeJson.expanded != null) {
+                    node.expanded = nodeJson.expanded;
+                }
+                if (nodeJson.selected == null || nodeJson.selected) {
+                    this.model.addSelection(node.id);
+                }
                 // create children
                 if (nodeJson.children) {
                     const stack: [ModelNode, ModelNodeChildCreationInfo[]][] = [[node, nodeJson.children]];
@@ -210,18 +219,23 @@ export default class ModelHistory {
                         }
                         const parent = pair[0];
                         const children = pair[1];
-                        for (let json of children) {
+                        for (let childJson of children) {
                             const node = this.model.createNode(
                                 nextNodeId++,
-                                json.type,
+                                childJson.type,
                                 parent,
                                 null,
-                                json.data,
-                                json.instanceId,
+                                childJson.data,
+                                childJson.instanceId,
                             );
-                            this.model.addSelection(node.id);
-                            if (json.children) {
-                                stack.push([node, json.children]);
+                            if (childJson.expanded != null) {
+                                node.expanded = childJson.expanded;
+                            }
+                            if (childJson.selected == null || childJson.selected) {
+                                this.model.addSelection(node.id);
+                            }
+                            if (childJson.children) {
+                                stack.push([node, childJson.children]);
                             }
                         }
                     }
