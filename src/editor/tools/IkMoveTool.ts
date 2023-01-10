@@ -164,7 +164,6 @@ export default class IkMoveTool extends EditorTool {
                 }
             } else if (this.activeView === view.index && this.node && !this.node.deleted) {
                 // drag move
-                // calculate det rot
                 if (this.swing) {
                     // swing
                     linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.mouse0, view.mouseRayN);
@@ -186,8 +185,14 @@ export default class IkMoveTool extends EditorTool {
                         const node = chain.children[i];
                         ctx.history.setValue(node, CIkNodeRotation, new Euler().setFromQuaternion(joint.localRotation));
                     }
+                    this.mouse0.copy(_mouse1);
+                    this.nodeEnd0.copy(_v1);
+                    for (let i = 0, len = this.chain0.length; i < len; ++i) {
+                        this.chain0[i].rotation.copy(ccd.joints[i].localRotation);
+                    }
                 } else {
                     // twist
+                    // calculate det rot
                     if (Math.acos(Math.abs(this.boneAxis.dot(view.mouseRayN))) * 180 / Math.PI > 45) {
                         // side view
                         if (!linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.origin, view.mouseRayN)) {
