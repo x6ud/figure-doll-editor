@@ -1,4 +1,4 @@
-import {Matrix4} from 'three';
+import {BufferGeometry, Matrix4} from 'three';
 import Class from '../../common/type/Class';
 import {bufferToDataUrl} from '../utils/convert';
 import CObject3D from './components/CObject3D';
@@ -44,6 +44,8 @@ export default class ModelNode {
     instanceMeshDirty: boolean = true;
     /** True if shadow node targets mesh object changed. */
     instanceMeshRebuild: boolean = true;
+    /** Cached mirror geometry for shadow nodes. */
+    mirrorGeometry: { [hash: string]: BufferGeometry } = {};
 
     get<T extends ModelNodeComponent<any>>(componentClass: Class<T>): T {
         const component = this.components[componentClass.name];

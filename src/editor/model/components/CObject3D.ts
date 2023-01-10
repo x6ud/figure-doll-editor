@@ -1,5 +1,5 @@
-import {InstancedMesh, Material, Object3D} from 'three';
-import {Geometry} from 'three/examples/jsm/deprecated/Geometry';
+import {BufferGeometry, InstancedMesh, Material, Object3D} from 'three';
+import {MirrorGeometryUserData} from '../../systems/ModelUpdateSystem';
 import DynamicMesh from '../../utils/geometry/dynamic/DynamicMesh';
 import ModelNode from '../ModelNode';
 import ModelNodeComponent from '../ModelNodeComponent';
@@ -38,8 +38,11 @@ export function disposeObject3D(obj: Object3D) {
         return;
     }
     if ('geometry' in obj) {
-        const geometry = obj.geometry as Geometry;
+        const geometry = obj.geometry as BufferGeometry;
         if (geometry) {
+            if ((geometry.userData as MirrorGeometryUserData).refCount) {
+                return;
+            }
             geometry.dispose();
         }
     }

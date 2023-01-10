@@ -12,10 +12,15 @@ import CFlipDirection from '../model/components/CFlipDirection';
 import CObject3D, {Object3DUserData} from '../model/components/CObject3D';
 import CVisible from '../model/components/CVisible';
 import ModelNode from '../model/ModelNode';
+import {hashFloat32x3} from '../utils/hash';
 import UpdateSystem from '../utils/UpdateSystem';
 
 export interface ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void;
+}
+
+export type MirrorGeometryUserData = {
+    refCount: number;
 }
 
 const _dirtyNodes: ModelNode[] = [];
@@ -59,6 +64,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
             ctx.model.forEach(node => {
                 if (node.instanceId && node.instanceMeshDirty) {
                     node.instanceMeshDirty = false;
+                    let rebuild = node.instanceMeshRebuild;
                     if (node.instanceMeshRebuild) {
                         node.instanceMeshRebuild = false;
                         this.recreateInstanceMesh(ctx, node);
@@ -66,14 +72,14 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                     if (node.has(CFlipDirection)) {
                         ctx.throttle(
                             `#${node.id}-update-instance-mirror-geometry`,
-                            200,
+                            250,
                             () => {
                                 if (node.deleted) {
                                     return;
                                 }
                                 this.updateInstanceMirrorGeometry(ctx, node);
                             },
-                            true
+                            node.visible && rebuild
                         );
                     }
                 }
@@ -131,21 +137,33 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         if (!obj) {
             return;
         }
-        const target = ctx.model.getNode(node.instanceId).value(CObject3D);
+        const targetNode = ctx.model.getNode(node.instanceId);
+        const target = targetNode.value(CObject3D);
         if (!target) {
             return;
         }
+        const ACCURACY = 1e-7;
+        const dirHash = hashFloat32x3(
+            Math.round(flipDir.x / ACCURACY) * ACCURACY,
+            Math.round(flipDir.y / ACCURACY) * ACCURACY,
+            Math.round(flipDir.z / ACCURACY) * ACCURACY,
+        );
         if ((obj as Group).isGroup) {
             for (let i = 0, len = obj.children.length; i < len; ++i) {
-                this.mirrorMesh(obj.children[i] as Mesh, target.children[i] as Mesh, flipDir);
+                this.mirrorMesh(targetNode, dirHash + '/' + i, obj.children[i] as Mesh, target.children[i] as Mesh, flipDir);
             }
         } else {
-            this.mirrorMesh(obj as Mesh, target as Mesh, flipDir);
+            this.mirrorMesh(targetNode, dirHash, obj as Mesh, target as Mesh, flipDir);
         }
     }
 
-    private mirrorMesh(dst: Mesh, src: Mesh, flipDir: Vector3) {
+    private mirrorMesh(targetNode: ModelNode, hash: string, dst: Mesh, src: Mesh, flipDir: Vector3) {
         if (!dst?.geometry || !src?.geometry) {
+            return;
+        }
+        if (targetNode.mirrorGeometry[hash]) {
+            dst.geometry = targetNode.mirrorGeometry[hash];
+            (dst.geometry.userData as MirrorGeometryUserData).refCount += 1;
             return;
         }
         if (dst.geometry === src.geometry) {
@@ -181,6 +199,9 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
             }
         }
         this.mirrorGeometry(dst.geometry, src.geometry, flipDir);
+        dst.geometry.boundingSphere = null;
+        targetNode.mirrorGeometry[hash] = dst.geometry;
+        (dst.geometry.userData as MirrorGeometryUserData) = {refCount: 1};
     }
 
     private flipIndex(dst: BufferAttribute, src: BufferAttribute) {

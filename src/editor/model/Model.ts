@@ -186,6 +186,10 @@ export default class Model {
             }
             this.instanceDirty = true;
         }
+        for (let hash in node.mirrorGeometry) {
+            node.mirrorGeometry[hash]?.dispose();
+            delete node.mirrorGeometry[hash];
+        }
         node.forEach(node => {
             this.nodesMap.delete(node.id);
             const index = this.selected.indexOf(node.id);
@@ -299,6 +303,15 @@ export default class Model {
                     node.instanceMeshDirty = true;
                     node.instanceMeshRebuild = rebuild;
                 }
+            }
+        }
+        if (this.isNodeExists(id)) {
+            const node = this.getNode(id);
+            for (let hash in node.mirrorGeometry) {
+                if (rebuild) {
+                    node.mirrorGeometry[hash]?.dispose();
+                }
+                delete node.mirrorGeometry[hash];
             }
         }
     }

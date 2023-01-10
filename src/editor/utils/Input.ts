@@ -1,4 +1,6 @@
-import {MouseButton} from './MouseButton';
+export const enum MouseButton {
+    LEFT, MIDDLE, RIGHT
+}
 
 export default class Input {
 
