@@ -1,3 +1,4 @@
+import CameraConfig from './model/CameraConfig';
 import {DataType, getModelNodeComponentDef, isModelNodeComponentDefExists} from './model/ModelNodeComponentDef';
 import {MAGIC_HEADER, SERIALIZATION_VERSION} from './ProjectWriter';
 
@@ -9,7 +10,10 @@ export type ProjectReaderResult = {
         alpha: number;
         beta: number;
         target: [number, number, number];
+        perspective: boolean;
+        fov: number;
     }[];
+    cameras: CameraConfig[];
     nodes: {
         id: number;
         type: string;
@@ -85,10 +89,10 @@ export default class ProjectReader {
             throw new Error(`Failed to read magic header`);
         }
         const version = this.readUint32();
-        if (version !== SERIALIZATION_VERSION) {
+        if (version > SERIALIZATION_VERSION) {
             throw new Error(`Unknown file version`);
         }
-        const ret: ProjectReaderResult = {views: [], nodes: []};
+        const ret: ProjectReaderResult = {views: [], cameras: [], nodes: []};
         for (let i = 0; i < 4; ++i) {
             const zoomLevel = this.readFloat64();
             const alpha = this.readFloat64();
@@ -96,7 +100,34 @@ export default class ProjectReader {
             const targetX = this.readFloat64();
             const targetY = this.readFloat64();
             const targetZ = this.readFloat64();
-            ret.views.push({zoomLevel, alpha, beta, target: [targetX, targetY, targetZ]});
+            let perspective = i === /* main */ 1;
+            let fov = 45;
+            if (version >= 2) {
+                perspective = this.readBoolean();
+                fov = this.readFloat64();
+            }
+            ret.views.push({zoomLevel, alpha, beta, target: [targetX, targetY, targetZ], perspective, fov});
+        }
+        if (version >= 2) {
+            const len = this.readUint32();
+            for (let i = 0; i < len; ++i) {
+                const zoomLevel = this.readFloat64();
+                const alpha = this.readFloat64();
+                const beta = this.readFloat64();
+                const targetX = this.readFloat64();
+                const targetY = this.readFloat64();
+                const targetZ = this.readFloat64();
+                const perspective = this.readBoolean();
+                const fov = this.readFloat64();
+                ret.cameras.push({
+                    zoomLevel,
+                    alpha,
+                    beta,
+                    target: [targetX, targetY, targetZ],
+                    perspective,
+                    fov
+                });
+            }
         }
         while (!this.end()) {
             const id = this.readUint32();

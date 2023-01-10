@@ -2,7 +2,7 @@ import EditorContext from './EditorContext';
 import {DataType, getModelNodeComponentDef} from './model/ModelNodeComponentDef';
 
 export const MAGIC_HEADER = 0x78367564;
-export const SERIALIZATION_VERSION = 1;
+export const SERIALIZATION_VERSION = 2;
 
 const _view = new DataView(new ArrayBuffer(8));
 
@@ -81,6 +81,20 @@ export default class ProjectWriter {
             this.writeFloat64(view.camera.target.x);
             this.writeFloat64(view.camera.target.y);
             this.writeFloat64(view.camera.target.z);
+            this.writeBoolean(view.camera.perspective);
+            this.writeFloat64(view.camera.perspectiveCamera.fov);
+        }
+        const model = ctx.model;
+        this.writeUint32(model.cameras.length);
+        for (let camera of model.cameras) {
+            this.writeFloat64(camera.zoomLevel);
+            this.writeFloat64(camera.alpha);
+            this.writeFloat64(camera.beta);
+            this.writeFloat64(camera.target[0]);
+            this.writeFloat64(camera.target[1]);
+            this.writeFloat64(camera.target[2]);
+            this.writeBoolean(camera.perspective);
+            this.writeFloat64(camera.fov);
         }
         ctx.model.forEach(node => {
             this.writeUint32(node.id);

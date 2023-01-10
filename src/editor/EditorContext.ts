@@ -204,8 +204,11 @@ export default class EditorContext {
             if (i === this.mainViewIndex) {
                 const camera = view.camera;
                 camera.perspective =
-                    Math.abs(camera.alpha % (Math.PI / 2)) > 1e-8
-                    || Math.abs(camera.beta % (Math.PI / 2)) > 1e-8;
+                    this.model.cameraPerspective && (
+                        Math.abs(camera.alpha % (Math.PI / 2)) > 1e-8
+                        || Math.abs(camera.beta % (Math.PI / 2)) > 1e-8
+                    );
+                camera.perspectiveCamera.fov = this.model.cameraFov;
             }
         }
         for (let view of this.views) {
@@ -270,7 +273,14 @@ export default class EditorContext {
             view.camera.alpha = state.alpha;
             view.camera.beta = state.beta;
             view.camera.target.set(...state.target);
+            if (i === this.mainViewIndex) {
+                view.camera.perspective = state.perspective;
+                view.camera.perspectiveCamera.fov = state.fov;
+                this.model.cameraPerspective = state.perspective;
+                this.model.cameraFov = state.fov;
+            }
         }
+        this.model.cameras = data.cameras;
         for (let nodeInfo of data.nodes) {
             const node = this.model.createNode(
                 nodeInfo.id,

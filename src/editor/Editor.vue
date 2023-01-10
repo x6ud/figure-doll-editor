@@ -92,6 +92,47 @@
                                      @click="editorCtx.options.quadView = !editorCtx.options.quadView"
                     />
                 </popup-menu>
+                <popup-menu title="Camera"
+                            dynamic-size
+                >
+                    <div class="properties">
+                        <div class="property inline">
+                            <label style="width: 6em;">FOV</label>
+                            <input-number class="value"
+                                          style="width: 4em;"
+                                          :min="4"
+                                          :max="90"
+                                          :value="editorCtx.model.cameraFov"
+                                          @input="editorCtx.model.cameraFov = $event"
+                            />
+                        </div>
+                        <div class="property inline">
+                            <label style="width: 6em;">Perspective</label>
+                            <input-boolean class="value"
+                                           :value="editorCtx.model.cameraPerspective"
+                                           @input="editorCtx.model.cameraPerspective = $event"
+                            />
+                        </div>
+                        <div class="camera-list">
+                            <div class="item"
+                                 v-for="(camera, i) in editorCtx.model.cameras"
+                            >
+                                <div class="name normal-button"
+                                     @click="onLoadCamera(camera)"
+                                >
+                                    Camera #{{ i + 1 }}
+                                </div>
+                                <button class="icon-button" @click="onDeleteCamera(i)">×</button>
+                            </div>
+                        </div>
+                        <button class="normal-button"
+                                style="width: 100%; margin-top: 4px;"
+                                @click="onSaveCamera"
+                        >
+                            Save Current
+                        </button>
+                    </div>
+                </popup-menu>
 
                 <template v-if="editorCtx.tool.sculpt">
                     <div class="separator"></div>
@@ -180,7 +221,7 @@
                             <div class="property inline">
                                 <label>Voxel size</label>
                                 <input-number class="value"
-                                              style="width: 6em; text-align: right;"
+                                              style="width: 6em;"
                                               :min="0.0001"
                                               :max="1"
                                               :value="editorCtx.options.remeshVoxelSize"
@@ -336,6 +377,18 @@
 <style src="./ui.scss"></style>
 
 <style lang="scss" scoped>
+.camera-list {
+    .item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+
+        .name {
+            flex: 1 1;
+            cursor: pointer;
+        }
+    }
+}
 
 .tools {
     display: flex;

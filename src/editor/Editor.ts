@@ -5,6 +5,7 @@ import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
 import ColorPicker from './components/ColorPicker/ColorPicker.vue';
 import FullscreenLoading from './components/FullscreenLoading/FullscreenLoading.vue';
+import InputBoolean from './components/input/InputBoolean/InputBoolean.vue';
 import InputNumber from './components/input/InputNumber/InputNumber.vue';
 import LabelRange from './components/LabelRange/LabelRange.vue';
 import ModelNodeProperties from './components/ModelNodeProperties/ModelNodeProperties.vue';
@@ -16,6 +17,7 @@ import QuadView from './components/QuadView/QuadView.vue';
 import SidePanel from './components/SidePanel/SidePanel.vue';
 import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
+import CameraConfig from './model/CameraConfig';
 import CColors from './model/components/CColors';
 import CFlipDirection from './model/components/CFlipDirection';
 import CIkNode from './model/components/CIkNode';
@@ -50,6 +52,7 @@ export default defineComponent({
     components: {
         ColorPicker,
         FullscreenLoading,
+        InputBoolean,
         InputNumber,
         LabelRange,
         ModelNodeProperties,
@@ -925,6 +928,38 @@ export default defineComponent({
             ctx.history.createNode(create);
         }
 
+        function onLoadCamera(camera: CameraConfig) {
+            const ctx = editorCtx.value!;
+            const model = ctx.model;
+            const view = ctx.views[ctx.mainViewIndex];
+            view.zoomLevel = camera.zoomLevel;
+            view.camera.alpha = camera.alpha;
+            view.camera.beta = camera.beta;
+            view.camera.target.set(camera.target[0], camera.target[1], camera.target[2]);
+            model.cameraPerspective = camera.perspective;
+            model.cameraFov = camera.fov;
+        }
+
+        function onDeleteCamera(i: number) {
+            editorCtx.value!.model.cameras.splice(i, 1);
+            editorCtx.value!.history.dirty = true;
+        }
+
+        function onSaveCamera() {
+            const ctx = editorCtx.value!;
+            const model = ctx.model;
+            const view = ctx.views[ctx.mainViewIndex];
+            model.cameras.push({
+                zoomLevel: view.zoomLevel,
+                alpha: view.camera.alpha,
+                beta: view.camera.beta,
+                target: [view.camera.target.x, view.camera.target.y, view.camera.target.z],
+                perspective: model.cameraPerspective,
+                fov: model.cameraFov,
+            });
+            ctx.history.dirty = true;
+        }
+
         return {
             dom,
             editorCtx,
@@ -955,6 +990,9 @@ export default defineComponent({
             onConvertToClay,
             onRemesh,
             onCreateInstance,
+            onLoadCamera,
+            onDeleteCamera,
+            onSaveCamera,
         };
     }
 });

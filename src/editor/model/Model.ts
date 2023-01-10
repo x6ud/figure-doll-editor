@@ -1,4 +1,5 @@
 import Class from '../../common/type/Class';
+import CameraConfig from './CameraConfig';
 import CColors from './components/CColors';
 import CFlipDirection from './components/CFlipDirection';
 import CObject3D from './components/CObject3D';
@@ -22,6 +23,9 @@ export default class Model {
     private nodesMap: Map<number, ModelNode> = new Map();
 
     nodes: ModelNode[] = [];
+    cameraFov: number = 45;
+    cameraPerspective: boolean = true;
+    cameras: CameraConfig[] = [];
     watchers: ModelNodeChangedWatcher[] = [
         new TransformWatcher(),
         new IkNodeWatcher(),
@@ -49,6 +53,7 @@ export default class Model {
         for (let id of this.nodes.map(node => node.id)) {
             this.removeNode(id);
         }
+        this.cameras = [];
     }
 
     addSelection(id: number) {

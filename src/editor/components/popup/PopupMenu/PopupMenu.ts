@@ -18,7 +18,8 @@ export default defineComponent({
             default: 'bottom'
         },
         disabled: Boolean,
-        className: String
+        className: String,
+        dynamicSize: Boolean,
     },
     setup(props) {
         const trigger = ref<HTMLElement>();
@@ -120,11 +121,18 @@ export default defineComponent({
                 }
             }
             const newStyle: Style = {
-                width: Math.floor(width) + 'px',
-                height: Math.floor(height) + 'px',
-                overflow: 'hidden',
                 'z-index': selfCtx.zIndex
             };
+            if (props.dynamicSize) {
+                newStyle.width = 'auto';
+                newStyle.height = 'auto';
+                scrollable.value = false;
+            } else {
+                newStyle.width = Math.floor(width) + 'px';
+                newStyle.height = Math.floor(height) + 'px';
+                newStyle.overflow = 'hidden';
+                scrollable.value = true;
+            }
             if (x + width > maxRight) {
                 newStyle.right = 0;
             } else {
@@ -138,7 +146,6 @@ export default defineComponent({
                 newStyle.top = Math.floor(y) + 'px';
             }
             style.value = newStyle;
-            scrollable.value = true;
         }
 
         function hide() {
