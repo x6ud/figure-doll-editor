@@ -16,6 +16,7 @@
                          @drag-start="onDragStart"
                          @drag-over="onDragOver"
                          @contextmenu="onContextMenu"
+                         @range-select="onRangeSelect"
         />
 
         <popup-menu ref="contextMenu">

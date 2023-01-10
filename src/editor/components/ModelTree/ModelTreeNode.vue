@@ -36,6 +36,7 @@
                          :depth="depth + 1"
                          @set-value="onSetValue"
                          @set-selection="onSetSelection"
+                         @range-select="onRangeSelect"
                          :dragging-node="draggingNode"
                          :drag-over-node="dragOverNode"
                          :drop-position="dropPosition"

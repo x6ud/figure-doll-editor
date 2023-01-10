@@ -32,6 +32,7 @@ export default defineComponent({
         'dragStart',
         'dragOver',
         'contextmenu',
+        'rangeSelect',
     ],
     setup(props, ctx) {
         const dom = ref<HTMLElement>();
@@ -74,12 +75,17 @@ export default defineComponent({
                 } else {
                     ctx.emit('setSelection', [...selected, id]);
                 }
+            } else if (e.shiftKey) {
+                onRangeSelect(id);
             } else {
                 ctx.emit('setSelection', [id]);
             }
         }
 
         function onMouseDown(e: MouseEvent) {
+            if (e.shiftKey) {
+                return;
+            }
             if (!props.model.selected.includes(props.node.id)) {
                 if (e.ctrlKey) {
                     return;
@@ -129,6 +135,10 @@ export default defineComponent({
             ctx.emit('contextmenu', node, e);
         }
 
+        function onRangeSelect(id: number) {
+            ctx.emit('rangeSelect', id);
+        }
+
         return {
             dom,
             name,
@@ -146,6 +156,7 @@ export default defineComponent({
             onDragOver,
             classnames,
             onContextMenu,
+            onRangeSelect,
         };
     }
 });

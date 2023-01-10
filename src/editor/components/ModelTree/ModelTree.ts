@@ -1,4 +1,4 @@
-import {computed, defineComponent, ref} from 'vue';
+import {computed, defineComponent, ref, toRaw} from 'vue';
 import Class from '../../../common/type/Class';
 import Model from '../../model/Model';
 import ModelNode from '../../model/ModelNode';
@@ -128,6 +128,33 @@ export default defineComponent({
             ctx.emit('createInstance', contextMenuNode.value, mirror);
         }
 
+        function onRangeSelect(id: number) {
+            const model = toRaw(props.model);
+            const selected = new Set(model.selected);
+            if (!selected.size) {
+                onSetSelection([id]);
+                return;
+            }
+            const newSelection: number[] = [];
+            let targetFound = false;
+            let firstSelectedFound = false;
+            model.forEach(node => {
+                if (targetFound && firstSelectedFound) {
+                    return false;
+                }
+                if (!firstSelectedFound && selected.has(node.id)) {
+                    firstSelectedFound = true;
+                }
+                if (node.id === id) {
+                    targetFound = true;
+                }
+                if (firstSelectedFound || targetFound) {
+                    newSelection.push(node.id);
+                }
+            });
+            onSetSelection(newSelection);
+        }
+
         return {
             contextMenu,
             onSetValue,
@@ -148,6 +175,7 @@ export default defineComponent({
             onConvertToClay,
             canCreateInstance,
             onCreateInstance,
+            onRangeSelect,
         };
     }
 });
