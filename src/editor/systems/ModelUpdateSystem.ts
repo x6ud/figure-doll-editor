@@ -20,10 +20,6 @@ export interface ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void;
 }
 
-export type MirrorGeometryUserData = {
-    refCount: number;
-}
-
 const _dirtyNodes: ModelNode[] = [];
 const _v = new Vector3();
 
@@ -102,6 +98,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
             return;
         }
         const cObject3D = node.get(CObject3D);
+        cObject3D.instance = true;
         cObject3D.dispose();
         if (!ctx.model.isNodeExists(node.instanceId)) {
             return;
@@ -170,7 +167,6 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         if (targetNode.mirrorGeometry[hash]) {
             // cache matched
             dst.geometry = targetNode.mirrorGeometry[hash];
-            (dst.geometry.userData as MirrorGeometryUserData).refCount += 1;
             return;
         }
         if (dst.geometry === src.geometry) {
@@ -209,7 +205,6 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         dst.geometry.boundingSphere = null;
         // cache
         targetNode.mirrorGeometry[hash] = dst.geometry;
-        (dst.geometry.userData as MirrorGeometryUserData) = {refCount: 1};
     }
 
     private flipIndex(dst: BufferAttribute, src: BufferAttribute) {

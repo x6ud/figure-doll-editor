@@ -1,5 +1,4 @@
 import {BufferGeometry, InstancedMesh, Material, Object3D} from 'three';
-import {MirrorGeometryUserData} from '../../systems/ModelUpdateSystem';
 import DynamicMesh from '../../utils/geometry/dynamic/DynamicMesh';
 import ModelNode from '../ModelNode';
 import ModelNodeComponent from '../ModelNodeComponent';
@@ -12,6 +11,8 @@ export default class CObject3D extends ModelNodeComponent<Object3D | null> {
     localTransformChanged: boolean = true;
     worldTransformChanged: boolean = true;
     mesh?: DynamicMesh;
+    /** Object belongs to a shadow node */
+    instance: boolean = false;
 
     onRemoved() {
         this.dispose();
@@ -19,7 +20,9 @@ export default class CObject3D extends ModelNodeComponent<Object3D | null> {
 
     dispose() {
         if (this.value) {
-            disposeObject3D(this.value);
+            if (!this.instance) {
+                disposeObject3D(this.value);
+            }
             this.value.removeFromParent();
             this.value = null;
         }
@@ -40,9 +43,6 @@ export function disposeObject3D(obj: Object3D) {
     if ('geometry' in obj) {
         const geometry = obj.geometry as BufferGeometry;
         if (geometry) {
-            if ((geometry.userData as MirrorGeometryUserData).refCount) {
-                return;
-            }
             geometry.dispose();
         }
     }

@@ -11,10 +11,10 @@ export default class OutlineUpdateSystem extends UpdateSystem<EditorContext> {
             ctx.outlinePass.enabled = false;
             return;
         }
-        const selected = ctx.model.getSelectedNodes();
+        const selected = ctx.model.getTopmostSelectedNodes();
         const selectedObjs: Object3D[] = [];
         for (let node of selected) {
-            if (node.has(CObject3D)) {
+            if (node.has(CObject3D) && node.visible) {
                 const obj = node.value(CObject3D);
                 if (obj) {
                     selectedObjs.push(obj);

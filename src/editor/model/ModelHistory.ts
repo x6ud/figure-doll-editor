@@ -49,6 +49,7 @@ export default class ModelHistory {
     private redoStack: Record[] = [];
     private undoStack: Record[] = [];
     private nextNodeId: number = 0;
+    private deletedNodes = new Set<number>();
     dirty = false;
     private lastEventTarget: EventTarget | null = null;
     private onMouseDown = (e: MouseEvent) => {
@@ -61,7 +62,6 @@ export default class ModelHistory {
             this.enableMerge = false;
         }
     };
-    private deletedNodes = new Set<number>();
 
     constructor(model: Model) {
         this.model = model;
