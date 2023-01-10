@@ -38,6 +38,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
     begin(ctx: EditorContext): void {
         ctx = ctx.readonlyRef();
         if (ctx.model.dirty) {
+            // list dirty nodes
             ctx.model.forEach(node => {
                 if (node.parent && !node.parent.visible) {
                     node.visible = false;
@@ -48,6 +49,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                     _dirtyNodes.push(node);
                 }
             });
+            // run filters
             for (let filter of this.filters) {
                 for (let node of _dirtyNodes) {
                     filter.update(ctx, node);
@@ -59,6 +61,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
             _dirtyNodes.length = 0;
             ctx.model.dirty = false;
         }
+        // update shadow node meshes
         if (ctx.model.instanceDirty) {
             ctx.model.instanceDirty = false;
             ctx.model.forEach(node => {
@@ -70,6 +73,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                         this.recreateInstanceMesh(ctx, node);
                     }
                     if (node.has(CFlipDirection)) {
+                        // update mirror node geometries
                         ctx.throttle(
                             `#${node.id}-update-instance-mirror-geometry`,
                             250,
@@ -142,18 +146,18 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         if (!target) {
             return;
         }
-        const ACCURACY = 1e-7;
-        const dirHash = hashFloat32x3(
+        const ACCURACY = 1e-6;
+        const cacheHash = hashFloat32x3(
             Math.round(flipDir.x / ACCURACY) * ACCURACY,
             Math.round(flipDir.y / ACCURACY) * ACCURACY,
             Math.round(flipDir.z / ACCURACY) * ACCURACY,
         );
         if ((obj as Group).isGroup) {
             for (let i = 0, len = obj.children.length; i < len; ++i) {
-                this.mirrorMesh(targetNode, dirHash + '/' + i, obj.children[i] as Mesh, target.children[i] as Mesh, flipDir);
+                this.mirrorMesh(targetNode, cacheHash + '/' + i, obj.children[i] as Mesh, target.children[i] as Mesh, flipDir);
             }
         } else {
-            this.mirrorMesh(targetNode, dirHash, obj as Mesh, target as Mesh, flipDir);
+            this.mirrorMesh(targetNode, cacheHash, obj as Mesh, target as Mesh, flipDir);
         }
     }
 
@@ -162,6 +166,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
             return;
         }
         if (targetNode.mirrorGeometry[hash]) {
+            // cache matched
             dst.geometry = targetNode.mirrorGeometry[hash];
             (dst.geometry.userData as MirrorGeometryUserData).refCount += 1;
             return;
@@ -200,6 +205,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         }
         this.mirrorGeometry(dst.geometry, src.geometry, flipDir);
         dst.geometry.boundingSphere = null;
+        // cache
         targetNode.mirrorGeometry[hash] = dst.geometry;
         (dst.geometry.userData as MirrorGeometryUserData) = {refCount: 1};
     }
