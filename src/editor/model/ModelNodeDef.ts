@@ -61,6 +61,7 @@ export type ModelNodeDef = {
     showInList: boolean;
     /** Whether node can be deleted by the delete button */
     deletable: boolean;
+    unique?: boolean;
     /** Whether shadow node can be created */
     instanceable?: boolean;
     components: Class<ModelNodeComponent<any>>[];
@@ -200,6 +201,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconTarget,
         showInList: false,
         deletable: false,
+        unique: true,
         components: [CPosition, CObject3D],
         canBeRoot: false,
         validChildTypes: [],
@@ -281,5 +283,10 @@ export function getModelNodeDef(name: string): ModelNodeDef {
 
 export function getValidChildNodeDefs(node: ModelNode) {
     const def = getModelNodeDef(node.type);
-    return def.validChildTypes.map(getModelNodeDef);
+    return def.validChildTypes.map(getModelNodeDef).filter(def => {
+        if (def.unique) {
+            return !node.children.find(child => child.type === def.name);
+        }
+        return true;
+    });
 }

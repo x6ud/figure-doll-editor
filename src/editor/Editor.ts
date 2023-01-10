@@ -91,7 +91,15 @@ export default defineComponent({
                 return [];
             }
             if (model.selected.length === 0) {
-                return modelNodeDefs.filter(def => def.canBeRoot);
+                return modelNodeDefs.filter(def => {
+                    if (!def.canBeRoot) {
+                        return false;
+                    }
+                    if (def.unique) {
+                        return !model.nodes.find(node => node.type === def.name);
+                    }
+                    return true;
+                });
             }
             if (model.selected.length > 1) {
                 return [];
@@ -378,7 +386,16 @@ export default defineComponent({
             const model = toRaw(ctx.model);
             let nodes = model.selected.map(id => model.getNode(id));
             const parent = (position === 'before' || position === 'after') ? related.parent : related;
-            nodes = nodes.filter(node => !(node.parent && nodes.includes(node.parent)));
+            nodes = nodes.filter(node => {
+                if (node.parent && nodes.includes(node.parent)) {
+                    return false;
+                }
+                const def = getModelNodeDef(node.type);
+                if (!def.deletable) {
+                    return false;
+                }
+                return true;
+            });
             for (let node of nodes) {
                 if (!isValidChild(parent, node)) {
                     return;
@@ -398,8 +415,7 @@ export default defineComponent({
                 if (!parent) {
                     return nodeDef.canBeRoot;
                 }
-                const parentNodeDef = getModelNodeDef(parent.type);
-                if (!parentNodeDef.validChildTypes.includes(node.type)) {
+                if (!parent.isValidChild(node.type)) {
                     return false;
                 }
                 for (; parent; parent = parent.parent) {
@@ -581,7 +597,7 @@ export default defineComponent({
                 for (let item of json) {
                     item.selected = true;
                     if (target) {
-                        if (getModelNodeDef(target.type).validChildTypes.includes(item.type)) {
+                        if (target.isValidChild(item.type)) {
                             const creationInfo = {...item};
                             creationInfo.parentId = target.id;
                             history.createNode(creationInfo);
