@@ -12,6 +12,7 @@ type ModelNodeJsonData = string | number | boolean | number[];
 
 export type ModelNodeChildJson = {
     type: string;
+    expanded?: boolean;
     instanceId?: number;
     data?: { [name: string]: ModelNodeJsonData };
     children?: ModelNodeChildJson[];
@@ -19,6 +20,7 @@ export type ModelNodeChildJson = {
 
 export type ModelNodeJson = {
     type: string;
+    expanded?: boolean;
     parentId?: number;
     instanceId?: number;
     data?: { [name: string]: ModelNodeJsonData };
@@ -114,6 +116,7 @@ export default class ModelNode {
         return this.parent ? this.parent.getWorldMatrix() : UNIT_MAT4;
     }
 
+    /** Return a stringizable object */
     async toJson(): Promise<ModelNodeJson> {
         const children: ModelNodeJson[] = [];
         for (let child of this.children) {
@@ -121,6 +124,7 @@ export default class ModelNode {
         }
         return {
             type: this.type,
+            expanded: this.expanded,
             parentId: this.parent?.id,
             instanceId: this.instanceId,
             data: await this.getComponentsDataJson(),
@@ -128,6 +132,7 @@ export default class ModelNode {
         };
     }
 
+    /** Return a clone of all storable component values */
     getComponentData(instanceableOnly?: boolean): { [name: string]: any } {
         const ret: { [name: string]: any } = {};
         for (let componentName in this.components) {
@@ -147,6 +152,7 @@ export default class ModelNode {
         return ret;
     }
 
+    /** Return all storable component values converted to stringizable data type */
     async getComponentsDataJson(): Promise<{ [name: string]: ModelNodeJsonData }> {
         const ret: { [name: string]: ModelNodeJsonData } = {};
         for (let componentName in this.components) {

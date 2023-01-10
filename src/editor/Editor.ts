@@ -510,13 +510,35 @@ export default defineComponent({
                 return;
             }
             try {
-                const json = JSON.parse(await navigator.clipboard.readText()) as ModelNodeCreationInfo[];
+                let json = JSON.parse(await navigator.clipboard.readText()) as ModelNodeCreationInfo[];
                 if (!Array.isArray(json)) {
                     return;
                 }
+
+                async function convertJsonToRealDataType(json: ModelNodeCreationInfo[]) {
+                    for (let node of json) {
+                        for (let name in node.data) {
+                            const componentDef = getModelNodeComponentDef(name);
+                            let val = node.data[name] as any;
+                            if (componentDef.dataType === DataType.BYTES) {
+                                val = new Uint8Array(await dataUrlToArrayBuffer(val));
+                            }
+                            if (componentDef.deserialize) {
+                                val = componentDef.deserialize(val);
+                            }
+                            node.data[name] = val;
+                        }
+                        if (node.children) {
+                            await convertJsonToRealDataType(node.children);
+                        }
+                        node.selected = false;
+                    }
+                }
+
                 await convertJsonToRealDataType(json);
-                let target: ModelNode | undefined = e instanceof ModelNode ? e : undefined;
+
                 const model = editorCtx.value!.model;
+                let target: ModelNode | undefined = e instanceof ModelNode ? e : undefined;
                 if (!target) {
                     model.forEach(node => {
                         if (model.selected.includes(node.id)) {
@@ -525,6 +547,27 @@ export default defineComponent({
                         }
                     });
                 }
+
+                function filterInvalidInstancedNodes(json: ModelNodeCreationInfo[]) {
+                    json = json.filter(nodeJson => {
+                        if (!nodeJson.instanceId) {
+                            return true;
+                        }
+                        if (!model.isNodeExists(nodeJson.instanceId)) {
+                            return false;
+                        }
+                        return nodeJson.type === nodeJson.type;
+                    });
+                    for (let nodeJson of json) {
+                        if (nodeJson.children) {
+                            nodeJson.children = filterInvalidInstancedNodes(nodeJson.children);
+                        }
+                    }
+                    return json;
+                }
+
+                json = filterInvalidInstancedNodes(json);
+
                 let changed = false;
                 const history = editorCtx.value!.history;
                 for (let item of json) {
@@ -553,26 +596,6 @@ export default defineComponent({
             } catch (e) {
                 console.error(e);
                 return;
-            }
-
-            async function convertJsonToRealDataType(json: ModelNodeCreationInfo[]) {
-                for (let node of json) {
-                    for (let name in node.data) {
-                        const componentDef = getModelNodeComponentDef(name);
-                        let val = node.data[name] as any;
-                        if (componentDef.dataType === DataType.BYTES) {
-                            val = new Uint8Array(await dataUrlToArrayBuffer(val));
-                        }
-                        if (componentDef.deserialize) {
-                            val = componentDef.deserialize(val);
-                        }
-                        node.data[name] = val;
-                    }
-                    if (node.children) {
-                        await convertJsonToRealDataType(node.children);
-                    }
-                    node.selected = false;
-                }
             }
         }
 
@@ -806,9 +829,6 @@ export default defineComponent({
                     type: node.type,
                     instanceId: node.instanceId || node.id,
                 };
-                if (node.instanceId && ctx.model.isNodeExists(node.instanceId)) {
-                    node = ctx.model.getNode(node.instanceId);
-                }
                 newNode.data = node.getComponentData(true);
                 let invQuat1: Quaternion | undefined = undefined;
                 if (mirror !== 'none') {
