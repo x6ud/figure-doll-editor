@@ -42,6 +42,7 @@ export default class ModelNode {
     instanceId: number = 0;
     /** True if shadow node targets mesh changed or updated. */
     instanceMeshDirty: boolean = true;
+    /** True if shadow node targets mesh object changed. */
     instanceMeshRebuild: boolean = true;
 
     get<T extends ModelNodeComponent<any>>(componentClass: Class<T>): T {

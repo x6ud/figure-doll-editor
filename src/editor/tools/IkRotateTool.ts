@@ -24,7 +24,7 @@ const _o = new Vector3();
 const _invQuat = new Quaternion();
 
 export default class IkRotateTool extends EditorTool {
-    label = 'Rotate Bone';
+    label = 'Rotate Joint';
     icon = icon;
 
     private activeView = -1;

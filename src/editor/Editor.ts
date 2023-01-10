@@ -81,6 +81,7 @@ export default defineComponent({
         const filename = ref<string | null>(null);
         let fileHandle: FileSystemFileHandle | null = null;
 
+        // the add new node menu list
         const validChildNodeDefs = computed<ModelNodeDef[]>(function () {
             const model = editorCtx.value?.model;
             if (!model) {
@@ -106,6 +107,7 @@ export default defineComponent({
             }).length;
         });
 
+        // update page title
         watch([filename, () => editorCtx.value?.history?.dirty],
             function ([filename, dirty]) {
                 if (filename && filename.endsWith(extension)) {
@@ -116,6 +118,7 @@ export default defineComponent({
             {immediate: true}
         );
 
+        // auto save options
         watch([
                 uiOptions,
                 () => editorCtx.value?.options
@@ -133,6 +136,7 @@ export default defineComponent({
                 deep: true
             });
 
+        // check browser compatibility
         onMounted(async function () {
             if (!('showOpenFilePicker' in window)) {
                 await showAlertDialog('This application is only available in Chrome or Edge.\nCannot open or save files in the current browser.');
@@ -151,6 +155,7 @@ export default defineComponent({
             view4: HTMLElement,
         ) {
             editorCtx.value = new EditorContext(canvas, view1, view2, view3, view4);
+            // load saved options
             try {
                 const optionsJson = localStorage.getItem(localStorageKey);
                 if (optionsJson) {

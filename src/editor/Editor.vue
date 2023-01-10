@@ -42,7 +42,7 @@
                                              :checked="editorCtx.options.useLocalSpaceForTransformControl"
                             />
                             <popup-menu-item sep/>
-                            <popup-menu-item title="Allow Modification of Bone Length When Modifying IK Bindings"
+                            <popup-menu-item title="Allow Modification of Joint Length When Modifying IK Bindings"
                                              @click="editorCtx.options.allowModifyingBoneLengthWhenBindingIk = !editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
                                              :checked="editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
                             />
@@ -83,7 +83,7 @@
                                      :checked="editorCtx.options.showLightHelpers"
                                      @click="editorCtx.options.showLightHelpers = !editorCtx.options.showLightHelpers"
                     />
-                    <popup-menu-item title="IK Bones"
+                    <popup-menu-item title="IK Joints"
                                      :checked="editorCtx.options.showIkBones"
                                      @click="editorCtx.options.showIkBones = !editorCtx.options.showIkBones"
                     />
