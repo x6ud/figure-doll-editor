@@ -12,15 +12,24 @@ export const enum DataType {
 
 export type ModelNodeComponentDef = {
     constructor: Class<ModelNodeComponent<any>>;
+    /** Whether component value should be written to file on save */
     storable?: boolean;
+    /** Data type when writing to file */
     dataType?: DataType;
+    /** Whether to keep an own value in the shadow node */
     instanceable?: boolean;
+    /** Whether to auto copy the target value when the original node is modified in the shadow node */
+    autoCopy?: boolean;
+    /** Used to skip identical values when writing history */
     equal?: (a: any, b: any) => boolean,
+    /** Label display in the properties panel */
     label?: string;
     inputComponent?: Component;
     inputComponentProps?: { [prop: string]: any };
     clone?: (val: any) => any;
+    /** Convert the real value to the data type for writing to file */
     serialize?: (val: any) => any;
+    /** Convert the data type read from file into actual object */
     deserialize?: (val: any) => any;
 };
 

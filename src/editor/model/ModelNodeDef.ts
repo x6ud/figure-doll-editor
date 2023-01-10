@@ -52,11 +52,16 @@ import ModelNode, {ModelNodeChildJson} from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
 
 export type ModelNodeDef = {
+    /** A unique name */
     name: string;
+    /** Name display in add new node menu */
     label: string;
     icon: string;
+    /** Whether to display in add new node menu */
     showInList: boolean;
+    /** Whether node can be deleted by the delete button */
     deletable: boolean;
+    /** Whether shadow node can be created */
     instanceable?: boolean;
     components: Class<ModelNodeComponent<any>>[];
     canBeRoot: boolean;

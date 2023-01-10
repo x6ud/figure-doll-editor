@@ -333,6 +333,14 @@ export default class ModelHistory {
             },
         });
         this.enableMerge = false;
+
+        // delete related shadow nodes
+        const refs = this.model.referenceMap.get(nodeId);
+        if (refs) {
+            for (let id of refs) {
+                this.removeNode(id);
+            }
+        }
     }
 
     moveNode(node: ModelNode,

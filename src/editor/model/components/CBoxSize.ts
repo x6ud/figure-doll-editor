@@ -7,6 +7,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 @registerModelComponent({
     storable: true,
     dataType: DataType.NUMBER_ARRAY,
+    autoCopy: true,
     equal: vectorsEqual,
     label: 'Size',
     inputComponent: InputVector3,

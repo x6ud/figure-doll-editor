@@ -236,6 +236,20 @@ export default class Model {
         for (let watcher of this.watchers) {
             watcher.onValueChanged(this, node, componentClass);
         }
+        const def = getModelNodeComponentDef(componentClass.name);
+        if (def.autoCopy) {
+            const refs = this.referenceMap.get(node.id);
+            if (refs) {
+                for (let id of refs) {
+                    const node = this.getNode(id);
+                    node.get(componentClass).value = value;
+                    node.dirty = true;
+                    for (let watcher of this.watchers) {
+                        watcher.onValueChanged(this, node, componentClass);
+                    }
+                }
+            }
+        }
     }
 
     updateVertices(node: ModelNode, componentClass: Class<CVertices | CColors>, indices: number[], data: Float32Array) {
