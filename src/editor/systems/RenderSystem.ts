@@ -36,6 +36,9 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
         ctx = ctx.readonlyRef();
         const rect = ctx.canvas.getBoundingClientRect();
         const renderer = ctx.renderer;
+        const composer = ctx.composer;
+        const renderPass = ctx.renderPass;
+        const outlinePass = ctx.outlinePass;
         renderer.setScissorTest(true);
         renderer.setClearColor(0x000000, 0.0);
         renderer.clear();
@@ -55,7 +58,11 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
                 ctx.tool.beforeRender(ctx, curr);
                 renderer.setViewport(-rect.left + curr.left, rect.bottom - curr.bottom, curr.width, curr.height);
                 renderer.setScissor(-rect.left + curr.left, rect.bottom - curr.bottom, curr.width, curr.height);
-                renderer.render(ctx.scene, camera.get());
+                renderPass.camera = camera.get();
+                renderPass.setSize(curr.width, curr.height);
+                outlinePass.renderCamera = camera.get();
+                outlinePass.setSize(curr.width, curr.height);
+                composer.render();
             }
         }
     }

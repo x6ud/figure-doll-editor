@@ -75,6 +75,10 @@
                         </popup-menu>
                     </popup-menu-item>
                     <popup-menu-item sep/>
+                    <popup-menu-item title="Outline Selected"
+                                     :checked="editorCtx.options.outlineSelected"
+                                     @click="editorCtx.options.outlineSelected = !editorCtx.options.outlineSelected"
+                    />
                     <popup-menu-item title="Grids"
                                      :checked="editorCtx.options.showGrids"
                                      @click="editorCtx.options.showGrids = !editorCtx.options.showGrids"
@@ -97,7 +101,7 @@
                 >
                     <div class="properties">
                         <div class="property inline">
-                            <label style="width: 6em;">FOV</label>
+                            <label>FOV</label>
                             <input-number class="value"
                                           style="width: 4em;"
                                           :min="4"
@@ -107,8 +111,7 @@
                             />
                         </div>
                         <div class="property inline">
-                            <label style="width: 6em;">Perspective</label>
-                            <input-boolean class="value"
+                            <input-boolean label="Perspective"
                                            :value="editorCtx.model.cameraPerspective"
                                            @input="editorCtx.model.cameraPerspective = $event"
                             />
@@ -120,7 +123,7 @@
                                 <div class="name normal-button"
                                      @click="onLoadCamera(camera)"
                                 >
-                                    Camera #{{ i + 1 }}
+                                    Camera View #{{ i + 1 }}
                                 </div>
                                 <button class="icon-button" @click="onDeleteCamera(i)">×</button>
                             </div>

@@ -1,4 +1,7 @@
 import {Object3D, PCFSoftShadowMap, Scene, Vector2, WebGLRenderer} from 'three';
+import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer';
+import {OutlinePass} from 'three/examples/jsm/postprocessing/OutlinePass';
+import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass';
 import {toRaw} from 'vue';
 import EditorOptions from './EditorOptions';
 import EditorView from './EditorView';
@@ -27,6 +30,7 @@ import TransformUpdateFilter from './systems/model-update-filters/TransformUpdat
 import TubeUpdateFilter from './systems/model-update-filters/TubeUpdateFilter';
 import ModelUpdateSystem from './systems/ModelUpdateSystem';
 import MouseSystem from './systems/MouseSystem';
+import OutlineUpdateSystem from './systems/OutlineUpdateSystem';
 import RenderSystem from './systems/RenderSystem';
 import ToolSystem from './systems/ToolSystem';
 import BoxTool from './tools/BoxTool';
@@ -76,6 +80,7 @@ export default class EditorContext {
         new HistorySystem(),
         new IkBoneVisibleUpdateSystem(),
         new LightUpdateSystem(),
+        new OutlineUpdateSystem(),
         new RenderSystem(),
         new CameraDraggingSystem(),
         new CallbackFireSystem(),
@@ -121,6 +126,9 @@ export default class EditorContext {
 
     canvas: HTMLCanvasElement;
     renderer: WebGLRenderer;
+    composer: EffectComposer;
+    renderPass: RenderPass;
+    outlinePass: OutlinePass;
     scene = new Scene();
     views: EditorView[];
     readonly mainViewIndex: number;
@@ -155,9 +163,11 @@ export default class EditorContext {
     ) {
         this.history.setup();
         this.canvas = canvas;
+
         this.renderer = new WebGLRenderer({canvas});
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = PCFSoftShadowMap;
+
         this.mainViewIndex = 1;
         this.views = [
             // top
@@ -169,6 +179,21 @@ export default class EditorContext {
             // right
             new EditorView(this, 3, view4, 0, 0, false),
         ];
+
+        this.composer = new EffectComposer(this.renderer);
+        this.renderPass = new RenderPass(
+            this.scene,
+            this.views[this.mainViewIndex].camera.get()
+        );
+        this.composer.addPass(this.renderPass);
+        this.outlinePass = new OutlinePass(
+            new Vector2(),
+            this.scene,
+            this.renderPass.camera
+        );
+        this.outlinePass.visibleEdgeColor.setHex(0xf3982d);
+        this.composer.addPass(this.outlinePass);
+
         this.scene.add(this.dummyObject);
         for (let system of this.systems) {
             system.setup(this);
@@ -212,6 +237,7 @@ export default class EditorContext {
             }
         }
         for (let view of this.views) {
+            view = toRaw(view);
             if (view.enabled) {
                 view.update();
             }
@@ -220,6 +246,7 @@ export default class EditorContext {
             system.update(this);
         }
         for (let view of this.views) {
+            view = toRaw(view);
             view.input.update();
         }
     }

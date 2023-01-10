@@ -7,6 +7,7 @@ import {
     Mesh,
     Vector3
 } from 'three';
+import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
 import CFlipDirection from '../model/components/CFlipDirection';
 import CObject3D, {Object3DUserData} from '../model/components/CObject3D';
@@ -37,6 +38,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
 
     begin(ctx: EditorContext): void {
         ctx = ctx.readonlyRef();
+        const self = toRaw(this);
         if (ctx.model.dirty) {
             // list dirty nodes
             ctx.model.forEach(node => {
@@ -50,7 +52,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                 }
             });
             // run filters
-            for (let filter of this.filters) {
+            for (let filter of self.filters) {
                 for (let node of _dirtyNodes) {
                     filter.update(ctx, node);
                 }
@@ -70,7 +72,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                     let rebuild = node.instanceMeshRebuild;
                     if (node.instanceMeshRebuild) {
                         node.instanceMeshRebuild = false;
-                        this.recreateInstanceMesh(ctx, node);
+                        self.recreateInstanceMesh(ctx, node);
                     }
                     if (node.has(CFlipDirection)) {
                         // update mirror node geometries
@@ -81,7 +83,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                                 if (node.deleted) {
                                     return;
                                 }
-                                this.updateInstanceMirrorGeometry(ctx, node);
+                                self.updateInstanceMirrorGeometry(ctx, node);
                             },
                             node.visible && rebuild
                         );

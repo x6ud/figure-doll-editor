@@ -12,6 +12,7 @@ export default class EditorOptions {
     keepInternalTransformWhenBindingIk: boolean = true;
 
     quadView: boolean = false;
+    outlineSelected: boolean = true;
     showGrids: boolean = true;
     showLightHelpers: boolean = false;
     showIkBones: boolean = false;

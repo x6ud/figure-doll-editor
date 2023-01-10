@@ -1,3 +1,4 @@
+import {toRaw} from 'vue';
 import EditorContext from '../../EditorContext';
 import CObject3D from '../../model/components/CObject3D';
 import CVisible from '../../model/components/CVisible';
@@ -12,9 +13,10 @@ export default class Object3DRelationshipUpdateFilter implements ModelNodeUpdate
                 const obj = cObject3D.value;
                 if (obj) {
                     obj.removeFromParent();
-                    if (node.parent) {
-                        if (node.parent.has(CObject3D)) {
-                            const parent = node.parent.value(CObject3D);
+                    const parentNode = toRaw(node.parent);
+                    if (parentNode) {
+                        if (parentNode.has(CObject3D)) {
+                            const parent = parentNode.value(CObject3D);
                             if (parent) {
                                 parent.add(obj);
                             }

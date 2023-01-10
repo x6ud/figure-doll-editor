@@ -2,7 +2,8 @@ import {defineComponent} from 'vue';
 
 export default defineComponent({
     props: {
-        value: Boolean
+        value: Boolean,
+        label: String
     },
     emits: ['input'],
     setup(props, ctx) {
