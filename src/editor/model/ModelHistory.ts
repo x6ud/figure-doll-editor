@@ -61,6 +61,7 @@ export default class ModelHistory {
             this.enableMerge = false;
         }
     };
+    private deletedNodes = new Set<number>();
 
     constructor(model: Model) {
         this.model = model;
@@ -146,6 +147,7 @@ export default class ModelHistory {
             this.undoStack.shift();
         }
 
+        this.deletedNodes.clear();
         this.currentFrameRecords.length = 0;
         this.dirty = true;
     }
@@ -171,7 +173,7 @@ export default class ModelHistory {
         this.dirty = true;
     }
 
-    private getNextNodeId() {
+    getNextNodeId() {
         if (this.nextNodeId) {
             return this.nextNodeId + 1;
         }
@@ -268,10 +270,14 @@ export default class ModelHistory {
         if (!this.model.isNodeExists(nodeId)) {
             return;
         }
+        if (this.deletedNodes.has(nodeId)) {
+            return;
+        }
 
         class NodeRecord {
             id: number;
             type: string;
+            expanded: boolean;
             parentId: number = 0;
             instanceId: number = 0;
             index: number = 0;
@@ -281,6 +287,7 @@ export default class ModelHistory {
             constructor(node: ModelNode, model: Model) {
                 this.id = node.id;
                 this.type = node.type;
+                this.expanded = node.expanded;
                 if (node.parent) {
                     this.parentId = node.parent.id;
                 }
@@ -293,6 +300,15 @@ export default class ModelHistory {
         }
 
         const nodeRecord = new NodeRecord(this.model.getNode(nodeId), this.model);
+        const stack: NodeRecord[] = [nodeRecord];
+        while (stack.length) {
+            const record = stack.pop();
+            if (!record) {
+                break;
+            }
+            this.deletedNodes.add(record.id);
+            stack.push(...record.children);
+        }
         this.currentFrameRecords.push({
             hash: '$removeNode',
             redo: () => {
@@ -325,6 +341,7 @@ export default class ModelHistory {
                             nodeRecord.data,
                             nodeRecord.instanceId,
                         );
+                        node.expanded = nodeRecord.expanded;
                         this.model.addSelection(node.id);
                         if (nodeRecord.children.length) {
                             stack.push([node, nodeRecord.children]);
