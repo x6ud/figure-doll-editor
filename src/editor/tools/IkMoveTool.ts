@@ -170,6 +170,9 @@ export default class IkMoveTool extends EditorTool {
                     _local0.copy(this.mouse0).applyMatrix4(this.invMat);
                     _local1.copy(_mouse1).applyMatrix4(this.invMat);
                     _det.subVectors(_local1, _local0);
+                    if (_det.lengthSq() < 1e-6) {
+                        return;
+                    }
                     _v1.copy(this.nodeEnd0).add(_det);
                     ccd.resize(this.chain0.length);
                     for (let i = 0, len = this.chain0.length; i < len; ++i) {
