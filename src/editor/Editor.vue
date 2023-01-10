@@ -20,6 +20,8 @@
                     <popup-menu-item sep/>
                     <popup-menu-item title="Save" hotkey="Ctrl+S" @click="onSave"/>
                     <popup-menu-item title="Save As" popup hotkey="Shirt+Ctrl+S" @click="onSaveAs"/>
+                    <popup-menu-item sep/>
+                    <popup-menu-item title="Import" popup @click="onImport"/>
                 </popup-menu>
                 <popup-menu title="Edit">
                     <popup-menu-item title="Undo" hotkey="Ctrl+Z" @click="onUndo"/>

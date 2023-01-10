@@ -261,6 +261,62 @@ export default defineComponent({
             }
         }
 
+        async function onImport() {
+            let fileHandle: FileSystemFileHandle | null = null;
+            try {
+                [fileHandle] = await showOpenFilePicker({
+                    types: [filePickerAcceptType],
+                    multiple: false
+                });
+            } catch (e) {
+                return;
+            }
+            try {
+                const ctx = editorCtx.value!;
+                ctx.statusBarMessage = 'Loading...';
+                fullscreenLoading.value = true;
+                await nextTick();
+                const file = await fileHandle.getFile();
+                filename.value = file.name;
+                const data = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
+                const idMap: { [id: number]: number } = {};
+                let nextId = ctx.history.getNextNodeId() + 1;
+                for (let node of data.nodes) {
+                    idMap[node.id] = nextId++;
+                }
+                const creationInfoMap: { [id: number]: ModelNodeCreationInfo & { originId: number } } = {};
+                for (let node of data.nodes) {
+                    creationInfoMap[node.id] = {
+                        originId: node.id,
+                        type: node.type,
+                        data: node.data,
+                        expanded: node.expanded,
+                        instanceId: node.instanceId ? idMap[node.instanceId] : 0
+                    };
+                }
+                const creationInfo: (ModelNodeCreationInfo & { originId: number })[] = [];
+                for (let node of data.nodes) {
+                    if (node.parentId) {
+                        const parent = creationInfoMap[node.parentId];
+                        parent.children = parent.children || [];
+                        parent.children.push(creationInfoMap[node.id]);
+                    } else {
+                        creationInfo.push(creationInfoMap[node.id]);
+                    }
+                }
+                for (let node of creationInfo) {
+                    ctx.history.createNode(node);
+                }
+                focus();
+                ctx.statusBarMessage = '';
+            } catch (e) {
+                console.error(e);
+                editorCtx.value!.statusBarMessage = 'Failed to import file.';
+            } finally {
+                fullscreenLoading.value = false;
+            }
+        }
+
         async function onSave(e?: KeyboardEvent | MouseEvent) {
             if (e?.shiftKey) {
                 await onSaveAs();
@@ -990,6 +1046,7 @@ export default defineComponent({
             onRedo,
             onNew,
             onOpen,
+            onImport,
             onSave,
             onSaveAs,
             onSetView,

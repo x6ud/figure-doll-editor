@@ -175,17 +175,17 @@ export default class ModelHistory {
 
     getNextNodeId() {
         if (this.nextNodeId) {
-            return this.nextNodeId + 1;
+            return this.nextNodeId;
         }
         let id = 0;
         this.model.forEach(node => {
             id = Math.max(id, node.id);
         });
-        return id + 1;
+        return id;
     }
 
     createNode(nodeJson: ModelNodeCreationInfo) {
-        const nodeId = this.getNextNodeId();
+        const nodeId = this.getNextNodeId() + 1;
         this.currentFrameRecords.push({
             hash: '$createNode',
             redo: () => {
@@ -214,32 +214,37 @@ export default class ModelHistory {
                 }
                 // create children
                 if (nodeJson.children) {
-                    const stack: [ModelNode, ModelNodeChildCreationInfo[]][] = [[node, nodeJson.children]];
-                    for (; ;) {
-                        const pair = stack.pop();
+                    const stack: [ModelNode, ModelNodeChildCreationInfo][] = [];
+                    for (let child of nodeJson.children) {
+                        stack.push([node, child]);
+                    }
+                    while (stack.length) {
+                        const pair = stack.shift();
                         if (!pair) {
                             break;
                         }
                         const parent = pair[0];
-                        const children = pair[1];
-                        for (let childJson of children) {
-                            const node = this.model.createNode(
-                                nextNodeId++,
-                                childJson.type,
-                                parent,
-                                null,
-                                childJson.data,
-                                childJson.instanceId,
-                            );
-                            if (childJson.expanded != null) {
-                                node.expanded = childJson.expanded;
+                        const childJson = pair[1];
+                        const node = this.model.createNode(
+                            nextNodeId++,
+                            childJson.type,
+                            parent,
+                            null,
+                            childJson.data,
+                            childJson.instanceId,
+                        );
+                        if (childJson.expanded != null) {
+                            node.expanded = childJson.expanded;
+                        }
+                        if (childJson.selected == null || childJson.selected) {
+                            this.model.addSelection(node.id);
+                        }
+                        if (childJson.children) {
+                            const childStack: [ModelNode, ModelNodeChildCreationInfo][] = [];
+                            for (let child of childJson.children) {
+                                childStack.push([node, child]);
                             }
-                            if (childJson.selected == null || childJson.selected) {
-                                this.model.addSelection(node.id);
-                            }
-                            if (childJson.children) {
-                                stack.push([node, childJson.children]);
-                            }
+                            stack.unshift(...childStack);
                         }
                     }
                 }
