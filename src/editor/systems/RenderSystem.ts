@@ -56,12 +56,15 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
                 this.yzGrids.visible = ctx.options.showGrids && isCameraParallelTo(camera, X_AXIS);
                 this.groundGrids.visible = ctx.options.showGrids && !(this.xzGrids.visible || this.xyGrids.visible || this.yzGrids.visible);
                 ctx.tool.beforeRender(ctx, curr);
-                renderer.setViewport(-rect.left + curr.left, rect.bottom - curr.bottom, curr.width, curr.height);
-                renderer.setScissor(-rect.left + curr.left, rect.bottom - curr.bottom, curr.width, curr.height);
+                const x = -rect.left + curr.left;
+                const y = rect.bottom - curr.bottom;
+                const w = curr.width;
+                const h = curr.height;
+                renderer.setViewport(x, y, w, h);
+                renderer.setScissor(x, y, w, h);
                 renderPass.camera = camera.get();
-                renderPass.setSize(curr.width, curr.height);
                 outlinePass.renderCamera = camera.get();
-                outlinePass.setSize(curr.width, curr.height);
+                composer.setSize(w, h);
                 composer.render();
             }
         }
