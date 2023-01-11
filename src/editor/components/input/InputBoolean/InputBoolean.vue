@@ -18,6 +18,7 @@
 <style lang="scss" scoped>
 .input-boolean {
     display: inline-flex;
+    align-items: center;
 
     .input-boolean__checkbox {
         flex: 0 0 24px !important;

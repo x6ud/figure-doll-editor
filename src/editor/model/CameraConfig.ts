@@ -1,4 +1,5 @@
 export default class CameraConfig {
+    name: string = '';
     zoomLevel: number = 0;
     alpha: number = 0;
     beta: number = 0;

@@ -111,6 +111,7 @@ export default class ProjectReader {
         if (version >= 2) {
             const len = this.readUint32();
             for (let i = 0; i < len; ++i) {
+                const name = this.readString();
                 const zoomLevel = this.readFloat64();
                 const alpha = this.readFloat64();
                 const beta = this.readFloat64();
@@ -120,6 +121,7 @@ export default class ProjectReader {
                 const perspective = this.readBoolean();
                 const fov = this.readFloat64();
                 ret.cameras.push({
+                    name,
                     zoomLevel,
                     alpha,
                     beta,

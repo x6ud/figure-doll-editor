@@ -102,30 +102,27 @@
                             dynamic-size
                 >
                     <div class="properties">
-                        <div class="property inline">
-                            <label>FOV</label>
-                            <input-number class="value"
-                                          style="width: 4em;"
+                        <div class="cols" style="align-items: center; margin-bottom: 8px;">
+                            <div style="margin-right: 4px;">FOV</div>
+                            <input-number style="width: 4em; margin-right: 8px;"
                                           :min="4"
                                           :max="90"
                                           :value="editorCtx.model.cameraFov"
                                           @input="editorCtx.model.cameraFov = $event"
                             />
-                        </div>
-                        <div class="property inline">
-                            <input-boolean label="Perspective"
-                                           :value="editorCtx.model.cameraPerspective"
-                                           @input="editorCtx.model.cameraPerspective = $event"
+                            <input-boolean label="Orthographic"
+                                           :value="!editorCtx.model.cameraPerspective"
+                                           @input="editorCtx.model.cameraPerspective = !$event"
                             />
                         </div>
                         <div class="camera-list">
                             <div class="item"
-                                 v-for="(camera, i) in editorCtx.model.cameras"
+                                 v-for="camera in editorCtx.model.cameras"
                             >
                                 <div class="name normal-button"
                                      @click="onLoadCamera(camera)"
                                 >
-                                    Camera View #{{ i + 1 }}
+                                    {{ camera.name }}
                                 </div>
                                 <button class="icon-button" @click="onDeleteCamera(i)">×</button>
                             </div>
@@ -389,7 +386,10 @@
         margin-bottom: 4px;
 
         .name {
+            display: inline-flex;
+            align-items: center;
             flex: 1 1;
+            font-size: 14px;
             cursor: pointer;
         }
     }

@@ -54,13 +54,13 @@ import ModelNodeComponent from './ModelNodeComponent';
 export type ModelNodeDef = {
     /** A unique name */
     name: string;
-    /** Name display in add new node menu */
+    /** Name display in adding new node menu */
     label: string;
     icon: string;
-    /** Whether to display in add new node menu */
+    /** Whether to display in adding new node menu */
     showInList: boolean;
-    /** Whether node can be deleted by the delete button */
-    deletable: boolean;
+    /** Cannot be moved or deleted */
+    fixed?: boolean;
     unique?: boolean;
     /** Whether shadow node can be created */
     instanceable?: boolean;
@@ -77,7 +77,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Container',
         icon: iconContainer,
         showInList: true,
-        deletable: true,
         instanceable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
@@ -88,7 +87,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'IK Chain',
         icon: iconIKChain,
         showInList: true,
-        deletable: true,
         instanceable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
@@ -99,7 +97,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'IK Node',
         icon: iconIKNode,
         showInList: true,
-        deletable: true,
         instanceable: true,
         components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation],
         canBeRoot: false,
@@ -110,7 +107,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Box',
         icon: iconBox,
         showInList: true,
-        deletable: true,
         instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CBoxSize],
         canBeRoot: true,
@@ -121,7 +117,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'SDF Shape',
         icon: iconShape,
         showInList: true,
-        deletable: true,
         instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CSdfDirty, CSdfSymmetry],
         canBeRoot: true,
@@ -132,7 +127,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Tube',
         icon: iconTube,
         showInList: true,
-        deletable: true,
         components: [CName, CObject3D, CSdfOperator, CTube],
         canBeRoot: false,
         validChildTypes: [],
@@ -142,7 +136,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Clay',
         icon: iconClay,
         showInList: true,
-        deletable: true,
         instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CVertices, CColors],
         canBeRoot: true,
@@ -153,7 +146,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Image',
         icon: iconImage,
         showInList: true,
-        deletable: true,
         instanceable: false,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
         canBeRoot: true,
@@ -168,7 +160,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Import .obj',
         icon: iconObjModel,
         showInList: true,
-        deletable: true,
         instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImportObj],
         canBeRoot: true,
@@ -179,7 +170,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Import .fbx',
         icon: iconFbxModel,
         showInList: true,
-        deletable: true,
         instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImportFbx],
         canBeRoot: true,
@@ -190,7 +180,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Mirror',
         icon: iconMirror,
         showInList: true,
-        deletable: true,
         components: [CName, CVisible, CTextureSize, CPosition, CRotation, CScale, CObject3D, CWidth, CHeight, CColor],
         canBeRoot: true,
         validChildTypes: [],
@@ -200,7 +189,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Target',
         icon: iconTarget,
         showInList: false,
-        deletable: false,
+        fixed: true,
         unique: true,
         components: [CPosition, CObject3D],
         canBeRoot: false,
@@ -211,7 +200,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Ambient Light',
         icon: iconLight,
         showInList: true,
-        deletable: true,
         components: [CName, CVisible, CObject3D, CIntensity, CColor],
         canBeRoot: true,
         defaultData: {[CIntensity.name]: 0.2},
@@ -222,7 +210,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Hemisphere Light',
         icon: iconLight,
         showInList: true,
-        deletable: true,
         components: [CName, CVisible, CPosition, CObject3D, CLightHelper, CIntensity, CSkyColor, CGroundColor],
         canBeRoot: true,
         validChildTypes: [],
@@ -233,7 +220,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Directional Light',
         icon: iconLight,
         showInList: true,
-        deletable: true,
         components: [CName, CVisible, CCastShadow, CMapSize, CShadowMappingRange, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
         validChildTypes: ['Target'],
@@ -245,7 +231,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Point Light',
         icon: iconLight,
         showInList: true,
-        deletable: true,
         components: [CName, CVisible, CCastShadow, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
         validChildTypes: [],
@@ -256,7 +241,6 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Spot Light',
         icon: iconLight,
         showInList: true,
-        deletable: true,
         components: [
             CName, CVisible,
             CCastShadow, CMapSize, CPenumbra, CSpotLightAngle,

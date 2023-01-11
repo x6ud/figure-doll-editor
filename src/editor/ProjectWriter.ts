@@ -87,6 +87,7 @@ export default class ProjectWriter {
         const model = ctx.model;
         this.writeUint32(model.cameras.length);
         for (let camera of model.cameras) {
+            this.writeString(camera.name);
             this.writeFloat64(camera.zoomLevel);
             this.writeFloat64(camera.alpha);
             this.writeFloat64(camera.beta);

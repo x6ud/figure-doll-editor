@@ -84,7 +84,7 @@ export default defineComponent({
         const filename = ref<string | null>(null);
         let fileHandle: FileSystemFileHandle | null = null;
 
-        // the add new node menu list
+        // the adding new node menu list
         const validChildNodeDefs = computed<ModelNodeDef[]>(function () {
             const model = editorCtx.value?.model;
             if (!model) {
@@ -114,7 +114,7 @@ export default defineComponent({
             }
             return model.getSelectedNodes().filter(node => {
                 const def = getModelNodeDef(node.type);
-                return def.deletable;
+                return !def.fixed;
             }).length;
         });
 
@@ -447,7 +447,7 @@ export default defineComponent({
                     return false;
                 }
                 const def = getModelNodeDef(node.type);
-                if (!def.deletable) {
+                if (def.fixed) {
                     return false;
                 }
                 return true;
@@ -518,7 +518,7 @@ export default defineComponent({
             const targets = model.getTopmostSelectedNodes();
             for (let node of targets) {
                 const def = getModelNodeDef(node.type);
-                if (def.deletable) {
+                if (!def.fixed) {
                     editorCtx.value!.history.removeNode(node.id);
                 }
             }
@@ -1022,6 +1022,9 @@ export default defineComponent({
             const model = ctx.model;
             const view = ctx.views[ctx.mainViewIndex];
             model.cameras.push({
+                name: new Date().toISOString()
+                    .replace('T', ' ')
+                    .replace(/\.[0-9]+Z/, ''),
                 zoomLevel: view.zoomLevel,
                 alpha: view.camera.alpha,
                 beta: view.camera.beta,
