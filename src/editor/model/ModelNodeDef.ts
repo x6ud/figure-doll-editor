@@ -5,6 +5,7 @@ import CCastShadow from './components/CCastShadow';
 import CColor from './components/CColor';
 import CColors from './components/CColors';
 import './components/CFlipDirection';
+import CEmissive from './components/CEmissive';
 import CGroundColor from './components/CGroundColor';
 import CHeight from './components/CHeight';
 import CIkNode from './components/CIkNode';
@@ -16,6 +17,7 @@ import CImportObj from './components/CImportObj';
 import CIntensity from './components/CIntensity';
 import CLightHelper from './components/CLightHelper';
 import CMapSize from './components/CMapSize';
+import CMetalness from './components/CMetalness';
 import CName from './components/CName';
 import CObject3D from './components/CObject3D';
 import COpacity from './components/COpacity';
@@ -23,6 +25,7 @@ import CPenumbra from './components/CPenumbra';
 import CPosition from './components/CPosition';
 import CReceiveShadow from './components/CReceiveShadow';
 import CRotation from './components/CRotation';
+import CRoughness from './components/CRoughness';
 import CScale from './components/CScale';
 import CSdfDirty from './components/CSdfDirty';
 import CSdfOperator from './components/CSdfOperator';
@@ -108,7 +111,22 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconBox,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CBoxSize],
+        components: [
+            CName,
+            CVisible,
+            CCastShadow,
+            CReceiveShadow,
+            CPosition,
+            CRotation,
+            CScale,
+            CColor,
+            CEmissive,
+            CRoughness,
+            CMetalness,
+            COpacity,
+            CObject3D,
+            CBoxSize,
+        ],
         canBeRoot: true,
         validChildTypes: [],
     },
@@ -118,7 +136,23 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconShape,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CSdfDirty, CSdfSymmetry],
+        components: [
+            CName,
+            CVisible,
+            CCastShadow,
+            CReceiveShadow,
+            CPosition,
+            CRotation,
+            CScale,
+            CColor,
+            CEmissive,
+            CRoughness,
+            CMetalness,
+            COpacity,
+            CObject3D,
+            CSdfDirty,
+            CSdfSymmetry,
+        ],
         canBeRoot: true,
         validChildTypes: ['Tube'],
     },
@@ -137,7 +171,23 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconClay,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CVertices, CColors],
+        components: [
+            CName,
+            CVisible,
+            CCastShadow,
+            CReceiveShadow,
+            CPosition,
+            CRotation,
+            CScale,
+            CRoughness,
+            CMetalness,
+            CColor,
+            CEmissive,
+            COpacity,
+            CObject3D,
+            CVertices,
+            CColors,
+        ],
         canBeRoot: true,
         validChildTypes: [],
     },

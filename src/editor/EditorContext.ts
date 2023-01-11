@@ -22,6 +22,7 @@ import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter'
 import ImportModelUpdateFilter from './systems/model-update-filters/ImportModelUpdateFilter';
 import LightHelperUpdateFilter from './systems/model-update-filters/LightHelperUpdateFilter';
 import LightUpdateFilter from './systems/model-update-filters/LightUpdateFilter';
+import MaterialUpdateFilter from './systems/model-update-filters/MaterialUpdateFilter';
 import MirrorUpdateFilter from './systems/model-update-filters/MirrorUpdateFilter';
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import OpacityUpdateFilter from './systems/model-update-filters/OpacityUpdateFilter';
@@ -74,6 +75,7 @@ export default class EditorContext {
             new ShadowUpdateFilter(),
             new LightHelperUpdateFilter(),
             new OpacityUpdateFilter(),
+            new MaterialUpdateFilter(),
         ]),
         new MouseSystem(),
         new ToolSystem(),
