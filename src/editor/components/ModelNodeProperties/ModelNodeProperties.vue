@@ -3,7 +3,7 @@
          :key="key"
     >
         <template v-for="prop in properties">
-            <div class="property">
+            <div class="property" :class="{inline: prop.inlineLabel}">
                 <label>{{ prop.label }}</label>
                 <component class="value"
                            :is="prop.inputComponent"

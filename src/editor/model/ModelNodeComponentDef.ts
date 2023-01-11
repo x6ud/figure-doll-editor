@@ -24,6 +24,7 @@ export type ModelNodeComponentDef = {
     equal?: (a: any, b: any) => boolean,
     /** Label display in the properties panel */
     label?: string;
+    inlineLabel?: boolean;
     inputComponent?: Component;
     inputComponentProps?: { [prop: string]: any };
     clone?: (val: any) => any;

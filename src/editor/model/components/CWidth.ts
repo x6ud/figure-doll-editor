@@ -7,7 +7,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     dataType: DataType.NUMBER,
     label: 'Width',
     inputComponent: InputNumber,
-    inputComponentProps: {min: 0},
+    inputComponentProps: {min: 0, step: 0.001},
 })
 export default class CWidth extends ModelNodeComponent<number> {
     value = 0.5;

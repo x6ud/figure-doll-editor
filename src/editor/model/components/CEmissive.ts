@@ -10,6 +10,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
         return new Color().setRGB(a[0], a[1], a[2]).getHex() === new Color().setRGB(b[0], b[1], b[2]).getHex();
     },
     label: 'Emissive',
+    inlineLabel: true,
     inputComponent: InputColor,
     clone(val: [number, number, number]) {
         return [...val];

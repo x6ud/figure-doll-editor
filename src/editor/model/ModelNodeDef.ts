@@ -4,8 +4,8 @@ import CBoxSize from './components/CBoxSize';
 import CCastShadow from './components/CCastShadow';
 import CColor from './components/CColor';
 import CColors from './components/CColors';
-import './components/CFlipDirection';
 import CEmissive from './components/CEmissive';
+import './components/CFlipDirection';
 import CGroundColor from './components/CGroundColor';
 import CHeight from './components/CHeight';
 import CIkNode from './components/CIkNode';
@@ -51,7 +51,8 @@ import iconObjModel from './icons/ObjModel.png';
 import iconShape from './icons/Shape.png';
 import iconTarget from './icons/Target.png';
 import iconTube from './icons/Tube.png';
-import ModelNode, {ModelNodeChildJson} from './ModelNode';
+import {ModelNodeChildCreationInfo} from './ModelHistory';
+import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
 
 export type ModelNodeDef = {
@@ -71,7 +72,7 @@ export type ModelNodeDef = {
     canBeRoot: boolean;
     validChildTypes: string[];
     defaultData?: { [name: string]: any };
-    defaultChildren?: ModelNodeChildJson[];
+    defaultChildren?: ModelNodeChildCreationInfo[];
 };
 
 export const modelNodeDefs: ModelNodeDef[] = [
@@ -274,7 +275,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         canBeRoot: true,
         validChildTypes: ['Target'],
         defaultData: {[CPosition.name]: new Vector3(0, 1, 0)},
-        defaultChildren: [{type: 'Target'}],
+        defaultChildren: [{type: 'Target', selected: false}],
     },
     {
         name: 'PointLight',
@@ -298,7 +299,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         canBeRoot: true,
         validChildTypes: ['Target'],
         defaultData: {[CPosition.name]: new Vector3(0, 1, 0)},
-        defaultChildren: [{type: 'Target'}],
+        defaultChildren: [{type: 'Target', selected: false}],
     },
 ];
 

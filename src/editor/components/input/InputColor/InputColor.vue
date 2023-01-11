@@ -17,7 +17,8 @@
 <style lang="scss" scoped>
 .input-color {
     box-sizing: border-box;
-    width: 48px;
+    min-width: 48px;
+    max-width: 48px;
     min-height: 24px;
     max-height: 24px;
     border-radius: 3px;

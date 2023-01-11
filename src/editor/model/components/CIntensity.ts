@@ -10,7 +10,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     },
     label: 'Intensity',
     inputComponent: InputNumber,
-    inputComponentProps: {min: 0}
+    inputComponentProps: {min: 0, step: 0.001}
 })
 export default class CIntensity extends ModelNodeComponent<number> {
     value = 1.0;

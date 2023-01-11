@@ -7,6 +7,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     dataType: DataType.BOOLEAN,
     instanceable: true,
     label: 'Cast Shadow',
+    inlineLabel: true,
     inputComponent: InputBoolean,
 })
 export default class CCastShadow extends ModelNodeComponent<boolean> {
