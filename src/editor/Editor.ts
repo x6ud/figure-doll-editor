@@ -1,4 +1,6 @@
-import {BufferGeometry, Euler, Matrix4, Mesh, Quaternion, Vector3} from 'three';
+import {BufferGeometry, Euler, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3} from 'three';
+import {GLTFExporter} from 'three/examples/jsm/exporters/GLTFExporter';
+import {OBJExporter} from 'three/examples/jsm/exporters/OBJExporter';
 import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
@@ -314,6 +316,100 @@ export default defineComponent({
                 editorCtx.value!.statusBarMessage = 'Failed to import file.';
             } finally {
                 fullscreenLoading.value = false;
+            }
+        }
+
+        async function onExport(format: string) {
+            function getExportScene() {
+                const ctx = editorCtx.value!.readonlyRef();
+                const scene = new Scene();
+                scene.traverse = function (callback) {
+                    traverseVisible(scene);
+
+                    function traverseVisible(obj: Object3D) {
+                        for (let child of obj.children) {
+                            if (child.visible) {
+                                callback(child);
+                                traverseVisible(child);
+                            }
+                        }
+                    }
+                };
+                for (let node of ctx.model.nodes) {
+                    if (node.has(CObject3D)) {
+                        const obj = node.value(CObject3D);
+                        if (obj) {
+                            scene.children.push(obj);
+                        }
+                    }
+                }
+                return scene;
+            }
+
+            async function process(callback: (startWriting: () => Promise<void>) => Promise<void>) {
+                try {
+                    editorCtx.value!.statusBarMessage = 'Exporting...';
+                    fullscreenLoading.value = true;
+                    await nextTick();
+                    await callback(async function () {
+                        editorCtx.value!.statusBarMessage = 'Writing files...';
+                        await nextTick();
+                    });
+                    editorCtx.value!.statusBarMessage = 'File exported.';
+                } catch (e) {
+                    console.error(e);
+                    editorCtx.value!.statusBarMessage = 'Failed to export.';
+                } finally {
+                    fullscreenLoading.value = false;
+                }
+            }
+
+            switch (format) {
+                case 'obj': {
+                    try {
+                        const fileHandle = await showSaveFilePicker({
+                            types: [{
+                                accept: {'application/object': ['.obj']}
+                            }]
+                        });
+                        await process(async function (startWriting) {
+                            const scene = getExportScene();
+                            const str = new OBJExporter().parse(scene);
+                            await startWriting();
+                            const stream = await fileHandle.createWritable({keepExistingData: false});
+                            await stream.write(str);
+                            await stream.close();
+                        });
+                    } catch (e) {
+                        return;
+                    }
+                }
+                    break;
+                case 'glb': {
+                    try {
+                        const fileHandle = await showSaveFilePicker({
+                            types: [{
+                                accept: {'application/object': ['.glb']}
+                            }]
+                        });
+                        await process(async function (startWriting) {
+                            const scene = getExportScene();
+                            const exporter = new GLTFExporter();
+                            const buffer = await exporter.parseAsync(scene, {
+                                onlyVisible: true, binary: true
+                            }) as ArrayBuffer;
+                            await startWriting();
+                            const stream = await fileHandle.createWritable({keepExistingData: false});
+                            await stream.write(buffer);
+                            await stream.close();
+                        });
+                    } catch (e) {
+                        return;
+                    }
+                }
+                    break;
+                default:
+                    return;
             }
         }
 
@@ -1050,6 +1146,7 @@ export default defineComponent({
             onNew,
             onOpen,
             onImport,
+            onExport,
             onSave,
             onSaveAs,
             onSetView,

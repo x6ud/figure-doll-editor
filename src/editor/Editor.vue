@@ -22,6 +22,12 @@
                     <popup-menu-item title="Save As" popup hotkey="Shirt+Ctrl+S" @click="onSaveAs"/>
                     <popup-menu-item sep/>
                     <popup-menu-item title="Import" popup @click="onImport"/>
+                    <popup-menu-item title="Export">
+                        <popup-menu>
+                            <popup-menu-item title="GL Transmission Format Binary (.glb)" popup @click="onExport('glb')"/>
+                            <popup-menu-item title="Wavefront (.obj)" popup @click="onExport('obj')"/>
+                        </popup-menu>
+                    </popup-menu-item>
                 </popup-menu>
                 <popup-menu title="Edit">
                     <popup-menu-item title="Undo" hotkey="Ctrl+Z" @click="onUndo"/>
