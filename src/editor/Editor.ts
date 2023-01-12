@@ -105,6 +105,9 @@ export default defineComponent({
                     if (!def.canBeRoot) {
                         return false;
                     }
+                    if (!def.showInList) {
+                        return false;
+                    }
                     if (def.unique) {
                         return !model.nodes.find(node => node.type === def.name);
                     }

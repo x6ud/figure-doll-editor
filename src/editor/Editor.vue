@@ -185,11 +185,29 @@
                 <popup-menu title="About"
                             dynamic-size
                 >
-                    <div class="properties">
-                        <div style="margin-bottom: 4px; font-weight: bold;">
-                            Figure Doll Editor 20230111 (Developing)
+                    <div class="properties cols">
+                        <div>
+                            <img src="./icons/icon.png" alt="">
                         </div>
-                        <div>Author: x6udpngx</div>
+                        <div style="padding: 4px 6px 4px 8px;">
+                            <div style="margin-bottom: 6px;">
+                                <span style="font-size: 16px; font-weight: bold;">
+                                    Figure Doll Editor
+                                </span>
+                                Ver 20230112 (Developing)
+                            </div>
+                            <div style="margin-bottom: 6px;">Author: x6udpngx</div>
+                            <div>
+                                <a href="https://ko-fi.com/x6udpngx"
+                                   target="_blank"
+                                >
+                                    <img src="./icons/kofi.png" alt=""
+                                         style="vertical-align: text-bottom;"
+                                    >
+                                    Support Me on Ko-fi
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </popup-menu>
 
@@ -531,6 +549,15 @@
         top: 0;
         right: .5em;
         height: 100%;
+    }
+}
+
+a {
+    color: #fff;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
     }
 }
 </style>
