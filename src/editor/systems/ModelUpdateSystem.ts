@@ -2,9 +2,10 @@ import {
     BufferAttribute,
     BufferGeometry,
     Float32BufferAttribute,
-    Group,
     InterleavedBufferAttribute,
+    Matrix4,
     Mesh,
+    Object3D,
     Vector3
 } from 'three';
 import {toRaw} from 'vue';
@@ -20,8 +21,16 @@ export interface ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void;
 }
 
+type InstanceObject3DUserData = Object3DUserData & {
+    origin: Object3D,
+    instanceId: number,
+};
+
 const _dirtyNodes: ModelNode[] = [];
 const _v = new Vector3();
+const _flipDir = new Vector3();
+const _flipDirWorld = new Vector3();
+const _invBaseMat = new Matrix4();
 
 export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
 
@@ -108,22 +117,40 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         if (!obj) {
             return;
         }
-        if ((obj as Group).isGroup) {
-            const group = obj as Group;
-            const instanceGroup = cObject3D.value = new Group();
-            (instanceGroup.userData as Object3DUserData).node = node;
-            for (let child of group.children) {
-                if ((child as Mesh).isMesh) {
-                    const mesh = child as Mesh;
-                    const newMesh = new Mesh(mesh.geometry, mesh.material);
-                    (newMesh.userData as Object3DUserData).node = node;
-                    instanceGroup.add(newMesh);
-                }
+        const stack: [Object3D, Object3D | null][] = [[obj, null]];
+        let idCount = 0;
+        while (stack.length) {
+            const pair = stack.pop();
+            if (!pair) {
+                break;
             }
-        } else if ((obj as Mesh).isMesh) {
-            const mesh = obj as Mesh;
-            const newMesh = cObject3D.value = new Mesh(mesh.geometry, mesh.material);
-            (newMesh.userData as Object3DUserData).node = node;
+            const obj = pair[0];
+            const parent = pair[1];
+            let newObj: Object3D;
+            if ((obj as Mesh).isMesh) {
+                const mesh = obj as Mesh;
+                newObj = new Mesh(mesh.geometry, mesh.material);
+            } else {
+                newObj = new Object3D();
+            }
+            newObj.position.copy(obj.position);
+            newObj.quaternion.copy(obj.quaternion);
+            newObj.scale.copy(obj.scale);
+            newObj.updateMatrix();
+            newObj.updateMatrixWorld(true);
+            (newObj.userData as InstanceObject3DUserData) = {
+                node,
+                origin: obj,
+                instanceId: idCount++,
+            };
+            if (parent) {
+                parent.add(newObj);
+            } else {
+                cObject3D.value = newObj;
+            }
+            for (let child of obj.children) {
+                stack.push([child, newObj]);
+            }
         }
         node.dirty = true;
         cObject3D.parentChanged = true;
@@ -151,12 +178,27 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
             Math.round(flipDir.y / ACCURACY) * ACCURACY,
             Math.round(flipDir.z / ACCURACY) * ACCURACY,
         );
-        if ((obj as Group).isGroup) {
-            for (let i = 0, len = obj.children.length; i < len; ++i) {
-                this.mirrorMesh(targetNode, cacheHash + '/' + i, obj.children[i] as Mesh, target.children[i] as Mesh, flipDir);
+        const baseMat = obj.matrixWorld;
+        _flipDirWorld.copy(flipDir).transformDirection(baseMat);
+        _invBaseMat.copy(baseMat).invert();
+        const stack: Object3D[] = [obj];
+        while (stack.length) {
+            const obj = stack.pop();
+            if (!obj) {
+                break;
             }
-        } else {
-            this.mirrorMesh(targetNode, cacheHash, obj as Mesh, target as Mesh, flipDir);
+            if ((obj as Mesh).isMesh) {
+                const userData = obj.userData as InstanceObject3DUserData;
+                _flipDir.copy(flipDir).transformDirection(obj.matrixWorld).transformDirection(_invBaseMat);
+                this.mirrorMesh(
+                    targetNode,
+                    cacheHash + '/' + userData.instanceId,
+                    obj as Mesh,
+                    userData.origin as Mesh,
+                    _flipDir
+                );
+            }
+            stack.push(...obj.children);
         }
     }
 
@@ -199,6 +241,10 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                     new Float32Array(aColor.array as ArrayLike<number>),
                     aColor.itemSize
                 ));
+            }
+            const aUv = src.geometry.getAttribute('uv');
+            if (aUv) {
+                dst.geometry.setAttribute('uv', aUv.clone());
             }
         }
         this.mirrorGeometry(dst.geometry, src.geometry, flipDir);

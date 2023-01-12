@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import {LoadingManager} from 'three';
+import {LoadingManager, Object3D} from 'three';
 import {FBXLoader} from 'three/examples/jsm/loaders/FBXLoader';
 import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader';
 import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader';
@@ -52,9 +52,14 @@ export default class ImportModelUpdateFilter implements ModelNodeUpdateFilter {
                     return;
                 }
                 cObject3D.value = new FBXLoader().parse(buffer, undefined as any as string);
-                (cObject3D.value.userData as Object3DUserData) = {node};
-                for (let child of cObject3D.value.children) {
-                    (child.userData as Object3DUserData) = {node};
+                const stack: Object3D[] = [cObject3D.value];
+                while (stack.length) {
+                    const obj = stack.pop();
+                    if (!obj) {
+                        break;
+                    }
+                    (obj.userData as Object3DUserData) = {node};
+                    stack.push(...obj.children);
                 }
                 cObject3D.parentChanged = true;
                 cObject3D.localTransformChanged = true;
@@ -107,6 +112,15 @@ export default class ImportModelUpdateFilter implements ModelNodeUpdateFilter {
                         return;
                     }
                     cObject3D.value = gltf.scene;
+                    const stack: Object3D[] = [gltf.scene];
+                    while (stack.length) {
+                        const obj = stack.pop();
+                        if (!obj) {
+                            break;
+                        }
+                        (obj.userData as Object3DUserData) = {node};
+                        stack.push(...obj.children);
+                    }
                     cObject3D.parentChanged = true;
                     cObject3D.localTransformChanged = true;
                     node.dirty = true;
