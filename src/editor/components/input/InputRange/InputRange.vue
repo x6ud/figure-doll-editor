@@ -23,6 +23,10 @@
     display: flex;
     align-items: center;
 
+    input {
+        min-width: 0;
+    }
+
     .range {
         flex: 1 1;
     }

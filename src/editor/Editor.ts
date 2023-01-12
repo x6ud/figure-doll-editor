@@ -2,6 +2,7 @@ import {BufferGeometry, Euler, Matrix4, Mesh, Object3D, Quaternion, Scene, Vecto
 import {GLTFExporter} from 'three/examples/jsm/exporters/GLTFExporter';
 import {OBJExporter} from 'three/examples/jsm/exporters/OBJExporter';
 import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
+import {useRouter} from 'vue-router';
 import Class from '../common/type/Class';
 import RenderLoop from '../common/utils/RenderLoop';
 import {createTransitionAnimation} from '../common/utils/transition';
@@ -21,9 +22,11 @@ import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
 import CameraConfig from './model/CameraConfig';
 import CColors from './model/components/CColors';
+import CCredit from './model/components/CCredit';
 import CFlipDirection from './model/components/CFlipDirection';
 import CIkNode from './model/components/CIkNode';
 import CIkNodeRotation from './model/components/CIkNodeRotation';
+import CImportReadonlyGltf from './model/components/CImportReadonlyGltf';
 import CName from './model/components/CName';
 import CObject3D from './model/components/CObject3D';
 import CPosition from './model/components/CPosition';
@@ -42,6 +45,8 @@ import EditorTool from './tools/EditorTool';
 import {dataUrlToArrayBuffer} from './utils/convert';
 import {voxelizeRemesh} from './utils/geometry/voxelize-remesh';
 import {getAxisAngle, getTranslation} from './utils/math';
+import {progressiveDownload} from './utils/progressive-download';
+import {useSketchfabClient} from './utils/sketchfab';
 
 const extension = '.doll';
 const filePickerAcceptType: FilePickerAcceptType = {
@@ -66,6 +71,9 @@ export default defineComponent({
         SidePanel,
     },
     setup() {
+        const router = useRouter();
+        const sketchfabClient = useSketchfabClient();
+
         const dom = ref<HTMLElement>();
         const editorCtx = ref<EditorContext>();
         const renderLoop = new RenderLoop(function () {
@@ -154,6 +162,7 @@ export default defineComponent({
             if (!('showOpenFilePicker' in window)) {
                 await showAlertDialog('This application is only available in Chrome or Edge.\nCannot open or save files in the current browser.');
             }
+            sketchfabClient.parseRouterPath(router.currentRoute.value.fullPath);
         });
 
         function focus() {
@@ -1131,14 +1140,94 @@ export default defineComponent({
             ctx.history.dirty = true;
         }
 
+        const sketchfabModelUrl = ref('');
+
+        async function onSketchfabLogin() {
+            if (await historyConfirm()) {
+                sketchfabClient.login();
+            }
+        }
+
+        function onSketchfabLogout() {
+            sketchfabClient.logout();
+        }
+
+        const downloadProgressDialog = ref(false);
+        const downloadProgressText = ref('');
+        const downloadTotalText = ref('');
+        const downloadCancelFlag = ref(false);
+        const downloadProgressPercent = ref(0);
+
+        async function onSketchfabImportModel() {
+            if (!sketchfabModelUrl.value) {
+                return;
+            }
+            try {
+                editorCtx.value!.statusBarMessage = 'Fetching model download url...';
+                fullscreenLoading.value = true;
+                const {info, download} = (await sketchfabClient.getModelDownloadUrl(sketchfabModelUrl.value))!;
+                if (download.gltf?.url) {
+                    sketchfabModelUrl.value = '';
+                    editorCtx.value!.statusBarMessage = 'Downloading model...';
+                    fullscreenLoading.value = false;
+                    downloadProgressDialog.value = true;
+                    downloadCancelFlag.value = false;
+                    downloadProgressPercent.value = 0;
+                    downloadProgressText.value = '0.0MB';
+                    downloadTotalText.value = (download.gltf.size / 1024 / 1024).toFixed(1) + 'MB';
+                    const bytes = await progressiveDownload(
+                        download.gltf.url,
+                        (received, total) => {
+                            downloadProgressPercent.value = Math.round(received / total * 100);
+                            downloadProgressText.value = (received / 1024 / 1024).toFixed(1) + 'MB';
+                        },
+                        downloadCancelFlag,
+                        download.gltf.size
+                    );
+                    if (!bytes) {
+                        editorCtx.value!.statusBarMessage = 'Download canceled.';
+                        return;
+                    }
+                    editorCtx.value!.history.createNode({
+                        type: 'ImportModel',
+                        data: {
+                            [CName.name]: info.name,
+                            [CCredit.name]: info,
+                            [CImportReadonlyGltf.name]: bytes,
+                        }
+                    });
+                    editorCtx.value!.statusBarMessage = 'Model imported.';
+                } else {
+                    editorCtx.value!.statusBarMessage = 'Failed to download model.';
+                    if (download.detail) {
+                        await showAlertDialog('Could not download model: ' + download.detail);
+                    } else {
+                        await showAlertDialog('Failed to get model download url.');
+                    }
+                }
+            } catch (e) {
+                editorCtx.value!.statusBarMessage = 'Failed to import model.';
+            } finally {
+                fullscreenLoading.value = false;
+                downloadProgressDialog.value = false;
+            }
+        }
+
         return {
             dom,
+            sketchfabClient,
             editorCtx,
             fullscreenLoading,
             uiOptions,
             validChildNodeDefs,
             canDelete,
             canRemesh,
+            sketchfabModelUrl,
+            downloadProgressDialog,
+            downloadProgressText,
+            downloadTotalText,
+            downloadCancelFlag,
+            downloadProgressPercent,
             onCanvasMounted,
             onBeforeCanvasUnmount,
             onUndo,
@@ -1166,6 +1255,9 @@ export default defineComponent({
             onLoadCamera,
             onDeleteCamera,
             onSaveCamera,
+            onSketchfabLogin,
+            onSketchfabLogout,
+            onSketchfabImportModel,
         };
     }
 });

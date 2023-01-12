@@ -114,8 +114,8 @@ input[type=file]::file-selector-button {
   }
 
   &:disabled {
-    background-color: #555;
-    color: rgba(255, 255, 255, .5);
+    background-color: #555 !important;
+    color: rgba(255, 255, 255, .5) !important;
   }
 }
 

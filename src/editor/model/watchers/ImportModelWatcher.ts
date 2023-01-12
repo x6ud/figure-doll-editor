@@ -1,6 +1,7 @@
 import Class from '../../../common/type/Class';
 import CImportFbx from '../components/CImportFbx';
 import CImportObj from '../components/CImportObj';
+import CImportReadonlyGltf from '../components/CImportReadonlyGltf';
 import Model from '../Model';
 import ModelNode from '../ModelNode';
 import ModelNodeChangedWatcher from '../ModelNodeChangedWatcher';
@@ -13,6 +14,8 @@ export default class ImportModelWatcher implements ModelNodeChangedWatcher {
             node.get(CImportObj).dirty = true;
         } else if (componentClass === CImportFbx) {
             node.get(CImportFbx).dirty = true;
+        } else if (componentClass === CImportReadonlyGltf) {
+            node.get(CImportReadonlyGltf).dirty = true;
         }
     }
 

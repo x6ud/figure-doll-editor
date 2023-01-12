@@ -104,6 +104,47 @@
                                      @click="editorCtx.options.quadView = !editorCtx.options.quadView"
                     />
                 </popup-menu>
+                <popup-menu title="Sketchfab"
+                            dynamic-size
+                >
+                    <div class="properties">
+                        <template v-if="sketchfabClient.token.accessToken">
+                            <div class="cols" style="align-items: center; margin-bottom: 8px;">
+                                <input type="text"
+                                       placeholder="Sketchfab Model URL"
+                                       style="margin-right: 4px; width: 260px;"
+                                       v-model="sketchfabModelUrl"
+                                       @keydown.enter="onSketchfabImportModel"
+                                >
+                                <button class="normal-button"
+                                        style="font-size: 8px; padding: 2px 6px;"
+                                        @click="onSketchfabImportModel"
+                                >
+                                    Import
+                                </button>
+                            </div>
+                            <div class="cols" style="align-items: center;">
+                                <div class="fill"></div>
+                                <div style="margin-right: 4px;">
+                                    {{ sketchfabClient.user.displayName }}
+                                </div>
+                                <button class="normal-button"
+                                        @click="onSketchfabLogout"
+                                        style="font-size: 8px; padding: 2px 6px;"
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <button class="normal-button"
+                                    @click="onSketchfabLogin"
+                            >
+                                Sketchfab Login
+                            </button>
+                        </template>
+                    </div>
+                </popup-menu>
                 <popup-menu title="Camera"
                             dynamic-size
                 >
@@ -387,6 +428,26 @@
         />
     </popup-dialog>
 
+    <popup-dialog v-if="downloadProgressDialog"
+                  :visible="downloadProgressDialog"
+                  modal
+                  title="Downloading"
+    >
+        <div class="cols" style="align-items: center;">
+            <div class="progress-bar"
+                 style="width: 260px; margin-right: 4px;"
+            >
+                <div class="progress"
+                     :style="{width: `${downloadProgressPercent}%`}"
+                ></div>
+                <div class="text">
+                    {{ downloadProgressText }} / {{ downloadTotalText }}
+                </div>
+            </div>
+            <button class="normal-button" @click="downloadCancelFlag = true">Cancel</button>
+        </div>
+    </popup-dialog>
+
     <fullscreen-loading v-if="fullscreenLoading"/>
 </template>
 
@@ -444,5 +505,32 @@
     font-size: 12px;
     padding: 0 2px;
     background: #111;
+}
+
+.progress-bar {
+    position: relative;
+    height: 24px;
+    background: #333;
+    border-radius: 3px;
+    overflow: hidden;
+
+    .progress {
+        position: absolute;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        height: 100%;
+        background: #3390FF;
+    }
+
+    .text {
+        display: inline-flex;
+        align-items: center;
+        position: absolute;
+        z-index: 2;
+        top: 0;
+        right: .5em;
+        height: 100%;
+    }
 }
 </style>

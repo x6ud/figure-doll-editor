@@ -5,7 +5,7 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes: [
         {
-            path: '/',
+            path: '/:pathMatch(.*)',
             component: Editor
         }
     ]

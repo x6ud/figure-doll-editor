@@ -25,7 +25,7 @@
                 ></div>
             </div>
             <img class="node-icon" :src="icon" alt="">
-            <span>{{ name }}</span>
+            <span class="node-name">{{ name }}</span>
         </div>
     </div>
     <template v-if="node.expanded">
@@ -164,6 +164,13 @@
             .icon {
                 width: 100%;
             }
+        }
+
+        .node-name {
+            flex: 1 1;
+            min-width: 0;
+            white-space: nowrap;
+            overflow: hidden;
         }
     }
 }

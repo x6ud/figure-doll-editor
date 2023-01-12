@@ -4,6 +4,7 @@ import CBoxSize from './components/CBoxSize';
 import CCastShadow from './components/CCastShadow';
 import CColor from './components/CColor';
 import CColors from './components/CColors';
+import CCredit from './components/CCredit';
 import CEmissive from './components/CEmissive';
 import './components/CFlipDirection';
 import CGroundColor from './components/CGroundColor';
@@ -14,6 +15,7 @@ import CIkNodeRotation from './components/CIkNodeRotation';
 import CImage from './components/CImage';
 import CImportFbx from './components/CImportFbx';
 import CImportObj from './components/CImportObj';
+import CImportReadonlyGltf from './components/CImportReadonlyGltf';
 import CIntensity from './components/CIntensity';
 import CLightHelper from './components/CLightHelper';
 import CMapSize from './components/CMapSize';
@@ -45,6 +47,7 @@ import iconFbxModel from './icons/FbxModel.png';
 import iconIKChain from './icons/IKChain.png';
 import iconIKNode from './icons/IKNode.png';
 import iconImage from './icons/Image.png';
+import iconImportModel from './icons/ImportModel.png';
 import iconLight from './icons/Light.png';
 import iconMirror from './icons/Mirror.png';
 import iconObjModel from './icons/ObjModel.png';
@@ -223,6 +226,20 @@ export const modelNodeDefs: ModelNodeDef[] = [
         showInList: true,
         instanceable: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImportFbx],
+        canBeRoot: true,
+        validChildTypes: [],
+    },
+    {
+        name: 'ImportModel',
+        label: 'Import Model',
+        icon: iconImportModel,
+        showInList: false,
+        instanceable: true,
+        components: [
+            CCredit,
+            CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D,
+            CImportReadonlyGltf,
+        ],
         canBeRoot: true,
         validChildTypes: [],
     },
