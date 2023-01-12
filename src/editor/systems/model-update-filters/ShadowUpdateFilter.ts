@@ -1,4 +1,4 @@
-import {Group} from 'three';
+import {Object3D} from 'three';
 import EditorContext from '../../EditorContext';
 import CCastShadow from '../../model/components/CCastShadow';
 import CObject3D from '../../model/components/CObject3D';
@@ -18,22 +18,21 @@ export default class ShadowUpdateFilter implements ModelNodeUpdateFilter {
         if (!object) {
             return;
         }
-        if ((object as Group).isGroup) {
-            for (let child of object.children) {
-                if (node.has(CCastShadow)) {
-                    child.castShadow = node.value(CCastShadow);
-                }
-                if (node.has(CReceiveShadow)) {
-                    child.receiveShadow = node.value(CReceiveShadow);
-                }
+        const castShadow = node.has(CCastShadow) ? node.value(CCastShadow) : null;
+        const receiveShadow = node.has(CReceiveShadow) ? node.value(CReceiveShadow) : null;
+        const stack: Object3D[] = [object];
+        while (stack.length) {
+            const obj = stack.pop();
+            if (!obj) {
+                break;
             }
-        } else {
-            if (node.has(CCastShadow)) {
-                object.castShadow = node.value(CCastShadow);
+            if (castShadow != null) {
+                obj.castShadow = castShadow;
             }
-            if (node.has(CReceiveShadow)) {
-                object.receiveShadow = node.value(CReceiveShadow);
+            if (receiveShadow != null) {
+                obj.receiveShadow = receiveShadow;
             }
+            stack.push(...obj.children);
         }
     }
 }
