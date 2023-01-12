@@ -163,6 +163,9 @@ export default defineComponent({
                 await showAlertDialog('This application is only available in Chrome or Edge.\nCannot open or save files in the current browser.');
             }
             sketchfabClient.parseRouterPath(router.currentRoute.value.fullPath);
+            if (router.currentRoute.value.fullPath.length > 1) {
+                await router.push('/');
+            }
         });
 
         function focus() {
