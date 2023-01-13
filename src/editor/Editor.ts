@@ -21,16 +21,23 @@ import SidePanel from './components/SidePanel/SidePanel.vue';
 import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import EditorContext from './EditorContext';
 import CameraConfig from './model/CameraConfig';
+import CCastShadow from './model/components/CCastShadow';
+import CColor from './model/components/CColor';
 import CColors from './model/components/CColors';
 import CCredit from './model/components/CCredit';
+import CEmissive from './model/components/CEmissive';
 import CFlipDirection from './model/components/CFlipDirection';
 import CIkNode from './model/components/CIkNode';
 import CIkNodeRotation from './model/components/CIkNodeRotation';
 import CImportReadonlyGltf from './model/components/CImportReadonlyGltf';
+import CMetalness from './model/components/CMetalness';
 import CName from './model/components/CName';
 import CObject3D from './model/components/CObject3D';
+import COpacity from './model/components/COpacity';
 import CPosition from './model/components/CPosition';
+import CReceiveShadow from './model/components/CReceiveShadow';
 import CRotation from './model/components/CRotation';
+import CRoughness from './model/components/CRoughness';
 import CScale from './model/components/CScale';
 import CSdfDirty from './model/components/CSdfDirty';
 import CVertices from './model/components/CVertices';
@@ -912,17 +919,23 @@ export default defineComponent({
             for (let i = 0, len = verticesArr.length; i < len; ++i) {
                 const vertices = verticesArr[i];
                 const colors = colorsArr[i];
+                const data: { [name: string]: any } = {
+                    [CVertices.name]: vertices,
+                    [CColors.name]: colors || undefined,
+                };
+                const classes: Class<ModelNodeComponent<any>>[] = [
+                    CName, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale,
+                    CRoughness, CMetalness, CColor, CEmissive, COpacity
+                ];
+                for (let componentClass of classes) {
+                    if (node.has(componentClass)) {
+                        data[componentClass.name] = node.cloneValue(componentClass);
+                    }
+                }
                 ctx.history.createNode({
                     type: 'Clay',
                     parentId: parent ? parent.id : 0,
-                    data: {
-                        [CName.name]: node.value(CName),
-                        [CPosition.name]: node.cloneValue(CPosition),
-                        [CRotation.name]: node.cloneValue(CRotation),
-                        [CScale.name]: node.cloneValue(CScale),
-                        [CVertices.name]: vertices,
-                        [CColors.name]: colors || undefined,
-                    }
+                    data,
                 });
             }
             ctx.history.removeNode(node.id);
