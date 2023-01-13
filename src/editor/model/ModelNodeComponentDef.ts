@@ -16,14 +16,15 @@ export type ModelNodeComponentDef = {
     storable?: boolean;
     /** Data type when writing to file */
     dataType?: DataType;
-    /** Whether to keep an own value in the shadow node */
+    /** Whether to keep an own value in shadow node */
     instanceable?: boolean;
-    /** Whether to auto copy the target value when the original node is modified in the shadow node */
+    /** Whether to auto copy the target value to shadow node when the original node is modified */
     autoCopy?: boolean;
     /** Used to skip identical values when writing history */
     equal?: (a: any, b: any) => boolean,
     /** Label display in the properties panel */
     label?: string;
+    /** Display label and input component in same line */
     inlineLabel?: boolean;
     inputComponent?: Component;
     inputComponentProps?: { [prop: string]: any };

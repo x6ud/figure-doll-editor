@@ -5,6 +5,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 @registerModelComponent({
     storable: true,
     dataType: DataType.NUMBER,
+    autoCopy: true,
     label: 'Angle',
     inputComponent: InputRange,
     inputComponentProps: {min: 0, max: 90, step: 0.1}

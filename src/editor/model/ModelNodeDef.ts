@@ -61,18 +61,23 @@ import ModelNodeComponent from './ModelNodeComponent';
 export type ModelNodeDef = {
     /** A unique name */
     name: string;
-    /** Name display in adding new node menu */
+    /** Name display in the add new node menu */
     label: string;
     icon: string;
-    /** Whether to display in adding new node menu */
+    /** Whether to display in the add new node menu */
     showInList: boolean;
     /** Cannot be moved or deleted */
     fixed?: boolean;
+    /** Only one this type of node can exist in each parent node */
     unique?: boolean;
     /** Whether shadow node can be created */
     instanceable?: boolean;
+    /** Whether node has mesh */
     mesh?: boolean;
+    /** Whether node is light */
+    light?: boolean;
     components: Class<ModelNodeComponent<any>>[];
+    /** Whether parent can be null */
     canBeRoot: boolean;
     validChildTypes: string[];
     defaultData?: { [name: string]: any };
@@ -88,7 +93,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
-        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'ImportModel', 'Box', 'Shape', 'Clay', 'Mirror'],
+        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'ImportModel', 'Box', 'Shape', 'Clay', 'Mirror', 'AmbientLight', 'HemisphereLight', 'DirectionalLight', 'PointLight', 'SpotLight'],
     },
     {
         name: 'IKChain',
@@ -108,7 +113,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation],
         canBeRoot: false,
-        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'ImportModel', 'Box', 'Shape', 'Clay', 'Mirror'],
+        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'ImportModel', 'Box', 'Shape', 'Clay', 'Mirror', 'AmbientLight', 'HemisphereLight', 'DirectionalLight', 'PointLight', 'SpotLight'],
     },
     {
         name: 'Box',
@@ -204,7 +209,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Image',
         icon: iconImage,
         showInList: true,
-        instanceable: false,
+        instanceable: true,
         mesh: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
         canBeRoot: true,
@@ -266,6 +271,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Target',
         icon: iconTarget,
         showInList: false,
+        instanceable: true,
         fixed: true,
         unique: true,
         components: [CPosition, CObject3D],
@@ -277,6 +283,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Ambient Light',
         icon: iconLight,
         showInList: true,
+        instanceable: true,
+        light: true,
         components: [CName, CVisible, CObject3D, CIntensity, CColor],
         canBeRoot: true,
         defaultData: {[CIntensity.name]: 0.2},
@@ -287,6 +295,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Hemisphere Light',
         icon: iconLight,
         showInList: true,
+        instanceable: true,
+        light: true,
         components: [CName, CVisible, CPosition, CObject3D, CLightHelper, CIntensity, CSkyColor, CGroundColor],
         canBeRoot: true,
         validChildTypes: [],
@@ -297,6 +307,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Directional Light',
         icon: iconLight,
         showInList: true,
+        instanceable: true,
+        light: true,
         components: [CName, CVisible, CCastShadow, CMapSize, CShadowMappingRange, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
         validChildTypes: ['Target'],
@@ -308,6 +320,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Point Light',
         icon: iconLight,
         showInList: true,
+        instanceable: true,
+        light: true,
         components: [CName, CVisible, CCastShadow, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
         validChildTypes: [],
@@ -318,6 +332,8 @@ export const modelNodeDefs: ModelNodeDef[] = [
         label: 'Spot Light',
         icon: iconLight,
         showInList: true,
+        instanceable: true,
+        light: true,
         components: [
             CName, CVisible,
             CCastShadow, CMapSize, CPenumbra, CSpotLightAngle,

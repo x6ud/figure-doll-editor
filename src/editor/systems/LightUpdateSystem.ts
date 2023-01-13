@@ -2,15 +2,8 @@ import {AmbientLight, Light} from 'three';
 import EditorContext from '../EditorContext';
 import CLightHelper from '../model/components/CLightHelper';
 import CObject3D from '../model/components/CObject3D';
+import {getModelNodeDef} from '../model/ModelNodeDef';
 import UpdateSystem from '../utils/UpdateSystem';
-
-const LIGHT_TYPES = new Set([
-    'AmbientLight',
-    'HemisphereLight',
-    'DirectionalLight',
-    'PointLight',
-    'SpotLight',
-]);
 
 export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
     private ambientLight = new AmbientLight(0xffffff, 0.5);
@@ -40,8 +33,8 @@ export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
         }
         const useRealLights = ctx.options.shadingMode === 'rendered';
         const showLightHelpers = ctx.options.showLightHelpers;
-        for (let node of ctx.model.nodes) {
-            if (LIGHT_TYPES.has(node.type)) {
+        ctx.model.forEach(node => {
+            if (getModelNodeDef(node.type).light) {
                 const light = node.value(CObject3D) as Light;
                 const visible = node.visible;
                 if (light) {
@@ -59,7 +52,7 @@ export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
                     }
                 }
             }
-        }
+        });
     }
 
     end(ctx: EditorContext): void {

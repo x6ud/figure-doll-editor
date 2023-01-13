@@ -5,6 +5,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 @registerModelComponent({
     storable: true,
     dataType: DataType.NUMBER,
+    autoCopy: true,
     label: 'Height',
     inputComponent: InputNumber,
     inputComponentProps: {min: 0, step: 0.001},

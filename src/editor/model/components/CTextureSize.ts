@@ -5,6 +5,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
 @registerModelComponent({
     storable: true,
     dataType: DataType.STRING,
+    autoCopy: true,
     label: 'Texture Quality',
     inputComponent: InputSelect,
     inputComponentProps: {options: ['128', '256', '512', '1024', '2048']}

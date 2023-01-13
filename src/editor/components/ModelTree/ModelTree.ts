@@ -121,7 +121,7 @@ export default defineComponent({
                 return false;
             }
             const def = getModelNodeDef(node.type);
-            return !!def.instanceable;
+            return !!def.instanceable && !def.unique;
         });
 
         function onCreateInstance(mirror: string) {
