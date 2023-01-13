@@ -982,6 +982,7 @@ export default defineComponent({
 
             const baseMat = new Matrix4();
             const invBaseMat = new Matrix4();
+            const flipDir = new Vector3();
             const flipDirWorld = new Vector3();
             const flipOriginWorld = new Vector3();
             if (mirror !== 'none') {
@@ -989,16 +990,16 @@ export default defineComponent({
                 invBaseMat.copy(baseMat).invert();
                 switch (mirror) {
                     case 'x':
-                        flipDirWorld.set(1, 0, 0);
+                        flipDir.set(1, 0, 0);
                         break;
                     case 'y':
-                        flipDirWorld.set(0, 1, 0);
+                        flipDir.set(0, 1, 0);
                         break;
                     case 'z':
-                        flipDirWorld.set(0, 0, 1);
+                        flipDir.set(0, 0, 1);
                         break;
                 }
-                flipDirWorld.transformDirection(baseMat);
+                flipDirWorld.copy(flipDir).transformDirection(baseMat);
                 flipOriginWorld.applyMatrix4(baseMat);
             }
 
@@ -1026,7 +1027,7 @@ export default defineComponent({
                     parentMat0 = parentMat0!;
                     parentMat1 = parentMat1!;
                     invParentMat1 = invParentMat1!;
-                    newNode.data[CFlipDirection.name] = new Vector3().copy(flipDirWorld).transformDirection(invBaseMat);
+                    newNode.data[CFlipDirection.name] = new Vector3().copy(flipDir);
                     _localTranslation1.set(0, 0, 0);
                     _localRotation1.set(0, 0, 0, 1);
                     _localScale1.set(1, 1, 1);

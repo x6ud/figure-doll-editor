@@ -6,6 +6,7 @@ import {
     Matrix4,
     Mesh,
     Object3D,
+    Quaternion,
     Vector3
 } from 'three';
 import {toRaw} from 'vue';
@@ -14,7 +15,9 @@ import CFlipDirection from '../model/components/CFlipDirection';
 import CObject3D, {Object3DUserData} from '../model/components/CObject3D';
 import CVisible from '../model/components/CVisible';
 import ModelNode from '../model/ModelNode';
+import {getModelNodeDef} from '../model/ModelNodeDef';
 import {hashFloat32x3} from '../utils/hash';
+import {getAxisAngle} from '../utils/math';
 import UpdateSystem from '../utils/UpdateSystem';
 
 export interface ModelNodeUpdateFilter {
@@ -24,13 +27,17 @@ export interface ModelNodeUpdateFilter {
 type InstanceObject3DUserData = Object3DUserData & {
     origin: Object3D,
     instanceId: number,
+    relatedMatOrigin?: Matrix4,
+    relatedMatFlipped?: Matrix4,
 };
 
 const _dirtyNodes: ModelNode[] = [];
 const _v = new Vector3();
-const _flipDir = new Vector3();
-const _flipDirWorld = new Vector3();
-const _invBaseMat = new Matrix4();
+const _translation = new Vector3();
+const _rotation = new Quaternion();
+const _parentMat0 = new Matrix4();
+const _invParentMat1 = new Matrix4();
+const _axis = new Vector3();
 
 export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
 
@@ -74,6 +81,10 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
             ctx.model.forEach(node => {
                 if (node.instanceId && node.instanceMeshDirty) {
                     node.instanceMeshDirty = false;
+                    const def = getModelNodeDef(node.type);
+                    if (!def.mesh) {
+                        return;
+                    }
                     let rebuild = node.instanceMeshRebuild;
                     if (node.instanceMeshRebuild) {
                         node.instanceMeshRebuild = false;
@@ -178,24 +189,44 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
             Math.round(flipDir.y / ACCURACY) * ACCURACY,
             Math.round(flipDir.z / ACCURACY) * ACCURACY,
         );
-        const baseMat = obj.matrixWorld;
-        _flipDirWorld.copy(flipDir).transformDirection(baseMat);
-        _invBaseMat.copy(baseMat).invert();
-        const stack: Object3D[] = [obj];
+        const base = obj;
+        const stack: Object3D[] = [base];
         while (stack.length) {
-            const obj = stack.pop();
+            const obj = stack.shift();
             if (!obj) {
                 break;
             }
+            const userData = obj.userData as InstanceObject3DUserData;
+            if (!userData.relatedMatOrigin) {
+                userData.relatedMatOrigin = new Matrix4();
+                userData.relatedMatFlipped = new Matrix4();
+            }
+            if (obj !== base) {
+                const parent = (obj.parent!.userData as InstanceObject3DUserData);
+                _parentMat0.copy(parent.relatedMatOrigin!);
+                _invParentMat1.copy(parent.relatedMatFlipped!).invert();
+                const origin = userData.origin;
+                _translation.copy(origin.position);
+                _translation.applyMatrix4(_parentMat0).reflect(flipDir).applyMatrix4(_invParentMat1);
+                _rotation.copy(origin.quaternion);
+                const angle = getAxisAngle(_axis, _rotation);
+                _axis.applyMatrix4(_parentMat0).reflect(flipDir).applyMatrix4(_invParentMat1);
+                _axis.normalize();
+                _rotation.setFromAxisAngle(_axis, -angle);
+                obj.position.copy(_translation);
+                obj.quaternion.copy(_rotation);
+                obj.updateMatrix();
+                obj.updateMatrixWorld(true);
+                userData.relatedMatOrigin.multiplyMatrices(_parentMat0, origin.matrix);
+                userData.relatedMatFlipped!.multiplyMatrices(parent.relatedMatFlipped!, obj.matrix);
+            }
             if ((obj as Mesh).isMesh) {
-                const userData = obj.userData as InstanceObject3DUserData;
-                _flipDir.copy(flipDir).transformDirection(obj.matrixWorld).transformDirection(_invBaseMat);
                 this.mirrorMesh(
                     targetNode,
                     cacheHash + '/' + userData.instanceId,
                     obj as Mesh,
                     userData.origin as Mesh,
-                    _flipDir
+                    flipDir
                 );
             }
             stack.push(...obj.children);

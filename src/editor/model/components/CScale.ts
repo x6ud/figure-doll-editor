@@ -11,7 +11,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     },
     label: 'Scale',
     inputComponent: InputNumber,
-    inputComponentProps: {resettable: true, defaultValue: 1, step: 0.001},
+    inputComponentProps: {resettable: true, defaultValue: 1},
 })
 export default class CScale extends ModelNodeComponent<number> {
     value = 1.0;
