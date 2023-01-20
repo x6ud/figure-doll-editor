@@ -226,7 +226,11 @@ export const modelNodeDefs: ModelNodeDef[] = [
         showInList: true,
         instanceable: true,
         mesh: true,
-        components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImportObj],
+        components: [
+            CName, CVisible, CCastShadow, CReceiveShadow,
+            CPosition, CRotation, CScale,
+            COpacity, CObject3D, CImportObj
+        ],
         canBeRoot: true,
         validChildTypes: [],
     },
@@ -237,7 +241,11 @@ export const modelNodeDefs: ModelNodeDef[] = [
         showInList: true,
         instanceable: true,
         mesh: true,
-        components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImportFbx],
+        components: [
+            CName, CVisible, CCastShadow, CReceiveShadow,
+            CPosition, CRotation, CScale,
+            COpacity, CObject3D, CImportFbx
+        ],
         canBeRoot: true,
         validChildTypes: [],
     },

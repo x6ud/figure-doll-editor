@@ -23,10 +23,13 @@
             <popup-menu-item title="Focus" @click="onFocus"
                              :disabled="!contextMenuNode"
             />
-            <template v-if="canConvertToClay || canCreateInstance">
+            <template v-if="canConvertToClay || canApplyTransformation || canCreateInstance">
                 <popup-menu-item sep/>
                 <template v-if="canConvertToClay">
                     <popup-menu-item title="Convert to Clay" @click="onConvertToClay"/>
+                </template>
+                <template v-if="canApplyTransformation">
+                    <popup-menu-item title="Apply Transformation" @click="onApplyTransformation"/>
                 </template>
                 <template v-if="canCreateInstance">
                     <popup-menu-item title="Create Shadow Node" @click="onCreateInstance('none')"/>

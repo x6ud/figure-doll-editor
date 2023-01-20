@@ -1,3 +1,4 @@
+import {Matrix4} from 'three';
 import {computed, defineComponent, ref, toRaw} from 'vue';
 import Class from '../../../common/type/Class';
 import Model from '../../model/Model';
@@ -26,6 +27,7 @@ export default defineComponent({
         'paste',
         'delete',
         'convertToClay',
+        'applyTransformation',
         'createInstance',
     ],
     setup(props, ctx) {
@@ -115,6 +117,22 @@ export default defineComponent({
             ctx.emit('convertToClay', contextMenuNode.value);
         }
 
+        const canApplyTransformation = computed(function () {
+            const node = contextMenuNode.value;
+            if (!node) {
+                return false;
+            }
+            if (!node.instanceId && node.type === 'Clay') {
+                const mat = node.getLocalMatrix();
+                return !mat.equals(new Matrix4());
+            }
+            return false;
+        });
+
+        function onApplyTransformation() {
+            ctx.emit('applyTransformation', contextMenuNode.value);
+        }
+
         const canCreateInstance = computed(function () {
             const node = contextMenuNode.value;
             if (!node) {
@@ -173,6 +191,8 @@ export default defineComponent({
             onDelete,
             canConvertToClay,
             onConvertToClay,
+            canApplyTransformation,
+            onApplyTransformation,
             canCreateInstance,
             onCreateInstance,
             onRangeSelect,

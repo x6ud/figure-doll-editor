@@ -140,7 +140,7 @@ export default class ModelNode {
         const ret: { [name: string]: any } = {};
         for (let componentName in this.components) {
             const componentDef = getModelNodeComponentDef(componentName);
-            if (instanceableOnly && !componentDef.instanceable) {
+            if (instanceableOnly && !(componentDef.instanceable || componentDef.autoCopy)) {
                 continue;
             }
             if (componentDef.storable) {

@@ -941,6 +941,25 @@ export default defineComponent({
             ctx.history.removeNode(node.id);
         }
 
+        function onApplyTransformation(node: ModelNode) {
+            node = toRaw(node);
+            const ctx = editorCtx.value!;
+            const mat = node.getLocalMatrix();
+            const vertices = node.cloneValue(CVertices);
+            const vertex = new Vector3();
+            for (let i = 0, len = vertices.length; i < len; i += 3) {
+                vertex.fromArray(vertices, i);
+                vertex.applyMatrix4(mat);
+                vertices[i] = vertex.x;
+                vertices[i + 1] = vertex.y;
+                vertices[i + 2] = vertex.z;
+            }
+            ctx.history.setValue(node, CVertices, vertices);
+            ctx.history.setValue(node, CPosition, new Vector3());
+            ctx.history.setValue(node, CRotation, new Euler());
+            ctx.history.setValue(node, CScale, 1);
+        }
+
         const canRemesh = computed(function () {
             const ctx = editorCtx.value;
             if (!ctx) {
@@ -1270,6 +1289,7 @@ export default defineComponent({
             onCopy,
             onPaste,
             onConvertToClay,
+            onApplyTransformation,
             onRemesh,
             onCreateInstance,
             onLoadCamera,
