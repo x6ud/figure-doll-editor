@@ -122,11 +122,7 @@ export default defineComponent({
             if (!node) {
                 return false;
             }
-            if (!node.instanceId && node.type === 'Clay') {
-                const mat = node.getLocalMatrix();
-                return !mat.equals(new Matrix4());
-            }
-            return false;
+            return !node.instanceId && node.type === 'Clay';
         });
 
         function onApplyTransformation() {
