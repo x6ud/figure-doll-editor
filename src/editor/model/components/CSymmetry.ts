@@ -9,6 +9,6 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     inputComponent: InputSelect,
     inputComponentProps: {options: ['none', 'x', 'y', 'z']}
 })
-export default class CSdfSymmetry extends ModelNodeComponent<'none' | 'x' | 'y' | 'z'> {
+export default class CSymmetry extends ModelNodeComponent<'none' | 'x' | 'y' | 'z'> {
     value: 'none' | 'x' | 'y' | 'z' = 'none';
 }

@@ -66,9 +66,6 @@ export default class IkRotateTool extends EditorTool {
             for (let i = 0, len = chain.children.length; i < len; ++i) {
                 const node = chain.children[i];
                 const cIkNode = node.get(CIkNode);
-                if (cIkNode.boneMesh) {
-                    cIkNode.boneMesh.visible = true;
-                }
                 if (cIkNode.rotateHandler) {
                     cIkNode.rotateHandler.visible = true;
                 }

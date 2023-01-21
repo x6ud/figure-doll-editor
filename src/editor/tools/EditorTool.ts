@@ -4,6 +4,7 @@ import EditorView from '../EditorView';
 import ModelNode from '../model/ModelNode';
 import DynamicMesh from '../utils/geometry/dynamic/DynamicMesh';
 import {pixelLine} from '../utils/pixel';
+import CSymmetry from "../model/components/CSymmetry";
 
 const _sphere = new Sphere();
 const _ray = new Ray();
@@ -111,6 +112,7 @@ export default abstract class EditorTool {
         if (ctx.sculptStartThisFrame) {
             ctx.sculptAccWalkedPixels = minSpacing;
         }
+        const symmetry = node.value(CSymmetry);
         pixelLine(
             ctx.sculptX0, ctx.sculptY0, ctx.sculptX1, ctx.sculptY1,
             (x, y) => {
@@ -153,11 +155,7 @@ export default abstract class EditorTool {
                         }
                     }
                 }
-                if (!ctx.sculptSym) {
-                    track.push({center: result.point, triangles, indices});
-                    return;
-                }
-                switch (ctx.options.symmetry) {
+                switch (symmetry) {
                     case 'x':
                         _sphere.center.x *= -1;
                         _ray.direction.x *= -1;
@@ -170,6 +168,10 @@ export default abstract class EditorTool {
                         _sphere.center.z *= -1;
                         _ray.direction.z *= -1;
                         break;
+                    default: {
+                        track.push({center: result.point, triangles, indices});
+                        return;
+                    }
                 }
                 const trianglesSym = mesh.intersectSphere(_sphere);
                 const indicesSym: number[] = [];

@@ -194,7 +194,7 @@
                                 <span style="font-size: 16px; font-weight: bold;">
                                     Figure Doll Editor
                                 </span>
-                                Ver 20230121 (Developing)
+                                Ver 20230122 (Developing)
                             </div>
                             <div style="margin-bottom: 6px;">Author: x6udpngx</div>
                             <div>
@@ -281,15 +281,6 @@
                             <img src="./icons/minus.png" alt="">
                         </button>
                     </div>
-                    <select v-model="editorCtx.options.symmetry"
-                            title="Symmetry"
-                            style="margin-right: 6px"
-                    >
-                        <option value="no">No Symm</option>
-                        <option value="x">Symm X</option>
-                        <option value="y">Symm Y</option>
-                        <option value="z">Symm Z</option>
-                    </select>
                     <popup-menu title="Remesh"
                                 class-name="normal-button dropdown"
                                 v-if="canRemesh"

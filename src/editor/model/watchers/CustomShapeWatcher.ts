@@ -1,7 +1,7 @@
 import Class from '../../../common/type/Class';
 import CSdfDirty from '../components/CSdfDirty';
 import CSdfOperator from '../components/CSdfOperator';
-import CSdfSymmetry from '../components/CSdfSymmetry';
+import CSymmetry from '../components/CSymmetry';
 import CTube from '../components/CTube';
 import Model from '../Model';
 import ModelNode from '../ModelNode';
@@ -22,7 +22,7 @@ export default class CustomShapeWatcher implements ModelNodeChangedWatcher {
                 node.parent.dirty = true;
                 node.parent.get(CSdfDirty).value = true;
             }
-        } else if (componentClass === CSdfSymmetry) {
+        } else if (componentClass === CSymmetry && node.type === 'Shape') {
             node.get(CSdfDirty).value = true;
         }
     }

@@ -31,7 +31,7 @@ import CRoughness from './components/CRoughness';
 import CScale from './components/CScale';
 import CSdfDirty from './components/CSdfDirty';
 import CSdfOperator from './components/CSdfOperator';
-import CSdfSymmetry from './components/CSdfSymmetry';
+import CSymmetry from './components/CSymmetry';
 import CShadowMappingRange from './components/CShadowMappingRange';
 import CSkyColor from './components/CSkyColor';
 import CSpotLightAngle from './components/CSpotLightAngle';
@@ -163,7 +163,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
             COpacity,
             CObject3D,
             CSdfDirty,
-            CSdfSymmetry,
+            CSymmetry,
         ],
         canBeRoot: true,
         validChildTypes: ['Tube'],
@@ -200,6 +200,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
             CObject3D,
             CVertices,
             CColors,
+            CSymmetry,
         ],
         canBeRoot: true,
         validChildTypes: [],

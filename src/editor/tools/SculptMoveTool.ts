@@ -6,6 +6,7 @@ import CVertices from '../model/components/CVertices';
 import {linePanelIntersection} from '../utils/math';
 import EditorTool, {SculptToolStroke} from './EditorTool';
 import icon from './SculptMove.png';
+import CSymmetry from "../model/components/CSymmetry";
 
 const _mouse1 = new Vector3();
 const _det = new Vector3();
@@ -76,7 +77,7 @@ export default class SculptMoveTool extends EditorTool {
         const position = new Float32Array(this.stroke0.position);
         if (ctx.sculptSym) {
             _detSym.copy(_det);
-            switch (ctx.options.symmetry) {
+            switch (node.value(CSymmetry)) {
                 case 'x':
                     _detSym.x *= -1;
                     break;

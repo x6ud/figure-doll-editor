@@ -3,7 +3,7 @@ import EditorContext from '../../EditorContext';
 import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
 import CSdfDirty from '../../model/components/CSdfDirty';
 import CSdfOperator from '../../model/components/CSdfOperator';
-import CSdfSymmetry from '../../model/components/CSdfSymmetry';
+import CSymmetry from '../../model/components/CSymmetry';
 import CTube from '../../model/components/CTube';
 import ModelNode from '../../model/ModelNode';
 import SdfMeshBuilder from '../../utils/geometry/SdfMeshBuilder';
@@ -40,7 +40,7 @@ export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
                 }
                 cSdfDirty.throttleHash = '';
                 const builder = new SdfMeshBuilder();
-                switch (node.value(CSdfSymmetry)) {
+                switch (node.value(CSymmetry)) {
                     case 'x':
                         builder.symmetryAxis = 0;
                         break;

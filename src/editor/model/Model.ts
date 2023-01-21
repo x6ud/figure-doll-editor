@@ -172,20 +172,22 @@ export default class Model {
             return;
         }
         const node = this.getNode(id);
-        node.deleted = true;
         if (node.parent) {
             for (let watcher of this.watchers) {
                 watcher.onBeforeChildRemoved(this, node.parent, node);
             }
         }
+        node.deleted = true;
         this.instanceMeshUpdated(id, true);
-        if (node.instanceId) {
-            const refIds = this.referenceMap.get(node.instanceId);
-            if (refIds) {
-                this.referenceMap.set(node.instanceId, refIds.filter(refId => refId !== id));
+        node.forEach(node => {
+            if (node.instanceId) {
+                const refIds = this.referenceMap.get(node.instanceId);
+                if (refIds) {
+                    this.referenceMap.set(node.instanceId, refIds.filter(refId => refId !== node.id));
+                }
+                this.instanceDirty = true;
             }
-            this.instanceDirty = true;
-        }
+        });
         for (let hash in node.mirrorGeometry) {
             node.mirrorGeometry[hash]?.dispose();
             delete node.mirrorGeometry[hash];

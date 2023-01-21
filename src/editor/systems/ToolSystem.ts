@@ -8,6 +8,7 @@ import {getScaleScalar} from '../utils/math';
 import SelectionRect from '../utils/SelectionRect';
 import UpdateSystem from '../utils/UpdateSystem';
 import ModelNode from "../model/ModelNode";
+import CSymmetry from "../model/components/CSymmetry";
 
 const _forward = new Vector3(0, 0, 1);
 const _pos = new Vector3();
@@ -158,7 +159,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
             this.sculptIndicator.visible = false;
             this.sculptIndicatorSym.visible = false;
             ctx.sculptNodeId = 0;
-            ctx.sculptSym = ctx.options.symmetry !== 'no';
+            ctx.sculptSym = false;
             ctx.sculptMoved = false;
             if (this.sculptPicked) {
                 let mouseLeft = false;
@@ -185,6 +186,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 break;
             }
             ctx.sculptNodeId = clay.id;
+            ctx.sculptSym = clay.value(CSymmetry) !== 'none';
             for (let view of ctx.views) {
                 view = toRaw(view);
                 if (!view.enabled) {
@@ -241,26 +243,25 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                     brushSize *= (view.camera.orthographicCamera.top - view.camera.orthographicCamera.bottom);
                 }
                 this.sculptIndicator.scale.setScalar(brushSize);
-
                 ctx.sculptLocalRadius = brushSize * getScaleScalar(_invMat);
-                _pos.copy(result.point);
-                _normal.copy(result.normal);
-                switch (ctx.options.symmetry) {
-                    case 'x':
-                        _pos.x *= -1;
-                        _normal.x *= -1;
-                        break;
-                    case 'y':
-                        _pos.y *= -1;
-                        _normal.y *= -1;
-                        break;
-                    case 'z':
-                        _pos.z *= -1;
-                        _normal.z *= -1;
-                        break;
-                }
 
                 if (this.sculptIndicatorSym.visible) {
+                    _pos.copy(result.point);
+                    _normal.copy(result.normal);
+                    switch (clay.value(CSymmetry)) {
+                        case 'x':
+                            _pos.x *= -1;
+                            _normal.x *= -1;
+                            break;
+                        case 'y':
+                            _pos.y *= -1;
+                            _normal.y *= -1;
+                            break;
+                        case 'z':
+                            _pos.z *= -1;
+                            _normal.z *= -1;
+                            break;
+                    }
                     this.sculptIndicatorSym.position.copy(_pos).applyMatrix4(mat);
                     _normal.transformDirection(mat);
                     this.sculptIndicatorSym.quaternion.setFromUnitVectors(_forward, _normal);
