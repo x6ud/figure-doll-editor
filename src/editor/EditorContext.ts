@@ -55,11 +55,13 @@ import ToolSeperator from './tools/ToolSeperator';
 import TranslateTool from './tools/TranslateTool';
 import TubeTool from './tools/TubeTool';
 import UpdateSystem from './utils/UpdateSystem';
+import InstanceNodeUpdateFilter from "./systems/model-update-filters/InstanceNodeUpdateFilter";
 
 export default class EditorContext {
 
     systems: UpdateSystem<EditorContext>[] = [
         new ModelUpdateSystem([
+            new InstanceNodeUpdateFilter(),
             new LightUpdateFilter(),
             new ImageUpdateFilter(),
             new ImportModelUpdateFilter(),

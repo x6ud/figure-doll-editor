@@ -7,6 +7,7 @@ import {xyCirclePoints} from '../utils/geometry/helper';
 import {getScaleScalar} from '../utils/math';
 import SelectionRect from '../utils/SelectionRect';
 import UpdateSystem from '../utils/UpdateSystem';
+import ModelNode from "../model/ModelNode";
 
 const _forward = new Vector3(0, 0, 1);
 const _pos = new Vector3();
@@ -112,6 +113,14 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                                         ctx.model.selected = [];
                                     }
                                     ctx.model.addSelection(id);
+                                }
+                                if (input.doubleClick) {
+                                    let node: ModelNode | null = ctx.model.getNode(id);
+                                    node = node.parent;
+                                    while (node) {
+                                        node.expanded = true;
+                                        node = node.parent;
+                                    }
                                 }
                             } else {
                                 if (!view.input.isKeyPressed('Control')) {

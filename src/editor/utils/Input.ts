@@ -15,6 +15,7 @@ export default class Input {
     mouseRightDownThisFrame: boolean = false;
     mouseMiddle: boolean = false;
     mouseMiddleDownThisFrame: boolean = false;
+    doubleClick: boolean = false;
     wheelDetX: number = 0;
     wheelDetY: number = 0;
 
@@ -24,6 +25,7 @@ export default class Input {
     private readonly onPointerUp: (e: PointerEvent) => void;
     private readonly onPointerLeave: () => void;
     private readonly onPointerOut: (e: PointerEvent) => void;
+    private readonly onDblClick: (e: MouseEvent) => void;
     private readonly onWheel: (e: WheelEvent) => void;
     private readonly onKeyDown: (e: KeyboardEvent) => void;
     private readonly onKeyUp: (e: KeyboardEvent) => void;
@@ -99,6 +101,9 @@ export default class Input {
                 this.mouseLeftDownThisFrame = false;
             }
         };
+        this.onDblClick = (e: MouseEvent) => {
+            this.doubleClick = true;
+        };
         this.onWheel = (e: WheelEvent) => {
             e.preventDefault();
             this.wheelDetX += e.deltaX / 100;
@@ -137,6 +142,7 @@ export default class Input {
         element.addEventListener('pointerleave', this.onPointerLeave);
         document.addEventListener('pointerup', this.onPointerUp);
         document.addEventListener('pointerout', this.onPointerOut);
+        element.addEventListener('dblclick', this.onDblClick);
         element.addEventListener('wheel', this.onWheel);
         window.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('keyup', this.onKeyUp);
@@ -154,6 +160,7 @@ export default class Input {
         element.removeEventListener('pointerleave', this.onPointerLeave);
         document.removeEventListener('pointerup', this.onPointerUp);
         document.removeEventListener('pointerout', this.onPointerOut);
+        element.removeEventListener('dblclick', this.onDblClick);
         element.removeEventListener('wheel', this.onWheel);
         window.removeEventListener('keydown', this.onKeyDown);
         window.removeEventListener('keyup', this.onKeyUp);
@@ -165,6 +172,7 @@ export default class Input {
         this.mouseLeftDownThisFrame = false;
         this.mouseRightDownThisFrame = false;
         this.mouseMiddleDownThisFrame = false;
+        this.doubleClick = false;
         this.wheelDetX = 0;
         this.wheelDetY = 0;
         this.timestamp = Date.now();
