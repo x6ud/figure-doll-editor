@@ -77,6 +77,10 @@ export default class EditorView {
                 }
                 return !type || node.type === type;
             }
-        ));
+        ))
+            .filter(item => {
+                const node = (item.object.userData as Object3DUserData).node;
+                return node?.visible;
+            });
     }
 }

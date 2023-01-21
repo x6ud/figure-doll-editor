@@ -21,6 +21,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
 
     private selectionRect = new SelectionRect();
     private dragMovedFramesCount = 0;
+    private sculptPicked = false;
 
     private sculptIndicator = new LineSegments(
         new BufferGeometry().setFromPoints([
@@ -159,6 +160,19 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
             ctx.sculptNodeId = 0;
             ctx.sculptSym = ctx.options.symmetry !== 'no';
             ctx.sculptMoved = false;
+            if (this.sculptPicked) {
+                let mouseLeft = false;
+                for (let view of ctx.views) {
+                    if (view.input.mouseLeft) {
+                        mouseLeft = true;
+                        break;
+                    }
+                }
+                if (!mouseLeft) {
+                    this.sculptPicked = false;
+                }
+                break;
+            }
             if (!tool.sculpt) {
                 break;
             }
@@ -256,8 +270,8 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
             }
         } while (false);
 
+        // update tool
         tool.begin(ctx);
-
         for (let view of ctx.views) {
             view = toRaw(view);
             if (tool.enableTransformControls) {
@@ -269,15 +283,35 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 tool.update(ctx, view);
             }
         }
-
         tool.end(ctx);
 
+        // mouse picking for sculpt tool
+        if (tool.sculpt && !ctx.sculptNodeId) {
+            for (let view of ctx.views) {
+                view = toRaw(view);
+                const input = view.input;
+                if (input.pointerOver && input.mouseLeftDownThisFrame) {
+                    for (let picking of view.mousePick()) {
+                        const node = (picking.object.userData as Object3DUserData).node;
+                        if (node?.type === 'Clay') {
+                            ctx.model.addSelection(node.id);
+                            this.sculptPicked = true;
+                            ctx.sculptActiveView = -1;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // update tool tips
         if (toRaw(this.prevTool) !== tool) {
             this.prevTool?.onUnselected(ctx);
             this.prevTool = tool;
             ctx.statusBarMessage = tool.tips;
         }
 
+        // save options
         if (tool.optionsProps.length) {
             const options = ctx.options.tools[tool.constructor.name] = ctx.options.tools[tool.constructor.name] || {};
             for (let prop of tool.optionsProps) {

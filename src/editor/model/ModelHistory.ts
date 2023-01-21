@@ -52,7 +52,7 @@ export default class ModelHistory {
     private deletedNodes = new Set<number>();
     dirty = false;
     private lastEventTarget: EventTarget | null = null;
-    private onMouseDown = (e: MouseEvent) => {
+    private onPointerDown = (e: PointerEvent) => {
         this.lastEventTarget = e.target;
         this.enableMerge = false;
     };
@@ -68,12 +68,12 @@ export default class ModelHistory {
     }
 
     setup() {
-        window.addEventListener('mousedown', this.onMouseDown);
+        window.addEventListener('pointerdown', this.onPointerDown);
         window.addEventListener('keydown', this.onKeyDown);
     }
 
     unload() {
-        window.removeEventListener('mousedown', this.onMouseDown);
+        window.removeEventListener('pointerdown', this.onPointerDown);
         window.removeEventListener('keydown', this.onKeyDown);
     }
 
