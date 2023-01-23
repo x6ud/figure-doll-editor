@@ -177,7 +177,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
             if (!tool.sculpt) {
                 break;
             }
-            const clay = ctx.readonlyRef().model.getSelectedNodes().filter(node => node.type === 'Clay' && !node.instanceId)[0];
+            const clay = ctx.readonlyRef().model.getSelectedNodes().filter(node => node.type === 'Clay' && !node.instanceId && node.visible)[0];
             if (!clay) {
                 break;
             }

@@ -301,7 +301,6 @@ export default defineComponent({
                 fullscreenLoading.value = true;
                 await nextTick();
                 const file = await fileHandle.getFile();
-                filename.value = file.name;
                 const data = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
                 const idMap: { [id: number]: number } = {};
                 let nextId = ctx.history.getNextNodeId() + 1;

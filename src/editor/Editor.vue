@@ -194,7 +194,7 @@
                                 <span style="font-size: 16px; font-weight: bold;">
                                     Figure Doll Editor
                                 </span>
-                                Ver 20230122 (Developing)
+                                Ver 20230123 (Developing)
                             </div>
                             <div style="margin-bottom: 6px;">Author: x6udpngx</div>
                             <div>

@@ -52,6 +52,7 @@ export default class TranslateTool extends EditorTool {
             return;
         }
         const control = view.transformControls;
+        control.camera = view.camera.get();
         control.setMode('translate');
         control.setSpace(ctx.options.useLocalSpaceForTransformControl ? 'local' : 'world');
         control.setTranslationSnap(view.input.isKeyPressed('Shift') ? 0.25 : null);

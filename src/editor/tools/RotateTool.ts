@@ -57,6 +57,7 @@ export default class RotateTool extends EditorTool {
             return;
         }
         const control = view.transformControls;
+        control.camera = view.camera.get();
         control.setMode('rotate');
         control.setSpace(ctx.options.useLocalSpaceForTransformControl ? 'local' : 'world');
         control.setRotationSnap(view.input.isKeyPressed('Shift') ? 0.25 * Math.PI : null);

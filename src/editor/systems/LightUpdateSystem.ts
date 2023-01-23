@@ -1,4 +1,4 @@
-import {AmbientLight, Light} from 'three';
+import {AmbientLight, Light, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import CLightHelper from '../model/components/CLightHelper';
 import CObject3D from '../model/components/CObject3D';
@@ -23,7 +23,7 @@ export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
                 }
                 const light = view.defaultLight;
                 light.intensity = 0.5;
-                light.position.copy(view.camera._position);
+                light.position.copy(view.camera._position).addScaledVector(view.camera._dir, 2);
                 light.up.copy(view.camera._up);
                 light.lookAt(view.camera.target);
             }
