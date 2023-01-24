@@ -54,6 +54,7 @@ import {voxelizeRemesh} from './utils/geometry/voxelize-remesh';
 import {getAxisAngle, getTranslation} from './utils/math';
 import {progressiveDownload} from './utils/progressive-download';
 import {useSketchfabClient} from './utils/sketchfab';
+import CSymmetry from "./model/components/CSymmetry";
 
 const extension = '.doll';
 const filePickerAcceptType: FilePickerAcceptType = {
@@ -924,7 +925,7 @@ export default defineComponent({
                 };
                 const classes: Class<ModelNodeComponent<any>>[] = [
                     CName, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale,
-                    CRoughness, CMetalness, CColor, CEmissive, COpacity
+                    CRoughness, CMetalness, CColor, CEmissive, COpacity, CSymmetry,
                 ];
                 for (let componentClass of classes) {
                     if (node.has(componentClass)) {

@@ -81,7 +81,7 @@ export default class ProjectWriter {
             this.writeFloat64(view.camera.target.x);
             this.writeFloat64(view.camera.target.y);
             this.writeFloat64(view.camera.target.z);
-            this.writeBoolean(view.camera.perspective);
+            this.writeBoolean(view.index === ctx.mainViewIndex ? ctx.model.cameraPerspective : view.camera.perspective);
             this.writeFloat64(view.camera.perspectiveCamera.fov);
         }
         const model = ctx.model;

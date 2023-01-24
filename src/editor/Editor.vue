@@ -38,28 +38,24 @@
                     <popup-menu-item title="Paste" hotkey="Ctrl+V" @click="onPaste"/>
                     <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"/>
                     <popup-menu-item sep/>
-                    <popup-menu-item title="Options">
-                        <popup-menu>
-                            <popup-menu-item title="Keep World Position Unchanged When Moving Nodes"
-                                             @click="editorCtx.options.keepTransformUnchangedWhileMoving = !editorCtx.options.keepTransformUnchangedWhileMoving"
-                                             :checked="editorCtx.options.keepTransformUnchangedWhileMoving"
-                            />
-                            <popup-menu-item sep/>
-                            <popup-menu-item title="Use Local Space for Transform Control"
-                                             @click="editorCtx.options.useLocalSpaceForTransformControl = !editorCtx.options.useLocalSpaceForTransformControl"
-                                             :checked="editorCtx.options.useLocalSpaceForTransformControl"
-                            />
-                            <popup-menu-item sep/>
-                            <popup-menu-item title="Allow Modification of Joint Length When Modifying IK Bindings"
-                                             @click="editorCtx.options.allowModifyingBoneLengthWhenBindingIk = !editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
-                                             :checked="editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
-                            />
-                            <popup-menu-item title="Keep Internal Object Position Unchanged When Modifying IK Bindings"
-                                             @click="editorCtx.options.keepInternalTransformWhenBindingIk = !editorCtx.options.keepInternalTransformWhenBindingIk"
-                                             :checked="editorCtx.options.keepInternalTransformWhenBindingIk"
-                            />
-                        </popup-menu>
-                    </popup-menu-item>
+                    <popup-menu-item title="Moving Nodes: Keep World Position Unchanged"
+                                     @click="editorCtx.options.keepTransformUnchangedWhileMoving = !editorCtx.options.keepTransformUnchangedWhileMoving"
+                                     :checked="editorCtx.options.keepTransformUnchangedWhileMoving"
+                    />
+                    <popup-menu-item sep/>
+                    <popup-menu-item title="Transform Control: Use Local Space"
+                                     @click="editorCtx.options.useLocalSpaceForTransformControl = !editorCtx.options.useLocalSpaceForTransformControl"
+                                     :checked="editorCtx.options.useLocalSpaceForTransformControl"
+                    />
+                    <popup-menu-item sep/>
+                    <popup-menu-item title="IK Bindings: Allow Modification of Joint Length"
+                                     @click="editorCtx.options.allowModifyingBoneLengthWhenBindingIk = !editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
+                                     :checked="editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
+                    />
+                    <popup-menu-item title="IK Bindings: Keep Internal Object Position Unchanged"
+                                     @click="editorCtx.options.keepInternalTransformWhenBindingIk = !editorCtx.options.keepInternalTransformWhenBindingIk"
+                                     :checked="editorCtx.options.keepInternalTransformWhenBindingIk"
+                    />
                 </popup-menu>
                 <popup-menu title="View">
                     <popup-menu-item title="Window">
@@ -83,25 +79,26 @@
                         </popup-menu>
                     </popup-menu-item>
                     <popup-menu-item sep/>
+                    <popup-menu-item title="Quad Views"
+                                     :checked="editorCtx.options.quadView"
+                                     @click="editorCtx.options.quadView = !editorCtx.options.quadView"
+                    />
                     <popup-menu-item title="Outline Selected"
                                      :checked="editorCtx.options.outlineSelected"
                                      @click="editorCtx.options.outlineSelected = !editorCtx.options.outlineSelected"
                     />
+                    <popup-menu-item sep/>
                     <popup-menu-item title="Grids"
                                      :checked="editorCtx.options.showGrids"
                                      @click="editorCtx.options.showGrids = !editorCtx.options.showGrids"
                     />
-                    <popup-menu-item title="Lights"
+                    <popup-menu-item title="Light Indicators"
                                      :checked="editorCtx.options.showLightHelpers"
                                      @click="editorCtx.options.showLightHelpers = !editorCtx.options.showLightHelpers"
                     />
-                    <popup-menu-item title="IK Joints"
+                    <popup-menu-item title="IK Joint Indicators"
                                      :checked="editorCtx.options.showIkBones"
                                      @click="editorCtx.options.showIkBones = !editorCtx.options.showIkBones"
-                    />
-                    <popup-menu-item title="Quad Views"
-                                     :checked="editorCtx.options.quadView"
-                                     @click="editorCtx.options.quadView = !editorCtx.options.quadView"
                     />
                 </popup-menu>
                 <popup-menu title="Sketchfab"
@@ -194,7 +191,7 @@
                                 <span style="font-size: 16px; font-weight: bold;">
                                     Figure Doll Editor
                                 </span>
-                                Ver 20230123 (Developing)
+                                Ver 20230124 (Developing)
                             </div>
                             <div style="margin-bottom: 6px;">Author: x6udpngx</div>
                             <div>
