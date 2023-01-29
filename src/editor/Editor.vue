@@ -389,6 +389,7 @@
                                 @convert-to-clay="onConvertToClay"
                                 @apply-transformation="onApplyTransformation"
                                 @create-instance="onCreateInstance"
+                                @flip="onFlip"
                     />
                 </div>
             </side-panel>

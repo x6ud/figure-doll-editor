@@ -23,6 +23,11 @@
             <popup-menu-item title="Focus" @click="onFocus"
                              :disabled="!contextMenuNode"
             />
+            <template v-if="canFlip">
+                <popup-menu-item title="Flip" @click="onFlip('flip')"/>
+                <popup-menu-item title="Flip Left to Right" @click="onFlip('left-to-right')"/>
+                <popup-menu-item title="Flip Right to Left" @click="onFlip('right-to-left')"/>
+            </template>
             <template v-if="canConvertToClay || canApplyTransformation || canCreateInstance">
                 <popup-menu-item sep/>
                 <template v-if="canConvertToClay">
@@ -33,10 +38,8 @@
                 </template>
                 <template v-if="canCreateInstance">
                     <popup-menu-item title="Create Shadow Node" @click="onCreateInstance('none')"/>
-                    <!-- Flipping on x axis will broke the ik chain -->
-                    <!-- <popup-menu-item title="Create X-Axis Mirroring Shadow Node" @click="onCreateInstance('x')"/> -->
-                    <popup-menu-item title="Create Y-Axis Mirroring Shadow Node" @click="onCreateInstance('y')"/>
-                    <popup-menu-item title="Create Z-Axis Mirroring Shadow Node" @click="onCreateInstance('z')"/>
+                    <popup-menu-item title="Create Mirroring Shadow Node" @click="onCreateInstance('z')"/>
+                    <popup-menu-item title="Create Vertical Mirroring Shadow Node" @click="onCreateInstance('y')"/>
                 </template>
             </template>
             <popup-menu-item sep/>

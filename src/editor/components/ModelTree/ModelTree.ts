@@ -1,4 +1,3 @@
-import {Matrix4} from 'three';
 import {computed, defineComponent, ref, toRaw} from 'vue';
 import Class from '../../../common/type/Class';
 import Model from '../../model/Model';
@@ -29,6 +28,7 @@ export default defineComponent({
         'convertToClay',
         'applyTransformation',
         'createInstance',
+        'flip',
     ],
     setup(props, ctx) {
         const contextMenu = ref<{ show(trigger: HTMLElement, position: { x: number, y: number }): void }>();
@@ -73,6 +73,33 @@ export default defineComponent({
                 return;
             }
             ctx.emit('select', ids);
+        }
+
+        function onRangeSelect(id: number) {
+            const model = toRaw(props.model);
+            const selected = new Set(model.selected);
+            if (!selected.size) {
+                onSetSelection([id]);
+                return;
+            }
+            const newSelection: number[] = [];
+            let targetFound = false;
+            let firstSelectedFound = false;
+            model.forEach(node => {
+                if (targetFound && firstSelectedFound) {
+                    return false;
+                }
+                if (!firstSelectedFound && selected.has(node.id)) {
+                    firstSelectedFound = true;
+                }
+                if (node.id === id) {
+                    targetFound = true;
+                }
+                if (firstSelectedFound || targetFound) {
+                    newSelection.push(node.id);
+                }
+            });
+            onSetSelection(newSelection);
         }
 
         const contextMenuNode = ref<ModelNode>();
@@ -142,31 +169,16 @@ export default defineComponent({
             ctx.emit('createInstance', contextMenuNode.value, mirror);
         }
 
-        function onRangeSelect(id: number) {
-            const model = toRaw(props.model);
-            const selected = new Set(model.selected);
-            if (!selected.size) {
-                onSetSelection([id]);
-                return;
+        const canFlip = computed(function () {
+            const node = contextMenuNode.value;
+            if (!node) {
+                return false;
             }
-            const newSelection: number[] = [];
-            let targetFound = false;
-            let firstSelectedFound = false;
-            model.forEach(node => {
-                if (targetFound && firstSelectedFound) {
-                    return false;
-                }
-                if (!firstSelectedFound && selected.has(node.id)) {
-                    firstSelectedFound = true;
-                }
-                if (node.id === id) {
-                    targetFound = true;
-                }
-                if (firstSelectedFound || targetFound) {
-                    newSelection.push(node.id);
-                }
-            });
-            onSetSelection(newSelection);
+            return ['Container', 'IKChain', 'IKNode'].includes(node.type);
+        });
+
+        function onFlip(mode: 'flip' | 'left-to-right' | 'right-to-left') {
+            ctx.emit('flip', contextMenuNode.value, mode);
         }
 
         return {
@@ -178,6 +190,7 @@ export default defineComponent({
             dropPosition,
             onDragStart,
             onDragOver,
+            onRangeSelect,
             onContextMenu,
             contextMenuNode,
             onFocus,
@@ -191,7 +204,8 @@ export default defineComponent({
             onApplyTransformation,
             canCreateInstance,
             onCreateInstance,
-            onRangeSelect,
+            canFlip,
+            onFlip,
         };
     }
 });

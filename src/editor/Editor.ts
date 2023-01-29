@@ -21,6 +21,7 @@ import {copyModelSelected, cutModelSelected, pastedModelNodes} from './editor-fu
 import {convertModelNodeToClay} from './editor-functions/convert-to-clay';
 import {createInstanceNode} from './editor-functions/create-instance-node';
 import {exportModel} from './editor-functions/export-model';
+import {flipNode} from './editor-functions/flip-node';
 import {importModel} from './editor-functions/import-model';
 import EditorContext from './EditorContext';
 import CameraConfig from './model/CameraConfig';
@@ -617,6 +618,10 @@ export default defineComponent({
             createInstanceNode(editorCtx.value!, node, mirror);
         }
 
+        function onFlip(node: ModelNode, mode: 'flip' | 'left-to-right' | 'right-to-left') {
+            flipNode(editorCtx.value!, node, mode);
+        }
+
         function onLoadCamera(camera: CameraConfig) {
             const ctx = editorCtx.value!;
             const model = ctx.model;
@@ -765,6 +770,7 @@ export default defineComponent({
             onApplyTransformation,
             onRemesh,
             onCreateInstance,
+            onFlip,
             onLoadCamera,
             onDeleteCamera,
             onSaveCamera,
