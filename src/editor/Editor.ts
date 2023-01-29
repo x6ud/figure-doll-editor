@@ -1,6 +1,4 @@
-import {BufferGeometry, Euler, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3} from 'three';
-import {GLTFExporter} from 'three/examples/jsm/exporters/GLTFExporter';
-import {OBJExporter} from 'three/examples/jsm/exporters/OBJExporter';
+import {Euler, Mesh, Vector3} from 'three';
 import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
 import {useRouter} from 'vue-router';
 import Class from '../common/type/Class';
@@ -19,49 +17,39 @@ import PopupMenuItem from './components/popup/PopupMenu/PopupMenuItem.vue';
 import QuadView from './components/QuadView/QuadView.vue';
 import SidePanel from './components/SidePanel/SidePanel.vue';
 import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
+import {copyModelSelected, cutModelSelected, pastedModelNodes} from './editor-functions/clipboard';
+import {convertModelNodeToClay} from './editor-functions/convert-to-clay';
+import {createInstanceNode} from './editor-functions/create-instance-node';
+import {exportModel} from './editor-functions/export-model';
+import {importModel} from './editor-functions/import-model';
 import EditorContext from './EditorContext';
 import CameraConfig from './model/CameraConfig';
-import CCastShadow from './model/components/CCastShadow';
-import CColor from './model/components/CColor';
 import CColors from './model/components/CColors';
 import CCredit from './model/components/CCredit';
-import CEmissive from './model/components/CEmissive';
-import CFlipDirection from './model/components/CFlipDirection';
-import CIkNode from './model/components/CIkNode';
-import CIkNodeRotation from './model/components/CIkNodeRotation';
 import CImportReadonlyGltf from './model/components/CImportReadonlyGltf';
-import CMetalness from './model/components/CMetalness';
 import CName from './model/components/CName';
 import CObject3D from './model/components/CObject3D';
-import COpacity from './model/components/COpacity';
 import CPosition from './model/components/CPosition';
-import CReceiveShadow from './model/components/CReceiveShadow';
 import CRotation from './model/components/CRotation';
-import CRoughness from './model/components/CRoughness';
 import CScale from './model/components/CScale';
-import CSdfDirty from './model/components/CSdfDirty';
 import CVertices from './model/components/CVertices';
-import {ModelNodeCreationInfo} from './model/ModelHistory';
 import ModelNode, {ModelNodeJson} from './model/ModelNode';
 import ModelNodeComponent from './model/ModelNodeComponent';
-import {DataType, getModelNodeComponentDef} from './model/ModelNodeComponentDef';
 import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} from './model/ModelNodeDef';
 import ProjectReader from './ProjectReader';
 import ProjectWriter from './ProjectWriter';
 import EditorTool from './tools/EditorTool';
-import {dataUrlToArrayBuffer} from './utils/convert';
 import {voxelizeRemesh} from './utils/geometry/voxelize-remesh';
-import {getAxisAngle, getTranslation} from './utils/math';
+import {getTranslation} from './utils/math';
 import {progressiveDownload} from './utils/progressive-download';
 import {useSketchfabClient} from './utils/sketchfab';
-import CSymmetry from "./model/components/CSymmetry";
 
 const extension = '.doll';
 const filePickerAcceptType: FilePickerAcceptType = {
     description: 'Model',
     accept: {'application/figure-doll-editor': [extension]}
 };
-const localStorageKey = 'figure-doll-editor-options';
+const optionsLocalStorageKey = 'figure-doll-editor-options';
 
 export default defineComponent({
     components: {
@@ -157,7 +145,7 @@ export default defineComponent({
             ],
             function () {
                 localStorage.setItem(
-                    localStorageKey,
+                    optionsLocalStorageKey,
                     JSON.stringify({
                         ui: uiOptions.value,
                         options: editorCtx.value?.options
@@ -193,7 +181,7 @@ export default defineComponent({
             editorCtx.value = new EditorContext(canvas, view1, view2, view3, view4);
             // load saved options
             try {
-                const optionsJson = localStorage.getItem(localStorageKey);
+                const optionsJson = localStorage.getItem(optionsLocalStorageKey);
                 if (optionsJson) {
                     const options = JSON.parse(optionsJson);
                     if ('ui' in options) {
@@ -287,152 +275,11 @@ export default defineComponent({
         }
 
         async function onImport() {
-            let fileHandle: FileSystemFileHandle | null = null;
-            try {
-                [fileHandle] = await showOpenFilePicker({
-                    types: [filePickerAcceptType],
-                    multiple: false
-                });
-            } catch (e) {
-                return;
-            }
-            try {
-                const ctx = editorCtx.value!;
-                ctx.statusBarMessage = 'Loading...';
-                fullscreenLoading.value = true;
-                await nextTick();
-                const file = await fileHandle.getFile();
-                const data = new ProjectReader(new Uint8Array(await file.arrayBuffer())).read();
-                const idMap: { [id: number]: number } = {};
-                let nextId = ctx.history.getNextNodeId() + 1;
-                for (let node of data.nodes) {
-                    idMap[node.id] = nextId++;
-                }
-                const creationInfoMap: { [id: number]: ModelNodeCreationInfo & { originId: number } } = {};
-                for (let node of data.nodes) {
-                    creationInfoMap[node.id] = {
-                        originId: node.id,
-                        type: node.type,
-                        data: node.data,
-                        expanded: node.expanded,
-                        instanceId: node.instanceId ? idMap[node.instanceId] : 0
-                    };
-                }
-                const creationInfo: (ModelNodeCreationInfo & { originId: number })[] = [];
-                for (let node of data.nodes) {
-                    if (node.parentId) {
-                        const parent = creationInfoMap[node.parentId];
-                        parent.children = parent.children || [];
-                        parent.children.push(creationInfoMap[node.id]);
-                    } else {
-                        creationInfo.push(creationInfoMap[node.id]);
-                    }
-                }
-                for (let node of creationInfo) {
-                    ctx.history.createNode(node);
-                }
-                focus();
-                ctx.statusBarMessage = '';
-            } catch (e) {
-                console.error(e);
-                editorCtx.value!.statusBarMessage = 'Failed to import file.';
-            } finally {
-                fullscreenLoading.value = false;
-            }
+            await importModel(editorCtx.value!, fullscreenLoading, filePickerAcceptType);
         }
 
         async function onExport(format: string) {
-            function getExportScene() {
-                const ctx = editorCtx.value!.readonlyRef();
-                const scene = new Scene();
-                scene.traverse = function (callback) {
-                    traverseVisible(scene);
-
-                    function traverseVisible(obj: Object3D) {
-                        for (let child of obj.children) {
-                            if (child.visible) {
-                                callback(child);
-                                traverseVisible(child);
-                            }
-                        }
-                    }
-                };
-                for (let node of ctx.model.nodes) {
-                    if (node.has(CObject3D)) {
-                        const obj = node.value(CObject3D);
-                        if (obj) {
-                            scene.children.push(obj);
-                        }
-                    }
-                }
-                return scene;
-            }
-
-            async function process(callback: (startWriting: () => Promise<void>) => Promise<void>) {
-                try {
-                    editorCtx.value!.statusBarMessage = 'Exporting...';
-                    fullscreenLoading.value = true;
-                    await nextTick();
-                    await callback(async function () {
-                        editorCtx.value!.statusBarMessage = 'Writing files...';
-                        await nextTick();
-                    });
-                    editorCtx.value!.statusBarMessage = 'File exported.';
-                } catch (e) {
-                    console.error(e);
-                    editorCtx.value!.statusBarMessage = 'Failed to export.';
-                } finally {
-                    fullscreenLoading.value = false;
-                }
-            }
-
-            switch (format) {
-                case 'obj': {
-                    try {
-                        const fileHandle = await showSaveFilePicker({
-                            types: [{
-                                accept: {'application/object': ['.obj']}
-                            }]
-                        });
-                        await process(async function (startWriting) {
-                            const scene = getExportScene();
-                            const str = new OBJExporter().parse(scene);
-                            await startWriting();
-                            const stream = await fileHandle.createWritable({keepExistingData: false});
-                            await stream.write(str);
-                            await stream.close();
-                        });
-                    } catch (e) {
-                        return;
-                    }
-                }
-                    break;
-                case 'glb': {
-                    try {
-                        const fileHandle = await showSaveFilePicker({
-                            types: [{
-                                accept: {'application/object': ['.glb']}
-                            }]
-                        });
-                        await process(async function (startWriting) {
-                            const scene = getExportScene();
-                            const exporter = new GLTFExporter();
-                            const buffer = await exporter.parseAsync(scene, {
-                                onlyVisible: true, binary: true
-                            }) as ArrayBuffer;
-                            await startWriting();
-                            const stream = await fileHandle.createWritable({keepExistingData: false});
-                            await stream.write(buffer);
-                            await stream.close();
-                        });
-                    } catch (e) {
-                        return;
-                    }
-                }
-                    break;
-                default:
-                    return;
-            }
+            await exportModel(editorCtx.value!, fullscreenLoading, format);
         }
 
         async function onSave(e?: KeyboardEvent | MouseEvent) {
@@ -565,10 +412,8 @@ export default defineComponent({
                     return false;
                 }
                 const def = getModelNodeDef(node.type);
-                if (def.fixed) {
-                    return false;
-                }
-                return true;
+                return !def.fixed;
+
             });
             for (let node of nodes) {
                 if (!isValidChild(parent, node)) {
@@ -680,265 +525,25 @@ export default defineComponent({
         }
 
         async function onCut(e?: KeyboardEvent) {
-            const targets = await onCopy(e);
-            if (targets) {
-                for (let node of targets) {
-                    editorCtx.value!.history.removeNode(node.id);
-                }
+            if (await cutModelSelected(editorCtx.value!, e)) {
+                focus();
             }
-            focus();
         }
 
         async function onCopy(e?: KeyboardEvent): Promise<ModelNode[] | void> {
-            if ((e?.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
-                return;
+            if (await copyModelSelected(editorCtx.value!, e)) {
+                focus();
             }
-            const targets = editorCtx.value!.model.getTopmostSelectedNodes();
-            const clipboardContext: ModelNodeJson[] = [];
-            for (let node of targets) {
-                clipboardContext.push(await node.toJson());
-            }
-            await navigator.clipboard.writeText(JSON.stringify(clipboardContext));
-            focus();
-            return targets;
         }
 
         async function onPaste(e?: ModelNode | KeyboardEvent) {
-            if (e && 'target' in e && (e.target as (HTMLElement | undefined))?.tagName === 'INPUT') {
-                return;
-            }
-            try {
-                let json = JSON.parse(await navigator.clipboard.readText()) as ModelNodeCreationInfo[];
-                if (!Array.isArray(json)) {
-                    return;
-                }
-
-                async function convertJsonToRealDataType(json: ModelNodeCreationInfo[]) {
-                    for (let node of json) {
-                        for (let name in node.data) {
-                            const componentDef = getModelNodeComponentDef(name);
-                            let val = node.data[name] as any;
-                            if (componentDef.dataType === DataType.BYTES) {
-                                val = new Uint8Array(await dataUrlToArrayBuffer(val));
-                            }
-                            if (componentDef.deserialize) {
-                                val = componentDef.deserialize(val);
-                            }
-                            node.data[name] = val;
-                        }
-                        if (node.children) {
-                            await convertJsonToRealDataType(node.children);
-                        }
-                        node.selected = false;
-                    }
-                }
-
-                await convertJsonToRealDataType(json);
-
-                const model = editorCtx.value!.model;
-                let target: ModelNode | undefined = e instanceof ModelNode ? e : undefined;
-                if (!target) {
-                    model.forEach(node => {
-                        if (model.selected.includes(node.id)) {
-                            target = node;
-                            return false;
-                        }
-                    });
-                }
-
-                function filterInvalidInstancedNodes(json: ModelNodeCreationInfo[]) {
-                    json = json.filter(nodeJson => {
-                        if (!nodeJson.instanceId) {
-                            return true;
-                        }
-                        if (!model.isNodeExists(nodeJson.instanceId)) {
-                            return false;
-                        }
-                        return nodeJson.type === nodeJson.type;
-                    });
-                    for (let nodeJson of json) {
-                        if (nodeJson.children) {
-                            nodeJson.children = filterInvalidInstancedNodes(nodeJson.children);
-                        }
-                    }
-                    return json;
-                }
-
-                json = filterInvalidInstancedNodes(json);
-
-                let changed = false;
-                const history = editorCtx.value!.history;
-                for (let item of json) {
-                    item.selected = true;
-                    if (target) {
-                        if (target.isValidChild(item.type)) {
-                            const creationInfo = {...item};
-                            creationInfo.parentId = target.id;
-                            history.createNode(creationInfo);
-                            changed = true;
-                        }
-                    } else {
-                        const nodeDef = getModelNodeDef(item.type);
-                        if (nodeDef.canBeRoot) {
-                            const creationInfo = {...item};
-                            creationInfo.parentId = undefined;
-                            history.createNode(creationInfo);
-                            changed = true;
-                        }
-                    }
-                }
-                if (changed) {
-                    model.selected = [];
-                }
+            if (await pastedModelNodes(editorCtx.value!, e)) {
                 focus();
-            } catch (e) {
-                console.error(e);
-                return;
             }
         }
 
         function onConvertToClay(node: ModelNode) {
-            node = toRaw(node);
-            const ctx = editorCtx.value!;
-            const parent = node.parent;
-            let verticesArr: Float32Array[] = [];
-            let colorsArr: (Float32Array | null)[] = [];
-            switch (node.type) {
-                case 'Shape': {
-                    const cSdfDirty = node.get(CSdfDirty);
-                    if (cSdfDirty.throttleHash) {
-                        const task = ctx.throttleTasks.get(cSdfDirty.throttleHash);
-                        if (task) {
-                            task.callback();
-                            ctx.throttleTasks.delete(cSdfDirty.throttleHash);
-                        }
-                        cSdfDirty.throttleHash = '';
-                    }
-                    const mesh = node.value(CObject3D) as Mesh;
-                    const geometry = mesh.geometry;
-                    verticesArr = [new Float32Array(geometry.getAttribute('position').array)];
-                    if (geometry.hasAttribute('color')) {
-                        colorsArr = [new Float32Array(geometry.getAttribute('color').array)];
-                    } else {
-                        colorsArr = [null];
-                    }
-                }
-                    break;
-                default: {
-                    if (!node.has(CObject3D)) {
-                        return;
-                    }
-                    const mesh = node.value(CObject3D);
-                    if (!mesh) {
-                        return;
-                    }
-                    const geometries: BufferGeometry[] = [];
-                    if ((mesh as Mesh).geometry) {
-                        geometries.push((mesh as Mesh).geometry);
-                    } else {
-                        for (let child of mesh.children) {
-                            if ((child as Mesh).geometry) {
-                                geometries.push((child as Mesh).geometry);
-                            }
-                        }
-                    }
-                    const _a = new Vector3();
-                    const _b = new Vector3();
-                    const _c = new Vector3();
-                    for (let geometry of geometries) {
-                        if (!geometry.isBufferGeometry) {
-                            continue;
-                        }
-                        const attrPos = geometry.getAttribute('position');
-                        if (!attrPos) {
-                            continue;
-                        }
-                        const index = geometry.index;
-                        if (index) {
-                            const vertices = new Float32Array(index.count * 3);
-                            const colors = new Float32Array(index.count * 3);
-                            for (let i = 0, len = index.count; i < len; i += 3) {
-                                _a.fromBufferAttribute(attrPos, index.getX(i));
-                                _b.fromBufferAttribute(attrPos, index.getX(i + 1));
-                                _c.fromBufferAttribute(attrPos, index.getX(i + 2));
-                                const j = i * 3;
-                                vertices[j] = _a.x;
-                                vertices[j + 1] = _a.y;
-                                vertices[j + 2] = _a.z;
-                                vertices[j + 3] = _b.x;
-                                vertices[j + 4] = _b.y;
-                                vertices[j + 5] = _b.z;
-                                vertices[j + 6] = _c.x;
-                                vertices[j + 7] = _c.y;
-                                vertices[j + 8] = _c.z;
-                            }
-                            if (geometry.hasAttribute('color')) {
-                                const attrColor = geometry.getAttribute('color');
-                                for (let i = 0, len = index.count; i < len; i += 3) {
-                                    _a.fromBufferAttribute(attrColor, index.getX(i));
-                                    _b.fromBufferAttribute(attrColor, index.getX(i + 1));
-                                    _c.fromBufferAttribute(attrColor, index.getX(i + 2));
-                                    const j = i * 3;
-                                    colors[j] = _a.x;
-                                    colors[j + 1] = _a.y;
-                                    colors[j + 2] = _a.z;
-                                    colors[j + 3] = _b.x;
-                                    colors[j + 4] = _b.y;
-                                    colors[j + 5] = _b.z;
-                                    colors[j + 6] = _c.x;
-                                    colors[j + 7] = _c.y;
-                                    colors[j + 8] = _c.z;
-                                }
-                            } else {
-                                for (let i = 0, len = colors.length; i < len; ++i) {
-                                    colors[i] = 1;
-                                }
-                            }
-                            if (vertices.length) {
-                                verticesArr.push(vertices);
-                                colorsArr.push(colors);
-                            }
-                        } else {
-                            if (attrPos.array.length) {
-                                verticesArr.push(new Float32Array(attrPos.array));
-                                if (geometry.hasAttribute('color')) {
-                                    const attrColor = geometry.getAttribute('color');
-                                    colorsArr.push(new Float32Array(attrColor.array));
-                                } else {
-                                    colorsArr.push(null);
-                                }
-                            }
-                        }
-                    }
-                }
-                    break;
-            }
-            if (!verticesArr.length) {
-                return;
-            }
-            for (let i = 0, len = verticesArr.length; i < len; ++i) {
-                const vertices = verticesArr[i];
-                const colors = colorsArr[i];
-                const data: { [name: string]: any } = {
-                    [CVertices.name]: vertices,
-                    [CColors.name]: colors || undefined,
-                };
-                const classes: Class<ModelNodeComponent<any>>[] = [
-                    CName, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale,
-                    CRoughness, CMetalness, CColor, CEmissive, COpacity, CSymmetry,
-                ];
-                for (let componentClass of classes) {
-                    if (node.has(componentClass)) {
-                        data[componentClass.name] = node.cloneValue(componentClass);
-                    }
-                }
-                ctx.history.createNode({
-                    type: 'Clay',
-                    parentId: parent ? parent.id : 0,
-                    data,
-                });
-            }
-            ctx.history.removeNode(node.id);
+            convertModelNodeToClay(editorCtx.value!, node);
         }
 
         function onApplyTransformation(node: ModelNode) {
@@ -1009,139 +614,7 @@ export default defineComponent({
         }
 
         function onCreateInstance(node: ModelNode, mirror: 'none' | 'x' | 'y' | 'z') {
-            const ctx = editorCtx.value!;
-            node = toRaw(node);
-
-            const baseMat = new Matrix4();
-            const invBaseMat = new Matrix4();
-            const flipDir = new Vector3();
-            const flipDirWorld = new Vector3();
-            const flipOriginWorld = new Vector3();
-            if (mirror !== 'none') {
-                baseMat.copy(node.getParentWorldMatrix());
-                invBaseMat.copy(baseMat).invert();
-                switch (mirror) {
-                    case 'x':
-                        flipDir.set(1, 0, 0);
-                        break;
-                    case 'y':
-                        flipDir.set(0, 1, 0);
-                        break;
-                    case 'z':
-                        flipDir.set(0, 0, 1);
-                        break;
-                }
-                flipDirWorld.copy(flipDir).transformDirection(baseMat);
-                flipOriginWorld.applyMatrix4(baseMat);
-            }
-
-            const _localTranslation1 = new Vector3();
-            const _localRotation1 = new Quaternion();
-            const _localScale1 = new Vector3();
-            const _localMat1 = new Matrix4();
-            const _axis = new Vector3();
-            const _ikNodeQuat = new Quaternion();
-
-            function makeNewNode(
-                node: ModelNode,
-                parentMat0?: Matrix4,
-                parentMat1?: Matrix4,
-                invParentMat1?: Matrix4,
-                prevInvQuat1?: Quaternion,
-            ) {
-                const newNode: ModelNodeCreationInfo = {
-                    type: node.type,
-                    instanceId: node.instanceId || node.id,
-                };
-                newNode.data = node.getComponentData(true);
-                let invQuat1: Quaternion | undefined = undefined;
-                if (mirror !== 'none') {
-                    parentMat0 = parentMat0!;
-                    parentMat1 = parentMat1!;
-                    invParentMat1 = invParentMat1!;
-                    newNode.data[CFlipDirection.name] = new Vector3().copy(flipDir);
-                    _localTranslation1.set(0, 0, 0);
-                    _localRotation1.set(0, 0, 0, 1);
-                    _localScale1.set(1, 1, 1);
-                    if (node.has(CPosition)) {
-                        const position = newNode.data[CPosition.name] as Vector3;
-                        position.applyMatrix4(parentMat0);
-                        position.sub(flipOriginWorld);
-                        position.reflect(flipDirWorld);
-                        position.add(flipOriginWorld);
-                        position.applyMatrix4(invParentMat1);
-                        _localTranslation1.copy(position);
-                    }
-                    if (node.has(CRotation)) {
-                        const rotation = newNode.data[CRotation.name] as Euler;
-                        _localRotation1.setFromEuler(rotation);
-                        const angle = getAxisAngle(_axis, _localRotation1);
-                        _axis.applyMatrix4(parentMat0);
-                        _axis.sub(flipOriginWorld);
-                        _axis.reflect(flipDirWorld);
-                        _axis.add(flipOriginWorld);
-                        _axis.applyMatrix4(invParentMat1);
-                        _axis.normalize();
-                        _localRotation1.setFromAxisAngle(_axis, -angle);
-                        rotation.setFromQuaternion(_localRotation1);
-                    }
-                    if (node.has(CIkNode)) {
-                        if (mirror === 'x') {
-                            throw new Error('Flipping on x axis will broke the ik chain');
-                        }
-
-                        const cIkNode = node.get(CIkNode);
-
-                        _localTranslation1.copy(cIkNode.start);
-                        _localTranslation1.applyMatrix4(parentMat0);
-                        _localTranslation1.sub(flipOriginWorld);
-                        _localTranslation1.reflect(flipDirWorld);
-                        _localTranslation1.add(flipOriginWorld);
-                        _localTranslation1.applyMatrix4(invParentMat1);
-
-                        let angle = getAxisAngle(_axis, cIkNode.quaternion);
-                        _axis.applyMatrix4(parentMat0);
-                        _axis.sub(flipOriginWorld);
-                        _axis.reflect(flipDirWorld);
-                        _axis.add(flipOriginWorld);
-                        _axis.applyMatrix4(invParentMat1);
-                        _axis.normalize();
-                        _localRotation1.setFromAxisAngle(_axis, -angle);
-
-                        const ikNodeRotation = newNode.data[CIkNodeRotation.name] as Euler;
-                        if (prevInvQuat1) {
-                            _ikNodeQuat.multiplyQuaternions(prevInvQuat1, _localRotation1);
-                            ikNodeRotation.setFromQuaternion(_ikNodeQuat);
-                        } else {
-                            ikNodeRotation.setFromQuaternion(_localRotation1);
-                        }
-                    }
-                    if (node.has(CScale)) {
-                        _localScale1.setScalar(node.value(CScale));
-                    }
-                    _localMat1.compose(_localTranslation1, _localRotation1, _localScale1);
-                    parentMat1 = new Matrix4().multiplyMatrices(parentMat1, _localMat1);
-                    invParentMat1 = new Matrix4().copy(parentMat1).invert();
-                    parentMat0 = node.getWorldMatrix();
-                    invQuat1 = new Quaternion().copy(_localRotation1).invert();
-                }
-                newNode.children = [];
-                let prevChildInvQuat1: Quaternion | undefined = undefined;
-                for (let child of node.children) {
-                    const newChild = makeNewNode(child, parentMat0, parentMat1, invParentMat1, prevChildInvQuat1);
-                    prevChildInvQuat1 = newChild.invQuat1;
-                    newNode.children.push(newChild.creationInfo);
-                }
-                newNode.expanded = node.expanded;
-                newNode.selected = false;
-                return {creationInfo: newNode, invQuat1};
-            }
-
-            const create = makeNewNode(node, baseMat, baseMat, invBaseMat).creationInfo;
-            create.parentId = node.parent?.id;
-            create.selected = true;
-            ctx.model.selected = [];
-            ctx.history.createNode(create);
+            createInstanceNode(editorCtx.value!, node, mirror);
         }
 
         function onLoadCamera(camera: CameraConfig) {
