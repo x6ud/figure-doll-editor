@@ -81,6 +81,9 @@ export default class IkBindTool extends EditorTool {
                 if (cIkNode.boneMesh) {
                     cIkNode.boneMesh.visible = true;
                 }
+                if (cIkNode.hingeIndicator) {
+                    cIkNode.hingeIndicator.visible = cIkNode.hingeEnabled;
+                }
                 if (i === 0) {
                     if (cIkNode.moveHandler) {
                         cIkNode.moveHandler.visible = true;

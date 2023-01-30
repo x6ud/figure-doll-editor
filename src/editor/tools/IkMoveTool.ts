@@ -1,6 +1,8 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import CHingeAngleRange from '../model/components/CHingeAngleRange';
+import CHingeAxis from '../model/components/CHingeAxis';
 import CIkNode from '../model/components/CIkNode';
 import CIkNodeLength from '../model/components/CIkNodeLength';
 import CIkNodeRotation from '../model/components/CIkNodeRotation';
@@ -53,7 +55,12 @@ export default class IkMoveTool extends EditorTool {
     /** Dragged node's rotation in ik chain's local space */
     private rotation0 = new Quaternion();
     /** Dragging start ik chain state */
-    private chain0: { length: number, rotation: Quaternion }[] = [];
+    private chain0: {
+        length: number,
+        rotation: Quaternion,
+        hingeAxis: 'none' | 'horizontal' | 'vertical',
+        angleRange: [number, number],
+    }[] = [];
 
     begin(ctx: EditorContext) {
         this.cleanup(ctx);
@@ -120,7 +127,9 @@ export default class IkMoveTool extends EditorTool {
                             const node = chain.children[i];
                             this.chain0[i] = {
                                 length: node.value(CIkNodeLength),
-                                rotation: new Quaternion().setFromEuler(node.value(CIkNodeRotation))
+                                rotation: new Quaternion().setFromEuler(node.value(CIkNodeRotation)),
+                                hingeAxis: node.value(CHingeAxis),
+                                angleRange: node.value(CHingeAngleRange),
                             };
                         }
                     } else {
@@ -143,10 +152,13 @@ export default class IkMoveTool extends EditorTool {
                             ctx.model.selected = [];
                             return;
                         }
+                        ctx.model.selected = [node.id];
+                        if (node.value(CHingeAxis) !== 'none') {
+                            return;
+                        }
                         this.node = node;
                         this.swing = false;
                         this.activeView = view.index;
-                        ctx.model.selected = [node.id];
                         const mat = node.getParentWorldMatrix();
                         this.invMat.copy(mat).invert();
                         _local0.copy(this.mouse0).applyMatrix4(this.invMat);
@@ -180,6 +192,21 @@ export default class IkMoveTool extends EditorTool {
                         const node = this.chain0[i];
                         joint.length = node.length;
                         joint.localRotation.copy(node.rotation);
+                        switch (node.hingeAxis) {
+                            case 'horizontal':
+                                joint.hingeEnabled = true;
+                                joint.hingeAxis.set(0, 1, 0);
+                                break;
+                            case 'vertical':
+                                joint.hingeEnabled = true;
+                                joint.hingeAxis.set(0, 0, 1);
+                                break;
+                            default:
+                                joint.hingeEnabled = false;
+                                break;
+                        }
+                        joint.lowerAngle = node.angleRange[0] / 180 * Math.PI;
+                        joint.upperAngle = node.angleRange[1] / 180 * Math.PI;
                     }
                     ccd.resolve(_v1);
                     const chain = this.node.parent!;

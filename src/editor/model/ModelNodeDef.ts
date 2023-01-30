@@ -9,6 +9,8 @@ import CEmissive from './components/CEmissive';
 import './components/CFlipDirection';
 import CGroundColor from './components/CGroundColor';
 import CHeight from './components/CHeight';
+import CHingeAngleRange from './components/CHingeAngleRange';
+import CHingeAxis from './components/CHingeAxis';
 import CIkNode from './components/CIkNode';
 import CIkNodeLength from './components/CIkNodeLength';
 import CIkNodeRotation from './components/CIkNodeRotation';
@@ -31,10 +33,10 @@ import CRoughness from './components/CRoughness';
 import CScale from './components/CScale';
 import CSdfDirty from './components/CSdfDirty';
 import CSdfOperator from './components/CSdfOperator';
-import CSymmetry from './components/CSymmetry';
 import CShadowMappingRange from './components/CShadowMappingRange';
 import CSkyColor from './components/CSkyColor';
 import CSpotLightAngle from './components/CSpotLightAngle';
+import CSymmetry from './components/CSymmetry';
 import CTextureSize from './components/CTextureSize';
 import CTube from './components/CTube';
 import CVertices from './components/CVertices';
@@ -111,7 +113,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconIKNode,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation],
+        components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation, CHingeAxis, CHingeAngleRange],
         canBeRoot: false,
         validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'ImportModel', 'Box', 'Shape', 'Clay', 'Mirror', 'AmbientLight', 'HemisphereLight', 'DirectionalLight', 'PointLight', 'SpotLight'],
     },

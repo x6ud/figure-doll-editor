@@ -305,3 +305,34 @@ export function getAxisAngle(outAxis: Vector3, q: Quaternion) {
     }
     return rad;
 }
+
+export function simplifyAngle(rad: number) {
+    rad = rad % (Math.PI * 2);
+    if (rad < 0) {
+        rad += Math.PI * 2;
+    }
+    return rad;
+}
+
+export function absAngleDiff(from: number, to: number) {
+    return Math.PI - Math.abs(Math.abs(to - from) % (Math.PI * 2) - Math.PI);
+}
+
+export function clampAngle(rad: number, lower: number, upper: number): number {
+    rad = simplifyAngle(rad);
+    if (upper - lower > 1e-8 && simplifyAngle(upper - lower) < 1e-8) {
+        return rad;
+    }
+    lower = simplifyAngle(lower);
+    upper = simplifyAngle(upper);
+    if (upper < lower) {
+        if (rad >= 0 && rad <= upper || rad >= lower) {
+            return rad;
+        }
+    } else if (rad >= lower && rad <= upper) {
+        return rad;
+    }
+    const detLower = absAngleDiff(rad, lower);
+    const detUpper = absAngleDiff(rad, upper);
+    return detLower <= detUpper ? lower : upper;
+}

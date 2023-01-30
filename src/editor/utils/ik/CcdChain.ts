@@ -1,5 +1,5 @@
 import {Quaternion, Vector3} from 'three';
-import {quatFromForwardUp} from '../math';
+import {clampAngle, getAxisAngle, quatFromForwardUp} from '../math';
 import CcdJoint from './CcdJoint';
 
 const _prevIterEnd = new Vector3();
@@ -9,6 +9,7 @@ const _detRot = new Quaternion();
 const _forward = new Vector3();
 const _up = new Vector3();
 const _invQuat = new Quaternion();
+const _hingeAxis = new Vector3();
 
 export default class CcdChain {
     joints: CcdJoint[] = [];
@@ -30,6 +31,7 @@ export default class CcdChain {
             return;
         }
 
+        // calculate joint start/end initial positions
         for (let i = 0; i < len; ++i) {
             const joint = this.joints[i];
             if (i > 0) {
@@ -43,11 +45,14 @@ export default class CcdChain {
             joint.end.set(joint.length, 0, 0).applyQuaternion(joint.rotation).add(joint.start);
         }
 
+        // ccd
         const tail = this.joints[len - 1];
         _prevIterEnd.copy(tail.end);
         for (let iter = 0; iter < this.iterLimit; ++iter) {
             for (let i = len - 1; i >= 0; --i) {
                 const joint = this.joints[i];
+
+                // rotate the joint to bring the tail closer to the target
                 _vJoint.subVectors(tail.end, joint.start).normalize();
                 _vTarget.subVectors(target, joint.start).normalize();
                 _detRot.setFromUnitVectors(_vJoint, _vTarget);
@@ -59,6 +64,20 @@ export default class CcdChain {
                     _invQuat.copy(prev.rotation).invert();
                     joint.localRotation.multiplyQuaternions(_invQuat, joint.localRotation);
                 }
+
+                // hinge
+                if (joint.hingeEnabled) {
+                    _invQuat.copy(joint.localRotation).invert();
+                    _hingeAxis.copy(joint.hingeAxis).applyQuaternion(_invQuat);
+                    _detRot.setFromUnitVectors(joint.hingeAxis, _hingeAxis);
+                    joint.localRotation.multiply(_detRot).normalize();
+                    let angle = getAxisAngle(_hingeAxis, joint.localRotation);
+                    const sign = Math.sign(_hingeAxis.dot(joint.hingeAxis));
+                    angle = clampAngle(angle * sign, joint.lowerAngle, joint.upperAngle);
+                    joint.localRotation.setFromAxisAngle(joint.hingeAxis, angle);
+                }
+
+                // update remaining joints
                 for (let j = i; j < len; ++j) {
                     const joint = this.joints[j];
                     if (j > 0) {
@@ -72,6 +91,8 @@ export default class CcdChain {
                     joint.end.set(joint.length, 0, 0).applyQuaternion(joint.rotation).add(joint.start);
                 }
             }
+
+            // meet precision
             if (tail.end.distanceToSquared(_prevIterEnd) <= this.precision
                 || tail.end.distanceToSquared(target) <= this.precision
             ) {

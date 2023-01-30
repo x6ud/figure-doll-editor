@@ -19,6 +19,9 @@ export default class IkBoneVisibleUpdateSystem extends UpdateSystem<EditorContex
                     if (cIkNode.boneMesh) {
                         cIkNode.boneMesh.visible = ctx.options.showIkBones;
                     }
+                    if (cIkNode.hingeIndicator) {
+                        cIkNode.hingeIndicator.visible = ctx.options.showIkBones && cIkNode.hingeEnabled;
+                    }
                 }
             });
         }

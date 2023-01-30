@@ -7,4 +7,9 @@ export default class CcdJoint {
     start = new Vector3();
     end = new Vector3();
     rotation = new Quaternion();
+
+    hingeEnabled = false;
+    hingeAxis = new Vector3(1, 0, 0);
+    lowerAngle = -Math.PI;
+    upperAngle = +Math.PI;
 }

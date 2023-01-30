@@ -406,9 +406,24 @@ export default defineComponent({
             related = toRaw(related);
             const ctx = editorCtx.value!;
             const model = toRaw(ctx.model);
-            let nodes = model.selected.map(id => model.getNode(id));
+            let nodes = model.getSelectedNodes();
             const parent = (position === 'before' || position === 'after') ? related.parent : related;
             nodes = nodes.filter(node => {
+                let expanded = true;
+                let parent = node.parent;
+                while (expanded) {
+                    if (!parent) {
+                        break;
+                    }
+                    if (!parent.expanded) {
+                        expanded = false;
+                        break;
+                    }
+                    parent = parent.parent;
+                }
+                if (!expanded) {
+                    return false;
+                }
                 if (node.parent && nodes.includes(node.parent)) {
                     return false;
                 }
@@ -439,7 +454,7 @@ export default defineComponent({
                     return false;
                 }
                 for (; parent; parent = parent.parent) {
-                    if (parent === node) {
+                    if (parent.id === node.id) {
                         return false;
                     }
                 }

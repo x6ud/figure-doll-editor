@@ -1,11 +1,20 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import CHingeAngleRange from '../model/components/CHingeAngleRange';
+import CHingeAxis from '../model/components/CHingeAxis';
 import CIkNode from '../model/components/CIkNode';
 import CIkNodeRotation from '../model/components/CIkNodeRotation';
 import {Object3DUserData} from '../model/components/CObject3D';
 import ModelNode from '../model/ModelNode';
-import {angleBetween2VectorsInPanel, closestPointOnLine, linePanelIntersection, quatFromForwardUp} from '../utils/math';
+import {
+    angleBetween2VectorsInPanel,
+    clampAngle,
+    closestPointOnLine,
+    getAxisAngle,
+    linePanelIntersection,
+    quatFromForwardUp
+} from '../utils/math';
 import EditorTool from './EditorTool';
 import icon from './IkRotate.png';
 
@@ -22,6 +31,8 @@ const _up = new Vector3();
 const _dir = new Vector3();
 const _o = new Vector3();
 const _invQuat = new Quaternion();
+const _realAxis = new Vector3();
+const _hingeAxis = new Vector3();
 
 export default class IkRotateTool extends EditorTool {
     label = 'Rotate Joint';
@@ -128,10 +139,13 @@ export default class IkRotateTool extends EditorTool {
                             ctx.model.selected = [];
                             return;
                         }
+                        ctx.model.selected = [node.id];
+                        if (node.value(CHingeAxis) !== 'none') {
+                            return;
+                        }
                         this.node = node;
                         this.swing = false;
                         this.activeView = view.index;
-                        ctx.model.selected = [node.id];
                         const mat = node.getParentWorldMatrix();
                         this.invMat.copy(mat).invert();
                         _local0.copy(this.mouse0).applyMatrix4(this.invMat);
@@ -197,6 +211,29 @@ export default class IkRotateTool extends EditorTool {
                     const prev = chain.children[index - 1];
                     _invQuat.copy(prev.get(CIkNode).quaternion).invert();
                     _rotation.multiplyQuaternions(_invQuat, _rotation);
+                }
+                // hinge limit
+                let hingeEnabled = false;
+                switch (this.node.value(CHingeAxis)) {
+                    case 'horizontal':
+                        _hingeAxis.set(0, 1, 0);
+                        hingeEnabled = true;
+                        break;
+                    case 'vertical':
+                        _hingeAxis.set(0, 0, 1);
+                        hingeEnabled = true;
+                        break;
+                }
+                if (hingeEnabled) {
+                    _invQuat.copy(_rotation).invert();
+                    _realAxis.copy(_hingeAxis).applyQuaternion(_invQuat);
+                    _detRot.setFromUnitVectors(_hingeAxis, _realAxis);
+                    _rotation.multiply(_detRot).normalize();
+                    let angle = getAxisAngle(_realAxis, _rotation);
+                    const sign = Math.sign(_realAxis.dot(_hingeAxis));
+                    const angleRange = this.node.value(CHingeAngleRange);
+                    angle = clampAngle(angle * sign, angleRange[0] / 180 * Math.PI, angleRange[1] / 180 * Math.PI);
+                    _rotation.setFromAxisAngle(_hingeAxis, angle);
                 }
                 ctx.history.setValue(this.node, CIkNodeRotation, new Euler().setFromQuaternion(_rotation));
             }

@@ -1,4 +1,6 @@
 import Class from '../../../common/type/Class';
+import CHingeAngleRange from '../components/CHingeAngleRange';
+import CHingeAxis from '../components/CHingeAxis';
 import CIkNode from '../components/CIkNode';
 import CIkNodeLength from '../components/CIkNodeLength';
 import CIkNodeRotation from '../components/CIkNodeRotation';
@@ -8,7 +10,7 @@ import ModelNode from '../ModelNode';
 import ModelNodeChangedWatcher from '../ModelNodeChangedWatcher';
 import ModelNodeComponent from '../ModelNodeComponent';
 
-const ikNodeComponents = [CIkNodeLength, CIkNodeRotation];
+const ikNodeComponents = [CIkNodeLength, CIkNodeRotation, CHingeAxis, CHingeAngleRange];
 
 function markIkChainDirty(ikChain: ModelNode | null, ikNode?: ModelNode) {
     if (!ikChain) {
