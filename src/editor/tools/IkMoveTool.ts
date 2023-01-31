@@ -7,9 +7,18 @@ import CIkNode from '../model/components/CIkNode';
 import CIkNodeLength from '../model/components/CIkNodeLength';
 import CIkNodeRotation from '../model/components/CIkNodeRotation';
 import {Object3DUserData} from '../model/components/CObject3D';
+import CPosition from '../model/components/CPosition';
+import CShowMoveHandler from '../model/components/CShowMoveHandler';
+import CShowRotateHandler from '../model/components/CShowRotateHandler';
 import ModelNode from '../model/ModelNode';
 import CcdChain from '../utils/ik/CcdChain';
-import {angleBetween2VectorsInPanel, closestPointOnLine, linePanelIntersection, quatFromForwardUp} from '../utils/math';
+import {
+    angleBetween2VectorsInPanel,
+    closestPointOnLine,
+    getTranslation,
+    linePanelIntersection,
+    quatFromForwardUp
+} from '../utils/math';
 import EditorTool from './EditorTool';
 import icon from './IkMove.png';
 
@@ -38,8 +47,7 @@ export default class IkMoveTool extends EditorTool {
     private ikChains: ModelNode[] = [];
     /** Ik node being dragged */
     private node?: ModelNode;
-    /** Swing or twist */
-    private swing: boolean = false;
+    private action: 'swing' | 'twist' | 'move' = 'swing';
     /** Dragging start mouse position in world space */
     private mouse0 = new Vector3();
     /** Rotation center in world space */
@@ -54,6 +62,8 @@ export default class IkMoveTool extends EditorTool {
     private nodeEnd0 = new Vector3();
     /** Dragged node's rotation in ik chain's local space */
     private rotation0 = new Quaternion();
+    /** Dragging start ik chain translation in local space */
+    private position0 = new Vector3();
     /** Dragging start ik chain state */
     private chain0: {
         length: number,
@@ -79,8 +89,11 @@ export default class IkMoveTool extends EditorTool {
             for (let i = 0, len = chain.children.length; i < len; ++i) {
                 const node = chain.children[i];
                 const cIkNode = node.get(CIkNode);
+                if (i === 0 && cIkNode.moveHandler) {
+                    cIkNode.moveHandler.visible = chain.value(CShowMoveHandler);
+                }
                 if (cIkNode.rotateHandler) {
-                    cIkNode.rotateHandler.visible = true;
+                    cIkNode.rotateHandler.visible = node.value(CShowRotateHandler);
                 }
             }
         }
@@ -96,42 +109,59 @@ export default class IkMoveTool extends EditorTool {
                     let topHoveredZ = Infinity;
                     let hoveredNode: ModelNode | null = null;
                     let hoveredCIkNode: CIkNode | null = null;
+                    let rotate = false;
                     for (let chain of this.ikChains) {
                         for (let node of chain.children) {
                             const cIkNode = node.get(CIkNode);
                             cIkNode.updateHandlersHoverState(node, view);
+                            if (cIkNode.moveHandlerHovered && cIkNode.moveHandlerZ < topHoveredZ) {
+                                topHoveredZ = cIkNode.moveHandlerZ;
+                                hoveredNode = node;
+                                hoveredCIkNode = cIkNode;
+                                rotate = false;
+                            }
                             if (cIkNode.rotateHandlerHovered && cIkNode.rotateHandlerZ < topHoveredZ) {
                                 topHoveredZ = cIkNode.rotateHandlerZ;
                                 hoveredNode = node;
                                 hoveredCIkNode = cIkNode;
+                                rotate = true;
                             }
                         }
                     }
                     if (hoveredNode && hoveredCIkNode) {
                         // clicked on rotation handler
                         this.node = hoveredNode;
-                        this.swing = true;
+                        this.action = rotate ? 'swing' : 'move';
                         this.activeView = view.index;
                         const chain = hoveredNode.parent!;
                         const chainMat = chain.getWorldMatrix();
-                        this.mouse0.copy(hoveredCIkNode.end).applyMatrix4(chainMat);
-                        linePanelIntersection(this.mouse0, view.mouseRay0, view.mouseRay1, this.mouse0, view.mouseRayN);
-                        this.invMat.copy(chainMat).invert();
-                        this.nodeStart0.copy(hoveredCIkNode.start);
-                        this.nodeEnd0.copy(hoveredCIkNode.end);
-                        this.rotation0.copy(hoveredCIkNode.quaternion);
-                        ctx.model.addSelection(this.node.id);
-                        const index = chain.children.indexOf(hoveredNode);
-                        this.chain0.length = index + 1;
-                        for (let i = 0; i <= index; ++i) {
-                            const node = chain.children[i];
-                            this.chain0[i] = {
-                                length: node.value(CIkNodeLength),
-                                rotation: new Quaternion().setFromEuler(node.value(CIkNodeRotation)),
-                                hingeAxis: node.value(CHingeAxis),
-                                angleRange: node.value(CHingeAngleRange),
-                            };
+                        if (rotate) {
+                            this.mouse0.copy(hoveredCIkNode.end).applyMatrix4(chainMat);
+                        } else {
+                            this.position0.copy(chain.value(CPosition));
+                            getTranslation(this.mouse0, chain.getWorldMatrix());
                         }
+                        linePanelIntersection(this.mouse0, view.mouseRay0, view.mouseRay1, this.mouse0, view.mouseRayN);
+                        if (rotate) {
+                            this.invMat.copy(chainMat).invert();
+                            this.nodeStart0.copy(hoveredCIkNode.start);
+                            this.nodeEnd0.copy(hoveredCIkNode.end);
+                            this.rotation0.copy(hoveredCIkNode.quaternion);
+                            const index = chain.children.indexOf(hoveredNode);
+                            this.chain0.length = index + 1;
+                            for (let i = 0; i <= index; ++i) {
+                                const node = chain.children[i];
+                                this.chain0[i] = {
+                                    length: node.value(CIkNodeLength),
+                                    rotation: new Quaternion().setFromEuler(node.value(CIkNodeRotation)),
+                                    hingeAxis: node.value(CHingeAxis),
+                                    angleRange: node.value(CHingeAngleRange),
+                                };
+                            }
+                        } else {
+                            this.invMat.copy(chain.getParentWorldMatrix()).invert();
+                        }
+                        ctx.model.addSelection(this.node.id);
                     } else {
                         // clicked on internal object
                         let node: ModelNode | undefined = undefined;
@@ -157,7 +187,7 @@ export default class IkMoveTool extends EditorTool {
                             return;
                         }
                         this.node = node;
-                        this.swing = false;
+                        this.action = 'twist';
                         this.activeView = view.index;
                         const mat = node.getParentWorldMatrix();
                         this.invMat.copy(mat).invert();
@@ -175,91 +205,101 @@ export default class IkMoveTool extends EditorTool {
                     }
                 }
             } else if (this.activeView === view.index && this.node && !this.node.deleted) {
-                // drag move
-                if (this.swing) {
-                    // swing
+                if (this.action === 'move') {
+                    // drag move
                     linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.mouse0, view.mouseRayN);
                     _local0.copy(this.mouse0).applyMatrix4(this.invMat);
                     _local1.copy(_mouse1).applyMatrix4(this.invMat);
                     _det.subVectors(_local1, _local0);
-                    if (_det.lengthSq() < 1e-6) {
-                        return;
-                    }
-                    _v1.copy(this.nodeEnd0).add(_det);
-                    ccd.resize(this.chain0.length);
-                    for (let i = 0, len = this.chain0.length; i < len; ++i) {
-                        const joint = ccd.joints[i];
-                        const node = this.chain0[i];
-                        joint.length = node.length;
-                        joint.localRotation.copy(node.rotation);
-                        switch (node.hingeAxis) {
-                            case 'horizontal':
-                                joint.hingeEnabled = true;
-                                joint.hingeAxis.set(0, 1, 0);
-                                break;
-                            case 'vertical':
-                                joint.hingeEnabled = true;
-                                joint.hingeAxis.set(0, 0, 1);
-                                break;
-                            default:
-                                joint.hingeEnabled = false;
-                                break;
-                        }
-                        joint.lowerAngle = node.angleRange[0] / 180 * Math.PI;
-                        joint.upperAngle = node.angleRange[1] / 180 * Math.PI;
-                    }
-                    ccd.resolve(_v1);
                     const chain = this.node.parent!;
-                    for (let i = 0, len = this.chain0.length; i < len; ++i) {
-                        const joint = ccd.joints[i];
-                        const node = chain.children[i];
-                        ctx.history.setValue(node, CIkNodeRotation, new Euler().setFromQuaternion(joint.localRotation));
-                    }
-                    this.mouse0.copy(_mouse1);
-                    this.nodeEnd0.copy(_v1);
-                    for (let i = 0, len = this.chain0.length; i < len; ++i) {
-                        this.chain0[i].rotation.copy(ccd.joints[i].localRotation);
-                    }
+                    ctx.history.setValue(chain, CPosition, new Vector3().addVectors(this.position0, _det));
                 } else {
-                    // twist
-                    // calculate det rot
-                    if (Math.acos(Math.abs(this.boneAxis.dot(view.mouseRayN))) * 180 / Math.PI > 45) {
-                        // side view
-                        if (!linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.origin, view.mouseRayN)) {
-                            return;
-                        }
-                        _dir.crossVectors(this.boneAxis, view.mouseRayN).normalize();
-                        const radius = this.mouse0.distanceTo(this.origin);
-                        const ROT_SPEED_RATIO = 0.4;
-                        const angle = -_det.subVectors(_mouse1, this.mouse0).dot(_dir) / radius * Math.PI / 2 * ROT_SPEED_RATIO;
-                        _dir.copy(this.boneAxis).transformDirection(this.invMat);
-                        _detRot.setFromAxisAngle(_dir, angle);
-                    } else {
-                        // vertical view
-                        if (!linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.origin, this.boneAxis)) {
-                            return;
-                        }
+                    // rotate
+                    if (this.action === 'swing') {
+                        // swing
+                        linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.mouse0, view.mouseRayN);
                         _local0.copy(this.mouse0).applyMatrix4(this.invMat);
                         _local1.copy(_mouse1).applyMatrix4(this.invMat);
-                        _o.copy(this.origin).applyMatrix4(this.invMat);
-                        _v0.subVectors(_local0, _o).normalize();
-                        _v1.subVectors(_local1, _o).normalize();
-                        _dir.copy(this.boneAxis).transformDirection(this.invMat);
-                        const angle = angleBetween2VectorsInPanel(_dir, _v0, _v1);
-                        _detRot.setFromAxisAngle(_dir, angle);
+                        _det.subVectors(_local1, _local0);
+                        if (_det.lengthSq() < 1e-6) {
+                            return;
+                        }
+                        _v1.copy(this.nodeEnd0).add(_det);
+                        ccd.resize(this.chain0.length);
+                        for (let i = 0, len = this.chain0.length; i < len; ++i) {
+                            const joint = ccd.joints[i];
+                            const node = this.chain0[i];
+                            joint.length = node.length;
+                            joint.localRotation.copy(node.rotation);
+                            switch (node.hingeAxis) {
+                                case 'horizontal':
+                                    joint.hingeEnabled = true;
+                                    joint.hingeAxis.set(0, 1, 0);
+                                    break;
+                                case 'vertical':
+                                    joint.hingeEnabled = true;
+                                    joint.hingeAxis.set(0, 0, 1);
+                                    break;
+                                default:
+                                    joint.hingeEnabled = false;
+                                    break;
+                            }
+                            joint.lowerAngle = node.angleRange[0] / 180 * Math.PI;
+                            joint.upperAngle = node.angleRange[1] / 180 * Math.PI;
+                        }
+                        ccd.resolve(_v1);
+                        const chain = this.node.parent!;
+                        for (let i = 0, len = this.chain0.length; i < len; ++i) {
+                            const joint = ccd.joints[i];
+                            const node = chain.children[i];
+                            ctx.history.setValue(node, CIkNodeRotation, new Euler().setFromQuaternion(joint.localRotation));
+                        }
+                        this.mouse0.copy(_mouse1);
+                        this.nodeEnd0.copy(_v1);
+                        for (let i = 0, len = this.chain0.length; i < len; ++i) {
+                            this.chain0[i].rotation.copy(ccd.joints[i].localRotation);
+                        }
+                    } else {
+                        // twist
+                        // calculate det rot
+                        if (Math.acos(Math.abs(this.boneAxis.dot(view.mouseRayN))) * 180 / Math.PI > 45) {
+                            // side view
+                            if (!linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.origin, view.mouseRayN)) {
+                                return;
+                            }
+                            _dir.crossVectors(this.boneAxis, view.mouseRayN).normalize();
+                            const radius = this.mouse0.distanceTo(this.origin);
+                            const ROT_SPEED_RATIO = 0.4;
+                            const angle = -_det.subVectors(_mouse1, this.mouse0).dot(_dir) / radius * Math.PI / 2 * ROT_SPEED_RATIO;
+                            _dir.copy(this.boneAxis).transformDirection(this.invMat);
+                            _detRot.setFromAxisAngle(_dir, angle);
+                        } else {
+                            // vertical view
+                            if (!linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.origin, this.boneAxis)) {
+                                return;
+                            }
+                            _local0.copy(this.mouse0).applyMatrix4(this.invMat);
+                            _local1.copy(_mouse1).applyMatrix4(this.invMat);
+                            _o.copy(this.origin).applyMatrix4(this.invMat);
+                            _v0.subVectors(_local0, _o).normalize();
+                            _v1.subVectors(_local1, _o).normalize();
+                            _dir.copy(this.boneAxis).transformDirection(this.invMat);
+                            const angle = angleBetween2VectorsInPanel(_dir, _v0, _v1);
+                            _detRot.setFromAxisAngle(_dir, angle);
+                        }
+                        // apply rotation
+                        _forward.set(0, 0, 1).applyQuaternion(this.rotation0).applyQuaternion(_detRot);
+                        _up.set(0, 1, 0).applyQuaternion(this.rotation0).applyQuaternion(_detRot);
+                        quatFromForwardUp(_rotation, _forward, _up);
+                        const chain = this.node.parent!;
+                        const index = chain.children.indexOf(this.node);
+                        if (index > 0) {
+                            const prev = chain.children[index - 1];
+                            _invQuat.copy(prev.get(CIkNode).quaternion).invert();
+                            _rotation.multiplyQuaternions(_invQuat, _rotation);
+                        }
+                        ctx.history.setValue(this.node, CIkNodeRotation, new Euler().setFromQuaternion(_rotation));
                     }
-                    // apply rotation
-                    _forward.set(0, 0, 1).applyQuaternion(this.rotation0).applyQuaternion(_detRot);
-                    _up.set(0, 1, 0).applyQuaternion(this.rotation0).applyQuaternion(_detRot);
-                    quatFromForwardUp(_rotation, _forward, _up);
-                    const chain = this.node.parent!;
-                    const index = chain.children.indexOf(this.node);
-                    if (index > 0) {
-                        const prev = chain.children[index - 1];
-                        _invQuat.copy(prev.get(CIkNode).quaternion).invert();
-                        _rotation.multiplyQuaternions(_invQuat, _rotation);
-                    }
-                    ctx.history.setValue(this.node, CIkNodeRotation, new Euler().setFromQuaternion(_rotation));
                 }
             }
         } else if (this.activeView === view.index) {

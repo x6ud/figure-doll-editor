@@ -34,6 +34,8 @@ import CScale from './components/CScale';
 import CSdfDirty from './components/CSdfDirty';
 import CSdfOperator from './components/CSdfOperator';
 import CShadowMappingRange from './components/CShadowMappingRange';
+import CShowMoveHandler from './components/CShowMoveHandler';
+import CShowRotateHandler from './components/CShowRotateHandler';
 import CSkyColor from './components/CSkyColor';
 import CSpotLightAngle from './components/CSpotLightAngle';
 import CSymmetry from './components/CSymmetry';
@@ -103,7 +105,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconIKChain,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CShowMoveHandler],
         canBeRoot: true,
         validChildTypes: ['IKNode'],
     },
@@ -113,7 +115,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconIKNode,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation, CHingeAxis, CHingeAngleRange],
+        components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation, CShowRotateHandler, CHingeAxis, CHingeAngleRange],
         canBeRoot: false,
         validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'ImportModel', 'Box', 'Shape', 'Clay', 'Mirror', 'AmbientLight', 'HemisphereLight', 'DirectionalLight', 'PointLight', 'SpotLight'],
     },
