@@ -39,7 +39,7 @@ const _realAxis = new Vector3();
 const _hingeAxis = new Vector3();
 
 export default class IkRotateTool extends EditorTool {
-    label = 'Rotate Single Joint (Ignore IK)';
+    label = 'Move Single Joint (Ignore IK)';
     icon = icon;
 
     private activeView = -1;

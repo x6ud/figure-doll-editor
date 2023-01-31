@@ -444,10 +444,19 @@ export default class ModelHistory {
         }
     }
 
-    setValue<T>(node: ModelNode, componentClass: Class<ModelNodeComponent<T>>, value: T, hash?: string): boolean {
+    setValue<T>(node: ModelNode, componentClass: Class<ModelNodeComponent<T>>, value: T, hashName?: string): boolean {
         const nodeId = node.id;
         const oldValue = node.value(componentClass);
+        const hash = nodeId + '#' + (hashName || componentClass.name);
         if (oldValue === value) {
+            // push an empty record to ensure merged record hash unchanged
+            this.currentFrameRecords.push({
+                hash,
+                redo() {
+                },
+                undo() {
+                }
+            });
             return false;
         }
         const componentDef = getModelNodeComponentDef(componentClass.name);
@@ -456,7 +465,6 @@ export default class ModelHistory {
                 return false;
             }
         }
-        hash = nodeId + '#' + (hash || componentClass.name);
         this.currentFrameRecords = this.currentFrameRecords.filter(record => record.hash !== hash);
         this.currentFrameRecords.push({
             hash,

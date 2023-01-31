@@ -20,6 +20,7 @@ import CImportObj from './components/CImportObj';
 import CImportReadonlyGltf from './components/CImportReadonlyGltf';
 import CIntensity from './components/CIntensity';
 import CLightHelper from './components/CLightHelper';
+import CLockEnd from './components/CLockEnd';
 import CMapSize from './components/CMapSize';
 import CMetalness from './components/CMetalness';
 import CName from './components/CName';
@@ -105,7 +106,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconIKChain,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CShowMoveHandler],
+        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CShowMoveHandler, CLockEnd],
         canBeRoot: true,
         validChildTypes: ['IKNode'],
     },

@@ -1,17 +1,16 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
-import CHingeAngleRange from '../model/components/CHingeAngleRange';
 import CHingeAxis from '../model/components/CHingeAxis';
 import CIkNode from '../model/components/CIkNode';
-import CIkNodeLength from '../model/components/CIkNodeLength';
 import CIkNodeRotation from '../model/components/CIkNodeRotation';
 import {Object3DUserData} from '../model/components/CObject3D';
 import CPosition from '../model/components/CPosition';
+import CRotation from '../model/components/CRotation';
+import CScale from '../model/components/CScale';
 import CShowMoveHandler from '../model/components/CShowMoveHandler';
 import CShowRotateHandler from '../model/components/CShowRotateHandler';
 import ModelNode from '../model/ModelNode';
-import CcdChain from '../utils/ik/CcdChain';
 import {
     angleBetween2VectorsInPanel,
     closestPointOnLine,
@@ -20,6 +19,14 @@ import {
     quatFromForwardUp
 } from '../utils/math';
 import EditorTool from './EditorTool';
+import {
+    resetIkChains,
+    resolveIkChain,
+    resolveLockedEnds,
+    saveIkChainState,
+    updateIkChainLocalMatrices,
+    VirtualIkChain
+} from './ik-resolve';
 import icon from './IkMove.png';
 
 const _mouse1 = new Vector3();
@@ -35,11 +42,10 @@ const _up = new Vector3();
 const _dir = new Vector3();
 const _o = new Vector3();
 const _invQuat = new Quaternion();
-
-const ccd = new CcdChain();
+const _scale = new Vector3();
 
 export default class IkMoveTool extends EditorTool {
-    label = 'IK Move';
+    label = 'Move IK Chain';
     icon = icon;
 
     private activeView = -1;
@@ -56,8 +62,6 @@ export default class IkMoveTool extends EditorTool {
     private boneAxis = new Vector3();
     /** Dragged ik chain's inverse world matrix */
     private invMat = new Matrix4();
-    /** Dragged node's start position in ik chain's local space */
-    private nodeStart0 = new Vector3();
     /** Dragged node's end position in ik chain's local space */
     private nodeEnd0 = new Vector3();
     /** Dragged node's rotation in ik chain's local space */
@@ -65,12 +69,7 @@ export default class IkMoveTool extends EditorTool {
     /** Dragging start ik chain translation in local space */
     private position0 = new Vector3();
     /** Dragging start ik chain state */
-    private chain0: {
-        length: number,
-        rotation: Quaternion,
-        hingeAxis: 'none' | 'horizontal' | 'vertical',
-        angleRange: [number, number],
-    }[] = [];
+    private chain0: VirtualIkChain | null = null;
 
     begin(ctx: EditorContext) {
         this.cleanup(ctx);
@@ -144,20 +143,8 @@ export default class IkMoveTool extends EditorTool {
                         linePanelIntersection(this.mouse0, view.mouseRay0, view.mouseRay1, this.mouse0, view.mouseRayN);
                         if (rotate) {
                             this.invMat.copy(chainMat).invert();
-                            this.nodeStart0.copy(hoveredCIkNode.start);
                             this.nodeEnd0.copy(hoveredCIkNode.end);
-                            this.rotation0.copy(hoveredCIkNode.quaternion);
-                            const index = chain.children.indexOf(hoveredNode);
-                            this.chain0.length = index + 1;
-                            for (let i = 0; i <= index; ++i) {
-                                const node = chain.children[i];
-                                this.chain0[i] = {
-                                    length: node.value(CIkNodeLength),
-                                    rotation: new Quaternion().setFromEuler(node.value(CIkNodeRotation)),
-                                    hingeAxis: node.value(CHingeAxis),
-                                    angleRange: node.value(CHingeAngleRange),
-                                };
-                            }
+
                         } else {
                             this.invMat.copy(chain.getParentWorldMatrix()).invert();
                         }
@@ -203,8 +190,12 @@ export default class IkMoveTool extends EditorTool {
                             this.origin.applyMatrix4(mat);
                         }
                     }
+                    if (this.node) {
+                        this.chain0 = saveIkChainState(this.node.parent!);
+                    }
                 }
-            } else if (this.activeView === view.index && this.node && !this.node.deleted) {
+            } else if (this.activeView === view.index && this.node && !this.node.deleted && this.chain0) {
+                let changed = false;
                 if (this.action === 'move') {
                     // drag move
                     linePanelIntersection(_mouse1, view.mouseRay0, view.mouseRay1, this.mouse0, view.mouseRayN);
@@ -212,7 +203,12 @@ export default class IkMoveTool extends EditorTool {
                     _local1.copy(_mouse1).applyMatrix4(this.invMat);
                     _det.subVectors(_local1, _local0);
                     const chain = this.node.parent!;
-                    ctx.history.setValue(chain, CPosition, new Vector3().addVectors(this.position0, _det));
+                    const position = new Vector3().addVectors(this.position0, _det);
+                    changed = ctx.history.setValue(chain, CPosition, position);
+                    _rotation.setFromEuler(chain.value(CRotation));
+                    _scale.setScalar(chain.value(CScale));
+                    this.chain0.localMat.compose(position, _rotation, _scale);
+                    this.chain0.worldMat.multiplyMatrices(chain.getParentWorldMatrix(), this.chain0.localMat);
                 } else {
                     // rotate
                     if (this.action === 'swing') {
@@ -225,40 +221,11 @@ export default class IkMoveTool extends EditorTool {
                             return;
                         }
                         _v1.copy(this.nodeEnd0).add(_det);
-                        ccd.resize(this.chain0.length);
-                        for (let i = 0, len = this.chain0.length; i < len; ++i) {
-                            const joint = ccd.joints[i];
-                            const node = this.chain0[i];
-                            joint.length = node.length;
-                            joint.localRotation.copy(node.rotation);
-                            switch (node.hingeAxis) {
-                                case 'horizontal':
-                                    joint.hingeEnabled = true;
-                                    joint.hingeAxis.set(0, 1, 0);
-                                    break;
-                                case 'vertical':
-                                    joint.hingeEnabled = true;
-                                    joint.hingeAxis.set(0, 0, 1);
-                                    break;
-                                default:
-                                    joint.hingeEnabled = false;
-                                    break;
-                            }
-                            joint.lowerAngle = node.angleRange[0] / 180 * Math.PI;
-                            joint.upperAngle = node.angleRange[1] / 180 * Math.PI;
-                        }
-                        ccd.resolve(_v1);
-                        const chain = this.node.parent!;
-                        for (let i = 0, len = this.chain0.length; i < len; ++i) {
-                            const joint = ccd.joints[i];
-                            const node = chain.children[i];
-                            ctx.history.setValue(node, CIkNodeRotation, new Euler().setFromQuaternion(joint.localRotation));
-                        }
                         this.mouse0.copy(_mouse1);
                         this.nodeEnd0.copy(_v1);
-                        for (let i = 0, len = this.chain0.length; i < len; ++i) {
-                            this.chain0[i].rotation.copy(ccd.joints[i].localRotation);
-                        }
+                        const index = this.chain0.children.findIndex(node => node.node.id === this.node!.id);
+                        resolveIkChain(ctx, this.chain0, index, _v1);
+                        changed = true;
                     } else {
                         // twist
                         // calculate det rot
@@ -298,7 +265,26 @@ export default class IkMoveTool extends EditorTool {
                             _invQuat.copy(prev.get(CIkNode).quaternion).invert();
                             _rotation.multiplyQuaternions(_invQuat, _rotation);
                         }
-                        ctx.history.setValue(this.node, CIkNodeRotation, new Euler().setFromQuaternion(_rotation));
+                        changed = ctx.history.setValue(this.node, CIkNodeRotation, new Euler().setFromQuaternion(_rotation));
+                        const virtualNode = this.chain0.children.find(node => node.node.id === this.node!.id)!;
+                        virtualNode.localRotation.copy(_rotation);
+                        updateIkChainLocalMatrices(this.chain0);
+                    }
+                }
+                // resolve locked ends
+                if (changed) {
+                    // reset internal ik chains to dragging start state
+                    // this avoids rotating joints into odd angles
+                    for (let child of this.chain0.children) {
+                        resetIkChains(child);
+                    }
+                    // move internal locked ended ik chains' targets to dragging start position
+                    if (this.node.id === this.chain0.children[this.chain0.children.length - 1].node.id) {
+                        for (let child of this.chain0.children) {
+                            resolveLockedEnds(ctx, child);
+                        }
+                    } else {
+                        resolveLockedEnds(ctx, this.chain0);
                     }
                 }
             }

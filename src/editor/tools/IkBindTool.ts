@@ -34,7 +34,7 @@ const _nodeRotation = new Quaternion();
 const _nodeScale = new Vector3();
 
 export default class IkBindTool extends EditorTool {
-    label = 'Bind IK Joint';
+    label = 'IK Bind';
     icon = icon;
 
     private activeView = -1;
