@@ -194,6 +194,13 @@
                                 Ver 20230131
                             </div>
                             <div style="margin-bottom: 6px;">Author: x6udpngx</div>
+                            <div style="margin-bottom: 6px;">
+                                <a href="https://github.com/x6ud/figure-doll-editor"
+                                   target="_blank"
+                                >
+                                    Source
+                                </a>
+                            </div>
                             <div>
                                 <a href="https://ko-fi.com/x6udpngx"
                                    target="_blank"
@@ -207,6 +214,12 @@
                         </div>
                     </div>
                 </popup-menu>
+                <button class="popup-menu-trigger"
+                        @click="onOpenTutorial"
+                        style="cursor: pointer;"
+                >
+                    Tutorial
+                </button>
 
                 <template v-if="editorCtx.tool.sculpt">
                     <div class="separator"></div>

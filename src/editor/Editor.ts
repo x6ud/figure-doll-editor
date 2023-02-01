@@ -745,6 +745,10 @@ export default defineComponent({
             }
         }
 
+        function onOpenTutorial() {
+            window.open('https://github.com/x6ud/figure-doll-editor#download-models');
+        }
+
         return {
             dom,
             sketchfabClient,
@@ -792,6 +796,7 @@ export default defineComponent({
             onSketchfabLogin,
             onSketchfabLogout,
             onSketchfabImportModel,
+            onOpenTutorial,
         };
     }
 });
