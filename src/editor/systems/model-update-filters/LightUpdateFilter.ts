@@ -101,10 +101,20 @@ export default class LightUpdateFilter implements ModelNodeUpdateFilter {
                 break;
             case 'PointLight': {
                 const cObject3D = node.get(CObject3D);
-                if (!cObject3D.value) {
-                    cObject3D.value = new PointLight();
+                let light = cObject3D.value as PointLight;
+                const mapSize = Number.parseInt(node.value(CMapSize));
+                if (light && light.shadow.mapSize.x !== mapSize) {
+                    light.dispose();
+                    light.removeFromParent();
+                    cObject3D.value = null;
+                    cObject3D.localTransformChanged = true;
+                    cObject3D.worldTransformChanged = true;
+                    cObject3D.parentChanged = true;
                 }
-                const light = cObject3D.value as PointLight;
+                if (!cObject3D.value) {
+                    light = cObject3D.value = new PointLight();
+                    light.shadow.mapSize.set(mapSize, mapSize);
+                }
                 light.castShadow = node.value(CCastShadow);
                 const color = node.value(CColor);
                 light.color.setRGB(color[0], color[1], color[2]);
@@ -115,6 +125,12 @@ export default class LightUpdateFilter implements ModelNodeUpdateFilter {
                     light.shadow.camera.updateProjectionMatrix();
                 }
                 const cLightHelper = node.get(CLightHelper);
+                let lightHelper = cLightHelper.value as PointLightHelper;
+                if (lightHelper && lightHelper.light !== light) {
+                    lightHelper.dispose();
+                    lightHelper.removeFromParent();
+                    cLightHelper.value = null;
+                }
                 if (!cLightHelper.value) {
                     cLightHelper.value = new PointLightHelper(light, 0.25);
                     ctx.scene.add(cLightHelper.value);

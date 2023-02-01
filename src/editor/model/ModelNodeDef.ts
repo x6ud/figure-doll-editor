@@ -336,7 +336,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         showInList: true,
         instanceable: true,
         light: true,
-        components: [CName, CVisible, CCastShadow, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
+        components: [CName, CVisible, CCastShadow, CMapSize, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
         validChildTypes: [],
         defaultData: {[CPosition.name]: new Vector3(0, 1, 0)},
