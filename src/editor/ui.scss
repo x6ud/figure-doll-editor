@@ -1,0 +1,400 @@
+// ================= layouts =================
+.rows {
+  display: flex;
+  flex-direction: column;
+
+  & > .fill {
+    flex: 1 1;
+    min-height: 0;
+  }
+}
+
+.cols {
+  display: flex;
+  flex-direction: row;
+
+  & > .fill {
+    flex: 1 1;
+    min-width: 0;
+  }
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+  background: #333;
+  color: #fff;
+}
+
+.scrollable {
+  position: relative;
+  overflow: hidden;
+
+  & > .scroll {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: -8px;
+    overflow-y: scroll;
+  }
+}
+
+// ================= menu =================
+.popup-menu-trigger {
+  &.active {
+    color: #fff;
+
+    button {
+      color: #fff;
+
+      img {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// ================= button =================
+button,
+input[type=file]::file-selector-button {
+  color: #fff;
+  border-radius: 3px;
+  transition: background-color .3s;
+  outline: none;
+  user-select: none;
+  line-height: 1em;
+}
+
+button img {
+  pointer-events: none;
+}
+
+button.icon-button {
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  &:hover {
+    background-color: #555;
+  }
+
+  &:active {
+    background-color: #222;
+  }
+
+  &:disabled {
+    background: transparent;
+    color: rgba(255, 255, 255, .5);
+
+    & > * {
+      opacity: .5;
+    }
+  }
+}
+
+.normal-button,
+input[type=file]::file-selector-button {
+  box-sizing: border-box;
+  height: 24px;
+  padding: 4px 12px;
+  border: none;
+  background: #444;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #555;
+  }
+
+  &:active {
+    background-color: #222;
+  }
+
+  &:disabled {
+    background-color: #555 !important;
+    color: rgba(255, 255, 255, .5) !important;
+  }
+}
+
+button.toggle-button {
+  img {
+    opacity: .5;
+    transition: opacity .3s;
+  }
+
+  &:hover,
+  &:active,
+  &.active {
+    img {
+      opacity: 1;
+    }
+  }
+
+  &.active {
+    background: #3390ff;
+  }
+}
+
+.switch-button {
+  background: #666;
+
+  &:hover {
+    background: #888;
+  }
+}
+
+.button-group {
+  button {
+    margin: 0;
+  }
+
+  &.rows {
+    button {
+      border-radius: 0;
+    }
+
+    button:first-child {
+      border-top-left-radius: 3px;
+      border-top-right-radius: 3px;
+    }
+
+    button:last-child {
+      border-bottom-left-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+  }
+
+  &.cols {
+    button {
+      border-radius: 0;
+    }
+
+    button:first-child {
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+    }
+
+    button:last-child {
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+  }
+}
+
+// ================= select =================
+select {
+  height: 24px;
+  line-height: 24px;
+  border-radius: 3px;
+  color: #fff;
+  background-color: #444;
+  border-color: #444;
+  outline: none;
+  font-size: 12px;
+}
+
+// ================= form =================
+.form {
+  .form-element {
+    display: flex;
+
+    label {
+      margin-right: 1em;
+    }
+  }
+}
+
+// ================= input =================
+input[type=text] {
+  box-sizing: border-box;
+  height: 24px;
+  border: none;
+  outline: none;
+  border-radius: 3px;
+  padding: 0 4px;
+  background: #444;
+  color: #fff;
+  font-size: 12px;
+
+  &:disabled {
+    background: #111;
+  }
+
+  &::selection {
+    background: #000;
+  }
+}
+
+input[type=range] {
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: #555;
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #777;
+  }
+}
+
+// ================= toolbar =================
+.toolbar {
+  display: flex;
+  align-items: center;
+  user-select: none;
+  cursor: default;
+  height: 24px;
+  padding: 0 4px;
+  background: #111;
+  font-size: 12px;
+
+  .fill {
+    flex: 1 1;
+  }
+
+  .separator {
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+    background: #555;
+  }
+
+  & > .popup-menu-trigger:not(.normal-button),
+  & > button:not(.normal-button) {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    line-height: 24px;
+    padding: 0 .5em;
+    box-sizing: border-box;
+    border: none;
+    border-radius: 0;
+    transition: background-color .3s;
+    background: transparent;
+
+    &:hover {
+      background-color: #333;
+    }
+
+    &:active {
+      background-color: #222;
+    }
+
+    &.disabled, &:disabled {
+      background-color: transparent;
+      opacity: .5;
+    }
+  }
+
+  .tab {
+    display: flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 .5em;
+    color: #888;
+    transition: color .3s, background-color .3s;
+
+    &.active,
+    &:hover,
+    &:active {
+      color: #fff;
+    }
+
+    &.active {
+      background: #333;
+    }
+  }
+
+  .normal-button {
+    min-width: 20px;
+    height: 18px;
+    line-height: 18px;
+    padding: 0 4px;
+    font-size: 8px;
+  }
+
+  .dropdown:after {
+    content: '';
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 2px;
+    transform: rotate(45deg);
+    vertical-align: middle;
+    margin: -3px 2px 0 4px;
+  }
+
+  select {
+    height: 18px;
+  }
+}
+
+// ================= properties =================
+.properties {
+  padding: 8px;
+  font-size: 12px;
+  user-select: none;
+  overflow: auto;
+
+  h4 {
+    display: flex;
+    align-items: center;
+    margin: 0 0 8px 0;
+    font-weight: normal;
+  }
+
+  hr {
+    height: 1px;
+    border: none;
+    background: #444;
+    margin: 12px 0;
+  }
+
+  .property {
+    &:not(last-child) {
+      margin-bottom: 8px;
+    }
+
+    &:not(.inline) {
+      display: flex;
+      flex-direction: column;
+
+      & > label,
+      & > .label {
+        flex: 1 1;
+        min-width: 0;
+        margin-bottom: .5em;
+      }
+
+      .value {
+        flex: 1 1;
+        min-width: 0;
+      }
+    }
+
+    &.inline {
+      display: flex;
+      align-items: center;
+
+      & > label,
+      & > .label {
+        text-align: right;
+        margin-right: .5em;
+        white-space: nowrap;
+      }
+
+      & > .value {
+        flex: 1 1;
+        min-width: 0;
+      }
+    }
+  }
+}
