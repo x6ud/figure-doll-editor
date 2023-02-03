@@ -20,6 +20,7 @@ import CustomShapeUpdateFilter from './systems/model-update-filters/CustomShapeU
 import IkChainUpdateFilter from './systems/model-update-filters/IkChainUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
 import ImportModelUpdateFilter from './systems/model-update-filters/ImportModelUpdateFilter';
+import InstanceNodeUpdateFilter from './systems/model-update-filters/InstanceNodeUpdateFilter';
 import LightHelperUpdateFilter from './systems/model-update-filters/LightHelperUpdateFilter';
 import LightUpdateFilter from './systems/model-update-filters/LightUpdateFilter';
 import MaterialUpdateFilter from './systems/model-update-filters/MaterialUpdateFilter';
@@ -38,6 +39,7 @@ import BoxTool from './tools/BoxTool';
 import CursorTool from './tools/CursorTool';
 import EditorTool from './tools/EditorTool';
 import IkBindTool from './tools/IkBindTool';
+import IkJointStretchTool from './tools/IkJointStretchTool';
 import IkMoveTool from './tools/IkMoveTool';
 import IkRotateTool from './tools/IkRotateTool';
 import RescaleTool from './tools/RescaleTool';
@@ -55,7 +57,6 @@ import ToolSeperator from './tools/ToolSeperator';
 import TranslateTool from './tools/TranslateTool';
 import TubeTool from './tools/TubeTool';
 import UpdateSystem from './utils/UpdateSystem';
-import InstanceNodeUpdateFilter from "./systems/model-update-filters/InstanceNodeUpdateFilter";
 
 export default class EditorContext {
 
@@ -98,9 +99,11 @@ export default class EditorContext {
         new RotateTool(),
         new RescaleTool(),
         ToolSeperator.instance,
-        new IkBindTool(),
         new IkRotateTool(),
         new IkMoveTool(),
+        ToolSeperator.instance,
+        new IkBindTool(),
+        new IkJointStretchTool(),
         ToolSeperator.instance,
         new BoxTool(),
         new TubeTool(),

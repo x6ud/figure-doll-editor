@@ -16,6 +16,7 @@ const MAX_STACK_SIZE = 200;
 
 type Record = {
     hash: string;
+    empty?: boolean;
     redo: () => void;
     undo: () => void;
     setCtx?: (ctx: any) => void;
@@ -93,6 +94,10 @@ export default class ModelHistory {
         if (!this.currentFrameRecords.length) {
             return;
         }
+        if (!this.currentFrameRecords.find(record => !record.empty)) {
+            this.currentFrameRecords.length = 0;
+            return;
+        }
         this.redoStack.length = 0;
 
         const redoList: (() => void)[] = [];
@@ -100,6 +105,9 @@ export default class ModelHistory {
         let getCtx: (() => any) | undefined = undefined;
         let setCtx: ((ctx: any) => void) | undefined = undefined;
         for (let record of this.currentFrameRecords) {
+            if (record.empty) {
+                continue;
+            }
             redoList.push(record.redo);
             undoList.push(record.undo);
             getCtx = getCtx || record.getCtx;
@@ -448,6 +456,21 @@ export default class ModelHistory {
         const nodeId = node.id;
         const oldValue = node.value(componentClass);
         const hash = nodeId + '#' + (hashName || componentClass.name);
+
+        const componentDef = getModelNodeComponentDef(componentClass.name);
+        if (componentDef.equal) {
+            if (componentDef.equal(oldValue, value)) {
+                this.currentFrameRecords.push({
+                    hash,
+                    empty: true,
+                    redo() {
+                    },
+                    undo() {
+                    }
+                });
+                return false;
+            }
+        }
         if (oldValue === value) {
             // push an empty record to ensure merged record hash unchanged
             this.currentFrameRecords.push({
@@ -458,12 +481,6 @@ export default class ModelHistory {
                 }
             });
             return false;
-        }
-        const componentDef = getModelNodeComponentDef(componentClass.name);
-        if (componentDef.equal) {
-            if (componentDef.equal(oldValue, value)) {
-                return false;
-            }
         }
         this.currentFrameRecords = this.currentFrameRecords.filter(record => record.hash !== hash);
         this.currentFrameRecords.push({
@@ -477,6 +494,27 @@ export default class ModelHistory {
             },
         });
         return true;
+    }
+
+    mergeLastRecord(targetRecord: { node: ModelNode, componentClass: Class<ModelNodeComponent<any>>, hashName?: string }[]) {
+        const lastRecord = this.undoStack[this.undoStack.length - 1];
+        if (!lastRecord) {
+            return;
+        }
+        const hash: string[] = [];
+        for (let record of targetRecord) {
+            hash.push(record.node.id + '#' + (record.hashName || record.componentClass.name));
+        }
+        let recordHash = hash.sort().join('@');
+        let lastRecordHash = lastRecord.hash;
+        if (lastRecordHash.endsWith('!')) {
+            lastRecordHash = lastRecordHash.substring(0, lastRecordHash.length - 1);
+        }
+        if (recordHash === lastRecordHash) {
+            this.undoStack.pop();
+            lastRecord.hash = lastRecordHash;
+            this.currentFrameRecords.push(lastRecord);
+        }
     }
 
     updateVertices(node: ModelNode, componentClass: Class<CVertices | CColors>, indices: number[], data: Float32Array) {

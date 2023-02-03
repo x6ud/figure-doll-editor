@@ -38,23 +38,28 @@
                     <popup-menu-item title="Paste" hotkey="Ctrl+V" @click="onPaste"/>
                     <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"/>
                     <popup-menu-item sep/>
-                    <popup-menu-item title="Moving Nodes: Keep World Position Unchanged"
+                    <popup-menu-item title="Move Nodes: Keep World Position Unchanged"
                                      @click="editorCtx.options.keepTransformUnchangedWhileMoving = !editorCtx.options.keepTransformUnchangedWhileMoving"
                                      :checked="editorCtx.options.keepTransformUnchangedWhileMoving"
                     />
                     <popup-menu-item sep/>
-                    <popup-menu-item title="Transform Control: Use Local Space"
+                    <popup-menu-item title="Transform: Use Local Space For Controls"
                                      @click="editorCtx.options.useLocalSpaceForTransformControl = !editorCtx.options.useLocalSpaceForTransformControl"
                                      :checked="editorCtx.options.useLocalSpaceForTransformControl"
                     />
                     <popup-menu-item sep/>
-                    <popup-menu-item title="IK Bindings: Allow Modification of Joint Length"
+                    <popup-menu-item title="IK Bind: Allow Modification of Joint Length"
                                      @click="editorCtx.options.allowModifyingBoneLengthWhenBindingIk = !editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
                                      :checked="editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
                     />
-                    <popup-menu-item title="IK Bindings: Keep Internal Object Position Unchanged"
+                    <popup-menu-item title="IK Bind: Keep Internal Object Position Unchanged"
                                      @click="editorCtx.options.keepInternalTransformWhenBindingIk = !editorCtx.options.keepInternalTransformWhenBindingIk"
                                      :checked="editorCtx.options.keepInternalTransformWhenBindingIk"
+                    />
+                    <popup-menu-item sep/>
+                    <popup-menu-item title="Stretch Joint: Keep Both Ends of Clay Nodes Unchanged"
+                                     @click="editorCtx.options.keepBothEndsOfClayNodesWhenStretching = !editorCtx.options.keepBothEndsOfClayNodesWhenStretching"
+                                     :checked="editorCtx.options.keepBothEndsOfClayNodesWhenStretching"
                     />
                 </popup-menu>
                 <popup-menu title="View">
@@ -191,7 +196,7 @@
                                 <span style="font-size: 16px; font-weight: bold;">
                                     Figure Doll Editor
                                 </span>
-                                Ver 20230131
+                                Ver 20230203
                             </div>
                             <div style="margin-bottom: 6px;">Author: x6udpngx</div>
                             <div style="margin-bottom: 6px;">

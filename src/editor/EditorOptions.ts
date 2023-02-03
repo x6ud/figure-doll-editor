@@ -9,6 +9,7 @@ export default class EditorOptions {
     useLocalSpaceForTransformControl: boolean = true;
     allowModifyingBoneLengthWhenBindingIk: boolean = true;
     keepInternalTransformWhenBindingIk: boolean = true;
+    keepBothEndsOfClayNodesWhenStretching: boolean = true;
 
     quadView: boolean = false;
     outlineSelected: boolean = true;

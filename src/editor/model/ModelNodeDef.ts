@@ -40,6 +40,7 @@ import CShowRotateHandler from './components/CShowRotateHandler';
 import CSkyColor from './components/CSkyColor';
 import CSpotLightAngle from './components/CSpotLightAngle';
 import CSymmetry from './components/CSymmetry';
+import CTemporaryScale from './components/CTemporaryScale';
 import CTextureSize from './components/CTextureSize';
 import CTube from './components/CTube';
 import CVertices from './components/CVertices';
@@ -206,6 +207,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
             CVertices,
             CColors,
             CSymmetry,
+            CTemporaryScale,
         ],
         canBeRoot: true,
         validChildTypes: [],

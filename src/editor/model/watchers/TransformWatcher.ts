@@ -3,12 +3,13 @@ import CObject3D from '../components/CObject3D';
 import CPosition from '../components/CPosition';
 import CRotation from '../components/CRotation';
 import CScale from '../components/CScale';
+import CTemporaryScale from '../components/CTemporaryScale';
 import Model from '../Model';
 import ModelNode from '../ModelNode';
 import ModelNodeChangedWatcher from '../ModelNodeChangedWatcher';
 import ModelNodeComponent from '../ModelNodeComponent';
 
-const transformComponents = [CPosition, CRotation, CScale];
+const transformComponents = [CPosition, CRotation, CScale, CTemporaryScale];
 
 export default class TransformWatcher implements ModelNodeChangedWatcher {
 

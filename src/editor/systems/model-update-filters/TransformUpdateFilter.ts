@@ -4,6 +4,7 @@ import CObject3D from '../../model/components/CObject3D';
 import CPosition from '../../model/components/CPosition';
 import CRotation from '../../model/components/CRotation';
 import CScale from '../../model/components/CScale';
+import CTemporaryScale from '../../model/components/CTemporaryScale';
 import CTube from '../../model/components/CTube';
 import ModelNode from '../../model/ModelNode';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
@@ -23,6 +24,9 @@ export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
                     }
                     if (node.has(CScale)) {
                         mesh.scale.x = mesh.scale.y = mesh.scale.z = node.value(CScale);
+                    }
+                    if (node.has(CTemporaryScale)) {
+                        mesh.scale.multiply(node.value(CTemporaryScale));
                     }
                     if (node.has(CIkNode)) {
                         const cIkNode = node.get(CIkNode);
