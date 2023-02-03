@@ -36,9 +36,15 @@ export default class IkJointStretchTool extends EditorTool {
         this.cleanup(ctx);
 
         // find selected ik node
-        this.node = ctx.model.getSelectedNodes()[0] || null;
+        this.node = null;
+        for (let node of ctx.model.getSelectedNodes()) {
+            if (!node.instanceId) {
+                this.node = node;
+                break;
+            }
+        }
         while (this.node) {
-            if (this.node.type === 'IKNode') {
+            if (this.node.type === 'IKNode' && !this.node.instanceId) {
                 break;
             }
             this.node = this.node.parent;
@@ -86,7 +92,7 @@ export default class IkJointStretchTool extends EditorTool {
             if (input.pointerOver && input.mouseLeftDownThisFrame) {
                 for (let picking of view.mousePick()) {
                     const node = (picking.object.userData as Object3DUserData).node;
-                    if (node) {
+                    if (node && !node.instanceId) {
                         ctx.model.selected = [node.id];
                         break;
                     }
