@@ -300,7 +300,7 @@ export default defineComponent({
             try {
                 fileHandle = await showSaveFilePicker({
                     types: [filePickerAcceptType],
-                    suggestedName: filename.value ? filename.value + extension : undefined
+                    suggestedName: filename.value || undefined
                 });
             } catch (e) {
                 return;
