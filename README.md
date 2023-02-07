@@ -1,4 +1,4 @@
-# x6ud.github.io/figure-doll-editor
+# [x6ud.github.io/figure-doll-editor](https://x6ud.github.io/figure-doll-editor/)
 
 A 3D editor for creating drawing reference models.
 
@@ -16,7 +16,7 @@ Click `File`->`Import...` to import the model.
 
 Rotate the camera with the mouse right button, drag the camera with the mouse middle button.
 
-Rotate the joints with ![Move Single Joint](./images/ik-rotate-tool.jpg) and ![Move Ik Chain](./images/ik-move-tool.jpg)
+Rotate the joints with the ![Move Single Joint](./images/ik-rotate-tool.jpg) and ![Move Ik Chain](./images/ik-move-tool.jpg)
 tool.
 
 ![](./images/rotate-joint.gif)
@@ -29,7 +29,7 @@ You can flip the model pose by right-clicking the node -> click `Flip`.
 
 Click `Add`->`Point Light` to create a light node.
 
-Move the light with ![Translate](./images/translate-tool.jpg) tool.
+Move the light with the ![Translate](./images/translate-tool.jpg) tool.
 
 Click the ![Shadow On](./images/shading-rendered.jpg) button in the upper right corner to enable lighting.
 
@@ -59,15 +59,31 @@ Copy the model page address, go back to the editor and paste it in the `Sketchfa
 press `Enter` and wait for the model to download.
 
 If the model size is too large it may not be visible in the editor. You can resize the model
-with ![Rescale](./images/rescale-tool.jpg) tool.
+with the ![Rescale](./images/rescale-tool.jpg) tool.
 
 ### Paint on the model
 
-You can paint on the model with ![Sculpt Paint](./images/sculpt-paint-tool.jpg) tool.
+You can paint on the model with the ![Sculpt Paint](./images/sculpt-paint-tool.jpg) tool.
 
-Note that it only works on clay nodes.
+Note that it only works on `Clay` nodes.
 
 ![](./images/painting.gif)
+
+### Adjust the model
+
+You can use the ![Stretch Joint](./images/ik-joint-stretch-tool.jpg) to stretch the model's limbs.
+
+![](./images/stretching-limb.gif)
+
+### Shadow nodes
+
+A clone/mirror of the model can be created by right-clicking the node -> click `Create Shadow Node` or `Create Mirror Shadow Node`.
+
+The names of the shadow nodes are shown in gray. Shadow nodes have the same geometry as the original node, even if the original geometry is modified.
+
+Sculpting tools cannot be used on shadow nodes.
+
+![](./images/shadow.gif)
 
 ## Development
 
