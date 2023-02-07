@@ -43,6 +43,7 @@ import CSymmetry from './components/CSymmetry';
 import CTemporaryScale from './components/CTemporaryScale';
 import CTextureSize from './components/CTextureSize';
 import CTube from './components/CTube';
+import CUsePlainMaterial from './components/CUsePlainMaterial';
 import CVertices from './components/CVertices';
 import CVisible from './components/CVisible';
 import CWidth from './components/CWidth';
@@ -266,7 +267,9 @@ export const modelNodeDefs: ModelNodeDef[] = [
         mesh: true,
         components: [
             CCredit,
-            CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D,
+            CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale,
+            CUsePlainMaterial, CRoughness, CMetalness, CColor, CEmissive,
+            COpacity, CObject3D,
             CImportReadonlyGltf,
         ],
         canBeRoot: true,

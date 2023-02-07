@@ -1,4 +1,5 @@
 import {BufferGeometry, InstancedMesh, Material, Object3D} from 'three';
+import {BackupMaterial} from '../../systems/model-update-filters/MaterialUpdateFilter';
 import DynamicMesh from '../../utils/geometry/dynamic/DynamicMesh';
 import ModelNode from '../ModelNode';
 import ModelNodeComponent from '../ModelNodeComponent';
@@ -13,6 +14,7 @@ export default class CObject3D extends ModelNodeComponent<Object3D | null> {
     mesh?: DynamicMesh;
     /** Object belongs to a shadow node */
     instance: boolean = false;
+    usePlainMaterial: boolean = false;
 
     onRemoved() {
         this.dispose();
@@ -55,6 +57,17 @@ export function disposeObject3D(obj: Object3D) {
                 disposeMaterial(material as Material);
             }
         }
+    }
+    const backupMaterialObj = obj as BackupMaterial;
+    if (backupMaterialObj.__originalMaterial) {
+        if (backupMaterialObj.__originalMaterial instanceof Array) {
+            backupMaterialObj.__originalMaterial.forEach(disposeMaterial);
+        } else {
+            disposeMaterial(backupMaterialObj.__originalMaterial);
+        }
+    }
+    if (backupMaterialObj.__plainMaterial) {
+        disposeMaterial(backupMaterialObj.__plainMaterial);
     }
 }
 

@@ -15,6 +15,7 @@ import CustomShapeWatcher from './watchers/CustomShapeWatcher';
 import IkNodeWatcher from './watchers/IkNodeWatcher';
 import ImageWatcher from './watchers/ImageWatcher';
 import ImportModelWatcher from './watchers/ImportModelWatcher';
+import MaterialWatcher from './watchers/MaterialWatcher';
 import OpacityWatcher from './watchers/OpacityWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
 
@@ -35,6 +36,7 @@ export default class Model {
         new BoxWatcher(),
         new CustomShapeWatcher(),
         new ClayWatcher(),
+        new MaterialWatcher(),
     ];
     /** True if any node needs to be updated */
     dirty: boolean = true;

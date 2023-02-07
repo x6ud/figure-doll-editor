@@ -13,6 +13,7 @@ import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
 import CFlipDirection from '../model/components/CFlipDirection';
 import CObject3D, {Object3DUserData} from '../model/components/CObject3D';
+import CUsePlainMaterial from '../model/components/CUsePlainMaterial';
 import CVisible from '../model/components/CVisible';
 import ModelNode from '../model/ModelNode';
 import {getModelNodeDef} from '../model/ModelNodeDef';
@@ -50,7 +51,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
 
     begin(ctx: EditorContext): void {
         ctx = ctx.readonlyRef();
-        const self = toRaw(this);
+        const rawThis = toRaw(this);
         if (ctx.model.dirty) {
             // list dirty nodes
             ctx.model.forEach(node => {
@@ -64,7 +65,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
                 }
             });
             // run filters
-            for (let filter of self.filters) {
+            for (let filter of rawThis.filters) {
                 for (let node of _dirtyNodes) {
                     filter.update(ctx, node);
                 }
@@ -79,31 +80,34 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         if (ctx.model.instanceDirty) {
             ctx.model.instanceDirty = false;
             ctx.model.forEach(node => {
-                if (node.instanceId && node.instanceMeshDirty) {
-                    node.instanceMeshDirty = false;
-                    const def = getModelNodeDef(node.type);
-                    if (!def.mesh) {
-                        return;
+                if (node.instanceId) {
+                    if (node.instanceMeshDirty) {
+                        node.instanceMeshDirty = false;
+                        const def = getModelNodeDef(node.type);
+                        if (!def.mesh) {
+                            return;
+                        }
+                        let rebuild = node.instanceMeshRebuild;
+                        if (node.instanceMeshRebuild) {
+                            node.instanceMeshRebuild = false;
+                            rawThis.recreateInstanceMesh(ctx, node);
+                        }
+                        if (node.has(CFlipDirection)) {
+                            // update mirror node geometries
+                            ctx.throttle(
+                                `#${node.id}-update-instance-mirror-geometry`,
+                                250,
+                                () => {
+                                    if (node.deleted) {
+                                        return;
+                                    }
+                                    rawThis.updateInstanceMirrorGeometry(ctx, node);
+                                },
+                                node.visible && rebuild
+                            );
+                        }
                     }
-                    let rebuild = node.instanceMeshRebuild;
-                    if (node.instanceMeshRebuild) {
-                        node.instanceMeshRebuild = false;
-                        self.recreateInstanceMesh(ctx, node);
-                    }
-                    if (node.has(CFlipDirection)) {
-                        // update mirror node geometries
-                        ctx.throttle(
-                            `#${node.id}-update-instance-mirror-geometry`,
-                            250,
-                            () => {
-                                if (node.deleted) {
-                                    return;
-                                }
-                                self.updateInstanceMirrorGeometry(ctx, node);
-                            },
-                            node.visible && rebuild
-                        );
-                    }
+                    rawThis.updateInstanceMaterial(ctx, node);
                 }
             });
             ctx.model.dirty = true;
@@ -167,6 +171,46 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
         cObject3D.parentChanged = true;
         cObject3D.localTransformChanged = true;
         cObject3D.worldTransformChanged = true;
+        cObject3D.usePlainMaterial = target.get(CObject3D).usePlainMaterial;
+    }
+
+    private updateInstanceMaterial(ctx: EditorContext, node: ModelNode) {
+        if (!node.has(CObject3D)) {
+            return;
+        }
+        if (!node.has(CUsePlainMaterial)) {
+            return;
+        }
+        const target = ctx.model.getNode(node.instanceId);
+        const cObject3D = node.get(CObject3D);
+        const cTargetObject3D = target.get(CObject3D);
+        if (cObject3D.usePlainMaterial === cTargetObject3D.usePlainMaterial) {
+            return;
+        }
+        cObject3D.usePlainMaterial = cTargetObject3D.usePlainMaterial;
+        if (!cObject3D.value) {
+            return;
+        }
+        if (!cTargetObject3D.value) {
+            return;
+        }
+        const stack: [Object3D, Object3D][] = [[cObject3D.value, cTargetObject3D.value]];
+        while (stack.length) {
+            const pair = stack.pop();
+            if (!pair) {
+                break;
+            }
+            const obj = pair[0] as Mesh;
+            const target = pair[1] as Mesh;
+            if (obj.isMesh) {
+                obj.material = target.material;
+            }
+            if (obj.children.length === target.children.length) {
+                for (let i = 0, len = obj.children.length; i < len; ++i) {
+                    stack.push([obj.children[i], target.children[i]]);
+                }
+            }
+        }
     }
 
     private updateInstanceMirrorGeometry(ctx: EditorContext, node: ModelNode) {
