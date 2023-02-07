@@ -1,4 +1,5 @@
 import {Box3, BufferGeometry, Euler, Line, LineBasicMaterial, Matrix4, Quaternion, Vector3} from 'three';
+import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CObject3D from '../model/components/CObject3D';
@@ -97,7 +98,7 @@ export default class RescaleTool extends EditorTool {
                 if (this.nodes[0].has(CObject3D)) {
                     const object3D = this.nodes[0].value(CObject3D);
                     if (object3D) {
-                        _box.setFromObject(object3D);
+                        _box.setFromObject(toRaw(object3D));
                         const dx = (_box.max.x - _box.min.x).toFixed(2);
                         const dy = (_box.max.y - _box.min.y).toFixed(2);
                         const dz = (_box.max.z - _box.min.z).toFixed(2);
