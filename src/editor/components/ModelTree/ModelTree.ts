@@ -29,6 +29,8 @@ export default defineComponent({
         'applyTransformation',
         'createInstance',
         'flip',
+        'copyPose',
+        'pastePose',
     ],
     setup(props, ctx) {
         const contextMenu = ref<{ show(trigger: HTMLElement, position: { x: number, y: number }): void }>();
@@ -181,6 +183,22 @@ export default defineComponent({
             ctx.emit('flip', contextMenuNode.value, mode);
         }
 
+        const hasPose = computed(function () {
+            const node = contextMenuNode.value;
+            if (!node) {
+                return false;
+            }
+            return ['IKChain'].includes(node.type);
+        });
+
+        function onCopyPose() {
+            ctx.emit('copyPose', contextMenuNode.value);
+        }
+
+        function onPastePose() {
+            ctx.emit('pastePose', contextMenuNode.value);
+        }
+
         return {
             contextMenu,
             onSetValue,
@@ -206,6 +224,9 @@ export default defineComponent({
             onCreateInstance,
             canFlip,
             onFlip,
+            hasPose,
+            onCopyPose,
+            onPastePose,
         };
     }
 });

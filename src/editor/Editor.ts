@@ -19,6 +19,7 @@ import SidePanel from './components/SidePanel/SidePanel.vue';
 import {showAlertDialog, showConfirmDialog} from './dialogs/dialogs';
 import {copyModelSelected, cutModelSelected, pastedModelNodes} from './editor-functions/clipboard';
 import {convertModelNodeToClay} from './editor-functions/convert-to-clay';
+import {copyPose, pastePose} from './editor-functions/copy-pose';
 import {createInstanceNode} from './editor-functions/create-instance-node';
 import {exportModel} from './editor-functions/export-model';
 import {flipNode} from './editor-functions/flip-node';
@@ -637,6 +638,14 @@ export default defineComponent({
             flipNode(editorCtx.value!, node, mode);
         }
 
+        function onCopyPose(node: ModelNode) {
+            return copyPose(node);
+        }
+
+        function onPastePose(node: ModelNode) {
+            return pastePose(editorCtx.value!, node);
+        }
+
         function onLoadCamera(camera: CameraConfig) {
             const ctx = editorCtx.value!;
             const model = ctx.model;
@@ -790,6 +799,8 @@ export default defineComponent({
             onRemesh,
             onCreateInstance,
             onFlip,
+            onCopyPose,
+            onPastePose,
             onLoadCamera,
             onDeleteCamera,
             onSaveCamera,

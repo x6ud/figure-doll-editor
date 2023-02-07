@@ -42,6 +42,11 @@
                     <popup-menu-item title="Create Vertical Mirroring Shadow Node" @click="onCreateInstance('y')"/>
                 </template>
             </template>
+            <template v-if="hasPose">
+                <popup-menu-item sep/>
+                <popup-menu-item title="Copy Pose" @click="onCopyPose"/>
+                <popup-menu-item title="Paste Pose" @click="onPastePose"/>
+            </template>
             <popup-menu-item sep/>
             <popup-menu-item title="Cut" hotkey="Ctrl+X" @click="onCut"
                              :disabled="!model.selected.length"

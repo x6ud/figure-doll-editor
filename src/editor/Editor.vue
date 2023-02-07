@@ -196,7 +196,7 @@
                                 <span style="font-size: 16px; font-weight: bold;">
                                     Figure Doll Editor
                                 </span>
-                                Ver 20230203
+                                Ver 20230207
                             </div>
                             <div style="margin-bottom: 6px;">Author: x6udpngx</div>
                             <div style="margin-bottom: 6px;">
@@ -408,6 +408,8 @@
                                 @apply-transformation="onApplyTransformation"
                                 @create-instance="onCreateInstance"
                                 @flip="onFlip"
+                                @copy-pose="onCopyPose"
+                                @paste-pose="onPastePose"
                     />
                 </div>
             </side-panel>
