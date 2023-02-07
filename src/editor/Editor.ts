@@ -37,6 +37,7 @@ import CScale from './model/components/CScale';
 import CVertices from './model/components/CVertices';
 import ModelNode, {ModelNodeJson} from './model/ModelNode';
 import ModelNodeComponent from './model/ModelNodeComponent';
+import {getModelNodeComponentDef} from './model/ModelNodeComponentDef';
 import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} from './model/ModelNodeDef';
 import ProjectReader from './ProjectReader';
 import ProjectWriter from './ProjectWriter';
@@ -512,8 +513,21 @@ export default defineComponent({
         }
 
         function onSetNodesProperties(items: { node: ModelNode, type: Class<ModelNodeComponent<any>>, value: any }[]) {
+            const alreadySet = new Set<string>();
             for (let item of items) {
-                editorCtx.value!.history.setValue(item.node, item.type, item.value);
+                let node = item.node;
+                if (node.instanceId) {
+                    const componentDef = getModelNodeComponentDef(item.type.name);
+                    if (!componentDef.instanceable) {
+                        node = editorCtx.value!.model.getNode(node.instanceId);
+                    }
+                }
+                const hash = `${node.id}#${item.type.name}`;
+                if (alreadySet.has(hash)) {
+                    continue;
+                }
+                alreadySet.add(hash);
+                editorCtx.value!.history.setValue(node, item.type, item.value);
             }
         }
 

@@ -7,7 +7,7 @@ import ModelNodeComponent from '../ModelNodeComponent';
 
 export default class MaterialWatcher implements ModelNodeChangedWatcher {
     onValueChanged(model: Model, node: ModelNode, componentClass: Class<ModelNodeComponent<any>>): void {
-        if (componentClass === CUsePlainMaterial) {
+        if (componentClass === CUsePlainMaterial && !node.instanceId) {
             model.instanceMeshUpdated(node.id, false);
         }
     }
