@@ -16,7 +16,7 @@ import LightUpdateSystem from './systems/LightUpdateSystem';
 import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
 import ClayUpdateFilter from './systems/model-update-filters/ClayUpdateFilter';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
-import CustomShapeUpdateFilter from './systems/model-update-filters/CustomShapeUpdateFilter';
+import SdfShapeUpdateFilter from './systems/model-update-filters/SdfShapeUpdateFilter';
 import IkChainUpdateFilter from './systems/model-update-filters/IkChainUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
 import ImportModelUpdateFilter from './systems/model-update-filters/ImportModelUpdateFilter';
@@ -67,7 +67,7 @@ export default class EditorContext {
             new ImageUpdateFilter(),
             new ImportModelUpdateFilter(),
             new BoxUpdateFilter(),
-            new CustomShapeUpdateFilter(),
+            new SdfShapeUpdateFilter(),
             new TubeUpdateFilter(),
             new ClayUpdateFilter(),
             new MirrorUpdateFilter(),

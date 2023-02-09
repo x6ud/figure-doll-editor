@@ -3,13 +3,14 @@ import EditorContext from '../../EditorContext';
 import CObject3D, {Object3DUserData} from '../../model/components/CObject3D';
 import CSdfDirty from '../../model/components/CSdfDirty';
 import CSdfOperator from '../../model/components/CSdfOperator';
+import CSmooth from '../../model/components/CSmooth';
 import CSymmetry from '../../model/components/CSymmetry';
 import CTube from '../../model/components/CTube';
 import ModelNode from '../../model/ModelNode';
 import SdfMeshBuilder from '../../utils/geometry/SdfMeshBuilder';
 import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
-export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
+export default class SdfShapeUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {
         if (node.instanceId) {
             return;
@@ -30,7 +31,7 @@ export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
             );
             (cObject3D.value.userData as Object3DUserData) = {node};
         }
-        cSdfDirty.throttleHash = `#${node.id}-update-custom-shape-geometry`;
+        cSdfDirty.throttleHash = `#${node.id}-update-sdf-shape-geometry`;
         ctx.throttle(
             cSdfDirty.throttleHash,
             25,
@@ -40,6 +41,7 @@ export default class CustomShapeUpdateFilter implements ModelNodeUpdateFilter {
                 }
                 cSdfDirty.throttleHash = '';
                 const builder = new SdfMeshBuilder();
+                builder.smoothRange = node.value(CSmooth);
                 switch (node.value(CSymmetry)) {
                     case 'x':
                         builder.symmetryAxis = 0;

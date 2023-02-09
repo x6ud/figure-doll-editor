@@ -38,6 +38,7 @@ import CShadowMappingRange from './components/CShadowMappingRange';
 import CShowMoveHandler from './components/CShowMoveHandler';
 import CShowRotateHandler from './components/CShowRotateHandler';
 import CSkyColor from './components/CSkyColor';
+import CSmooth from './components/CSmooth';
 import CSpotLightAngle from './components/CSpotLightAngle';
 import CSymmetry from './components/CSymmetry';
 import CTemporaryScale from './components/CTemporaryScale';
@@ -170,6 +171,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
             COpacity,
             CObject3D,
             CSdfDirty,
+            CSmooth,
             CSymmetry,
         ],
         canBeRoot: true,

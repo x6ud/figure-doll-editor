@@ -17,8 +17,8 @@ const _rot = new Quaternion();
 const _unitX = new Vector3(1, 0, 0);
 const _mat = new Matrix4();
 
-const MIN_RADIUS = 0.005;
-const RESIZE_STEP = 0.005;
+const MIN_RADIUS = 0.003;
+const RESIZE_STEP = 0.003;
 const MAX_RADIUS = 5;
 const SNAP_STEP = 0.05;
 

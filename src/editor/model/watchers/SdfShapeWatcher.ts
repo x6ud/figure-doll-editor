@@ -1,6 +1,7 @@
 import Class from '../../../common/type/Class';
 import CSdfDirty from '../components/CSdfDirty';
 import CSdfOperator from '../components/CSdfOperator';
+import CSmooth from '../components/CSmooth';
 import CSymmetry from '../components/CSymmetry';
 import CTube from '../components/CTube';
 import Model from '../Model';
@@ -8,7 +9,7 @@ import ModelNode from '../ModelNode';
 import ModelNodeChangedWatcher from '../ModelNodeChangedWatcher';
 import ModelNodeComponent from '../ModelNodeComponent';
 
-export default class CustomShapeWatcher implements ModelNodeChangedWatcher {
+export default class SdfShapeWatcher implements ModelNodeChangedWatcher {
 
     onValueChanged(model: Model, node: ModelNode, componentClass: Class<ModelNodeComponent<any>>): void {
         if (componentClass === CTube) {
@@ -22,7 +23,7 @@ export default class CustomShapeWatcher implements ModelNodeChangedWatcher {
                 node.parent.dirty = true;
                 node.parent.get(CSdfDirty).value = true;
             }
-        } else if (componentClass === CSymmetry && node.type === 'Shape') {
+        } else if ((componentClass === CSymmetry || componentClass === CSmooth) && node.type === 'Shape') {
             node.get(CSdfDirty).value = true;
         }
     }

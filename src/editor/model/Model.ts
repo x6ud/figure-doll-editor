@@ -11,7 +11,7 @@ import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 import {getModelNodeDef} from './ModelNodeDef';
 import BoxWatcher from './watchers/BoxWatcher';
 import ClayWatcher from './watchers/ClayWatcher';
-import CustomShapeWatcher from './watchers/CustomShapeWatcher';
+import SdfShapeWatcher from './watchers/SdfShapeWatcher';
 import IkNodeWatcher from './watchers/IkNodeWatcher';
 import ImageWatcher from './watchers/ImageWatcher';
 import ImportModelWatcher from './watchers/ImportModelWatcher';
@@ -34,7 +34,7 @@ export default class Model {
         new ImageWatcher(),
         new ImportModelWatcher(),
         new BoxWatcher(),
-        new CustomShapeWatcher(),
+        new SdfShapeWatcher(),
         new ClayWatcher(),
         new MaterialWatcher(),
     ];
