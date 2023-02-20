@@ -268,7 +268,7 @@ export default class IkRotateTool extends EditorTool {
                         const sign = Math.sign(_realAxis.dot(_hingeAxis));
                         const angleRange = this.node.value(CHingeAngleRange);
                         let lower = angleRange[0];
-                        let upper = angleRange[0];
+                        let upper = angleRange[1];
                         if (this.node.instanceId && this.node.has(CFlipDirection)) {
                             const flipDir = this.node.value(CFlipDirection);
                             switch (this.node.value(CHingeAxis)) {
