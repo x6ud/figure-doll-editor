@@ -1,6 +1,7 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import CFlipDirection from '../model/components/CFlipDirection';
 import CHingeAngleRange from '../model/components/CHingeAngleRange';
 import CHingeAxis from '../model/components/CHingeAxis';
 import CIkNode from '../model/components/CIkNode';
@@ -266,7 +267,26 @@ export default class IkRotateTool extends EditorTool {
                         let angle = getAxisAngle(_realAxis, _rotation);
                         const sign = Math.sign(_realAxis.dot(_hingeAxis));
                         const angleRange = this.node.value(CHingeAngleRange);
-                        angle = clampAngle(angle * sign, angleRange[0] / 180 * Math.PI, angleRange[1] / 180 * Math.PI);
+                        let lower = angleRange[0];
+                        let upper = angleRange[0];
+                        if (this.node.instanceId && this.node.has(CFlipDirection)) {
+                            const flipDir = this.node.value(CFlipDirection);
+                            switch (this.node.value(CHingeAxis)) {
+                                case 'horizontal':
+                                    if (flipDir.z > 1e-6) {
+                                        [lower, upper] = [-upper, -lower];
+                                    }
+                                    break;
+                                case 'vertical':
+                                    if (flipDir.y > 1e-6) {
+                                        [lower, upper] = [-upper, -lower];
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        angle = clampAngle(angle * sign, lower / 180 * Math.PI, upper / 180 * Math.PI);
                         _rotation.setFromAxisAngle(_hingeAxis, angle);
                     }
                     ctx.history.setValue(this.node, CIkNodeRotation, new Euler().setFromQuaternion(_rotation));

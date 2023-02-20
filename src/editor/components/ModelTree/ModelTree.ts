@@ -1,5 +1,6 @@
 import {computed, defineComponent, ref, toRaw} from 'vue';
 import Class from '../../../common/type/Class';
+import CFlipDirection from '../../model/components/CFlipDirection';
 import Model from '../../model/Model';
 import ModelNode from '../../model/ModelNode';
 import ModelNodeComponent from '../../model/ModelNodeComponent';
@@ -167,6 +168,14 @@ export default defineComponent({
             return !!def.instanceable && !def.unique;
         });
 
+        const canCreateMirrorInstance = computed(function () {
+            const node = contextMenuNode.value;
+            if (!node) {
+                return false;
+            }
+            return !node.has(CFlipDirection);
+        });
+
         function onCreateInstance(mirror: string) {
             ctx.emit('createInstance', contextMenuNode.value, mirror);
         }
@@ -221,6 +230,7 @@ export default defineComponent({
             canApplyTransformation,
             onApplyTransformation,
             canCreateInstance,
+            canCreateMirrorInstance,
             onCreateInstance,
             canFlip,
             onFlip,

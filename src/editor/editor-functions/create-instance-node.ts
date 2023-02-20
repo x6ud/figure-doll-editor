@@ -9,7 +9,7 @@ import CRotation from '../model/components/CRotation';
 import CScale from '../model/components/CScale';
 import {ModelNodeCreationInfo} from '../model/ModelHistory';
 import ModelNode from '../model/ModelNode';
-import {getAxisAngle} from '../utils/math';
+import {getAxisAngle, vectorsEqual} from '../utils/math';
 
 export function createInstanceNode(ctx: EditorContext, node: ModelNode, mirror: 'none' | 'x' | 'y' | 'z') {
     node = toRaw(node);
@@ -61,7 +61,11 @@ export function createInstanceNode(ctx: EditorContext, node: ModelNode, mirror: 
             parentMat0 = parentMat0!;
             parentMat1 = parentMat1!;
             invParentMat1 = invParentMat1!;
-            newNode.data[CFlipDirection.name] = new Vector3().copy(flipDir);
+            if (node.instanceId && node.has(CFlipDirection) && vectorsEqual(node.value(CFlipDirection), flipDir)) {
+                delete newNode.data[CFlipDirection.name];
+            } else {
+                newNode.data[CFlipDirection.name] = new Vector3().copy(flipDir);
+            }
             _localTranslation1.set(0, 0, 0);
             _localRotation1.set(0, 0, 0, 1);
             _localScale1.set(1, 1, 1);

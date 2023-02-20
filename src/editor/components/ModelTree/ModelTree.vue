@@ -38,8 +38,10 @@
                 </template>
                 <template v-if="canCreateInstance">
                     <popup-menu-item title="Create Shadow Node" @click="onCreateInstance('none')"/>
-                    <popup-menu-item title="Create Mirror Shadow Node" @click="onCreateInstance('z')"/>
-                    <popup-menu-item title="Create Vertical Mirror Shadow Node" @click="onCreateInstance('y')"/>
+                    <template v-if="canCreateMirrorInstance">
+                        <popup-menu-item title="Create Mirror Shadow Node" @click="onCreateInstance('z')"/>
+                        <popup-menu-item title="Create Vertical Mirror Shadow Node" @click="onCreateInstance('y')"/>
+                    </template>
                 </template>
             </template>
             <template v-if="hasPose">

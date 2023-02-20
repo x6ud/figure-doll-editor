@@ -1,5 +1,6 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import EditorContext from '../EditorContext';
+import CFlipDirection from '../model/components/CFlipDirection';
 import CHingeAngleRange from '../model/components/CHingeAngleRange';
 import CHingeAxis from '../model/components/CHingeAxis';
 import CIkNode from '../model/components/CIkNode';
@@ -116,6 +117,23 @@ function createVirtualNode(node: ModelNode) {
             const hingeRange = node.value(CHingeAngleRange);
             ret.lowerAngle = hingeRange[0] / 180 * Math.PI;
             ret.upperAngle = hingeRange[1] / 180 * Math.PI;
+            if (node.instanceId && node.has(CFlipDirection)) {
+                const flipDir = node.value(CFlipDirection);
+                switch (node.value(CHingeAxis)) {
+                    case 'horizontal':
+                        if (flipDir.z > 1e-6) {
+                            [ret.lowerAngle, ret.upperAngle] = [-ret.upperAngle, -ret.lowerAngle];
+                        }
+                        break;
+                    case 'vertical':
+                        if (flipDir.y > 1e-6) {
+                            [ret.lowerAngle, ret.upperAngle] = [-ret.upperAngle, -ret.lowerAngle];
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
             ret.hasLockEndChild = hasLockEndChild;
             ret.children = children as (VirtualIkChain | VirtualContainer)[];
             for (let child of ret.children) {

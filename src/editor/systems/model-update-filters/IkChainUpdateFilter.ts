@@ -13,6 +13,7 @@ import {
     Vector3
 } from 'three';
 import EditorContext from '../../EditorContext';
+import CFlipDirection from '../../model/components/CFlipDirection';
 import CHingeAngleRange from '../../model/components/CHingeAngleRange';
 import CHingeAxis from '../../model/components/CHingeAxis';
 import CIkNode from '../../model/components/CIkNode';
@@ -92,8 +93,25 @@ export default class IkChainUpdateFilter implements ModelNodeUpdateFilter {
 
             // hinge indicator
             const hingeRange = curr.value(CHingeAngleRange);
-            const lower = hingeRange[0] / 180 * Math.PI;
-            const upper = hingeRange[1] / 180 * Math.PI;
+            let lower = hingeRange[0] / 180 * Math.PI;
+            let upper = hingeRange[1] / 180 * Math.PI;
+            if (curr.instanceId && curr.has(CFlipDirection)) {
+                const flipDir = curr.value(CFlipDirection);
+                switch (curr.value(CHingeAxis)) {
+                    case 'horizontal':
+                        if (flipDir.z > 1e-6) {
+                            [lower, upper] = [-upper, -lower];
+                        }
+                        break;
+                    case 'vertical':
+                        if (flipDir.y > 1e-6) {
+                            [lower, upper] = [-upper, -lower];
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
             if (!cIkNode.hingeIndicator) {
                 const indicator = cIkNode.hingeIndicator = new Mesh();
                 indicator.material = new MeshBasicMaterial({
