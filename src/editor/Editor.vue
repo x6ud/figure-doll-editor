@@ -166,14 +166,14 @@
                         </div>
                         <div class="camera-list">
                             <div class="item"
-                                 v-for="camera in editorCtx.model.cameras"
+                                 v-for="(camera, index) in editorCtx.model.cameras"
                             >
                                 <div class="name normal-button"
                                      @click="onLoadCamera(camera)"
                                 >
                                     {{ camera.name }}
                                 </div>
-                                <button class="icon-button" @click="onDeleteCamera(i)">×</button>
+                                <button class="icon-button" @click="onDeleteCamera(index)">×</button>
                             </div>
                         </div>
                         <button class="normal-button"
