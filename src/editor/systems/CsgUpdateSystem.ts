@@ -189,11 +189,14 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                     let currSign = true;
                     let group: Geom3[] = [];
                     for (let child of node.children) {
-                        let geom3 = child.value(CGeom3);
-                        if (!geom3) {
+                        if (!child.value(CVisible)) {
                             continue;
                         }
-                        if (!child.value(CVisible)) {
+                        if (child.instanceId) {
+                            child = model.getNode(child.instanceId);
+                        }
+                        let geom3 = child.value(CGeom3);
+                        if (!geom3) {
                             continue;
                         }
                         geom3 = Object.assign({}, geom3);
@@ -234,6 +237,9 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                         if (!child.value(CVisible)) {
                             continue;
                         }
+                        if (child.instanceId) {
+                            child = model.getNode(child.instanceId);
+                        }
                         const geom3 = child.value(CGeom3);
                         if (!geom3) {
                             continue;
@@ -253,6 +259,9 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                         if (!child.value(CVisible)) {
                             continue;
                         }
+                        if (child.instanceId) {
+                            child = model.getNode(child.instanceId);
+                        }
                         const geom3 = child.value(CGeom3);
                         if (!geom3) {
                             continue;
@@ -271,6 +280,9 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                     for (let child of node.children) {
                         if (!child.value(CVisible)) {
                             continue;
+                        }
+                        if (child.instanceId) {
+                            child = model.getNode(child.instanceId);
                         }
                         const geom3 = child.value(CGeom3);
                         if (!geom3) {
@@ -526,6 +538,7 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                 if (geometry) {
                     cGeom3.placeholder = new Mesh(geometry, placeholderMaterial);
                 }
+                model.instanceMeshUpdated(node.id, true);
             }
             // copy matrix
             if (cGeom3.value) {

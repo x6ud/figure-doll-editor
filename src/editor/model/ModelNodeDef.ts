@@ -325,6 +325,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgGroup,
         showInList: true,
         instanceable: true,
+        mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CGeom3, CSign
@@ -349,6 +350,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgIntersect,
         showInList: true,
         instanceable: true,
+        mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CGeom3, CSign
@@ -373,6 +375,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgHull,
         showInList: true,
         instanceable: true,
+        mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CGeom3, CSign
@@ -397,6 +400,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgHullChain,
         showInList: true,
         instanceable: true,
+        mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CGeom3, CSign
@@ -421,6 +425,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgCuboid,
         showInList: true,
         instanceable: true,
+        mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CGeom3, CSign, CSize3, CRoundRadius, CSegments
@@ -435,6 +440,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgEllipsoid,
         showInList: true,
         instanceable: true,
+        mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CGeom3, CSign, CRadius3, CSegments
@@ -448,6 +454,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgCylinder,
         showInList: true,
         instanceable: true,
+        mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CGeom3, CSign, CHeight, CRadius, CRoundRadius, CSegments
@@ -462,6 +469,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgCylinderElliptic,
         showInList: true,
         instanceable: true,
+        mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CGeom3, CSign, CHeight, CStartRadius2, CEndRadius2, CAngleRange, CSegments
@@ -475,6 +483,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgTorus,
         showInList: true,
         instanceable: true,
+        mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CGeom3, CSign,
@@ -494,6 +503,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgBezier,
         showInList: true,
         instanceable: true,
+        mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CGeom3, CSign,
