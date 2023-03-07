@@ -105,9 +105,6 @@ export default class ModelHistory {
         let getCtx: (() => any) | undefined = undefined;
         let setCtx: ((ctx: any) => void) | undefined = undefined;
         for (let record of this.currentFrameRecords) {
-            if (record.empty) {
-                continue;
-            }
             redoList.push(record.redo);
             undoList.push(record.undo);
             getCtx = getCtx || record.getCtx;
@@ -456,28 +453,16 @@ export default class ModelHistory {
         const nodeId = node.id;
         const oldValue = node.value(componentClass);
         const hash = nodeId + '#' + (hashName || componentClass.name);
-
         const componentDef = getModelNodeComponentDef(componentClass.name);
-        if (componentDef.equal) {
-            if (componentDef.equal(oldValue, value)) {
-                this.currentFrameRecords.push({
-                    hash,
-                    empty: true,
-                    redo() {
-                    },
-                    undo() {
-                    }
-                });
-                return false;
-            }
-        }
-        if (oldValue === value) {
-            // push an empty record to ensure merged record hash unchanged
+        if (componentDef.equal ? componentDef.equal(oldValue, value) : oldValue === value) {
             this.currentFrameRecords.push({
                 hash,
+                empty: true,
                 redo() {
                 },
-                undo() {
+                undo: () => {
+                    this.model.setValue(this.model.getNode(nodeId), componentClass, oldValue);
+                    this.model.addSelection(nodeId);
                 }
             });
             return false;
