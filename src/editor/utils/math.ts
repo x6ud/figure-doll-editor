@@ -28,6 +28,30 @@ export const linePanelIntersection = (function () {
     };
 })();
 
+export function raySphereIntersect(out: Vector3, ray0: Vector3, ray1: Vector3, center: Vector3, r: number) {
+    let vx = ray1.x - ray0.x;
+    let vy = ray1.y - ray0.y;
+    let vz = ray1.z - ray0.z;
+    const dx = ray0.x - center.x;
+    const dy = ray0.y - center.y;
+    const dz = ray0.z - center.z;
+    const a = vx ** 2 + vy ** 2 + vz ** 2;
+    const b = 2 * (vx * dx + vy * dy + vz * dz);
+    const c = (dx ** 2 + dy ** 2 + dz ** 2) - r ** 2;
+    const delta = b ** 2 - 4 * a * c;
+    if (delta < 0) {
+        return false;
+    }
+    const sqrtDelta = Math.sqrt(delta);
+    const t1 = (-b + sqrtDelta) / (2 * a);
+    const t2 = (-b - sqrtDelta) / (2 * a);
+    const t = Math.min(t1, t2);
+    out.x = ray0.x + vx * t;
+    out.y = ray0.y + vy * t;
+    out.z = ray0.z + vz * t;
+    return true;
+}
+
 const _decomposeTranslation = new Vector3();
 const _decomposeRotation = new Quaternion();
 const _decomposeScale = new Vector3();
