@@ -1,3 +1,4 @@
+import {toRaw} from 'vue';
 import Class from '../../common/type/Class';
 import CameraConfig from './CameraConfig';
 import CColors from './components/CColors';
@@ -11,12 +12,13 @@ import {getModelNodeComponentDef} from './ModelNodeComponentDef';
 import {getModelNodeDef} from './ModelNodeDef';
 import BoxWatcher from './watchers/BoxWatcher';
 import ClayWatcher from './watchers/ClayWatcher';
-import SdfShapeWatcher from './watchers/SdfShapeWatcher';
+import CsgWatcher from './watchers/CsgWatcher';
 import IkNodeWatcher from './watchers/IkNodeWatcher';
 import ImageWatcher from './watchers/ImageWatcher';
 import ImportModelWatcher from './watchers/ImportModelWatcher';
 import MaterialWatcher from './watchers/MaterialWatcher';
 import OpacityWatcher from './watchers/OpacityWatcher';
+import SdfShapeWatcher from './watchers/SdfShapeWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
 
 export default class Model {
@@ -35,6 +37,7 @@ export default class Model {
         new ImportModelWatcher(),
         new BoxWatcher(),
         new SdfShapeWatcher(),
+        new CsgWatcher(),
         new ClayWatcher(),
         new MaterialWatcher(),
     ];
@@ -130,7 +133,7 @@ export default class Model {
         for (let componentConstructor of nodeDef.components) {
             node.components[componentConstructor.name] = new componentConstructor();
         }
-        node.parent = parent;
+        node.parent = toRaw(parent);
         this.instanceMeshUpdated(id, true);
         if (instanceId) {
             node.instanceId = instanceId;

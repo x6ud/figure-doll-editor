@@ -1,12 +1,15 @@
-import {Vector3} from 'three';
+import {Vector2, Vector3} from 'three';
 import Class from '../../common/type/Class';
+import CAngleRange from './components/CAngleRange';
 import CBoxSize from './components/CBoxSize';
 import CCastShadow from './components/CCastShadow';
 import CColor from './components/CColor';
 import CColors from './components/CColors';
 import CCredit from './components/CCredit';
 import CEmissive from './components/CEmissive';
+import CEndRadius2 from './components/CEndRadius2';
 import './components/CFlipDirection';
+import CGeom3 from './components/CGeom3';
 import CGroundColor from './components/CGroundColor';
 import CHeight from './components/CHeight';
 import CHingeAngleRange from './components/CHingeAngleRange';
@@ -18,28 +21,51 @@ import CImage from './components/CImage';
 import CImportFbx from './components/CImportFbx';
 import CImportObj from './components/CImportObj';
 import CImportReadonlyGltf from './components/CImportReadonlyGltf';
+import CInnerRadius from './components/CInnerRadius';
+import CInnerRotation from './components/CInnerRotation';
+import CInnerSegments from './components/CInnerSegments';
 import CIntensity from './components/CIntensity';
 import CLightHelper from './components/CLightHelper';
 import CLockEnd from './components/CLockEnd';
 import CMapSize from './components/CMapSize';
 import CMetalness from './components/CMetalness';
 import CName from './components/CName';
+import CNumOfSlices from './components/CNumOfSlices';
 import CObject3D from './components/CObject3D';
 import COpacity from './components/COpacity';
+import COuterRadius from './components/COuterRadius';
+import COuterRotation from './components/COuterRotation';
+import COuterSegments from './components/COuterSegments';
 import CPenumbra from './components/CPenumbra';
 import CPosition from './components/CPosition';
+import CRadius from './components/CRadius';
+import CRadius3 from './components/CRadius3';
 import CReceiveShadow from './components/CReceiveShadow';
 import CRotation from './components/CRotation';
 import CRoughness from './components/CRoughness';
+import CRoundRadius from './components/CRoundRadius';
 import CScale from './components/CScale';
+import CScale3 from './components/CScale3';
 import CSdfDirty from './components/CSdfDirty';
 import CSdfOperator from './components/CSdfOperator';
+import CSegments from './components/CSegments';
 import CShadowMappingRange from './components/CShadowMappingRange';
 import CShowMoveHandler from './components/CShowMoveHandler';
 import CShowRotateHandler from './components/CShowRotateHandler';
+import CSign from './components/CSign';
+import CSize3 from './components/CSize3';
 import CSkyColor from './components/CSkyColor';
+import CSliceAngleEnd from './components/CSliceAngleEnd';
+import CSliceAngleStart from './components/CSliceAngleStart';
+import CSliceInnerRadius from './components/CSliceInnerRadius';
+import CSlicePreventTwisting from './components/CSlicePreventTwisting';
+import CSliceShape from './components/CSliceShape';
+import CSliceSize2End from './components/CSliceSize2End';
+import CSliceSize2Start from './components/CSliceSize2Start';
 import CSmooth from './components/CSmooth';
 import CSpotLightAngle from './components/CSpotLightAngle';
+import CStartRadius2 from './components/CStartRadius2';
+import CStarVertices from './components/CStarVertices';
 import CSymmetry from './components/CSymmetry';
 import CTemporaryScale from './components/CTemporaryScale';
 import CTextureSize from './components/CTextureSize';
@@ -51,6 +77,17 @@ import CWidth from './components/CWidth';
 import iconBox from './icons/Box.png';
 import iconClay from './icons/Clay.png';
 import iconContainer from './icons/Container.png';
+import iconCsgBezier from './icons/CsgBezier.png';
+import iconCsgBezierControlPoint from './icons/CsgBezierControlPoint.png';
+import iconCsgCuboid from './icons/CsgCuboid.png';
+import iconCsgCylinder from './icons/CsgCylinder.png';
+import iconCsgCylinderElliptic from './icons/CsgCylinderElliptic.png';
+import iconCsgEllipsoid from './icons/CsgEllipsoid.png';
+import iconCsgGroup from './icons/CsgGroup.png';
+import iconCsgHull from './icons/CsgHull.png';
+import iconCsgHullChain from './icons/CsgHullChain.png';
+import iconCsgIntersect from './icons/CsgIntersect.png';
+import iconCsgTorus from './icons/CsgTorus.png';
 import iconFbxModel from './icons/FbxModel.png';
 import iconIKChain from './icons/IKChain.png';
 import iconIKNode from './icons/IKNode.png';
@@ -101,7 +138,33 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
-        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'ImportModel', 'Box', 'Shape', 'Clay', 'Mirror', 'AmbientLight', 'HemisphereLight', 'DirectionalLight', 'PointLight', 'SpotLight'],
+        validChildTypes: [
+            'Container',
+            'IKChain',
+            'Image',
+            'CsgGroup',
+            'CsgIntersect',
+            'CsgHull',
+            'CsgHullChain',
+            'CsgCuboid',
+            'CsgEllipsoid',
+            'CsgCylinder',
+            'CsgCylinderElliptic',
+            'CsgTorus',
+            'CsgBezier',
+            'ObjModel',
+            'FbxModel',
+            'ImportModel',
+            'Box',
+            'Shape',
+            'Clay',
+            'Mirror',
+            'AmbientLight',
+            'HemisphereLight',
+            'DirectionalLight',
+            'PointLight',
+            'SpotLight',
+        ],
     },
     {
         name: 'IKChain',
@@ -121,7 +184,33 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation, CShowRotateHandler, CHingeAxis, CHingeAngleRange],
         canBeRoot: false,
-        validChildTypes: ['Container', 'IKChain', 'Image', 'ObjModel', 'FbxModel', 'ImportModel', 'Box', 'Shape', 'Clay', 'Mirror', 'AmbientLight', 'HemisphereLight', 'DirectionalLight', 'PointLight', 'SpotLight'],
+        validChildTypes: [
+            'Container',
+            'IKChain',
+            'Image',
+            'CsgGroup',
+            'CsgIntersect',
+            'CsgHull',
+            'CsgHullChain',
+            'CsgCuboid',
+            'CsgEllipsoid',
+            'CsgCylinder',
+            'CsgCylinderElliptic',
+            'CsgTorus',
+            'CsgBezier',
+            'ObjModel',
+            'FbxModel',
+            'ImportModel',
+            'Box',
+            'Shape',
+            'Clay',
+            'Mirror',
+            'AmbientLight',
+            'HemisphereLight',
+            'DirectionalLight',
+            'PointLight',
+            'SpotLight',
+        ],
     },
     {
         name: 'Box',
@@ -151,7 +240,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     },
     {
         name: 'Shape',
-        label: 'SDF Shape',
+        label: 'Tube',
         icon: iconShape,
         showInList: true,
         instanceable: true,
@@ -179,7 +268,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
     },
     {
         name: 'Tube',
-        label: 'Tube',
+        label: 'Tube Node',
         icon: iconTube,
         showInList: true,
         components: [CName, CObject3D, CSdfOperator, CTube],
@@ -228,6 +317,216 @@ export const modelNodeDefs: ModelNodeDef[] = [
             [CCastShadow.name]: false,
             [CReceiveShadow.name]: false
         },
+        validChildTypes: [],
+    },
+    {
+        name: 'CsgGroup',
+        label: 'Union',
+        icon: iconCsgGroup,
+        showInList: true,
+        instanceable: true,
+        components: [
+            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CGeom3, CSign
+        ],
+        canBeRoot: true,
+        validChildTypes: [
+            'CsgGroup',
+            'CsgIntersect',
+            'CsgHull',
+            'CsgHullChain',
+            'CsgCuboid',
+            'CsgEllipsoid',
+            'CsgCylinder',
+            'CsgCylinderElliptic',
+            'CsgTorus',
+            'CsgBezier',
+        ]
+    },
+    {
+        name: 'CsgIntersect',
+        label: 'Intersect',
+        icon: iconCsgIntersect,
+        showInList: true,
+        instanceable: true,
+        components: [
+            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CGeom3, CSign
+        ],
+        canBeRoot: true,
+        validChildTypes: [
+            'CsgGroup',
+            'CsgIntersect',
+            'CsgHull',
+            'CsgHullChain',
+            'CsgCuboid',
+            'CsgEllipsoid',
+            'CsgCylinder',
+            'CsgCylinderElliptic',
+            'CsgTorus',
+            'CsgBezier',
+        ],
+    },
+    {
+        name: 'CsgHull',
+        label: 'Hull',
+        icon: iconCsgHull,
+        showInList: true,
+        instanceable: true,
+        components: [
+            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CGeom3, CSign
+        ],
+        canBeRoot: true,
+        validChildTypes: [
+            'CsgGroup',
+            'CsgIntersect',
+            'CsgHull',
+            'CsgHullChain',
+            'CsgCuboid',
+            'CsgEllipsoid',
+            'CsgCylinder',
+            'CsgCylinderElliptic',
+            'CsgTorus',
+            'CsgBezier',
+        ],
+    },
+    {
+        name: 'CsgHullChain',
+        label: 'Hull Chain',
+        icon: iconCsgHullChain,
+        showInList: true,
+        instanceable: true,
+        components: [
+            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CGeom3, CSign
+        ],
+        canBeRoot: true,
+        validChildTypes: [
+            'CsgGroup',
+            'CsgIntersect',
+            'CsgHull',
+            'CsgHullChain',
+            'CsgCuboid',
+            'CsgEllipsoid',
+            'CsgCylinder',
+            'CsgCylinderElliptic',
+            'CsgTorus',
+            'CsgBezier',
+        ],
+    },
+    {
+        name: 'CsgCuboid',
+        label: 'Cuboid',
+        icon: iconCsgCuboid,
+        showInList: true,
+        instanceable: true,
+        components: [
+            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CGeom3, CSign, CSize3, CRoundRadius, CSegments
+        ],
+        canBeRoot: true,
+        validChildTypes: [],
+        defaultData: {[CRoundRadius.name]: 0},
+    },
+    {
+        name: 'CsgEllipsoid',
+        label: 'Ellipsoid',
+        icon: iconCsgEllipsoid,
+        showInList: true,
+        instanceable: true,
+        components: [
+            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CGeom3, CSign, CRadius3, CSegments
+        ],
+        canBeRoot: true,
+        validChildTypes: [],
+    },
+    {
+        name: 'CsgCylinder',
+        label: 'Cylinder',
+        icon: iconCsgCylinder,
+        showInList: true,
+        instanceable: true,
+        components: [
+            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CGeom3, CSign, CHeight, CRadius, CRoundRadius, CSegments
+        ],
+        canBeRoot: true,
+        validChildTypes: [],
+        defaultData: {[CRoundRadius.name]: 0},
+    },
+    {
+        name: 'CsgCylinderElliptic',
+        label: 'Cylinder Elliptic',
+        icon: iconCsgCylinderElliptic,
+        showInList: true,
+        instanceable: true,
+        components: [
+            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CGeom3, CSign, CHeight, CStartRadius2, CEndRadius2, CAngleRange, CSegments
+        ],
+        canBeRoot: true,
+        validChildTypes: [],
+    },
+    {
+        name: 'CsgTorus',
+        label: 'Torus',
+        icon: iconCsgTorus,
+        showInList: true,
+        instanceable: true,
+        components: [
+            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CGeom3, CSign,
+            COuterRadius,
+            COuterSegments,
+            COuterRotation,
+            CInnerRadius,
+            CInnerSegments,
+            CInnerRotation,
+        ],
+        canBeRoot: true,
+        validChildTypes: [],
+    },
+    {
+        name: 'CsgBezier',
+        label: 'Curve',
+        icon: iconCsgBezier,
+        showInList: true,
+        instanceable: true,
+        components: [
+            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CGeom3, CSign,
+            CSliceShape,
+            CSliceSize2Start,
+            CSliceSize2End,
+            CStarVertices,
+            CSliceInnerRadius,
+            CSliceAngleStart,
+            CSliceAngleEnd,
+            CNumOfSlices,
+            CSegments,
+            CSlicePreventTwisting,
+        ],
+        canBeRoot: true,
+        validChildTypes: ['CsgBezierControlPoint'],
+        defaultData: {
+            [CSliceSize2Start.name]: new Vector2(0.05, 0.05),
+            [CSliceSize2End.name]: new Vector2(0.05, 0.05)
+        },
+        defaultChildren: [
+            {type: 'CsgBezierControlPoint', data: {[CPosition.name]: new Vector3(0, 0, 0)}},
+            {type: 'CsgBezierControlPoint', data: {[CPosition.name]: new Vector3(.2, 0, 0)}}
+        ]
+    },
+    {
+        name: 'CsgBezierControlPoint',
+        label: 'Control Point',
+        icon: iconCsgBezierControlPoint,
+        showInList: true,
+        instanceable: false,
+        components: [CPosition, CObject3D, CGeom3],
+        canBeRoot: false,
         validChildTypes: [],
     },
     {

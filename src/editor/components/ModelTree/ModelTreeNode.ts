@@ -38,7 +38,7 @@ export default defineComponent({
         const dom = ref<HTMLElement>();
         const name = computed(function () {
             const node = props.node;
-            return (node.has(CName) ? node.value(CName) : '') || `${node.type}#${node.id}`;
+            return (node.has(CName) ? node.value(CName) : '') || `${getModelNodeDef(node.type).label} #${node.id}`;
         });
         const icon = computed(function () {
             return getModelNodeDef(props.node.type).icon;

@@ -10,6 +10,7 @@ import ModelHistory from './model/ModelHistory';
 import {ProjectReaderResult} from './ProjectReader';
 import CallbackFireSystem from './systems/CallbackFireSystem';
 import CameraDraggingSystem from './systems/CameraDraggingSystem';
+import CsgUpdateSystem from './systems/CsgUpdateSystem';
 import HistorySystem from './systems/HistorySystem';
 import IkBoneVisibleUpdateSystem from './systems/IkBoneVisibleUpdateSystem';
 import LightUpdateSystem from './systems/LightUpdateSystem';
@@ -61,6 +62,7 @@ import UpdateSystem from './utils/UpdateSystem';
 export default class EditorContext {
 
     systems: UpdateSystem<EditorContext>[] = [
+        new CsgUpdateSystem(),
         new ModelUpdateSystem([
             new InstanceNodeUpdateFilter(),
             new LightUpdateFilter(),
@@ -199,23 +201,6 @@ export default class EditorContext {
             this.renderPass.camera
         );
         this.outlinePass.visibleEdgeColor.setHex(0xf3982d);
-        {
-            // prevent outline transform controls
-            const cache: boolean[] = [false, false, false, false];
-            this.outlinePass.changeVisibilityOfNonSelectedObjects = (bVisible) => {
-                if (bVisible) {
-                    for (let view of this.views) {
-                        view.transformControls.visible = cache[view.index];
-                    }
-                } else {
-                    for (let view of this.views) {
-                        cache[view.index] = view.transformControls.visible;
-                        view.transformControls.visible = false;
-                    }
-                }
-                OutlinePass.prototype.changeVisibilityOfNonSelectedObjects.call(this.outlinePass, bVisible);
-            };
-        }
         this.composer.addPass(this.outlinePass);
 
         this.scene.add(this.dummyObject);

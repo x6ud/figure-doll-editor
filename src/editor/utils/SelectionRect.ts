@@ -34,10 +34,10 @@ const _scale = new Vector3();
 export default class SelectionRect {
     private readonly dom: HTMLElement;
     private parent?: HTMLElement;
-    private x0 = 0;
-    private y0 = 0;
-    private x1 = 0;
-    private y1 = 0;
+    x0 = 0;
+    y0 = 0;
+    x1 = 0;
+    y1 = 0;
 
     constructor() {
         const dom = this.dom = document.createElement('div');
@@ -52,6 +52,10 @@ export default class SelectionRect {
     attach(parent: HTMLElement) {
         this.parent = parent;
         parent.appendChild(this.dom);
+    }
+
+    detach() {
+        this.dom.remove();
     }
 
     show() {
@@ -78,10 +82,10 @@ export default class SelectionRect {
         const y0 = (this.y0 + 1) / 2;
         const y1 = (this.y1 + 1) / 2;
         const rect = this.parent.getBoundingClientRect();
-        const l = Math.round(rect.width * Math.min(x0, x1));
-        const r = Math.round(rect.width * (1 - Math.max(x0, x1)));
-        const b = Math.round(rect.height * Math.min(y0, y1));
-        const t = Math.round(rect.height * (1 - Math.max(y0, y1)));
+        const l = Math.round(rect.width * Math.max(Math.min(x0, x1), 0));
+        const r = Math.round(rect.width * Math.min((1 - Math.max(x0, x1)), 1));
+        const t = Math.round(rect.height * Math.max((1 - Math.max(y0, y1)), 0));
+        const b = Math.round(rect.height * Math.min(y0, y1, 1));
         this.dom.style.left = `${l}px`;
         this.dom.style.right = `${r}px`;
         this.dom.style.top = `${t}px`;

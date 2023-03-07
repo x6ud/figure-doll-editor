@@ -1,5 +1,6 @@
 import {toRaw} from 'vue';
 import EditorContext from '../../EditorContext';
+import CGeom3 from '../../model/components/CGeom3';
 import CObject3D from '../../model/components/CObject3D';
 import CVisible from '../../model/components/CVisible';
 import ModelNode from '../../model/ModelNode';
@@ -27,7 +28,10 @@ export default class Object3DRelationshipUpdateFilter implements ModelNodeUpdate
                 }
                 cObject3D.parentChanged = false;
             }
-            const visible = node.has(CVisible) ? node.value(CVisible) : true;
+            let visible = node.has(CVisible) ? node.value(CVisible) : true;
+            if (node.has(CGeom3) && node.parent?.has(CGeom3)) {
+                visible = false;
+            }
             if (cObject3D.value) {
                 cObject3D.value.visible = visible;
             }

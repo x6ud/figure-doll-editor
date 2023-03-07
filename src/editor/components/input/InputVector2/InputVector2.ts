@@ -1,19 +1,18 @@
-import {Vector3} from 'three';
+import {Vector2} from 'three';
 import {defineComponent, onBeforeUnmount, ref} from 'vue';
 
 export default defineComponent({
     props: {
-        value: {type: Vector3, required: true},
+        value: {type: Vector2, required: true},
         readonly: Boolean,
         disabled: Boolean,
         resettable: Boolean,
-        defaultValue: Vector3
+        defaultValue: Vector2
     },
     emits: ['input'],
     setup(props, ctx) {
         const input0 = ref<HTMLInputElement>();
         const input1 = ref<HTMLInputElement>();
-        const input2 = ref<HTMLInputElement>();
 
         let dirty = false;
 
@@ -44,13 +43,12 @@ export default defineComponent({
                 dirty = false;
                 let x = Number(input0.value?.value || '0') || 0;
                 let y = Number(input1.value?.value || '0') || 0;
-                let z = Number(input2.value?.value || '0') || 0;
-                ctx.emit('input', new Vector3(x, y, z));
+                ctx.emit('input', new Vector2(x, y));
             }
         }
 
         function onReset() {
-            const val = new Vector3();
+            const val = new Vector2();
             if (props.defaultValue) {
                 val.copy(props.defaultValue);
             }
@@ -60,7 +58,6 @@ export default defineComponent({
         return {
             input0,
             input1,
-            input2,
             format,
             onChange,
             onPost,
