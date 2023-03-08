@@ -117,7 +117,7 @@ export default class Gizmo extends Group {
     size: number = 0.25;
     orientation: 'world' | 'local' = 'local';
     forcePositiveScale: boolean = true;
-    translateSnap: number = 0.05;
+    translateSnap: number = 0.1;
     rotateSnap: number = 45 / 180 * Math.PI;
 
     enableTranslate: boolean = true;
@@ -262,9 +262,9 @@ export default class Gizmo extends Group {
         this.scalePickerZ.userData.name = 'scale-z';
 
         const scalePanelPickerGeometry = new BoxGeometry(1e-7, SCALE_PANEL_PICKER_SIZE, SCALE_PANEL_PICKER_SIZE);
-        this.scalePickerYZ = new Mesh(scalePanelPickerGeometry, xAxisMaterial);
-        this.scalePickerXZ = new Mesh(scalePanelPickerGeometry, yAxisMaterial);
-        this.scalePickerXY = new Mesh(scalePanelPickerGeometry, zAxisMaterial);
+        this.scalePickerYZ = new Mesh(scalePanelPickerGeometry, xAxisMaterial.clone());
+        this.scalePickerXZ = new Mesh(scalePanelPickerGeometry, yAxisMaterial.clone());
+        this.scalePickerXY = new Mesh(scalePanelPickerGeometry, zAxisMaterial.clone());
         this.scalePickerYZ.rotation.set(0, 0, 0);
         this.scalePickerYZ.position.set(0, FREE_TRANSLATE_HANDLER_RADIUS + SCALE_PANEL_PICKER_SIZE / 2, FREE_TRANSLATE_HANDLER_RADIUS + SCALE_PANEL_PICKER_SIZE / 2);
         this.scalePickerXZ.rotation.set(0, 0, Math.PI / 2);

@@ -20,15 +20,15 @@ export default class MaterialUpdateFilter implements ModelNodeUpdateFilter {
             return;
         }
         if (node.has(CObject3D)) {
-            const mesh = node.value(CObject3D) as Mesh;
-            if (!mesh) {
+            const object3D = node.value(CObject3D) as Mesh;
+            if (!object3D) {
                 return;
             }
             if (node.has(CUsePlainMaterial)) {
                 // replace imported model's original material
                 const usePlainMaterial = node.value(CUsePlainMaterial);
                 node.get(CObject3D).usePlainMaterial = usePlainMaterial;
-                const stack: Object3D[] = [mesh];
+                const stack: Object3D[] = [object3D];
                 while (stack.length) {
                     const object3D = stack.pop();
                     if (!object3D) {
@@ -50,14 +50,29 @@ export default class MaterialUpdateFilter implements ModelNodeUpdateFilter {
                     stack.push(...object3D.children);
                 }
             } else {
-                if (!mesh.isMesh) {
+                const stack: Object3D[] = [object3D];
+                while (stack.length) {
+                    const object3D = stack.pop();
+                    if (!object3D) {
+                        break;
+                    }
+                    const node = object3D.userData.node as ModelNode;
+                    if (node?.id !== node.id) {
+                        continue;
+                    }
+                    const mesh = object3D as Mesh;
+                    if (mesh.isMesh) {
+                        const material = mesh.material as MeshStandardMaterial;
+                        if (material.isMeshStandardMaterial) {
+                            this.updateMaterial(node, material);
+                        }
+                    } else {
+                        stack.push(...object3D.children);
+                    }
+                }
+                if (!object3D.isMesh) {
                     return;
                 }
-                const material = mesh.material as MeshStandardMaterial;
-                if (!material?.isMeshStandardMaterial) {
-                    return;
-                }
-                this.updateMaterial(node, material);
             }
         }
     }

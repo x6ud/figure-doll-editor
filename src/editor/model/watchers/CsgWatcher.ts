@@ -29,6 +29,7 @@ import CSliceSize2End from '../components/CSliceSize2End';
 import CSliceSize2Start from '../components/CSliceSize2Start';
 import CStartRadius2 from '../components/CStartRadius2';
 import CStarVertices from '../components/CStarVertices';
+import CSymmetry from '../components/CSymmetry';
 import CVisible from '../components/CVisible';
 import Model from '../Model';
 import ModelNode from '../ModelNode';
@@ -36,6 +37,7 @@ import ModelNodeChangedWatcher from '../ModelNodeChangedWatcher';
 import ModelNodeComponent from '../ModelNodeComponent';
 
 const watch: { [name: string]: Class<ModelNodeComponent<any>>[] } = {
+    'CsgGroup': [CSymmetry],
     'CsgCuboid': [CSize3, CRoundRadius, CSegments],
     'CsgEllipsoid': [CRadius3, CSegments],
     'CsgCylinder': [CHeight, CRadius, CRoundRadius, CSegments],

@@ -6,6 +6,7 @@ import {Mat4} from '@jscad/modeling/src/maths/mat4';
 import {intersect, subtract, union} from '@jscad/modeling/src/operations/booleans';
 import {extrudeFromSlices, slice} from '@jscad/modeling/src/operations/extrusions';
 import {hull, hullChain} from '@jscad/modeling/src/operations/hulls';
+import {mirrorX, mirrorY, mirrorZ} from '@jscad/modeling/src/operations/transforms';
 import {
     cuboid,
     cylinder,
@@ -64,6 +65,7 @@ import CSliceSize2End from '../model/components/CSliceSize2End';
 import CSliceSize2Start from '../model/components/CSliceSize2Start';
 import CStartRadius2 from '../model/components/CStartRadius2';
 import CStarVertices from '../model/components/CStarVertices';
+import CSymmetry from '../model/components/CSymmetry';
 import CVisible from '../model/components/CVisible';
 import Model from '../model/Model';
 import ModelNode from '../model/ModelNode';
@@ -226,6 +228,22 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                             merged = union(...group);
                         } else if (merged) {
                             merged = subtract(merged, ...group);
+                        }
+                    }
+                    if (merged) {
+                        switch (node.value(CSymmetry)) {
+                            case 'x': {
+                                merged = union(merged, mirrorX(merged));
+                            }
+                                break;
+                            case 'y': {
+                                merged = union(merged, mirrorY(merged));
+                            }
+                                break;
+                            case 'z': {
+                                merged = union(merged, mirrorZ(merged));
+                            }
+                                break;
                         }
                     }
                     cGeom3.value = merged;
