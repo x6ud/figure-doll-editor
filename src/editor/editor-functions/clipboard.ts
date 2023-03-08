@@ -1,9 +1,10 @@
 import EditorContext from '../EditorContext';
+import CImage from '../model/components/CImage';
 import {ModelNodeCreationInfo} from '../model/ModelHistory';
 import ModelNode, {ModelNodeJson} from '../model/ModelNode';
 import {DataType, getModelNodeComponentDef} from '../model/ModelNodeComponentDef';
 import {getModelNodeDef} from '../model/ModelNodeDef';
-import {dataUrlToArrayBuffer} from '../utils/convert';
+import {bufferToDataUrl, dataUrlToArrayBuffer} from '../utils/convert';
 
 export async function cutModelSelected(ctx: EditorContext, e?: KeyboardEvent): Promise<boolean> {
     const targets = await copyModelSelected(ctx, e);
@@ -34,6 +35,20 @@ export async function pastedModelNodes(ctx: EditorContext, e?: ModelNode | Keybo
         return false;
     }
     try {
+        const item = (await navigator.clipboard.read())[0];
+        for (let type of item.types) {
+            if (type.startsWith('image/')) {
+                const blob = await item.getType(type);
+                const dataUrl = await bufferToDataUrl(blob);
+                ctx.history.createNode({
+                    type: 'Image',
+                    data: {
+                        [CImage.name]: dataUrl
+                    }
+                });
+                return true;
+            }
+        }
         let json = JSON.parse(await navigator.clipboard.readText()) as ModelNodeCreationInfo[];
         if (!Array.isArray(json)) {
             return false;

@@ -8,7 +8,7 @@ import {DataType, registerModelComponent} from '../ModelNodeComponentDef';
     dataType: DataType.STRING,
     label: 'Image File',
     inputComponent: InputFileAsDataURL,
-    inputComponentProps: {accept: 'image/png, image/jpeg'}
+    inputComponentProps: {accept: 'image/png, image/jpeg, image/webp'}
 })
 export default class CImage extends ModelNodeComponent<string> {
     value = '';
