@@ -143,7 +143,7 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
             return;
         }
         const cGeom3 = node.get(CGeom3);
-        if (cGeom3.dirty) {
+        if (cGeom3.dirty && !node.instanceId) {
             for (let child of node.children) {
                 this.updateMatrix(child);
             }
@@ -181,6 +181,9 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
         const cGeom3 = node.get(CGeom3);
         if (cGeom3.dirty) {
             cGeom3.dirty = false;
+            if (node.instanceId) {
+                return;
+            }
             for (let child of node.children) {
                 this.updateGeometry(model, child);
             }
@@ -201,6 +204,7 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                                 continue;
                             }
                             geom3 = Object.assign({}, geom3);
+                            geom3.transforms = [...geom3.transforms];
                             child.get(CGeom3).matrix.toArray(geom3.transforms);
                         } else {
                             geom3 = child.value(CGeom3);
@@ -269,6 +273,7 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                                 continue;
                             }
                             geom3 = Object.assign({}, geom3);
+                            geom3.transforms = [...geom3.transforms];
                             child.get(CGeom3).matrix.toArray(geom3.transforms);
                         } else {
                             geom3 = child.value(CGeom3);
@@ -299,6 +304,7 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                                 continue;
                             }
                             geom3 = Object.assign({}, geom3);
+                            geom3.transforms = [...geom3.transforms];
                             child.get(CGeom3).matrix.toArray(geom3.transforms);
                         } else {
                             geom3 = child.value(CGeom3);
@@ -329,6 +335,7 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                                 continue;
                             }
                             geom3 = Object.assign({}, geom3);
+                            geom3.transforms = [...geom3.transforms];
                             child.get(CGeom3).matrix.toArray(geom3.transforms);
                         } else {
                             geom3 = child.value(CGeom3);

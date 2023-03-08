@@ -33,9 +33,6 @@ export default defineComponent({
             const ret: NodeProperty[] = [];
             const sharedProps = new Set<string>();
             let node = nodes[0];
-            if (node.instanceId) {
-                node = props.editorContext.model.getNode(node.instanceId);
-            }
             const nodeDef = getModelNodeDef(node.type);
             for (let componentClass of nodeDef.components) {
                 const componentDef = getModelNodeComponentDef(componentClass.name);
@@ -45,9 +42,6 @@ export default defineComponent({
             }
             for (let i = 1, len = nodes.length; i < len; ++i) {
                 let node = nodes[i];
-                if (node.instanceId) {
-                    node = props.editorContext.model.getNode(node.instanceId);
-                }
                 const nodeDef = getModelNodeDef(node.type);
                 const properties = new Set<string>();
                 for (let componentClass of nodeDef.components) {
@@ -64,6 +58,12 @@ export default defineComponent({
             }
             for (let name of sharedProps) {
                 const componentDef = getModelNodeComponentDef(name);
+                let value: any;
+                if (node.instanceId && !componentDef.instanceable) {
+                    value = props.editorContext.model.getNode(node.instanceId).value(componentDef.constructor);
+                } else {
+                    value = node.value(componentDef.constructor);
+                }
                 ret.push({
                     name,
                     componentClass: componentDef.constructor,
@@ -71,7 +71,7 @@ export default defineComponent({
                     inlineLabel: componentDef.inlineLabel || false,
                     inputComponent: componentDef.inputComponent!,
                     inputComponentProps: componentDef.inputComponentProps,
-                    value: node.value(componentDef.constructor),
+                    value: value,
                 });
             }
             return ret;
