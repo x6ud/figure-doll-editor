@@ -148,6 +148,7 @@ export default class ModelUpdateSystem extends UpdateSystem<EditorContext> {
             } else {
                 newObj = new Object3D();
             }
+            newObj.visible = obj.visible;
             newObj.position.copy(obj.position);
             newObj.quaternion.copy(obj.quaternion);
             newObj.scale.copy(obj.scale);

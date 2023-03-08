@@ -3,6 +3,7 @@ import Class from '../../common/type/Class';
 import CameraConfig from './CameraConfig';
 import CColors from './components/CColors';
 import CFlipDirection from './components/CFlipDirection';
+import CGeom3 from './components/CGeom3';
 import CObject3D from './components/CObject3D';
 import CVertices from './components/CVertices';
 import ModelNode from './ModelNode';
@@ -309,6 +310,20 @@ export default class Model {
                     const node = this.getNode(refId);
                     node.instanceMeshDirty = true;
                     node.instanceMeshRebuild = rebuild;
+                    if (node.has(CGeom3)) {
+                        let parent = node.parent;
+                        while (parent) {
+                            if (!parent.instanceId && parent.has(CGeom3)) {
+                                this.dirty = true;
+                                parent.dirty = true;
+                                const cGeom3 = parent.get(CGeom3);
+                                cGeom3.dirty = true;
+                                parent = parent.parent;
+                            } else {
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }

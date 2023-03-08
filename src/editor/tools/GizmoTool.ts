@@ -95,7 +95,8 @@ export default class GizmoTool extends EditorTool {
         const model = ctx.readonlyRef().model;
 
         // get bounding box for selected objects
-        this.nodes = model.getTopmostSelectedNodes().filter(node => node.visible && node.has(CObject3D));
+        this.nodes = model.getTopmostSelectedNodes()
+            .filter(node => node.visible && node.has(CObject3D));
         const objects = this.nodes.map(node => node.value(CObject3D)).filter(object => !!object) as Object3D[];
         if (objects.length) {
             this.boundingBox.visible = true;

@@ -168,7 +168,7 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                 _scale.setScalar(1);
             }
             cGeom3.matrix.compose(_translation, _rotation, _scale);
-            if (!cGeom3.dirty && cGeom3.value) {
+            if (!node.instanceId && !cGeom3.dirty && cGeom3.value) {
                 cGeom3.matrix.toArray(cGeom3.value.transforms = [...cGeom3.value.transforms]);
             }
         }
@@ -194,14 +194,21 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                         if (!child.value(CVisible)) {
                             continue;
                         }
+                        let geom3: Geom3 | null = null;
                         if (child.instanceId) {
-                            child = model.getNode(child.instanceId);
+                            geom3 = model.getNode(child.instanceId).value(CGeom3);
+                            if (!geom3) {
+                                continue;
+                            }
+                            geom3 = Object.assign({}, geom3);
+                            child.get(CGeom3).matrix.toArray(geom3.transforms);
+                        } else {
+                            geom3 = child.value(CGeom3);
+                            if (!geom3) {
+                                continue;
+                            }
+                            geom3 = Object.assign({}, geom3);
                         }
-                        let geom3 = child.value(CGeom3);
-                        if (!geom3) {
-                            continue;
-                        }
-                        geom3 = Object.assign({}, geom3);
                         const sign = child.value(CSign) === 'positive';
                         if (currSign === sign) {
                             group.push(geom3);
@@ -255,12 +262,20 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                         if (!child.value(CVisible)) {
                             continue;
                         }
+                        let geom3: Geom3 | null = null;
                         if (child.instanceId) {
-                            child = model.getNode(child.instanceId);
-                        }
-                        const geom3 = child.value(CGeom3);
-                        if (!geom3) {
-                            continue;
+                            geom3 = model.getNode(child.instanceId).value(CGeom3);
+                            if (!geom3) {
+                                continue;
+                            }
+                            geom3 = Object.assign({}, geom3);
+                            child.get(CGeom3).matrix.toArray(geom3.transforms);
+                        } else {
+                            geom3 = child.value(CGeom3);
+                            if (!geom3) {
+                                continue;
+                            }
+                            geom3 = Object.assign({}, geom3);
                         }
                         group.push(Object.assign({}, geom3));
                     }
@@ -277,12 +292,20 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                         if (!child.value(CVisible)) {
                             continue;
                         }
+                        let geom3: Geom3 | null = null;
                         if (child.instanceId) {
-                            child = model.getNode(child.instanceId);
-                        }
-                        const geom3 = child.value(CGeom3);
-                        if (!geom3) {
-                            continue;
+                            geom3 = model.getNode(child.instanceId).value(CGeom3);
+                            if (!geom3) {
+                                continue;
+                            }
+                            geom3 = Object.assign({}, geom3);
+                            child.get(CGeom3).matrix.toArray(geom3.transforms);
+                        } else {
+                            geom3 = child.value(CGeom3);
+                            if (!geom3) {
+                                continue;
+                            }
+                            geom3 = Object.assign({}, geom3);
                         }
                         group.push(Object.assign({}, geom3));
                     }
@@ -299,12 +322,20 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                         if (!child.value(CVisible)) {
                             continue;
                         }
+                        let geom3: Geom3 | null = null;
                         if (child.instanceId) {
-                            child = model.getNode(child.instanceId);
-                        }
-                        const geom3 = child.value(CGeom3);
-                        if (!geom3) {
-                            continue;
+                            geom3 = model.getNode(child.instanceId).value(CGeom3);
+                            if (!geom3) {
+                                continue;
+                            }
+                            geom3 = Object.assign({}, geom3);
+                            child.get(CGeom3).matrix.toArray(geom3.transforms);
+                        } else {
+                            geom3 = child.value(CGeom3);
+                            if (!geom3) {
+                                continue;
+                            }
+                            geom3 = Object.assign({}, geom3);
                         }
                         group.push(Object.assign({}, geom3));
                     }
