@@ -22,6 +22,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
 
     private dragMovedFramesCount = 0;
     private sculptPicked = false;
+    private sculptStroked = false;
 
     private sculptIndicator = new LineSegments(
         new BufferGeometry().setFromPoints([
@@ -210,6 +211,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                             ctx.sculptStartThisFrame = true;
                             ctx.sculptX0 = ctx.sculptX1 = input.pointerX;
                             ctx.sculptY0 = ctx.sculptY1 = input.pointerY;
+                            this.sculptStroked = false;
                         } else if (ctx.sculptX1 !== input.pointerX || ctx.sculptY1 !== input.pointerY) {
                             ctx.sculptMoved = true;
                             ctx.sculptStartThisFrame = false;
@@ -217,10 +219,25 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                             ctx.sculptY0 = ctx.sculptY1;
                             ctx.sculptX1 = input.pointerX;
                             ctx.sculptY1 = input.pointerY;
+                            this.sculptStroked = true;
                         }
                     }
                 } else if (ctx.sculptActiveView === view.index) {
                     ctx.sculptActiveView = -1;
+                    // mouse release
+                    if (!this.sculptStroked && input.pointerOver) {
+                        // click select
+                        ctx.model.selected.length = 0;
+                        for (let picking of view.mousePick()) {
+                            const node = (picking.object.userData as Object3DUserData).node;
+                            if (node?.type === 'Clay') {
+                                ctx.model.addSelection(node.id);
+                                this.sculptPicked = true;
+                                ctx.sculptActiveView = -1;
+                                break;
+                            }
+                        }
+                    }
                 }
                 if (!input.pointerOver) {
                     continue;
@@ -236,7 +253,9 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                     break;
                 }
 
-                if (!input.mouseLeft) {
+                if (input.mouseLeft) {
+                    this.sculptStroked = true;
+                } else {
                     this.sculptIndicator.visible = true;
                     this.sculptIndicatorSym.visible = ctx.sculptSym;
                 }

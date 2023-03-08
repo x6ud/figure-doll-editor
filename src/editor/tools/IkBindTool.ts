@@ -4,6 +4,7 @@ import EditorView from '../EditorView';
 import CIkNode from '../model/components/CIkNode';
 import CIkNodeLength from '../model/components/CIkNodeLength';
 import CIkNodeRotation from '../model/components/CIkNodeRotation';
+import {Object3DUserData} from '../model/components/CObject3D';
 import CPosition from '../model/components/CPosition';
 import CRotation from '../model/components/CRotation';
 import CScale from '../model/components/CScale';
@@ -148,6 +149,27 @@ export default class IkBindTool extends EditorTool {
                             }
                         }
                         ctx.model.addSelection(this.node.id);
+                    } else {
+                        // click select
+                        let node: ModelNode | undefined = undefined;
+                        for (let result of view.mousePick()) {
+                            node = (result.object.userData as Object3DUserData).node;
+                            while (node) {
+                                if (node.has(CIkNode)) {
+                                    break;
+                                }
+                                node = node.parent || undefined;
+                            }
+                            if (node) {
+                                this.mouse0.copy(result.point);
+                                break;
+                            }
+                        }
+                        if (!node) {
+                            ctx.model.selected = [];
+                            return;
+                        }
+                        ctx.model.selected = [node.id];
                     }
                 }
             } else if (this.activeView === view.index && this.node && !this.node.deleted) {
