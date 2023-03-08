@@ -117,6 +117,8 @@ export type ModelNodeDef = {
     unique?: boolean;
     /** Whether shadow node can be created */
     instanceable?: boolean;
+    /** If true, skip the children when creating shadow node */
+    preventCreatingInstanceChild?: boolean;
     /** Whether node has mesh */
     mesh?: boolean;
     /** Whether node is light */
@@ -218,6 +220,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgGroup,
         showInList: true,
         instanceable: true,
+        preventCreatingInstanceChild: true,
         mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
@@ -244,6 +247,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgIntersect,
         showInList: true,
         instanceable: true,
+        preventCreatingInstanceChild: true,
         mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
@@ -270,6 +274,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgHull,
         showInList: true,
         instanceable: true,
+        preventCreatingInstanceChild: true,
         mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
@@ -296,6 +301,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgHullChain,
         showInList: true,
         instanceable: true,
+        preventCreatingInstanceChild: true,
         mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
@@ -405,6 +411,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconCsgBezier,
         showInList: true,
         instanceable: true,
+        preventCreatingInstanceChild: true,
         mesh: true,
         components: [
             CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
@@ -474,6 +481,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconShape,
         showInList: true,
         instanceable: true,
+        preventCreatingInstanceChild: true,
         mesh: true,
         components: [
             CName,
@@ -648,6 +656,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconLight,
         showInList: true,
         instanceable: true,
+        preventCreatingInstanceChild: true,
         light: true,
         components: [CName, CVisible, CCastShadow, CMapSize, CShadowMappingRange, CPosition, CObject3D, CLightHelper, CIntensity, CColor],
         canBeRoot: true,
@@ -673,6 +682,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconLight,
         showInList: true,
         instanceable: true,
+        preventCreatingInstanceChild: true,
         light: true,
         components: [
             CName, CVisible,

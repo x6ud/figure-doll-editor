@@ -341,6 +341,11 @@ export default class GizmoTool extends EditorTool {
                     for (let result of results) {
                         if (result.object.userData.node?.visible) {
                             const node = result.object.userData.node as ModelNode;
+                            if (!ctx.options.allowSelectingInvisibleObjectByClicking) {
+                                if (node.has(CGeom3) && node.parent?.has(CGeom3)) {
+                                    continue;
+                                }
+                            }
                             if (!topClickedNode) {
                                 topClickedNode = node;
                             }
@@ -425,7 +430,13 @@ export default class GizmoTool extends EditorTool {
                         }
                         for (let obj of result) {
                             if (obj.userData.node?.visible) {
-                                ctx.model.addSelection(obj.userData.node.id);
+                                const node = obj.userData.node;
+                                if (!ctx.options.allowSelectingInvisibleObjectByClicking) {
+                                    if (node.has(CGeom3) && node.parent?.has(CGeom3)) {
+                                        continue;
+                                    }
+                                }
+                                ctx.model.addSelection(node.id);
                             }
                         }
                     }

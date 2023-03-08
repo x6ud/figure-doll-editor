@@ -140,7 +140,7 @@ export default defineComponent({
             if (!node) {
                 return false;
             }
-            return ['Shape', 'Box', 'ObjModel', 'FbxModel'].includes(node.type);
+            return getModelNodeDef(node.type).mesh;
         });
 
         function onConvertToClay() {

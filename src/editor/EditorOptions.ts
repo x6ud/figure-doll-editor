@@ -5,6 +5,7 @@ export default class EditorOptions {
     remeshVoxelSize: number = 0.003;
     paintColor: [number, number, number] = [1, 0, 1];
 
+    allowSelectingInvisibleObjectByClicking: boolean = true;
     keepTransformUnchangedWhileMoving: boolean = true;
     useLocalSpaceForTransformControl: boolean = true;
     allowModifyingBoneLengthWhenBindingIk: boolean = true;

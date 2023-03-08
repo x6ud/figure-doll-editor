@@ -1,6 +1,7 @@
 import {BufferGeometry, LineBasicMaterial, LineSegments, Matrix4, Ray, Vector3} from 'three';
 import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
+import CGeom3 from '../model/components/CGeom3';
 import CObject3D, {Object3DUserData} from '../model/components/CObject3D';
 import CSymmetry from '../model/components/CSymmetry';
 import ModelNode from '../model/ModelNode';
@@ -99,6 +100,11 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                             for (let obj of result) {
                                 const node = (obj.object.userData as Object3DUserData).node;
                                 if (node?.visible) {
+                                    if (!ctx.options.allowSelectingInvisibleObjectByClicking) {
+                                        if (node.has(CGeom3) && node.parent?.has(CGeom3)) {
+                                            continue;
+                                        }
+                                    }
                                     id = node.id;
                                     break;
                                 }
@@ -140,6 +146,11 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                             for (let obj of result) {
                                 const node = (obj.userData as Object3DUserData).node;
                                 if (node) {
+                                    if (!ctx.options.allowSelectingInvisibleObjectByClicking) {
+                                        if (node.has(CGeom3) && node.parent?.has(CGeom3)) {
+                                            continue;
+                                        }
+                                    }
                                     ctx.model.addSelection(node.id);
                                 }
                             }

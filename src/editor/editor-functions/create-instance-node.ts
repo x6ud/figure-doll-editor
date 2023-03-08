@@ -9,6 +9,7 @@ import CRotation from '../model/components/CRotation';
 import CScale from '../model/components/CScale';
 import {ModelNodeCreationInfo} from '../model/ModelHistory';
 import ModelNode from '../model/ModelNode';
+import {getModelNodeDef} from '../model/ModelNodeDef';
 import {getAxisAngle, vectorsEqual} from '../utils/math';
 
 export function createInstanceNode(ctx: EditorContext, node: ModelNode, mirror: 'none' | 'x' | 'y' | 'z') {
@@ -132,11 +133,13 @@ export function createInstanceNode(ctx: EditorContext, node: ModelNode, mirror: 
             invQuat1 = new Quaternion().copy(_localRotation1).invert();
         }
         newNode.children = [];
-        let prevChildInvQuat1: Quaternion | undefined = undefined;
-        for (let child of node.children) {
-            const newChild = makeNewNode(child, parentMat0, parentMat1, invParentMat1, prevChildInvQuat1);
-            prevChildInvQuat1 = newChild.invQuat1;
-            newNode.children.push(newChild.creationInfo);
+        if (!getModelNodeDef(node.type).preventCreatingInstanceChild) {
+            let prevChildInvQuat1: Quaternion | undefined = undefined;
+            for (let child of node.children) {
+                const newChild = makeNewNode(child, parentMat0, parentMat1, invParentMat1, prevChildInvQuat1);
+                prevChildInvQuat1 = newChild.invQuat1;
+                newNode.children.push(newChild.creationInfo);
+            }
         }
         newNode.expanded = node.expanded;
         newNode.selected = false;

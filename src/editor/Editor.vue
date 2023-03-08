@@ -43,6 +43,11 @@
                                      :checked="editorCtx.options.keepTransformUnchangedWhileMoving"
                     />
                     <popup-menu-item sep/>
+                    <popup-menu-item title="Select: Allow Clicking Negative Objects"
+                                     @click="editorCtx.options.allowSelectingInvisibleObjectByClicking = !editorCtx.options.allowSelectingInvisibleObjectByClicking"
+                                     :checked="editorCtx.options.allowSelectingInvisibleObjectByClicking"
+                    />
+                    <popup-menu-item sep/>
                     <popup-menu-item title="Transform: Use Local Space For Controls"
                                      @click="editorCtx.options.useLocalSpaceForTransformControl = !editorCtx.options.useLocalSpaceForTransformControl"
                                      :checked="editorCtx.options.useLocalSpaceForTransformControl"

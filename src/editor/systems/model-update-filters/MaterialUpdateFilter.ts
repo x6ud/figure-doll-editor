@@ -56,8 +56,7 @@ export default class MaterialUpdateFilter implements ModelNodeUpdateFilter {
                     if (!object3D) {
                         break;
                     }
-                    const node = object3D.userData.node as ModelNode;
-                    if (node?.id !== node.id) {
+                    if ((object3D.userData.node as ModelNode)?.id !== node.id) {
                         continue;
                     }
                     const mesh = object3D as Mesh;
