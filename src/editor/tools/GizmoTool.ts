@@ -232,14 +232,14 @@ export default class GizmoTool extends EditorTool {
                                 case 'CsgCuboid': {
                                     const value = new Vector3().copy(props[CSize3.name]);
                                     value.multiply(_localScale);
-                                    ctx.history.setValue(node, CSize3, value);
+                                    ctx.history.setValue(node.instanceId ? ctx.model.getNode(node.instanceId) : node, CSize3, value);
                                     resizeGeom3 = true;
                                 }
                                     break;
                                 case 'CsgEllipsoid': {
                                     const value = new Vector3().copy(props[CRadius3.name]);
                                     value.multiply(_localScale);
-                                    ctx.history.setValue(node, CRadius3, value);
+                                    ctx.history.setValue(node.instanceId ? ctx.model.getNode(node.instanceId) : node, CRadius3, value);
                                     resizeGeom3 = true;
                                 }
                                     break;
@@ -250,7 +250,7 @@ export default class GizmoTool extends EditorTool {
                                     ) {
                                         let value = props[CHeight.name] as number;
                                         value *= _localScale.z;
-                                        ctx.history.setValue(node, CHeight, value);
+                                        ctx.history.setValue(node.instanceId ? ctx.model.getNode(node.instanceId) : node, CHeight, value);
                                         ctx.history.setValue(node, CScale3, new Vector3().copy(scale0));
                                         resizeGeom3 = true;
                                     } else if (
@@ -260,12 +260,12 @@ export default class GizmoTool extends EditorTool {
                                     ) {
                                         let value = props[CRadius.name] as number;
                                         value *= _localScale.x;
-                                        ctx.history.setValue(node, CRadius, value);
+                                        ctx.history.setValue(node.instanceId ? ctx.model.getNode(node.instanceId) : node, CRadius, value);
                                         ctx.history.setValue(node, CScale3, new Vector3().copy(scale0));
                                         resizeGeom3 = true;
                                     } else {
-                                        ctx.history.setValue(node, CHeight, props[CHeight.name] as number);
-                                        ctx.history.setValue(node, CRadius, props[CRadius.name] as number);
+                                        ctx.history.setValue(node.instanceId ? ctx.model.getNode(node.instanceId) : node, CHeight, props[CHeight.name] as number);
+                                        ctx.history.setValue(node.instanceId ? ctx.model.getNode(node.instanceId) : node, CRadius, props[CRadius.name] as number);
                                     }
                                 }
                                     break;
@@ -276,11 +276,11 @@ export default class GizmoTool extends EditorTool {
                                     ) {
                                         let value = props[CHeight.name] as number;
                                         value *= _localScale.z;
-                                        ctx.history.setValue(node, CHeight, value);
+                                        ctx.history.setValue(node.instanceId ? ctx.model.getNode(node.instanceId) : node, CHeight, value);
                                         ctx.history.setValue(node, CScale3, new Vector3().copy(scale0));
                                         resizeGeom3 = true;
                                     } else {
-                                        ctx.history.setValue(node, CHeight, props[CHeight.name] as number);
+                                        ctx.history.setValue(node.instanceId ? ctx.model.getNode(node.instanceId) : node, CHeight, props[CHeight.name] as number);
                                     }
                                 }
                                     break;
