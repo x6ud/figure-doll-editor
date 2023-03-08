@@ -336,7 +336,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         ],
         canBeRoot: true,
         validChildTypes: [],
-        defaultData: {[CRoundRadius.name]: 0},
+        defaultData: {[CRoundRadius.name]: 0, [CSize3.name]: new Vector3(0.2, 0.2, 0.2)},
     },
     {
         name: 'CsgEllipsoid',
@@ -352,6 +352,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         ],
         canBeRoot: true,
         validChildTypes: [],
+        defaultData: {[CRadius3.name]: new Vector3(0.1, 0.1, 0.1)},
     },
     {
         name: 'CsgCylinder',
@@ -367,7 +368,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         ],
         canBeRoot: true,
         validChildTypes: [],
-        defaultData: {[CRoundRadius.name]: 0},
+        defaultData: {[CRoundRadius.name]: 0, [CHeight.name]: 0.2, [CRadius.name]: 0.1},
     },
     {
         name: 'CsgCylinderElliptic',
@@ -383,6 +384,11 @@ export const modelNodeDefs: ModelNodeDef[] = [
         ],
         canBeRoot: true,
         validChildTypes: [],
+        defaultData: {
+            [CHeight.name]: 0.2,
+            [CStartRadius2.name]: new Vector2(0.1, 0.1),
+            [CEndRadius2.name]: new Vector2(0, 0),
+        }
     },
     {
         name: 'CsgTorus',
@@ -404,6 +410,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         ],
         canBeRoot: true,
         validChildTypes: [],
+        defaultData: {[COuterRadius.name]: 0.1, [CInnerRadius.name]: 0.05}
     },
     {
         name: 'CsgBezier',
@@ -474,6 +481,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         ],
         canBeRoot: true,
         validChildTypes: [],
+        defaultData: {[CBoxSize.name]: new Vector3(.2, .2, .2)}
     },
     {
         name: 'Shape',
