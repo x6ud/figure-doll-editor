@@ -1,10 +1,10 @@
 import {Matrix4, Ray, Sphere, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
+import CSymmetry from '../model/components/CSymmetry';
 import ModelNode from '../model/ModelNode';
 import DynamicMesh from '../utils/geometry/dynamic/DynamicMesh';
 import {pixelLine} from '../utils/pixel';
-import CSymmetry from "../model/components/CSymmetry";
 
 const _sphere = new Sphere();
 const _ray = new Ray();
@@ -83,6 +83,9 @@ export default abstract class EditorTool {
     }
 
     beforeRender(ctx: EditorContext, view: EditorView): void {
+    }
+
+    afterRender(ctx: EditorContext): void {
     }
 
     /** Called when tool is unselected */

@@ -5,6 +5,7 @@ import CColors from './components/CColors';
 import CPosition from './components/CPosition';
 import CRotation from './components/CRotation';
 import CScale from './components/CScale';
+import CScale3 from './components/CScale3';
 import CTube from './components/CTube';
 import CVertices from './components/CVertices';
 import Model from './Model';
@@ -413,25 +414,26 @@ export default class ModelHistory {
         this.enableMerge = false;
 
         if (keepTransformUnchanged && parentId0 !== parentId1) {
-            if (node.has(CPosition) || node.has(CRotation) || node.has(CScale)) {
+            if (node.has(CPosition) || node.has(CRotation) || node.has(CScale) || node.has(CScale3)) {
                 let localMatrix = node.getWorldMatrix();
                 if (parent) {
                     localMatrix = new Matrix4().copy(parent.getWorldMatrix()).invert().multiply(localMatrix);
                 }
+                const position = new Vector3();
+                const rotation = new Quaternion();
+                const scale = new Vector3();
+                localMatrix.decompose(position, rotation, scale);
                 if (node.has(CPosition)) {
-                    const position = new Vector3();
-                    const rotation = new Quaternion();
-                    const scale = new Vector3();
-                    localMatrix.decompose(position, rotation, scale);
-                    if (node.has(CPosition)) {
-                        this.setValue(node, CPosition, position);
-                    }
-                    if (node.has(CRotation)) {
-                        this.setValue(node, CRotation, new Euler().setFromQuaternion(rotation));
-                    }
-                    if (node.has(CScale)) {
-                        this.setValue(node, CScale, scale.x);
-                    }
+                    this.setValue(node, CPosition, position);
+                }
+                if (node.has(CRotation)) {
+                    this.setValue(node, CRotation, new Euler().setFromQuaternion(rotation));
+                }
+                if (node.has(CScale)) {
+                    this.setValue(node, CScale, scale.x);
+                }
+                if (node.has(CScale3)) {
+                    this.setValue(node, CScale3, scale);
                 }
             } else if (node.has(CTube)) {
                 let detMat = node.getWorldMatrix();

@@ -2,13 +2,12 @@ import {BufferGeometry, LineBasicMaterial, LineSegments, Matrix4, Ray, Vector3} 
 import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
 import CObject3D, {Object3DUserData} from '../model/components/CObject3D';
+import CSymmetry from '../model/components/CSymmetry';
+import ModelNode from '../model/ModelNode';
 import EditorTool from '../tools/EditorTool';
 import {xyCirclePoints} from '../utils/geometry/helper';
 import {getScaleScalar} from '../utils/math';
-import SelectionRect from '../utils/SelectionRect';
 import UpdateSystem from '../utils/UpdateSystem';
-import ModelNode from "../model/ModelNode";
-import CSymmetry from "../model/components/CSymmetry";
 
 const _forward = new Vector3(0, 0, 1);
 const _pos = new Vector3();
@@ -20,7 +19,6 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
 
     private prevTool?: EditorTool;
 
-    private selectionRect = new SelectionRect();
     private dragMovedFramesCount = 0;
     private sculptPicked = false;
 
@@ -68,10 +66,10 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                         const y = Math.max(-1, Math.min(1, view.mouseNdc.y));
                         if (ctx.selectionRectDragging) {
                             // drag move
-                            this.selectionRect.setPoint2(x, y);
+                            ctx.selectionRect.setPoint2(x, y);
                             ctx.selectionEnd.set(x, y);
                             if (this.dragMovedFramesCount < 2) {
-                                this.selectionRect.hide();
+                                ctx.selectionRect.hide();
                                 if (this.dragMovedFramesCount || !ctx.selectionStart.equals(ctx.selectionEnd)) {
                                     this.dragMovedFramesCount += 1;
                                 }
@@ -80,9 +78,9 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                             // drag start
                             ctx.selectionRectDragging = true;
                             ctx.selectionRectViewIndex = view.index;
-                            this.selectionRect.attach(view.element);
-                            this.selectionRect.setPoint1(x, y);
-                            this.selectionRect.setPoint2(x, y);
+                            ctx.selectionRect.attach(view.element);
+                            ctx.selectionRect.setPoint1(x, y);
+                            ctx.selectionRect.setPoint2(x, y);
                             ctx.selectionStart.set(x, y);
                             ctx.selectionEnd.set(x, y);
                             this.dragMovedFramesCount = 0;
@@ -93,7 +91,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 if (ctx.selectionRectDragging && ctx.selectionRectViewIndex === view.index && !input.mouseLeft) {
                     ctx.selectionRectDragging = false;
                     ctx.selectionRectSetThisFrame = true;
-                    this.selectionRect.hide();
+                    ctx.selectionRect.hide();
                     if (tool.enableDefaultSelectionBehavior) {
                         if (ctx.selectionStart.equals(ctx.selectionEnd)) {
                             const result = view.mousePick();
@@ -130,7 +128,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                                 }
                             }
                         } else {
-                            const result = this.selectionRect.select(
+                            const result = ctx.selectionRect.select(
                                 view.camera.get(),
                                 ctx.readonlyRef().scene.children.filter(
                                     obj => obj.visible && !!(obj.userData as Object3DUserData).node
@@ -150,7 +148,7 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
                 }
             }
         } else {
-            this.selectionRect.hide();
+            ctx.selectionRect.hide();
             ctx.selectionRectDragging = false;
         }
 

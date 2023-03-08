@@ -55,6 +55,7 @@ export default class SelectionRect {
     }
 
     detach() {
+        this.parent = undefined;
         this.dom.remove();
     }
 

@@ -17,7 +17,6 @@ import LightUpdateSystem from './systems/LightUpdateSystem';
 import BoxUpdateFilter from './systems/model-update-filters/BoxUpdateFilter';
 import ClayUpdateFilter from './systems/model-update-filters/ClayUpdateFilter';
 import ContainerUpdateFilter from './systems/model-update-filters/ContainerUpdateFilter';
-import SdfShapeUpdateFilter from './systems/model-update-filters/SdfShapeUpdateFilter';
 import IkChainUpdateFilter from './systems/model-update-filters/IkChainUpdateFilter';
 import ImageUpdateFilter from './systems/model-update-filters/ImageUpdateFilter';
 import ImportModelUpdateFilter from './systems/model-update-filters/ImportModelUpdateFilter';
@@ -28,6 +27,7 @@ import MaterialUpdateFilter from './systems/model-update-filters/MaterialUpdateF
 import MirrorUpdateFilter from './systems/model-update-filters/MirrorUpdateFilter';
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import OpacityUpdateFilter from './systems/model-update-filters/OpacityUpdateFilter';
+import SdfShapeUpdateFilter from './systems/model-update-filters/SdfShapeUpdateFilter';
 import ShadowUpdateFilter from './systems/model-update-filters/ShadowUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
 import TubeUpdateFilter from './systems/model-update-filters/TubeUpdateFilter';
@@ -39,12 +39,11 @@ import ToolSystem from './systems/ToolSystem';
 import BoxTool from './tools/BoxTool';
 import CursorTool from './tools/CursorTool';
 import EditorTool from './tools/EditorTool';
+import GizmoTool from './tools/GizmoTool';
 import IkBindTool from './tools/IkBindTool';
 import IkJointStretchTool from './tools/IkJointStretchTool';
 import IkMoveTool from './tools/IkMoveTool';
 import IkRotateTool from './tools/IkRotateTool';
-import RescaleTool from './tools/RescaleTool';
-import RotateTool from './tools/RotateTool';
 import SculptBrushTool from './tools/SculptBrushTool';
 import SculptCreaseTool from './tools/SculptCreaseTool';
 import SculptDragTool from './tools/SculptDragTool';
@@ -55,8 +54,8 @@ import SculptPaintTool from './tools/SculptPaintTool';
 import SculptPinchTool from './tools/SculptPinchTool';
 import SculptSmoothTool from './tools/SculptSmoothTool';
 import ToolSeperator from './tools/ToolSeperator';
-import TranslateTool from './tools/TranslateTool';
 import TubeTool from './tools/TubeTool';
+import SelectionRect from './utils/SelectionRect';
 import UpdateSystem from './utils/UpdateSystem';
 
 export default class EditorContext {
@@ -96,10 +95,7 @@ export default class EditorContext {
     sculptSmoothTool = new SculptSmoothTool();
     tools: EditorTool[] = [
         new CursorTool(),
-        ToolSeperator.instance,
-        new TranslateTool(),
-        new RotateTool(),
-        new RescaleTool(),
+        new GizmoTool(),
         ToolSeperator.instance,
         new IkRotateTool(),
         new IkMoveTool(),
@@ -145,6 +141,7 @@ export default class EditorContext {
     dummyObject = new Object3D();
     disableCameraDraggingThisFrame = false;
 
+    selectionRect = new SelectionRect();
     selectionRectDragging = false;
     selectionRectViewIndex = -1;
     selectionRectSetThisFrame = false;
@@ -297,6 +294,13 @@ export default class EditorContext {
             } else {
                 this.throttleTasks.set(hash, {time: Date.now() + delayMs, callback});
             }
+        }
+    }
+
+    delayThrottle(hash: string, delayMs: number) {
+        const task = this.throttleTasks.get(hash);
+        if (task) {
+            task.time = Date.now() + delayMs;
         }
     }
 

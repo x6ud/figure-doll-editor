@@ -3,6 +3,7 @@ import {TransformControls} from 'three/examples/jsm/controls/TransformControls';
 import EditorContext from './EditorContext';
 import {Object3DUserData} from './model/components/CObject3D';
 import ArcRotateCamera from './utils/camera/ArcRotateCamera';
+import Gizmo from './utils/Gizmo';
 import Input from './utils/Input';
 
 export default class EditorView {
@@ -24,6 +25,8 @@ export default class EditorView {
     mouseRayN = new Vector3();
     raycaster = new Raycaster();
     transformControls: TransformControls;
+    gizmo = new Gizmo();
+    gizmoEnabled = false;
     defaultLight: DirectionalLight;
 
     constructor(ctx: EditorContext,
@@ -42,6 +45,8 @@ export default class EditorView {
         this.camera.perspective = cameraPerspective;
         this.transformControls = new TransformControls(this.camera.get(), element);
         ctx.scene.add(this.transformControls);
+        ctx.scene.add(this.gizmo);
+        this.gizmo.visible = false;
         this.defaultLight = new DirectionalLight();
         ctx.scene.add(this.defaultLight);
     }

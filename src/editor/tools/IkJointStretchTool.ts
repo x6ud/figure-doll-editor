@@ -102,7 +102,6 @@ export default class IkJointStretchTool extends EditorTool {
         }
         const control = view.transformControls;
         control.camera = view.camera.get();
-        control.setMode('translate');
         control.setMode('scale');
         control.setSpace('local');
         if (control.dragging && this.node) {
