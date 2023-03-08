@@ -120,6 +120,10 @@ export default class Gizmo extends Group {
     translateSnap: number = 0.05;
     rotateSnap: number = 45 / 180 * Math.PI;
 
+    enableTranslate: boolean = true;
+    enableRotate: boolean = true;
+    enableScale: boolean = true;
+
     dragStart: boolean = false;
     dragging: boolean = false;
     mode?: 'translate' | 'rotate' | 'scale';
@@ -464,71 +468,77 @@ export default class Gizmo extends Group {
             for (let result of raycaster.intersectObjects(this.pickers)) {
                 switch (result.object.userData.name) {
                     case 'translate-x':
-                        if (!axis && xAxisVisible) {
+                        if (!axis && xAxisVisible && this.enableTranslate) {
                             axis = 'translate-x';
                         }
                         break;
                     case 'translate-y':
-                        if (!axis && yAxisVisible) {
+                        if (!axis && yAxisVisible && this.enableTranslate) {
                             axis = 'translate-y';
                         }
                         break;
                     case 'translate-z':
-                        if (!axis && zAxisVisible) {
+                        if (!axis && zAxisVisible && this.enableTranslate) {
                             axis = 'translate-z';
                         }
                         break;
                     case 'translate-free':
-                        translateFree = true;
+                        if (this.enableTranslate) {
+                            translateFree = true;
+                        }
                         break;
                     case 'rotate-x':
-                        if (!rotateAxis) {
+                        if (!rotateAxis && this.enableRotate) {
                             rotateAxis = 'rotate-x';
                         }
                         break;
                     case 'rotate-y':
-                        if (!rotateAxis) {
+                        if (!rotateAxis && this.enableRotate) {
                             rotateAxis = 'rotate-y';
                         }
                         break;
                     case 'rotate-z':
-                        if (!rotateAxis) {
+                        if (!rotateAxis && this.enableRotate) {
                             rotateAxis = 'rotate-z';
                         }
                         break;
                     case 'rotate-view':
-                        rotateView = true;
+                        if (this.enableRotate) {
+                            rotateView = true;
+                        }
                         break;
                     case 'rotate-free':
-                        rotateFree = true;
+                        if (this.enableRotate) {
+                            rotateFree = true;
+                        }
                         break;
                     case 'scale-x':
-                        if (!axis && xAxisVisible) {
+                        if (!axis && xAxisVisible && this.enableScale) {
                             axis = 'scale-x';
                         }
                         break;
                     case 'scale-y':
-                        if (!axis && yAxisVisible) {
+                        if (!axis && yAxisVisible && this.enableScale) {
                             axis = 'scale-y';
                         }
                         break;
                     case 'scale-z':
-                        if (!axis && zAxisVisible) {
+                        if (!axis && zAxisVisible && this.enableScale) {
                             axis = 'scale-z';
                         }
                         break;
                     case 'scale-yz':
-                        if (!axis && yAxisVisible && zAxisVisible) {
+                        if (!axis && yAxisVisible && zAxisVisible && this.enableScale) {
                             axis = 'scale-yz';
                         }
                         break;
                     case 'scale-xz':
-                        if (!axis && xAxisVisible && zAxisVisible) {
+                        if (!axis && xAxisVisible && zAxisVisible && this.enableScale) {
                             axis = 'scale-xz';
                         }
                         break;
                     case 'scale-xy':
-                        if (!axis && xAxisVisible && yAxisVisible) {
+                        if (!axis && xAxisVisible && yAxisVisible && this.enableScale) {
                             axis = 'scale-xy';
                         }
                         break;
@@ -565,19 +575,19 @@ export default class Gizmo extends Group {
             this.updateOpacity(this.scalePickerXY, this.handler === 'scale-xy' || !this.handler);
             this.updateOpacity(this.viewRotateCircle, this.handler === 'rotate-view' || !this.handler);
             this.updateOpacity(this.freeTranslateHandler, this.handler === 'translate-free' || !this.handler);
-            this.freeRotatePicker.visible = this.handler === 'rotate-free';
-            this.translateArrowX.visible = xAxisVisible;
-            this.translateArrowY.visible = yAxisVisible;
-            this.translateArrowZ.visible = zAxisVisible;
-            this.rotateCircleX.visible = true;
-            this.rotateCircleY.visible = true;
-            this.rotateCircleZ.visible = true;
-            this.scaleCubeX.visible = this.scaleAxisX.visible = xAxisVisible;
-            this.scaleCubeY.visible = this.scaleAxisY.visible = yAxisVisible;
-            this.scaleCubeZ.visible = this.scaleAxisZ.visible = zAxisVisible;
-            this.scalePickerYZ.visible = yAxisVisible && zAxisVisible;
-            this.scalePickerXZ.visible = xAxisVisible && zAxisVisible;
-            this.scalePickerXY.visible = xAxisVisible && yAxisVisible;
+            this.freeRotatePicker.visible = this.handler === 'rotate-free' && this.enableRotate;
+            this.translateArrowX.visible = xAxisVisible && this.enableTranslate;
+            this.translateArrowY.visible = yAxisVisible && this.enableTranslate;
+            this.translateArrowZ.visible = zAxisVisible && this.enableTranslate;
+            this.rotateCircleX.visible = this.enableRotate;
+            this.rotateCircleY.visible = this.enableRotate;
+            this.rotateCircleZ.visible = this.enableRotate;
+            this.scaleCubeX.visible = this.scaleAxisX.visible = xAxisVisible && this.enableScale;
+            this.scaleCubeY.visible = this.scaleAxisY.visible = yAxisVisible && this.enableScale;
+            this.scaleCubeZ.visible = this.scaleAxisZ.visible = zAxisVisible && this.enableScale;
+            this.scalePickerYZ.visible = yAxisVisible && zAxisVisible && this.enableScale;
+            this.scalePickerXZ.visible = xAxisVisible && zAxisVisible && this.enableScale;
+            this.scalePickerXY.visible = xAxisVisible && yAxisVisible && this.enableScale;
             this.viewRotateCircle.visible = true;
             this.freeTranslateHandler.visible = true;
 

@@ -273,11 +273,6 @@ export default class ToolSystem extends UpdateSystem<EditorContext> {
         tool.begin(ctx);
         for (let view of ctx.views) {
             view = toRaw(view);
-            if (tool.enableTransformControls) {
-                view.transformControls.attach(ctx.dummyObject);
-            } else {
-                view.transformControls.detach();
-            }
             if (view.enabled) {
                 tool.update(ctx, view);
             }

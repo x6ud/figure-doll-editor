@@ -46,7 +46,6 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
         for (let curr of ctx.views) {
             for (let view of ctx.views) {
                 const active = curr === view;
-                view.transformControls.visible = active && ctx.tool.enableTransformControls;
                 view.gizmo.visible = active && view.gizmoEnabled;
                 view.defaultLight.visible = useDefaultLight && active;
             }

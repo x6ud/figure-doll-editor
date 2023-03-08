@@ -137,8 +137,6 @@ export default class EditorContext {
     scene = new Scene();
     views: EditorView[];
     readonly mainViewIndex: number;
-    /** Used for setting transform control handler position */
-    dummyObject = new Object3D();
     disableCameraDraggingThisFrame = false;
 
     selectionRect = new SelectionRect();
@@ -200,7 +198,6 @@ export default class EditorContext {
         this.outlinePass.visibleEdgeColor.setHex(0xf3982d);
         this.composer.addPass(this.outlinePass);
 
-        this.scene.add(this.dummyObject);
         for (let system of this.systems) {
             system.setup(this);
         }

@@ -10,9 +10,8 @@ import CTemporaryScale from '../model/components/CTemporaryScale';
 import CVertices from '../model/components/CVertices';
 import ModelNode from '../model/ModelNode';
 import ModelNodeComponent from '../model/ModelNodeComponent';
-import {getScale} from '../utils/math';
 import EditorTool from './EditorTool';
-import icon from './IkJointResize.png';
+import icon from './IkJointStretch.png';
 
 const _point = new Vector3();
 const _invMat = new Matrix4();
@@ -50,7 +49,6 @@ export default class IkJointStretchTool extends EditorTool {
             this.node = this.node.parent;
         }
         if (!this.node) {
-            this.enableTransformControls = false;
             return;
         }
 
@@ -64,15 +62,7 @@ export default class IkJointStretchTool extends EditorTool {
             }
         }
 
-        // update transform controls position
-        this.enableTransformControls = true;
         if (!this.dragging) {
-            this.node.getWorldMatrix().decompose(
-                ctx.dummyObject.position,
-                ctx.dummyObject.quaternion,
-                ctx.dummyObject.scale
-            );
-            ctx.dummyObject.scale.setScalar(1);
             this.length0 = this.node.value(CIkNodeLength);
             this.childrenPosition0.clear();
             for (let child of this.node.children) {
@@ -86,40 +76,54 @@ export default class IkJointStretchTool extends EditorTool {
     }
 
     update(ctx: EditorContext, view: EditorView): void {
-        if (!this.enableTransformControls) {
-            // click select
-            const input = view.input;
-            if (input.pointerOver && input.mouseLeftDownThisFrame) {
-                for (let picking of view.mousePick()) {
-                    const node = (picking.object.userData as Object3DUserData).node;
-                    if (node && !node.instanceId) {
-                        ctx.model.selected = [node.id];
-                        break;
+        // gizmo
+        if (this.node) {
+            view.gizmoEnabled = true;
+            view.gizmo.visible = true;
+            view.gizmo.orientation = 'local';
+            view.gizmo.enableTranslate = false;
+            view.gizmo.enableRotate = false;
+            view.gizmo.enableScale = true;
+            if (!view.gizmo.dragging) {
+                view.gizmo.setTargetTransformFromMatrix(this.node.getWorldMatrix());
+                view.gizmo.scale0.set(1, 1, 1);
+            }
+            view.gizmo.update(
+                view.camera,
+                view.raycaster,
+                view.input,
+                view.mouseRay0,
+                view.mouseRay1,
+                view.mouseRayN
+            );
+            if (view.gizmo.dragging) {
+                this.dragging = true;
+                this.scale.copy(view.gizmo.scale1);
+                this.scale.x = Math.max(this.scale.x, 0);
+                ctx.history.setValue(this.node, CIkNodeLength, this.length0 * this.scale.x);
+                for (let pair of this.childrenPosition0) {
+                    const node = ctx.model.getNode(pair[0]);
+                    const position0 = pair[1];
+                    const position = new Vector3().copy(position0);
+                    position.x *= this.scale.x;
+                    ctx.history.setValue(node, CPosition, position);
+                }
+                for (let child of this.node.children) {
+                    if (child.type === 'Clay') {
+                        ctx.model.setValue(child, CTemporaryScale, new Vector3().copy(this.scale));
                     }
                 }
+                return;
             }
-            return;
         }
-        const control = view.transformControls;
-        control.camera = view.camera.get();
-        control.setMode('scale');
-        control.setSpace('local');
-        if (control.dragging && this.node) {
-            this.dragging = true;
-            const matrix = ctx.dummyObject.matrix;
-            getScale(this.scale, matrix);
-            this.scale.x = Math.max(this.scale.x, 0);
-            ctx.history.setValue(this.node, CIkNodeLength, this.length0 * this.scale.x);
-            for (let pair of this.childrenPosition0) {
-                const node = ctx.model.getNode(pair[0]);
-                const position0 = pair[1];
-                const position = new Vector3().copy(position0);
-                position.x *= this.scale.x;
-                ctx.history.setValue(node, CPosition, position);
-            }
-            for (let child of this.node.children) {
-                if (child.type === 'Clay') {
-                    ctx.model.setValue(child, CTemporaryScale, new Vector3().copy(this.scale));
+        // click select
+        const input = view.input;
+        if (input.pointerOver && input.mouseLeftDownThisFrame) {
+            for (let picking of view.mousePick()) {
+                const node = (picking.object.userData as Object3DUserData).node;
+                if (node && !node.instanceId) {
+                    ctx.model.selected = [node.id];
+                    break;
                 }
             }
         }
@@ -176,6 +180,11 @@ export default class IkJointStretchTool extends EditorTool {
     }
 
     onUnselected(ctx: EditorContext) {
+        for (let view of ctx.views) {
+            view.gizmoEnabled = false;
+            view.gizmo.visible = false;
+            view.gizmo.dragging = false;
+        }
         this.cleanup(ctx);
         this.node = null;
         this.dragging = false;

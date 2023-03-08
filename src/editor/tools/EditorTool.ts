@@ -42,8 +42,6 @@ export default abstract class EditorTool {
     sep: boolean = false;
     /** Text set to status bar when tool is selected */
     tips: string = '';
-    /** Whether to show transform controls */
-    enableTransformControls: boolean = false;
     /** Whether to delete selected nodes when pressing delete */
     enableDefaultDeleteShortcut: boolean = true;
     /** Whether to show the selection rect when dragging */

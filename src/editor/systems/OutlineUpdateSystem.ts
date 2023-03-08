@@ -44,22 +44,6 @@ export default class OutlineUpdateSystem extends UpdateSystem<EditorContext> {
                 }
             }
         };
-
-        // prevent outline transform controls
-        const cache: boolean[] = [false, false, false, false];
-        ctx.outlinePass.changeVisibilityOfNonSelectedObjects = (bVisible) => {
-            if (bVisible) {
-                for (let view of ctx.views) {
-                    view.transformControls.visible = cache[view.index];
-                }
-            } else {
-                for (let view of ctx.views) {
-                    cache[view.index] = view.transformControls.visible;
-                    view.transformControls.visible = false;
-                }
-            }
-            OutlinePass.prototype.changeVisibilityOfNonSelectedObjects.call(ctx.outlinePass, bVisible);
-        };
     }
 
     begin(ctx: EditorContext): void {

@@ -138,6 +138,9 @@ export default class GizmoTool extends EditorTool {
                 this.boundingBox.box.getCenter(_position).applyMatrix4(this.boundingBox.matrixWorld);
                 gizmo.setTargetTransform(_position, this.boundingBox.quaternion, _scale.set(1, 1, 1));
             }
+            view.gizmo.enableTranslate = true;
+            view.gizmo.enableRotate = true;
+            view.gizmo.enableScale = true;
             gizmo.update(
                 view.camera,
                 view.raycaster,
@@ -515,6 +518,7 @@ export default class GizmoTool extends EditorTool {
         for (let view of ctx.views) {
             view.gizmoEnabled = false;
             view.gizmo.visible = false;
+            view.gizmo.dragging = false;
         }
         ctx.selectionRect.hide();
         this.nodes = [];
