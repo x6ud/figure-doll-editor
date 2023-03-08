@@ -43,6 +43,7 @@ export type ModelNodeCreationInfo = {
     selected?: boolean;
 };
 
+/** The undo/redo history */
 export default class ModelHistory {
     model: Model;
     /** Whether to merge last 2 records with the same hash in the next frame */

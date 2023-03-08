@@ -1,3 +1,4 @@
+/** Editor options that will be written to browser local storge when changed */
 export default class EditorOptions {
     shadingMode: 'solid' | 'rendered' = 'solid';
 

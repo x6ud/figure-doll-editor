@@ -5,6 +5,7 @@ import ArcRotateCamera from './utils/camera/ArcRotateCamera';
 import Gizmo from './utils/Gizmo';
 import Input from './utils/Input';
 
+/** Sub view window context of the 3d canvas */
 export default class EditorView {
     ctx: EditorContext;
     index: number;

@@ -24,6 +24,7 @@ export type ProjectReaderResult = {
     }[];
 };
 
+/** Read project data from uint8array */
 export default class ProjectReader {
     private buffer: Uint8Array;
     private index: number = 0;

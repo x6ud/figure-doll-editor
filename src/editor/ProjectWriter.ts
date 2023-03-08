@@ -6,6 +6,7 @@ export const SERIALIZATION_VERSION = 2;
 
 const _view = new DataView(new ArrayBuffer(8));
 
+/** Convert project data to uint8array */
 export default class ProjectWriter {
     private buffer: Uint8Array = new Uint8Array(64);
     private size: number = 0;

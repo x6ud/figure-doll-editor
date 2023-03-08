@@ -301,6 +301,7 @@ export default class EditorContext {
         }
     }
 
+    /** Load project data */
     load(data: ProjectReaderResult) {
         this.reset();
         for (let i = 0; i < 4; ++i) {

@@ -59,10 +59,12 @@ export default class ModelNode {
         return this.components[componentClass.name] != null;
     }
 
+    /** The return value should be read-only */
     value<T>(componentClass: Class<ModelNodeComponent<T>>): T {
         return this.get(componentClass).value;
     }
 
+    /** The return value is safe to be modified */
     cloneValue<T>(componentClass: Class<ModelNodeComponent<T>>): T {
         const val = this.get(componentClass).value;
         const componentDef = getModelNodeComponentDef(componentClass.name);
@@ -86,6 +88,7 @@ export default class ModelNode {
         }
     }
 
+    /** The return value should be read-only */
     getLocalMatrix(): Matrix4 {
         if (this.has(CObject3D)) {
             const obj = this.value(CObject3D);
@@ -99,6 +102,7 @@ export default class ModelNode {
         return UNIT_MAT4;
     }
 
+    /** The return value should be read-only */
     getWorldMatrix(): Matrix4 {
         if (this.has(CObject3D)) {
             const obj = this.value(CObject3D);
@@ -112,6 +116,7 @@ export default class ModelNode {
         return UNIT_MAT4;
     }
 
+    /** The return value should be read-only */
     getParentWorldMatrix(): Matrix4 {
         if (this.type === 'Target') {
             return UNIT_MAT4;
@@ -175,6 +180,7 @@ export default class ModelNode {
         return ret;
     }
 
+    /** Whether this node can have a child of given type */
     isValidChild(type: string) {
         return !!getValidChildNodeDefs(this).find(def => def.name === type);
     }
