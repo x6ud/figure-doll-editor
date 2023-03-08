@@ -1,4 +1,5 @@
 import Class from '../../../common/type/Class';
+import CGeom3 from '../components/CGeom3';
 import CObject3D from '../components/CObject3D';
 import CPosition from '../components/CPosition';
 import CRotation from '../components/CRotation';
@@ -17,10 +18,13 @@ export default class TransformWatcher implements ModelNodeChangedWatcher {
     onValueChanged(model: Model, node: ModelNode, componentClass: Class<ModelNodeComponent<any>>): void {
         if (transformComponents.includes(componentClass)) {
             if (node.has(CObject3D)) {
-                node.dirty = true;
                 const cObject3D = node.get(CObject3D);
                 cObject3D.localTransformChanged = true;
                 cObject3D.worldTransformChanged = true;
+            }
+            if (node.has(CGeom3)) {
+                const cGeom3 = node.get(CGeom3);
+                cGeom3.matDirty = true;
             }
         }
         if (node.type === 'Target') {

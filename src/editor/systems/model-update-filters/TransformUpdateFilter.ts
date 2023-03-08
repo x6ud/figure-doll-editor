@@ -1,9 +1,11 @@
 import EditorContext from '../../EditorContext';
+import CGeom3 from '../../model/components/CGeom3';
 import CIkNode from '../../model/components/CIkNode';
 import CObject3D from '../../model/components/CObject3D';
 import CPosition from '../../model/components/CPosition';
 import CRotation from '../../model/components/CRotation';
 import CScale from '../../model/components/CScale';
+import CScale3 from '../../model/components/CScale3';
 import CTemporaryScale from '../../model/components/CTemporaryScale';
 import CTube from '../../model/components/CTube';
 import ModelNode from '../../model/ModelNode';
@@ -25,6 +27,9 @@ export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
                     if (node.has(CScale)) {
                         mesh.scale.x = mesh.scale.y = mesh.scale.z = node.value(CScale);
                     }
+                    if (node.has(CScale3)) {
+                        mesh.scale.copy(node.value(CScale3));
+                    }
                     if (node.has(CTemporaryScale)) {
                         mesh.scale.multiply(node.value(CTemporaryScale));
                     }
@@ -33,7 +38,11 @@ export default class TransformUpdateFilter implements ModelNodeUpdateFilter {
                         mesh.position.copy(cIkNode.start);
                         mesh.quaternion.copy(cIkNode.quaternion);
                     }
-                    mesh.updateMatrix();
+                    if (node.has(CGeom3)) {
+                        mesh.matrix.copy(node.get(CGeom3).matrix);
+                    } else {
+                        mesh.updateMatrix();
+                    }
                     cObject3D.localTransformChanged = false;
                 }
                 if (cObject3D.worldTransformChanged) {

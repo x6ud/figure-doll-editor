@@ -129,6 +129,7 @@ export default class GizmoTool extends EditorTool {
     update(ctx: EditorContext, view: EditorView) {
         // update gizmo
         const gizmo = view.gizmo;
+        gizmo.orientation = ctx.options.useLocalSpaceForTransformControl ? 'local' : 'world';
         view.gizmo.visible = true;
         view.gizmoEnabled = this.boundingBox.visible;
         if (view.gizmoEnabled) {
