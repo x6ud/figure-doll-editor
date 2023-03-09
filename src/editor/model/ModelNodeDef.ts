@@ -575,6 +575,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [
             CName, CVisible, CCastShadow, CReceiveShadow,
             CPosition, CRotation, CScale,
+            CUsePlainMaterial, CRoughness, CMetalness, CColor, CEmissive,
             COpacity, CObject3D, CImportObj
         ],
         canBeRoot: true,
@@ -590,6 +591,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [
             CName, CVisible, CCastShadow, CReceiveShadow,
             CPosition, CRotation, CScale,
+            CUsePlainMaterial, CRoughness, CMetalness, CColor, CEmissive,
             COpacity, CObject3D, CImportFbx
         ],
         canBeRoot: true,
