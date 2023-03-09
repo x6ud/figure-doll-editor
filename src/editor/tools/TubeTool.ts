@@ -2,7 +2,6 @@ import {BufferGeometry, Line, LineBasicMaterial, Matrix4, Quaternion, Vector3} f
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import {Object3DUserData} from '../model/components/CObject3D';
-import CPosition from '../model/components/CPosition';
 import CTube, {Tube, TubeNodePickerUserData} from '../model/components/CTube';
 import ModelNode from '../model/ModelNode';
 import CircleEdgeGeometry from '../utils/geometry/CircleEdgeGeometry';
@@ -401,14 +400,12 @@ export default class TubeTool extends EditorTool {
                                 this.lastNodeId = ctx.history.createNode({
                                     type: 'Shape',
                                     parentId: parent ? parent.id : 0,
-                                    data: {
-                                        [CPosition.name]: new Vector3().copy(_pos)
-                                    },
+                                    data: {},
                                     children: [
                                         {
                                             type: 'Tube',
                                             data: {
-                                                [CTube.name]: [{radius, position: new Vector3()}],
+                                                [CTube.name]: [{radius, position: new Vector3().copy(_pos)}],
                                             }
                                         }
                                     ]
