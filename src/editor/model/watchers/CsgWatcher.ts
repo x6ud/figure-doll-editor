@@ -1,4 +1,4 @@
-import Class from '../../../common/type/Class';
+import Class from '../../type/Class';
 import CAngleRange from '../components/CAngleRange';
 import CEndRadius2 from '../components/CEndRadius2';
 import CGeom3 from '../components/CGeom3';

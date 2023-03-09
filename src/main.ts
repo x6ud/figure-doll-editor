@@ -1,6 +1,6 @@
 import {createApp} from 'vue';
 import App from './App.vue';
-import Signal from './common/utils/Signal';
+import Signal from './editor/utils/Signal';
 import router from './router';
 
 const app = createApp(App);

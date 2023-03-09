@@ -1,5 +1,5 @@
 import {toRaw} from 'vue';
-import Class from '../../common/type/Class';
+import Class from '../type/Class';
 import CameraConfig from './CameraConfig';
 import CColors from './components/CColors';
 import CFlipDirection from './components/CFlipDirection';

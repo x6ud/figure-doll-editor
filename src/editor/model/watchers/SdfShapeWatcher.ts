@@ -1,4 +1,4 @@
-import Class from '../../../common/type/Class';
+import Class from '../../type/Class';
 import CSdfDirty from '../components/CSdfDirty';
 import CSdfOperator from '../components/CSdfOperator';
 import CSmooth from '../components/CSmooth';

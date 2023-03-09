@@ -1,5 +1,5 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
-import Class from '../../common/type/Class';
+import Class from '../type/Class';
 import {getScaleScalar} from '../utils/math';
 import CColors from './components/CColors';
 import CPosition from './components/CPosition';

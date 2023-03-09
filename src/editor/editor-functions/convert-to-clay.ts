@@ -1,6 +1,6 @@
 import {BufferGeometry, Mesh, Vector3} from 'three';
 import {toRaw} from 'vue';
-import Class from '../../common/type/Class';
+import Class from '../type/Class';
 import EditorContext from '../EditorContext';
 import CCastShadow from '../model/components/CCastShadow';
 import CColor from '../model/components/CColor';

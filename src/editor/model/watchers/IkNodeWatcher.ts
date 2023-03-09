@@ -1,4 +1,4 @@
-import Class from '../../../common/type/Class';
+import Class from '../../type/Class';
 import CHingeAngleRange from '../components/CHingeAngleRange';
 import CHingeAxis from '../components/CHingeAxis';
 import CIkNode from '../components/CIkNode';

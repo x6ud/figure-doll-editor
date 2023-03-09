@@ -1,5 +1,5 @@
 import {computed, defineComponent, PropType, ref} from 'vue';
-import {addGlobalDragListener} from '../../../../common/utils/dom';
+import {addGlobalDragListener} from '../../../utils/dom';
 import InputNumber from '../InputNumber/InputNumber.vue';
 
 export default defineComponent({

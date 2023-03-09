@@ -1,6 +1,6 @@
 import {Color} from 'three';
 import {computed, defineComponent, PropType, reactive, ref, watch} from 'vue';
-import {addGlobalDragListener} from '../../../common/utils/dom';
+import {addGlobalDragListener} from '../../utils/dom';
 
 const boxLocalStorageKey = 'color-box';
 const activeLocalStorageKey = 'color-box-active';

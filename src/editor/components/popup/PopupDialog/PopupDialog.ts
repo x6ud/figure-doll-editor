@@ -1,5 +1,5 @@
 import {computed, defineComponent, nextTick, ref, watch} from 'vue';
-import {addGlobalDragListener} from '../../../../common/utils/dom';
+import {addGlobalDragListener} from '../../../utils/dom';
 
 type Style = { [name: string]: string | number };
 

@@ -10,7 +10,7 @@ import {
     Sphere,
     Vector3
 } from 'three';
-import Bits from '../../../../common/utils/Bits';
+import Bits from '../../Bits';
 import {hashFloat32x3, hashUint32x2} from '../../hash';
 import OctreeNode from './OctreeNode';
 

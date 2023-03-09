@@ -1,4 +1,4 @@
-import Class from '../../common/type/Class';
+import Class from '../type/Class';
 import Model from './Model';
 import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';

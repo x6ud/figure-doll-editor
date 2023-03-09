@@ -1,5 +1,5 @@
 import {Box3, Vector3} from 'three';
-import Bits from '../../../common/utils/Bits';
+import Bits from '../Bits';
 import {closestPointToTriangle, rayTriangleIntersect} from '../math';
 import {marchingCubes} from './marching-cubes';
 

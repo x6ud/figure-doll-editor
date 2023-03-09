@@ -1,9 +1,9 @@
 import {Euler, Mesh, Vector3} from 'three';
 import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
 import {useRouter} from 'vue-router';
-import Class from '../common/type/Class';
-import RenderLoop from '../common/utils/RenderLoop';
-import {createTransitionAnimation} from '../common/utils/transition';
+import Class from './type/Class';
+import RenderLoop from './utils/RenderLoop';
+import {createTransitionAnimation} from './utils/transition';
 import ColorPicker from './components/ColorPicker/ColorPicker.vue';
 import FullscreenLoading from './components/FullscreenLoading/FullscreenLoading.vue';
 import InputBoolean from './components/input/InputBoolean/InputBoolean.vue';

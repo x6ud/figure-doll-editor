@@ -1,5 +1,5 @@
 import {computed, defineComponent, ref, toRaw} from 'vue';
-import Class from '../../../common/type/Class';
+import Class from '../../type/Class';
 import CFlipDirection from '../../model/components/CFlipDirection';
 import Model from '../../model/Model';
 import ModelNode from '../../model/ModelNode';

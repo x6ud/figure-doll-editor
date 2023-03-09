@@ -1,5 +1,5 @@
 import {Matrix4, Vector3} from 'three';
-import Class from '../../common/type/Class';
+import Class from '../type/Class';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CIkNode from '../model/components/CIkNode';

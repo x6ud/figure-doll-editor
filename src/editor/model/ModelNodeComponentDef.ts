@@ -1,5 +1,5 @@
 import {Component} from 'vue';
-import Class from '../../common/type/Class';
+import Class from '../type/Class';
 import ModelNodeComponent from './ModelNodeComponent';
 
 export const enum DataType {

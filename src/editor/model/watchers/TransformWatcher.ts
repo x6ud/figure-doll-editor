@@ -1,4 +1,4 @@
-import Class from '../../../common/type/Class';
+import Class from '../../type/Class';
 import CGeom3 from '../components/CGeom3';
 import CObject3D from '../components/CObject3D';
 import CPosition from '../components/CPosition';

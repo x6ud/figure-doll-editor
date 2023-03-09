@@ -1,5 +1,5 @@
 import {Component, computed, defineComponent} from 'vue';
-import Class from '../../../common/type/Class';
+import Class from '../../type/Class';
 import EditorContext from '../../EditorContext';
 import ModelNodeComponent from '../../model/ModelNodeComponent';
 import {getModelNodeComponentDef} from '../../model/ModelNodeComponentDef';

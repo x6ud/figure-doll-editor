@@ -1,5 +1,5 @@
 import {defineComponent} from 'vue';
-import {addGlobalDragListener} from '../../../../common/utils/dom';
+import {addGlobalDragListener} from '../../../utils/dom';
 
 export default defineComponent({
     props: {

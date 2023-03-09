@@ -4,6 +4,7 @@ import EditorContext from '../EditorContext';
 import CImage from '../model/components/CImage';
 import CImportFbx from '../model/components/CImportFbx';
 import CImportObj from '../model/components/CImportObj';
+import CUsePlainMaterial from '../model/components/CUsePlainMaterial';
 import {ModelNodeCreationInfo} from '../model/ModelHistory';
 import ProjectReader from '../ProjectReader';
 import {bufferToDataUrl} from '../utils/convert';
@@ -92,7 +93,10 @@ export async function importModel(
                 const text = await file.text();
                 ctx.history.createNode({
                     type: 'ObjModel',
-                    data: {[CImportObj.name]: text}
+                    data: {
+                        [CImportObj.name]: text,
+                        [CUsePlainMaterial.name]: true,
+                    }
                 });
             }
                 break;
@@ -101,7 +105,10 @@ export async function importModel(
                 const dataUrl = await bufferToDataUrl(new Blob([buffer]));
                 ctx.history.createNode({
                     type: 'FbxModel',
-                    data: {[CImportFbx.name]: dataUrl}
+                    data: {
+                        [CImportFbx.name]: dataUrl,
+                        [CUsePlainMaterial.name]: true,
+                    }
                 });
             }
                 break;

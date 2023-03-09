@@ -1,4 +1,4 @@
-import Class from '../../../common/type/Class';
+import Class from '../../type/Class';
 import CImportFbx from '../components/CImportFbx';
 import CImportObj from '../components/CImportObj';
 import CImportReadonlyGltf from '../components/CImportReadonlyGltf';

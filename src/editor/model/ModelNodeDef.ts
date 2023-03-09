@@ -1,5 +1,5 @@
 import {Vector2, Vector3} from 'three';
-import Class from '../../common/type/Class';
+import Class from '../type/Class';
 import CAngleRange from './components/CAngleRange';
 import CBoxSize from './components/CBoxSize';
 import CCastShadow from './components/CCastShadow';

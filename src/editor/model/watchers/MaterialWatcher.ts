@@ -1,4 +1,4 @@
-import Class from '../../../common/type/Class';
+import Class from '../../type/Class';
 import CUsePlainMaterial from '../components/CUsePlainMaterial';
 import Model from '../Model';
 import ModelNode from '../ModelNode';

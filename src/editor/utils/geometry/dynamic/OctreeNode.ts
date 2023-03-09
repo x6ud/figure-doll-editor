@@ -1,5 +1,5 @@
 import {Box3, Ray, Sphere, Vector3} from 'three';
-import Bits from '../../../../common/utils/Bits';
+import Bits from '../../Bits';
 import DynamicMesh from './DynamicMesh';
 
 const _triCenter = new Vector3();

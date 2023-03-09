@@ -1,4 +1,4 @@
-import Class from '../../../common/type/Class';
+import Class from '../../type/Class';
 import CColors from '../components/CColors';
 import CVertices from '../components/CVertices';
 import Model from '../Model';

@@ -1,5 +1,5 @@
 import {computed, defineComponent, ref} from 'vue';
-import Class from '../../../common/type/Class';
+import Class from '../../type/Class';
 import CName from '../../model/components/CName';
 import CVisible from '../../model/components/CVisible';
 import Model from '../../model/Model';

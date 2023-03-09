@@ -1,5 +1,5 @@
 import {BufferGeometry, Matrix4} from 'three';
-import Class from '../../common/type/Class';
+import Class from '../type/Class';
 import {bufferToDataUrl} from '../utils/convert';
 import CObject3D from './components/CObject3D';
 import ModelNodeComponent from './ModelNodeComponent';

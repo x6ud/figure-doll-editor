@@ -1,5 +1,5 @@
 import {defineComponent, inject, onUnmounted, ref} from 'vue';
-import Signal from './common/utils/Signal';
+import Signal from './editor/utils/Signal';
 
 export default defineComponent({
     setup() {
