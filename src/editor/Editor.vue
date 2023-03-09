@@ -38,31 +38,31 @@
                     <popup-menu-item title="Paste" hotkey="Ctrl+V" @click="onPaste"/>
                     <popup-menu-item title="Delete" hotkey="Delete" @click="onDelete"/>
                     <popup-menu-item sep/>
-                    <popup-menu-item title="Move Nodes: Keep World Position Unchanged"
+                    <popup-menu-item title="Moving Nodes: Keep World Position Unchanged"
                                      @click="editorCtx.options.keepTransformUnchangedWhileMoving = !editorCtx.options.keepTransformUnchangedWhileMoving"
                                      :checked="editorCtx.options.keepTransformUnchangedWhileMoving"
                     />
                     <popup-menu-item sep/>
-                    <popup-menu-item title="Select: Allow Clicking Negative Objects"
+                    <popup-menu-item title="Selecting: Allow Clicking Negative Objects"
                                      @click="editorCtx.options.allowSelectingInvisibleObjectByClicking = !editorCtx.options.allowSelectingInvisibleObjectByClicking"
                                      :checked="editorCtx.options.allowSelectingInvisibleObjectByClicking"
                     />
                     <popup-menu-item sep/>
-                    <popup-menu-item title="Transform: Use Local Space For Controls"
+                    <popup-menu-item title="Transform: Use Local Space for Controls"
                                      @click="editorCtx.options.useLocalSpaceForTransformControl = !editorCtx.options.useLocalSpaceForTransformControl"
                                      :checked="editorCtx.options.useLocalSpaceForTransformControl"
                     />
                     <popup-menu-item sep/>
-                    <popup-menu-item title="IK Bind: Allow Modification of Joint Length"
+                    <popup-menu-item title="IK Binding: Allow Modification of Joint Length"
                                      @click="editorCtx.options.allowModifyingBoneLengthWhenBindingIk = !editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
                                      :checked="editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
                     />
-                    <popup-menu-item title="IK Bind: Keep Internal Object Position Unchanged"
+                    <popup-menu-item title="IK Binding: Keep Internal Object Position Unchanged"
                                      @click="editorCtx.options.keepInternalTransformWhenBindingIk = !editorCtx.options.keepInternalTransformWhenBindingIk"
                                      :checked="editorCtx.options.keepInternalTransformWhenBindingIk"
                     />
                     <popup-menu-item sep/>
-                    <popup-menu-item title="Stretch Joint: Keep Both Ends of Clay Nodes Unchanged"
+                    <popup-menu-item title="Stretching Joints: Keep Both Ends of Clay Nodes Unchanged"
                                      @click="editorCtx.options.keepBothEndsOfClayNodesWhenStretching = !editorCtx.options.keepBothEndsOfClayNodesWhenStretching"
                                      :checked="editorCtx.options.keepBothEndsOfClayNodesWhenStretching"
                     />
@@ -224,6 +224,12 @@
                         </div>
                     </div>
                 </popup-menu>
+                <button class="popup-menu-trigger"
+                        @click="onOpenFeedback"
+                        style="cursor: pointer;"
+                >
+                    Feedback
+                </button>
                 <button class="popup-menu-trigger"
                         @click="onOpenTutorial"
                         style="cursor: pointer;"

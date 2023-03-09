@@ -1,9 +1,9 @@
 import {Component, computed, defineComponent} from 'vue';
-import Class from '../../type/Class';
 import EditorContext from '../../EditorContext';
 import ModelNodeComponent from '../../model/ModelNodeComponent';
 import {getModelNodeComponentDef} from '../../model/ModelNodeComponentDef';
 import {getModelNodeDef} from '../../model/ModelNodeDef';
+import Class from '../../type/Class';
 
 export default defineComponent({
     props: {

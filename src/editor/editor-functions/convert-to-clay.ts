@@ -1,6 +1,5 @@
 import {BufferGeometry, Mesh, Vector3} from 'three';
 import {toRaw} from 'vue';
-import Class from '../type/Class';
 import EditorContext from '../EditorContext';
 import CCastShadow from '../model/components/CCastShadow';
 import CColor from '../model/components/CColor';
@@ -20,6 +19,7 @@ import CSymmetry from '../model/components/CSymmetry';
 import CVertices from '../model/components/CVertices';
 import ModelNode from '../model/ModelNode';
 import ModelNodeComponent from '../model/ModelNodeComponent';
+import Class from '../type/Class';
 
 export function convertModelNodeToClay(ctx: EditorContext, node: ModelNode) {
     node = toRaw(node);

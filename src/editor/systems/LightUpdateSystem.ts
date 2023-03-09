@@ -1,4 +1,4 @@
-import {AmbientLight, Light, Vector3} from 'three';
+import {AmbientLight, Light} from 'three';
 import EditorContext from '../EditorContext';
 import CLightHelper from '../model/components/CLightHelper';
 import CObject3D from '../model/components/CObject3D';

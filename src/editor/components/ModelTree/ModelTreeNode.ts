@@ -1,11 +1,11 @@
 import {computed, defineComponent, ref} from 'vue';
-import Class from '../../type/Class';
 import CName from '../../model/components/CName';
 import CVisible from '../../model/components/CVisible';
 import Model from '../../model/Model';
 import ModelNode from '../../model/ModelNode';
 import ModelNodeComponent from '../../model/ModelNodeComponent';
 import {getModelNodeDef} from '../../model/ModelNodeDef';
+import Class from '../../type/Class';
 
 export default defineComponent({
     name: 'model-tree-node',

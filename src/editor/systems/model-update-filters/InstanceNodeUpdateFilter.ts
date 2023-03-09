@@ -1,7 +1,7 @@
-import {ModelNodeUpdateFilter} from "../ModelUpdateSystem";
-import EditorContext from "../../EditorContext";
-import ModelNode from "../../model/ModelNode";
-import {getModelNodeComponentDef} from "../../model/ModelNodeComponentDef";
+import EditorContext from '../../EditorContext';
+import ModelNode from '../../model/ModelNode';
+import {getModelNodeComponentDef} from '../../model/ModelNodeComponentDef';
+import {ModelNodeUpdateFilter} from '../ModelUpdateSystem';
 
 export default class InstanceNodeUpdateFilter implements ModelNodeUpdateFilter {
     update(ctx: EditorContext, node: ModelNode): void {

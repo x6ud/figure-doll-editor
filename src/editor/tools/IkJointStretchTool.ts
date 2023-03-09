@@ -1,5 +1,4 @@
 import {Matrix4, Vector3} from 'three';
-import Class from '../type/Class';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CIkNode from '../model/components/CIkNode';
@@ -10,6 +9,7 @@ import CTemporaryScale from '../model/components/CTemporaryScale';
 import CVertices from '../model/components/CVertices';
 import ModelNode from '../model/ModelNode';
 import ModelNodeComponent from '../model/ModelNodeComponent';
+import Class from '../type/Class';
 import EditorTool from './EditorTool';
 import icon from './IkJointStretch.png';
 

@@ -1,10 +1,10 @@
 import {computed, defineComponent, ref, toRaw} from 'vue';
-import Class from '../../type/Class';
 import CFlipDirection from '../../model/components/CFlipDirection';
 import Model from '../../model/Model';
 import ModelNode from '../../model/ModelNode';
 import ModelNodeComponent from '../../model/ModelNodeComponent';
 import {getModelNodeDef} from '../../model/ModelNodeDef';
+import Class from '../../type/Class';
 import PopupMenu from '../popup/PopupMenu/PopupMenu.vue';
 import PopupMenuItem from '../popup/PopupMenu/PopupMenuItem.vue';
 import ModelTreeNode from './ModelTreeNode.vue';

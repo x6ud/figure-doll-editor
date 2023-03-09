@@ -1,9 +1,6 @@
 import {Euler, Mesh, Vector3} from 'three';
 import {computed, defineComponent, nextTick, onMounted, ref, toRaw, watch} from 'vue';
 import {useRouter} from 'vue-router';
-import Class from './type/Class';
-import RenderLoop from './utils/RenderLoop';
-import {createTransitionAnimation} from './utils/transition';
 import ColorPicker from './components/ColorPicker/ColorPicker.vue';
 import FullscreenLoading from './components/FullscreenLoading/FullscreenLoading.vue';
 import InputBoolean from './components/input/InputBoolean/InputBoolean.vue';
@@ -42,10 +39,13 @@ import {getModelNodeDef, getValidChildNodeDefs, ModelNodeDef, modelNodeDefs} fro
 import ProjectReader from './ProjectReader';
 import ProjectWriter from './ProjectWriter';
 import EditorTool from './tools/EditorTool';
+import Class from './type/Class';
 import {voxelizeRemesh} from './utils/geometry/voxelize-remesh';
 import {getTranslation} from './utils/math';
 import {progressiveDownload} from './utils/progressive-download';
+import RenderLoop from './utils/RenderLoop';
 import {useSketchfabClient} from './utils/sketchfab';
+import {createTransitionAnimation} from './utils/transition';
 
 const extension = '.doll';
 const filePickerAcceptType: FilePickerAcceptType = {
@@ -768,6 +768,10 @@ export default defineComponent({
             }
         }
 
+        function onOpenFeedback() {
+            window.open('https://github.com/x6ud/figure-doll-editor/issues');
+        }
+
         function onOpenTutorial() {
             window.open('https://github.com/x6ud/figure-doll-editor#download-models');
         }
@@ -821,6 +825,7 @@ export default defineComponent({
             onSketchfabLogin,
             onSketchfabLogout,
             onSketchfabImportModel,
+            onOpenFeedback,
             onOpenTutorial,
         };
     }

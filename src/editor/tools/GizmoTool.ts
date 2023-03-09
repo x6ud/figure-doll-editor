@@ -76,6 +76,7 @@ const _localScale = new Vector3();
 const _mat0 = new Matrix4();
 const _localMat0 = new Matrix4();
 const _scale0 = new Vector3();
+const _size = new Vector3();
 
 export default class GizmoTool extends EditorTool {
     label = 'Transform';
@@ -120,8 +121,12 @@ export default class GizmoTool extends EditorTool {
                 this.boundingBox.scale
             );
             this.boundingBox.quaternion.normalize();
+
+            _box.applyMatrix4(_mat).getSize(_size);
+            ctx.statusBarMessage = `${_size.x.toFixed(2)} × ${_size.y.toFixed(2)} × ${_size.z.toFixed(2)}`;
         } else {
             this.boundingBox.visible = false;
+            ctx.statusBarMessage = '';
         }
 
         this.enableSelectionRect = true;

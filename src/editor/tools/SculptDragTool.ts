@@ -2,11 +2,11 @@ import {Matrix4, Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import EditorView from '../EditorView';
 import CObject3D from '../model/components/CObject3D';
+import CSymmetry from '../model/components/CSymmetry';
 import CVertices from '../model/components/CVertices';
 import {linePanelIntersection} from '../utils/math';
 import EditorTool, {SculptToolStroke} from './EditorTool';
 import icon from './SculptDrag.png';
-import CSymmetry from "../model/components/CSymmetry";
 
 const _mouse1 = new Vector3();
 const _det = new Vector3();

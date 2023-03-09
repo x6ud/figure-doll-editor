@@ -1,4 +1,4 @@
-import {Object3D, PCFSoftShadowMap, Scene, Vector2, WebGLRenderer} from 'three';
+import {PCFSoftShadowMap, Scene, Vector2, WebGLRenderer} from 'three';
 import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer';
 import {OutlinePass} from 'three/examples/jsm/postprocessing/OutlinePass';
 import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass';
