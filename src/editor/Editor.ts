@@ -49,7 +49,7 @@ import {useSketchfabClient} from './utils/sketchfab';
 
 const extension = '.doll';
 const filePickerAcceptType: FilePickerAcceptType = {
-    description: 'Model',
+    description: 'Figure Doll Model',
     accept: {'application/figure-doll-editor': [extension]}
 };
 const optionsLocalStorageKey = 'figure-doll-editor-options';
@@ -278,7 +278,7 @@ export default defineComponent({
         }
 
         async function onImport() {
-            await importModel(editorCtx.value!, fullscreenLoading, filePickerAcceptType);
+            await importModel(editorCtx.value!, fullscreenLoading, filePickerAcceptType, extension);
         }
 
         async function onExport(format: string) {

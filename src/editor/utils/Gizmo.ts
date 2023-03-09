@@ -51,13 +51,13 @@ const zAxisMaterial = meshMaterial.clone();
 zAxisMaterial.color.setHex(COLOR_Z);
 
 const PICKER_PADDING = 0.035;
-const TRANSLATE_HANDLER_OFFSET = 0.5 + 0.06;
+const TRANSLATE_HANDLER_OFFSET = 0.5 + 0.04;
 const FREE_TRANSLATE_HANDLER_RADIUS = 0.1 + PICKER_PADDING;
-const ROTATE_HANDLER_RADIUS = 0.5 - 0.08;
+const ROTATE_HANDLER_RADIUS = 0.5 - 0.04;
 const FREE_ROTATE_PICKER_RADIUS = ROTATE_HANDLER_RADIUS - 0.02;
 const VIEW_ROTATE_HANDLER_RADIUS = 0.5;
 const SCALE_HANDLER_SIZE = 0.06;
-const SCALE_HANDLER_OFFSET = ROTATE_HANDLER_RADIUS - 0.08;
+const SCALE_HANDLER_OFFSET = ROTATE_HANDLER_RADIUS - 0.06;
 const SCALE_PANEL_PICKER_SIZE = 0.08;
 
 const _xAxis = new Vector3();
@@ -82,6 +82,12 @@ export default class Gizmo extends Group {
     private translatePickerX: Object3D;
     private translatePickerY: Object3D;
     private translatePickerZ: Object3D;
+    private translateArrowXN: Mesh;
+    private translateArrowYN: Mesh;
+    private translateArrowZN: Mesh;
+    private translatePickerXN: Object3D;
+    private translatePickerYN: Object3D;
+    private translatePickerZN: Object3D;
     private freeTranslateHandler: Mesh;
     private freeTranslatePicker: Object3D;
 
@@ -178,6 +184,19 @@ export default class Gizmo extends Group {
         this.add(this.translateArrowY);
         this.add(this.translateArrowZ);
 
+        this.translateArrowXN = this.translateArrowX.clone();
+        this.translateArrowYN = this.translateArrowY.clone();
+        this.translateArrowZN = this.translateArrowZ.clone();
+        this.translateArrowXN.position.negate();
+        this.translateArrowYN.position.negate();
+        this.translateArrowZN.position.negate();
+        this.translateArrowXN.rotation.set(0, 0, Math.PI / 2);
+        this.translateArrowYN.rotation.set(Math.PI, 0, 0);
+        this.translateArrowZN.rotation.set(-Math.PI / 2, 0, 0);
+        this.add(this.translateArrowXN);
+        this.add(this.translateArrowYN);
+        this.add(this.translateArrowZN);
+
         const translatePickerGeometry = new CylinderGeometry(
             PICKER_PADDING, 0.04 + PICKER_PADDING, 0.1 + PICKER_PADDING, 12);
         translatePickerGeometry.translate(0, 0.1 / 2, 0);
@@ -199,6 +218,22 @@ export default class Gizmo extends Group {
         this.translatePickerX.userData.name = 'translate-x';
         this.translatePickerY.userData.name = 'translate-y';
         this.translatePickerZ.userData.name = 'translate-z';
+
+        this.translatePickerXN = this.translatePickerX.clone();
+        this.translatePickerYN = this.translatePickerY.clone();
+        this.translatePickerZN = this.translatePickerZ.clone();
+        this.translatePickerXN.position.negate();
+        this.translatePickerYN.position.negate();
+        this.translatePickerZN.position.negate();
+        this.translatePickerXN.rotation.set(0, 0, Math.PI / 2);
+        this.translatePickerYN.rotation.set(Math.PI, 0, 0);
+        this.translatePickerZN.rotation.set(-Math.PI / 2, 0, 0);
+        this.add(this.translatePickerXN);
+        this.add(this.translatePickerYN);
+        this.add(this.translatePickerZN);
+        this.translatePickerXN.userData.name = 'translate-x';
+        this.translatePickerYN.userData.name = 'translate-y';
+        this.translatePickerZN.userData.name = 'translate-z';
 
         this.freeTranslateHandler = new Mesh(
             new TorusGeometry(FREE_TRANSLATE_HANDLER_RADIUS, 0.0075, 3, 64, Math.PI * 2),
@@ -344,6 +379,9 @@ export default class Gizmo extends Group {
             this.translatePickerX,
             this.translatePickerY,
             this.translatePickerZ,
+            this.translatePickerXN,
+            this.translatePickerYN,
+            this.translatePickerZN,
             this.freeTranslatePicker,
             this.rotatePickerX,
             this.rotatePickerY,
@@ -576,9 +614,9 @@ export default class Gizmo extends Group {
             this.updateOpacity(this.viewRotateCircle, this.handler === 'rotate-view' || !this.handler);
             this.updateOpacity(this.freeTranslateHandler, this.handler === 'translate-free' || !this.handler);
             this.freeRotatePicker.visible = this.handler === 'rotate-free' && this.enableRotate;
-            this.translateArrowX.visible = xAxisVisible && this.enableTranslate;
-            this.translateArrowY.visible = yAxisVisible && this.enableTranslate;
-            this.translateArrowZ.visible = zAxisVisible && this.enableTranslate;
+            this.translateArrowX.visible = this.translateArrowXN.visible = xAxisVisible && this.enableTranslate;
+            this.translateArrowY.visible = this.translateArrowYN.visible = yAxisVisible && this.enableTranslate;
+            this.translateArrowZ.visible = this.translateArrowZN.visible = zAxisVisible && this.enableTranslate;
             this.rotateCircleX.visible = this.enableRotate;
             this.rotateCircleY.visible = this.enableRotate;
             this.rotateCircleZ.visible = this.enableRotate;
@@ -687,9 +725,9 @@ export default class Gizmo extends Group {
             }
         } else {
             // update handlers visibilities
-            this.translateArrowX.visible = this.handler === 'translate-x';
-            this.translateArrowY.visible = this.handler === 'translate-y';
-            this.translateArrowZ.visible = this.handler === 'translate-z';
+            this.translateArrowX.visible = this.translateArrowXN.visible = this.handler === 'translate-x';
+            this.translateArrowY.visible = this.translateArrowYN.visible = this.handler === 'translate-y';
+            this.translateArrowZ.visible = this.translateArrowZN.visible = this.handler === 'translate-z';
             this.freeTranslateHandler.visible = true;
             this.rotateCircleX.visible = this.handler === 'rotate-x';
             this.rotateCircleY.visible = this.handler === 'rotate-y';

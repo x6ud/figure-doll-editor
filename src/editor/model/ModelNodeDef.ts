@@ -554,7 +554,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         name: 'Image',
         label: 'Image',
         icon: iconImage,
-        showInList: true,
+        showInList: false,
         instanceable: true,
         mesh: true,
         components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
@@ -567,9 +567,9 @@ export const modelNodeDefs: ModelNodeDef[] = [
     },
     {
         name: 'ObjModel',
-        label: 'Import .obj',
+        label: 'Obj Model',
         icon: iconObjModel,
-        showInList: true,
+        showInList: false,
         instanceable: true,
         mesh: true,
         components: [
@@ -582,9 +582,9 @@ export const modelNodeDefs: ModelNodeDef[] = [
     },
     {
         name: 'FbxModel',
-        label: 'Import .fbx',
+        label: 'Fbx Model',
         icon: iconFbxModel,
-        showInList: true,
+        showInList: false,
         instanceable: true,
         mesh: true,
         components: [
