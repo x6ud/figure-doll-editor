@@ -22,8 +22,12 @@ const sketchfabClient = reactive({
         }
         const token = JSON.parse(json);
         if (token.expires > Date.now()) {
-            this.token = token;
-            this.getUser();
+            try {
+                this.getUser();
+                this.token = token;
+            } catch (e) {
+                console.error(e);
+            }
         }
     },
     login() {
