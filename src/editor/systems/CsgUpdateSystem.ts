@@ -71,7 +71,7 @@ import Model from '../model/Model';
 import ModelNode from '../model/ModelNode';
 import {geom3ToBufferGeometry} from '../utils/geometry/jscad';
 import UpdateSystem from '../utils/UpdateSystem';
-import bezierControlPoint from './bezier-control-point.png';
+import csgBezierControlPoint from './csg-bezier-control-point.png';
 import SphereGeometry = ParametricGeometries.SphereGeometry;
 
 const _translation = new Vector3();
@@ -98,7 +98,7 @@ const transparentMaterial = new MeshStandardMaterial({
     depthWrite: false,
 });
 const texLoader = new TextureLoader();
-const texBezierControlPoint = texLoader.load(bezierControlPoint);
+const texBezierControlPoint = texLoader.load(csgBezierControlPoint);
 texBezierControlPoint.minFilter = texBezierControlPoint.magFilter = NearestFilter;
 const bezierControlPointMaterial = new PointsMaterial({
     map: texBezierControlPoint,
@@ -399,7 +399,7 @@ export default class CsgUpdateSystem extends UpdateSystem<EditorContext> {
                                     segments
                                 });
                             } else {
-                                cGeom3.value = cylinder({height, radius});
+                                cGeom3.value = cylinder({height, radius, segments});
                             }
                         } else {
                             cGeom3.value = null;

@@ -388,7 +388,6 @@ export default class TubeTool extends EditorTool {
                                 _pos.applyMatrix4(_mat);
                                 radius *= getScaleScalar(_mat);
                             }
-                            ctx.model.selected = [];
                             const newShape = !parent;
                             if (newShape) {
                                 for (let node of ctx.model.getSelectedNodes()) {
@@ -397,6 +396,7 @@ export default class TubeTool extends EditorTool {
                                         break;
                                     }
                                 }
+                                ctx.model.selected = [];
                                 this.lastNodeId = ctx.history.createNode({
                                     type: 'Shape',
                                     parentId: parent ? parent.id : 0,
@@ -411,6 +411,7 @@ export default class TubeTool extends EditorTool {
                                     ]
                                 }) + 1;
                             } else {
+                                ctx.model.selected = [];
                                 this.lastNodeId = ctx.history.createNode({
                                     type: 'Tube',
                                     parentId: parent ? parent.id : 0,
