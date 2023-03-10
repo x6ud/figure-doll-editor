@@ -2,6 +2,8 @@
     <div class="label-range"
          @pointerdown="onMouseDown"
          ref="dom"
+         tabindex="0"
+         @keydown="onKeyDown"
     >
         <div class="bar" :style="barStyle"></div>
         <div class="label">{{ label }}</div>
@@ -16,7 +18,7 @@
     display: flex;
     align-items: center;
     position: relative;
-    width: 150px;
+    width: 180px;
     height: 18px;
     border-radius: 3px;
     box-sizing: border-box;
@@ -24,6 +26,7 @@
     background: #444;
     overflow: hidden;
     touch-action: none;
+    outline: none;
 
     &:hover {
         background-color: #555;

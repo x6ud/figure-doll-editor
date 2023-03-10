@@ -35,11 +35,25 @@ export default defineComponent({
             );
         }
 
+        function onKeyDown(e: KeyboardEvent) {
+            switch (e.key) {
+                case 'ArrowLeft': {
+                    ctx.emit('update:value', Math.max(props.min, props.value - props.step));
+                }
+                    break;
+                case 'ArrowRight': {
+                    ctx.emit('update:value', Math.min(props.max, props.value + props.step));
+                }
+                    break;
+            }
+        }
+
         return {
             dom,
             valueText,
             barStyle,
             onMouseDown,
+            onKeyDown,
         };
     }
 });
