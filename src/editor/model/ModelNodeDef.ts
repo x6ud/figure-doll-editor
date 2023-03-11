@@ -102,6 +102,7 @@ import iconTube from './icons/Tube.png';
 import {ModelNodeChildCreationInfo} from './ModelHistory';
 import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
+import CDisableFlip from "./components/CDisableFlip";
 
 export type ModelNodeDef = {
     /** A unique name */
@@ -138,7 +139,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconContainer,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D],
+        components: [CName, CVisible, CDisableFlip, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
         validChildTypes: [
             'Container',
@@ -174,7 +175,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconIKChain,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CPosition, CRotation, CScale, COpacity, CObject3D, CShowMoveHandler, CLockEnd],
+        components: [CName, CVisible, CDisableFlip, CPosition, CRotation, CScale, COpacity, CObject3D, CShowMoveHandler, CLockEnd],
         canBeRoot: true,
         validChildTypes: ['IKNode'],
     },
@@ -184,7 +185,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconIKNode,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation, CShowRotateHandler, CHingeAxis, CHingeAngleRange],
+        components: [CName, CVisible, CDisableFlip, COpacity, CObject3D, CIkNode, CIkNodeLength, CIkNodeRotation, CShowRotateHandler, CHingeAxis, CHingeAngleRange],
         canBeRoot: false,
         validChildTypes: [
             'Container',
@@ -223,7 +224,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         preventCreatingInstanceChild: true,
         mesh: true,
         components: [
-            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CName, CVisible, CDisableFlip, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CRoughness, CMetalness, CColor, CEmissive,
             CGeom3, CSign, CSymmetry
         ],
@@ -250,7 +251,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         preventCreatingInstanceChild: true,
         mesh: true,
         components: [
-            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CName, CVisible, CDisableFlip, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CRoughness, CMetalness, CColor, CEmissive,
             CGeom3, CSign
         ],
@@ -277,7 +278,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         preventCreatingInstanceChild: true,
         mesh: true,
         components: [
-            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CName, CVisible, CDisableFlip, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CRoughness, CMetalness, CColor, CEmissive,
             CGeom3, CSign
         ],
@@ -304,7 +305,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         preventCreatingInstanceChild: true,
         mesh: true,
         components: [
-            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CName, CVisible, CDisableFlip, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CRoughness, CMetalness, CColor, CEmissive,
             CGeom3, CSign
         ],
@@ -330,7 +331,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         mesh: true,
         components: [
-            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CName, CVisible, CDisableFlip, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CRoughness, CMetalness, CColor, CEmissive,
             CGeom3, CSign, CSize3, CRoundRadius, CSegments
         ],
@@ -346,7 +347,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         mesh: true,
         components: [
-            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CName, CVisible, CDisableFlip, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CRoughness, CMetalness, CColor, CEmissive,
             CGeom3, CSign, CRadius3, CSegments
         ],
@@ -362,7 +363,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         mesh: true,
         components: [
-            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CName, CVisible, CDisableFlip, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CRoughness, CMetalness, CColor, CEmissive,
             CGeom3, CSign, CHeight, CRadius, CRoundRadius, CSegments
         ],
@@ -378,7 +379,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         mesh: true,
         components: [
-            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CName, CVisible, CDisableFlip, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CRoughness, CMetalness, CColor, CEmissive,
             CGeom3, CSign, CHeight, CStartRadius2, CEndRadius2, CAngleRange, CSegments
         ],
@@ -398,7 +399,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         mesh: true,
         components: [
-            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CName, CVisible, CDisableFlip, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CRoughness, CMetalness, CColor, CEmissive,
             CGeom3, CSign,
             COuterRadius,
@@ -421,7 +422,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         preventCreatingInstanceChild: true,
         mesh: true,
         components: [
-            CName, CVisible, CPosition, CRotation, CScale3, COpacity, CObject3D,
+            CName, CVisible, CDisableFlip, CPosition, CRotation, CScale3, COpacity, CObject3D,
             CRoughness, CMetalness, CColor, CEmissive,
             CGeom3, CSign,
             CSliceShape,
@@ -466,6 +467,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [
             CName,
             CVisible,
+            CDisableFlip,
             CCastShadow,
             CReceiveShadow,
             CPosition,
@@ -494,6 +496,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [
             CName,
             CVisible,
+            CDisableFlip,
             CCastShadow,
             CReceiveShadow,
             CPosition,
@@ -531,6 +534,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         components: [
             CName,
             CVisible,
+            CDisableFlip,
             CCastShadow,
             CReceiveShadow,
             CPosition,
@@ -557,7 +561,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         showInList: false,
         instanceable: true,
         mesh: true,
-        components: [CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
+        components: [CName, CVisible, CDisableFlip, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale, COpacity, CObject3D, CImage],
         canBeRoot: true,
         defaultData: {
             [CCastShadow.name]: false,
@@ -573,7 +577,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         mesh: true,
         components: [
-            CName, CVisible, CCastShadow, CReceiveShadow,
+            CName, CVisible, CDisableFlip, CCastShadow, CReceiveShadow,
             CPosition, CRotation, CScale,
             CUsePlainMaterial, CRoughness, CMetalness, CColor, CEmissive,
             COpacity, CObject3D, CImportObj
@@ -589,7 +593,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         instanceable: true,
         mesh: true,
         components: [
-            CName, CVisible, CCastShadow, CReceiveShadow,
+            CName, CVisible, CDisableFlip, CCastShadow, CReceiveShadow,
             CPosition, CRotation, CScale,
             CUsePlainMaterial, CRoughness, CMetalness, CColor, CEmissive,
             COpacity, CObject3D, CImportFbx
@@ -606,7 +610,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         mesh: true,
         components: [
             CCredit,
-            CName, CVisible, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale,
+            CName, CVisible, CDisableFlip, CCastShadow, CReceiveShadow, CPosition, CRotation, CScale,
             CUsePlainMaterial, CRoughness, CMetalness, CColor, CEmissive,
             COpacity, CObject3D,
             CImportReadonlyGltf,
@@ -620,7 +624,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconMirror,
         showInList: true,
         mesh: true,
-        components: [CName, CVisible, CTextureSize, CPosition, CRotation, CScale, CObject3D, CWidth, CHeight, CColor],
+        components: [CName, CVisible, CDisableFlip, CTextureSize, CPosition, CRotation, CScale, CObject3D, CWidth, CHeight, CColor],
         canBeRoot: true,
         validChildTypes: [],
     },

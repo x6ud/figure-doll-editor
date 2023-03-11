@@ -7,7 +7,8 @@ import CIkNodeRotation from '../model/components/CIkNodeRotation';
 import CPosition from '../model/components/CPosition';
 import CRotation from '../model/components/CRotation';
 import ModelNode from '../model/ModelNode';
-import {getAxisAngle, quatFromForwardUp} from '../utils/math';
+import {getAxisAngle, getRotation, quatFromForwardUp} from '../utils/math';
+import CDisableFlip from "../model/components/CDisableFlip";
 
 const _axis = new Vector3();
 const _ikNodeQuad = new Quaternion();
@@ -50,86 +51,90 @@ export function flipNode(ctx: EditorContext, node: ModelNode, mode: 'flip' | 'le
         const translation = new Vector3();
         const rotation = new Quaternion();
         const scale = new Vector3();
-        local0.decompose(translation, rotation, scale);
-        const mat0 = new Matrix4().multiplyMatrices(parentMat0, local0);
-        if (mode === 'flip') {
-            const angle = getAxisAngle(_axis, rotation);
-            _axis.applyMatrix4(parentMat0);
-            _axis.sub(flipOrigin);
-            _axis.reflect(flipDir);
-            _axis.add(flipOrigin);
-            _axis.applyMatrix4(invParentMat1);
-            _axis.normalize();
-            rotation.setFromAxisAngle(_axis, -angle);
+        const enableFlip = !(node.has(CDisableFlip) && node.value(CDisableFlip));
+        if (enableFlip) {
+            local0.decompose(translation, rotation, scale);
+            const mat0 = new Matrix4().multiplyMatrices(parentMat0, local0);
+            if (mode === 'flip') {
+                const angle = getAxisAngle(_axis, rotation);
+                _axis.applyMatrix4(parentMat0);
+                _axis.sub(flipOrigin);
+                _axis.reflect(flipDir);
+                _axis.add(flipOrigin);
+                _axis.applyMatrix4(invParentMat1);
+                _axis.normalize();
+                rotation.setFromAxisAngle(_axis, -angle);
 
-            translation.applyMatrix4(parentMat0);
-            translation.sub(flipOrigin);
-            translation.reflect(flipDir);
-            translation.add(flipOrigin);
-            translation.applyMatrix4(invParentMat1);
-        } else {
-            _right.set(1, 0, 0).applyQuaternion(rotation);
-            _up.set(0, 1, 0).applyQuaternion(rotation);
-            _right.z = 0;
-            _right.normalize();
-            _up.z = 0;
-            _up.normalize();
-            _forward.crossVectors(_right, _up).normalize();
-            quatFromForwardUp(rotation, _forward, _up);
-
-            translation.z = 0;
-        }
-        if (node.has(CRotation)) {
-            ctx.history.setValue(node, CRotation, new Euler().setFromQuaternion(rotation));
-        }
-        if (node.has(CIkNodeRotation)) {
-            if (prevInvQuat1) {
-                _ikNodeQuad.multiplyQuaternions(prevInvQuat1, rotation);
+                translation.applyMatrix4(parentMat0);
+                translation.sub(flipOrigin);
+                translation.reflect(flipDir);
+                translation.add(flipOrigin);
+                translation.applyMatrix4(invParentMat1);
             } else {
-                _ikNodeQuad.copy(rotation);
-            }
-            ctx.history.setValue(node, CIkNodeRotation, new Euler().setFromQuaternion(_ikNodeQuad));
-        }
-        const mat1 = new Matrix4().compose(translation, rotation, scale);
-        mat1.multiplyMatrices(parentMat1, mat1);
-        const invMat1 = new Matrix4().copy(mat1).invert();
+                _right.set(1, 0, 0).applyQuaternion(rotation);
+                _up.set(0, 1, 0).applyQuaternion(rotation);
+                _right.z = 0;
+                _right.normalize();
+                _up.z = 0;
+                _up.normalize();
+                _forward.crossVectors(_right, _up).normalize();
+                quatFromForwardUp(rotation, _forward, _up);
 
-        const visited = new Set<number>();
-        let prevInvQuat: Quaternion | undefined = undefined;
-        for (let child of node.children) {
-            if (visited.has(child.id)) {
-                continue;
+                translation.z = 0;
             }
-            visited.add(child.id);
-            const mirror = findMirrorNode(child, node);
-            if (mirror) {
-                visited.add(mirror.id);
-                let left = child;
-                let right = mirror;
-                if (child.has(CPosition)) {
-                    const pos = child.value(CPosition);
-                    if (pos.z > 0) {
-                        right = child;
-                        left = mirror;
-                    }
+            if (node.has(CRotation)) {
+                ctx.history.setValue(node, CRotation, new Euler().setFromQuaternion(rotation));
+            }
+            if (node.has(CIkNodeRotation)) {
+                if (prevInvQuat1) {
+                    _ikNodeQuad.multiplyQuaternions(prevInvQuat1, rotation);
+                } else {
+                    _ikNodeQuad.copy(rotation);
                 }
-                processMirrorNode(
-                    flipOrigin,
-                    flipDir,
-                    left,
-                    parentMat0,
-                    parentMat1,
-                    invParentMat1,
-                    prevInvQuat,
-                    right,
-                    parentMat0,
-                    parentMat1,
-                    invParentMat1,
-                    prevInvQuat,
-                );
-            } else {
-                const {rotation} = processMiddleNode(child, flipOrigin, flipDir, mat0, mat1, invMat1, prevInvQuat);
-                prevInvQuat = new Quaternion().copy(rotation).invert();
+                ctx.history.setValue(node, CIkNodeRotation, new Euler().setFromQuaternion(_ikNodeQuad));
+            }
+
+            const mat1 = new Matrix4().compose(translation, rotation, scale);
+            mat1.multiplyMatrices(parentMat1, mat1);
+            const invMat1 = new Matrix4().copy(mat1).invert();
+
+            const visited = new Set<number>();
+            let prevInvQuat: Quaternion | undefined = undefined;
+            for (let child of node.children) {
+                if (visited.has(child.id)) {
+                    continue;
+                }
+                visited.add(child.id);
+                const mirror = findMirrorNode(child, node);
+                if (mirror) {
+                    visited.add(mirror.id);
+                    let left = child;
+                    let right = mirror;
+                    if (child.has(CPosition)) {
+                        const pos = child.value(CPosition);
+                        if (pos.z > 0) {
+                            right = child;
+                            left = mirror;
+                        }
+                    }
+                    processMirrorNode(
+                        flipOrigin,
+                        flipDir,
+                        left,
+                        parentMat0,
+                        parentMat1,
+                        invParentMat1,
+                        prevInvQuat,
+                        right,
+                        parentMat0,
+                        parentMat1,
+                        invParentMat1,
+                        prevInvQuat,
+                    );
+                } else {
+                    const {rotation} = processMiddleNode(child, flipOrigin, flipDir, mat0, mat1, invMat1, prevInvQuat);
+                    prevInvQuat = new Quaternion().copy(rotation).invert();
+                }
             }
         }
 
@@ -164,93 +169,98 @@ export function flipNode(ctx: EditorContext, node: ModelNode, mode: 'flip' | 'le
         local0Right.decompose(translationRight, rotationRight, scaleRight);
         const mat0Right = new Matrix4().multiplyMatrices(rightParentMat0, local0Right);
 
-        if (mode === 'flip' || mode === 'left-to-right') {
-            const angle = getAxisAngle(_axis, rotationLeft);
-            _axis.applyMatrix4(leftParentMat0);
-            _axis.sub(flipOrigin);
-            _axis.reflect(flipDir);
-            _axis.add(flipOrigin);
-            _axis.applyMatrix4(leftInvParentMat1);
-            _axis.normalize();
-            rotationLeft.setFromAxisAngle(_axis, -angle);
+        const enableFlip = !(node.has(CDisableFlip) && node.value(CDisableFlip));
 
-            translationLeft.applyMatrix4(leftParentMat0);
-            translationLeft.sub(flipOrigin);
-            translationLeft.reflect(flipDir);
-            translationLeft.add(flipOrigin);
-            translationLeft.applyMatrix4(leftInvParentMat1);
+        if (enableFlip) {
+            if (mode === 'flip' || mode === 'left-to-right') {
+                const angle = getAxisAngle(_axis, rotationLeft);
+                _axis.applyMatrix4(leftParentMat0);
+                _axis.sub(flipOrigin);
+                _axis.reflect(flipDir);
+                _axis.add(flipOrigin);
+                _axis.applyMatrix4(leftInvParentMat1);
+                _axis.normalize();
+                rotationLeft.setFromAxisAngle(_axis, -angle);
 
-            if (right.has(CRotation)) {
-                ctx.history.setValue(right, CRotation, new Euler().setFromQuaternion(rotationLeft));
-            }
-            if (right.has(CIkNodeRotation)) {
-                if (leftPrevInvQuat1) {
-                    _ikNodeQuad.multiplyQuaternions(leftPrevInvQuat1, rotationLeft);
-                } else {
-                    _ikNodeQuad.copy(rotationLeft);
+                translationLeft.applyMatrix4(leftParentMat0);
+                translationLeft.sub(flipOrigin);
+                translationLeft.reflect(flipDir);
+                translationLeft.add(flipOrigin);
+                translationLeft.applyMatrix4(leftInvParentMat1);
+
+                if (right.has(CRotation)) {
+                    ctx.history.setValue(right, CRotation, new Euler().setFromQuaternion(rotationLeft));
                 }
-                ctx.history.setValue(right, CIkNodeRotation, new Euler().setFromQuaternion(_ikNodeQuad));
-            }
-        }
-        if (mode === 'flip' || mode === 'right-to-left') {
-            const angle = getAxisAngle(_axis, rotationRight);
-            _axis.applyMatrix4(rightParentMat0);
-            _axis.sub(flipOrigin);
-            _axis.reflect(flipDir);
-            _axis.add(flipOrigin);
-            _axis.applyMatrix4(rightInvParentMat1);
-            _axis.normalize();
-            rotationRight.setFromAxisAngle(_axis, -angle);
-
-            translationRight.applyMatrix4(rightParentMat0);
-            translationRight.sub(flipOrigin);
-            translationRight.reflect(flipDir);
-            translationRight.add(flipOrigin);
-            translationRight.applyMatrix4(rightInvParentMat1);
-
-            if (left.has(CRotation)) {
-                ctx.history.setValue(left, CRotation, new Euler().setFromQuaternion(rotationRight));
-            }
-            if (left.has(CIkNodeRotation)) {
-                if (rightPrevInvQuat1) {
-                    _ikNodeQuad.multiplyQuaternions(rightPrevInvQuat1, rotationRight);
-                } else {
-                    _ikNodeQuad.copy(rotationRight);
+                if (right.has(CIkNodeRotation)) {
+                    if (leftPrevInvQuat1) {
+                        _ikNodeQuad.multiplyQuaternions(leftPrevInvQuat1, rotationLeft);
+                    } else {
+                        _ikNodeQuad.copy(rotationLeft);
+                    }
+                    ctx.history.setValue(right, CIkNodeRotation, new Euler().setFromQuaternion(_ikNodeQuad));
                 }
-                ctx.history.setValue(left, CIkNodeRotation, new Euler().setFromQuaternion(_ikNodeQuad));
+            }
+            if (mode === 'flip' || mode === 'right-to-left') {
+                const angle = getAxisAngle(_axis, rotationRight);
+                _axis.applyMatrix4(rightParentMat0);
+                _axis.sub(flipOrigin);
+                _axis.reflect(flipDir);
+                _axis.add(flipOrigin);
+                _axis.applyMatrix4(rightInvParentMat1);
+                _axis.normalize();
+                rotationRight.setFromAxisAngle(_axis, -angle);
+
+                translationRight.applyMatrix4(rightParentMat0);
+                translationRight.sub(flipOrigin);
+                translationRight.reflect(flipDir);
+                translationRight.add(flipOrigin);
+                translationRight.applyMatrix4(rightInvParentMat1);
+
+                if (left.has(CRotation)) {
+                    ctx.history.setValue(left, CRotation, new Euler().setFromQuaternion(rotationRight));
+                }
+                if (left.has(CIkNodeRotation)) {
+                    if (rightPrevInvQuat1) {
+                        _ikNodeQuad.multiplyQuaternions(rightPrevInvQuat1, rotationRight);
+                    } else {
+                        _ikNodeQuad.copy(rotationRight);
+                    }
+                    ctx.history.setValue(left, CIkNodeRotation, new Euler().setFromQuaternion(_ikNodeQuad));
+                }
+            }
+
+            const mat1Left = new Matrix4().compose(translationLeft, rotationLeft, scaleLeft);
+            mat1Left.multiplyMatrices(leftParentMat1, mat1Left);
+            const invMat1Left = new Matrix4().copy(mat1Left).invert();
+            const mat1Right = new Matrix4().compose(translationRight, rotationRight, scaleRight);
+            mat1Right.multiplyMatrices(rightParentMat1, mat1Right);
+            const invMat1Right = new Matrix4().copy(mat1Right).invert();
+
+            let prevInvQuatLeft: Quaternion | undefined = undefined;
+            let prevInvQuatRight: Quaternion | undefined = undefined;
+            for (let child of left.children) {
+                const mirror = findMirrorNode(child, right);
+                if (mirror) {
+                    const {rotationLeft, rotationRight} = processMirrorNode(
+                        flipOrigin,
+                        flipDir,
+                        child,
+                        mat0Left,
+                        mat1Left,
+                        invMat1Left,
+                        prevInvQuatLeft,
+                        mirror,
+                        mat0Right,
+                        mat1Right,
+                        invMat1Right,
+                        prevInvQuatRight,
+                    );
+                    prevInvQuatLeft = new Quaternion().copy(rotationLeft).invert();
+                    prevInvQuatRight = new Quaternion().copy(rotationRight).invert();
+                }
             }
         }
 
-        const mat1Left = new Matrix4().compose(translationLeft, rotationLeft, scaleLeft);
-        mat1Left.multiplyMatrices(leftParentMat1, mat1Left);
-        const invMat1Left = new Matrix4().copy(mat1Left).invert();
-        const mat1Right = new Matrix4().compose(translationRight, rotationRight, scaleRight);
-        mat1Right.multiplyMatrices(rightParentMat1, mat1Right);
-        const invMat1Right = new Matrix4().copy(mat1Right).invert();
-
-        let prevInvQuatLeft: Quaternion | undefined = undefined;
-        let prevInvQuatRight: Quaternion | undefined = undefined;
-        for (let child of left.children) {
-            const mirror = findMirrorNode(child, right);
-            if (mirror) {
-                const {rotationLeft, rotationRight} = processMirrorNode(
-                    flipOrigin,
-                    flipDir,
-                    child,
-                    mat0Left,
-                    mat1Left,
-                    invMat1Left,
-                    prevInvQuatLeft,
-                    mirror,
-                    mat0Right,
-                    mat1Right,
-                    invMat1Right,
-                    prevInvQuatRight,
-                );
-                prevInvQuatLeft = new Quaternion().copy(rotationLeft).invert();
-                prevInvQuatRight = new Quaternion().copy(rotationRight).invert();
-            }
-        }
         return {rotationLeft, rotationRight};
     }
 
