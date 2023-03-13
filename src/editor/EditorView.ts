@@ -1,4 +1,5 @@
-import {DirectionalLight, Raycaster, Vector2, Vector3} from 'three';
+import {DirectionalLight, Object3D, Raycaster, Vector2, Vector3} from 'three';
+import {Intersection} from 'three/src/core/Raycaster';
 import EditorContext from './EditorContext';
 import {Object3DUserData} from './model/components/CObject3D';
 import ArcRotateCamera from './utils/camera/ArcRotateCamera';
@@ -83,5 +84,33 @@ export default class EditorView {
                 const node = (item.object.userData as Object3DUserData).node;
                 return node?.visible;
             });
+    }
+
+    mousePickVisible() {
+        const objects = this.ctx.readonlyRef().scene.children.filter(
+            obj => {
+                if (!obj.visible) {
+                    return false;
+                }
+                const node = (obj.userData as Object3DUserData).node;
+                return node?.visible;
+            }
+        );
+        const intersectObjects = (object: Object3D, raycaster: Raycaster, intersects: Intersection[]) => {
+            if (!object.visible) {
+                return;
+            }
+            if (object.layers.test(raycaster.layers)) {
+                object.raycast(raycaster, intersects);
+            }
+            for (let child of object.children) {
+                intersectObjects(child, raycaster, intersects);
+            }
+        };
+        const intersects: Intersection[] = [];
+        for (let object of objects) {
+            intersectObjects(object, this.raycaster, intersects);
+        }
+        return intersects.sort((a, b) => a.distance - b.distance);
     }
 }

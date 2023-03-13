@@ -148,7 +148,7 @@ export default class IkRotateTool extends EditorTool {
                     } else {
                         // clicked on internal object
                         let node: ModelNode | undefined = undefined;
-                        for (let result of view.mousePick()) {
+                        for (let result of view.mousePickVisible()) {
                             node = (result.object.userData as Object3DUserData).node;
                             while (node) {
                                 if (node.has(CIkNode)) {
