@@ -785,7 +785,9 @@ export default class Gizmo extends Group {
                                 }
                                 _q.setFromAxisAngle(normal, angle);
                                 this.detRotation.copy(_q);
-                                this.rotation1.multiplyQuaternions(this.rotation0, _q);
+                                _forward.set(0, 0, 1).applyQuaternion(this.rotation0).applyQuaternion(_q);
+                                _up.set(0, 1, 0).applyQuaternion(this.rotation0).applyQuaternion(_q);
+                                quatFromForwardUp(this.rotation1, _forward, _up);
                             }
                                 break;
                             default: {
