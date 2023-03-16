@@ -48,7 +48,7 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
                 const active = curr === view;
                 view.gizmo.visible = active && view.gizmoEnabled;
                 view.gizmo.size = ctx.options.quadView ? 1 / 2 : 1 / 4;
-                view.defaultLight.visible = useDefaultLight && active;
+                view.defaultLights.visible = useDefaultLight && active;
             }
             if (curr.enabled && curr.width && curr.height) {
                 const camera = curr.camera;

@@ -6,7 +6,7 @@ import {getModelNodeDef} from '../model/ModelNodeDef';
 import UpdateSystem from '../utils/UpdateSystem';
 
 export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
-    private ambientLight = new AmbientLight(0xffffff, 0.5);
+    private ambientLight = new AmbientLight(0xffffff, 0.35);
 
     setup(ctx: EditorContext) {
         ctx.scene.add(this.ambientLight);
@@ -21,11 +21,10 @@ export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
                 if (!view.enabled) {
                     continue;
                 }
-                const light = view.defaultLight;
-                light.intensity = 0.5;
-                light.position.copy(view.camera._position).addScaledVector(view.camera._dir, 2);
-                light.up.copy(view.camera._up);
-                light.lookAt(view.camera.target);
+                const lights = view.defaultLights;
+                lights.position.copy(view.camera._position).addScaledVector(view.camera._dir, 2);
+                lights.up.copy(view.camera._up);
+                lights.lookAt(view.camera.target);
             }
         } else {
             this.ambientLight.visible = false;

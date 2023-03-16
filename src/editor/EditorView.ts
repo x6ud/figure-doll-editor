@@ -1,4 +1,4 @@
-import {DirectionalLight, Object3D, Raycaster, Vector2, Vector3} from 'three';
+import {Group, Object3D, PointLight, Raycaster, Vector2, Vector3} from 'three';
 import {Intersection} from 'three/src/core/Raycaster';
 import EditorContext from './EditorContext';
 import {Object3DUserData} from './model/components/CObject3D';
@@ -27,7 +27,10 @@ export default class EditorView {
     raycaster = new Raycaster();
     gizmo = new Gizmo();
     gizmoEnabled = false;
-    defaultLight: DirectionalLight;
+    defaultLights: Group;
+    defaultLight1: PointLight;
+    defaultLight2: PointLight;
+    defaultLight3: PointLight;
 
     constructor(ctx: EditorContext,
                 index: number,
@@ -39,14 +42,27 @@ export default class EditorView {
         this.ctx = ctx;
         this.index = index;
         this.element = element;
+
         this.input.setup(element);
+
         this.camera.alpha = cameraAlpha;
         this.camera.beta = cameraBeta;
         this.camera.perspective = cameraPerspective;
+
         ctx.scene.add(this.gizmo);
         this.gizmo.visible = false;
-        this.defaultLight = new DirectionalLight();
-        ctx.scene.add(this.defaultLight);
+
+        this.defaultLights = new Group();
+        ctx.scene.add(this.defaultLights);
+        this.defaultLight1 = new PointLight(0xffffff, .22);
+        this.defaultLight2 = new PointLight(0xffffff, .22);
+        this.defaultLight3 = new PointLight(0xffffff, .22);
+        this.defaultLight1.position.set(0, 2, 0);
+        this.defaultLight2.position.set(-2, -1, 0);
+        this.defaultLight3.position.set(2, -1, 0);
+        this.defaultLights.add(this.defaultLight1);
+        this.defaultLights.add(this.defaultLight2);
+        this.defaultLights.add(this.defaultLight3);
     }
 
     update() {
@@ -63,7 +79,9 @@ export default class EditorView {
     }
 
     dispose() {
-        this.defaultLight.dispose();
+        this.defaultLight1.dispose();
+        this.defaultLight2.dispose();
+        this.defaultLight3.dispose();
         this.input.unload();
     }
 
