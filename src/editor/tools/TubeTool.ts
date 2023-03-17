@@ -383,11 +383,6 @@ export default class TubeTool extends EditorTool {
                                     }
                                 }
                             }
-                            if (parent) {
-                                _mat.copy(parent.getWorldMatrix()).invert();
-                                _pos.applyMatrix4(_mat);
-                                radius *= getScaleScalar(_mat);
-                            }
                             const newShape = !parent;
                             if (newShape) {
                                 for (let node of ctx.model.getSelectedNodes()) {
@@ -395,6 +390,11 @@ export default class TubeTool extends EditorTool {
                                         parent = node;
                                         break;
                                     }
+                                }
+                                if (parent) {
+                                    _mat.copy(parent.getWorldMatrix()).invert();
+                                    _pos.applyMatrix4(_mat);
+                                    radius *= getScaleScalar(_mat);
                                 }
                                 ctx.model.selected = [];
                                 this.lastNodeId = ctx.history.createNode({
@@ -411,6 +411,11 @@ export default class TubeTool extends EditorTool {
                                     ]
                                 }) + 1;
                             } else {
+                                if (parent) {
+                                    _mat.copy(parent.getWorldMatrix()).invert();
+                                    _pos.applyMatrix4(_mat);
+                                    radius *= getScaleScalar(_mat);
+                                }
                                 ctx.model.selected = [];
                                 this.lastNodeId = ctx.history.createNode({
                                     type: 'Tube',
