@@ -54,9 +54,9 @@ export default class EditorView {
 
         this.defaultLights = new Group();
         ctx.scene.add(this.defaultLights);
-        this.defaultLight1 = new PointLight(0xffffff, .22);
-        this.defaultLight2 = new PointLight(0xffffff, .22);
-        this.defaultLight3 = new PointLight(0xffffff, .22);
+        this.defaultLight1 = new PointLight(0xffffff, .35);
+        this.defaultLight2 = new PointLight(0xffffff, .35);
+        this.defaultLight3 = new PointLight(0xffffff, .35);
         this.defaultLight1.position.set(0, 2, 0);
         this.defaultLight2.position.set(-2, -1, 0);
         this.defaultLight3.position.set(2, -1, 0);

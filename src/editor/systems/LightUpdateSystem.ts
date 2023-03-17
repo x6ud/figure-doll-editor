@@ -6,7 +6,7 @@ import {getModelNodeDef} from '../model/ModelNodeDef';
 import UpdateSystem from '../utils/UpdateSystem';
 
 export default class LightUpdateSystem extends UpdateSystem<EditorContext> {
-    private ambientLight = new AmbientLight(0xffffff, 0.35);
+    private ambientLight = new AmbientLight(0xffffff, 0.05);
 
     setup(ctx: EditorContext) {
         ctx.scene.add(this.ambientLight);
