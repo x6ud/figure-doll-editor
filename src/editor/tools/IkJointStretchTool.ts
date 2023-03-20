@@ -49,6 +49,11 @@ export default class IkJointStretchTool extends EditorTool {
             this.node = this.node.parent;
         }
         if (!this.node) {
+            for (let view of ctx.views) {
+                view.gizmoEnabled = false;
+                view.gizmo.visible = false;
+                view.gizmo.dragging = false;
+            }
             return;
         }
 
