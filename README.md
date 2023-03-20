@@ -16,7 +16,8 @@ Click `File`->`Import...` to import the model.
 
 Rotate the camera with the mouse right button, drag the camera with the mouse middle button.
 
-Rotate the joints with the ![Move Single Joint](./images/ik-rotate-tool.jpg) and ![Move Ik Chain](./images/ik-move-tool.jpg)
+Rotate the joints with the ![Move Single Joint](./images/ik-rotate-tool.jpg)
+and ![Move Ik Chain](./images/ik-move-tool.jpg)
 tool.
 
 ![](./images/rotate-joint.gif)
@@ -29,7 +30,7 @@ You can flip the model pose by right-clicking the node -> click `Flip`.
 
 Click `Add`->`Point Light` to create a light node.
 
-Move the light with the ![Translate](./images/translate-tool.jpg) tool.
+Move the light with the ![Transform](./images/gizmo-tool.jpg) tool.
 
 Click the ![Shadow On](./images/shading-rendered.jpg) button in the upper right corner to enable lighting.
 
@@ -58,8 +59,8 @@ Open [https://sketchfab.com/search?type=models](https://sketchfab.com/search?typ
 Copy the model page address, go back to the editor and paste it in the `Sketchfab`->`Sketchfab Model URL` input box,
 press `Enter` and wait for the model to download.
 
-If the model size is too large it may not be visible in the editor. You can resize the model
-with the ![Rescale](./images/rescale-tool.jpg) tool.
+If the model size is too large it may not be visible in the editor. You can resize the model with
+the ![Transform](./images/gizmo-tool.jpg) tool.
 
 ### Paint on the model
 
@@ -77,13 +78,58 @@ You can use the ![Stretch Joint](./images/ik-joint-stretch-tool.jpg) to stretch 
 
 ### Shadow nodes
 
-A clone/mirror of the model can be created by right-clicking the node -> click `Create Shadow Node` or `Create Mirror Shadow Node`.
+A clone/mirror of the model can be created by right-clicking the node -> click `Create Shadow Node`
+or `Create Mirror Shadow Node`.
 
-The names of the shadow nodes are shown in gray. Shadow nodes have the same geometry as the original node, even if the original geometry is modified.
+The names of the shadow nodes are shown in gray. Shadow nodes have the same geometry as the original node, even if the
+original geometry is modified.
 
 Sculpting tools cannot be used on shadow nodes.
 
 ![](./images/shadow.gif)
+
+## Create custom model
+
+### Import reference image
+
+You can import reference images by right-click -> `paste`, or `File` -> `Import...`.
+
+### Create rough model with tubes
+
+Select ![Tube](./images/tube-tool.jpg) tool. Hold `Alt` to create a tube. Scroll the mouse wheel while holding `Alt` to
+change the size of the tube node.
+
+![](./images/tube.gif)
+
+Select the `Tube` node and change `Symmetry` to `x`, `y` or `z` to enable symmetry.
+
+Select a `Tube Node` node and set `Operator` to `subtract` so that the shape is subtracted from the corresponding part.
+
+![](./images/tube-2.gif)
+
+### Sculpture
+
+Right-click on the `Tube` node -> click `Convert to Clay` to convert it to a sculptable `Clay` node.
+
+The sculpting tools are similar to those in Blender or ZBrush, you can hold shift to smooth.
+
+The current version does not support automatic mesh subdivision, you need to click the `Remesh` button on the upper
+right when selecting a sculpting tool and a `Clay` node to add mesh triangles.
+
+### IK Chain
+
+IK chains are the bones of movable models. They are not the same thing as skinned model bones, but containers with a
+rotation center and interval lengths, each IK node contains a limb part of the puppet. This method needs to manually cut
+the model into several movable parts, and cannot realize soft body, but does not need to set skinning weights and can
+easily replace parts.
+
+![](./images/figure-doll.jpg)
+
+Click the `Add` menu to create a IK chain. Check `View` -> `IK Joint Indicators` to display the IK chains.
+
+Use ![IK Bind](./images/ik-bind.jpg) to modify the rotation center and length of IK joints.
+
+It is recommended to set the front of the model to face the `+X` direction.
 
 ## Development
 
