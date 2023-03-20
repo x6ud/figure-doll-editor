@@ -17,8 +17,7 @@ Click `File`->`Import...` to import the model.
 Rotate the camera with the mouse right button, drag the camera with the mouse middle button.
 
 Rotate the joints with the ![Move Single Joint](./images/ik-rotate-tool.jpg)
-and ![Move Ik Chain](./images/ik-move-tool.jpg)
-tool.
+and ![Move Ik Chain](./images/ik-move-tool.jpg) tool.
 
 ![](./images/rotate-joint.gif)
 
@@ -41,12 +40,6 @@ Click the ![Shadow On](./images/shading-rendered.jpg) button in the upper right 
 Select ![Box](./images/box-tool.jpg) tool. Hold `Alt` to create a box.
 
 ![](./images/creating-box.gif)
-
-### Import models from .obj files
-
-Click `Add`->`Import .obj`.
-
-Click the `...` button in the properties panel and open your .obj file.
 
 ### Import models from [Sketchfab](https://sketchfab.com/)
 
@@ -87,8 +80,6 @@ original geometry is modified.
 Sculpting tools cannot be used on shadow nodes.
 
 ![](./images/shadow.gif)
-
-## Create custom model
 
 ### Import reference image
 
