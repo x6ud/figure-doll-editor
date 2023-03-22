@@ -53,6 +53,7 @@ import SculptMoveTool from './tools/SculptMoveTool';
 import SculptPaintTool from './tools/SculptPaintTool';
 import SculptPinchTool from './tools/SculptPinchTool';
 import SculptSmoothTool from './tools/SculptSmoothTool';
+import SculptTransformTool from './tools/SculptTransformTool';
 import ToolSeperator from './tools/ToolSeperator';
 import TubeTool from './tools/TubeTool';
 import SelectionRect from './utils/SelectionRect';
@@ -114,6 +115,7 @@ export default class EditorContext {
         new SculptMoveTool(),
         new SculptDragTool(),
         this.sculptSmoothTool,
+        new SculptTransformTool(),
         new SculptPaintTool(),
     ];
 

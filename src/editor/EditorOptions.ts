@@ -9,6 +9,7 @@ export default class EditorOptions {
     allowSelectingInvisibleObjectByClicking: boolean = true;
     keepTransformUnchangedWhileMoving: boolean = true;
     useLocalSpaceForTransformControl: boolean = true;
+    takeGeometryCenterAsTransformOrigin: boolean = true;
     allowModifyingBoneLengthWhenBindingIk: boolean = true;
     keepInternalTransformWhenBindingIk: boolean = true;
     keepBothEndsOfClayNodesWhenStretching: boolean = true;

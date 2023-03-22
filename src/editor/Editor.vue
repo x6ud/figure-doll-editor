@@ -52,6 +52,10 @@
                                      @click="editorCtx.options.useLocalSpaceForTransformControl = !editorCtx.options.useLocalSpaceForTransformControl"
                                      :checked="editorCtx.options.useLocalSpaceForTransformControl"
                     />
+                    <popup-menu-item title="Transform: Take Geometry Center as Origin"
+                                     @click="editorCtx.options.takeGeometryCenterAsTransformOrigin = !editorCtx.options.takeGeometryCenterAsTransformOrigin"
+                                     :checked="editorCtx.options.takeGeometryCenterAsTransformOrigin"
+                    />
                     <popup-menu-item sep/>
                     <popup-menu-item title="IK Binding: Allow Modification of Joint Length"
                                      @click="editorCtx.options.allowModifyingBoneLengthWhenBindingIk = !editorCtx.options.allowModifyingBoneLengthWhenBindingIk"
@@ -201,7 +205,7 @@
                                 <span style="font-size: 16px; font-weight: bold;">
                                     Figure Doll Editor
                                 </span>
-                                Ver 20230309
+                                Ver 20230322
                             </div>
                             <div style="margin-bottom: 6px;">Author: x6udpngx</div>
                             <div style="margin-bottom: 6px;">

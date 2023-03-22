@@ -141,20 +141,34 @@ export default class GizmoTool extends EditorTool {
         if (view.gizmoEnabled) {
             this.boundingBox.updateMatrixWorld();
             if (!gizmo.dragging) {
-                this.boundingBox.box.getCenter(_position).applyMatrix4(this.boundingBox.matrixWorld);
+                if (ctx.options.takeGeometryCenterAsTransformOrigin) {
+                    this.boundingBox.box.getCenter(_position).applyMatrix4(this.boundingBox.matrixWorld);
+                } else {
+                    _position.copy(this.boundingBox.position);
+                }
                 gizmo.setTargetTransform(_position, this.boundingBox.quaternion, _scale.set(1, 1, 1));
             }
             view.gizmo.enableTranslate = true;
             view.gizmo.enableRotate = true;
             view.gizmo.enableScale = true;
-            gizmo.update(
-                view.camera,
-                view.raycaster,
-                view.input,
-                view.mouseRay0,
-                view.mouseRay1,
-                view.mouseRayN
-            );
+            if (this.nodes.length === 1) {
+                const node = this.nodes[0];
+                view.gizmo.enableTranslate = node.has(CPosition);
+                view.gizmo.enableRotate = node.has(CRotation);
+                view.gizmo.enableScale = node.has(CScale) || node.has(CScale3);
+            }
+            if (view.gizmo.enableTranslate || view.gizmo.enableRotate || view.gizmo.enableScale) {
+                gizmo.update(
+                    view.camera,
+                    view.raycaster,
+                    view.input,
+                    view.mouseRay0,
+                    view.mouseRay1,
+                    view.mouseRayN
+                );
+            } else {
+                view.gizmoEnabled = false;
+            }
         }
 
         if (gizmo.dragging) {
