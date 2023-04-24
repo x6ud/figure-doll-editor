@@ -13,7 +13,7 @@
     align-items: center;
     overflow: hidden;
     position: fixed;
-    z-index: 1000;
+    z-index: 3000;
     left: 0;
     top: 0;
     right: 0;

@@ -193,6 +193,9 @@
                         </button>
                     </div>
                 </popup-menu>
+                <popup-menu title="Render">
+                    <popup-menu-item title="Stable Diffusion" @click="onShowSdDialog"/>
+                </popup-menu>
                 <popup-menu title="About"
                             dynamic-size
                 >
@@ -205,7 +208,7 @@
                                 <span style="font-size: 16px; font-weight: bold;">
                                     Figure Doll Editor
                                 </span>
-                                Ver 20230322
+                                Ver 20230424
                             </div>
                             <div style="margin-bottom: 6px;">Author: x6udpngx</div>
                             <div style="margin-bottom: 6px;">
@@ -468,6 +471,7 @@
         </div>
     </div>
 
+    <!-- painting color dialog -->
     <popup-dialog title="Color"
                   v-if="editorCtx"
                   :visible="editorCtx.tool.hasColor"
@@ -479,6 +483,7 @@
         />
     </popup-dialog>
 
+    <!-- depth map dialog -->
     <popup-dialog title="Depth Map"
                   v-model:x="uiOptions.depthMapPanelX"
                   v-model:y="uiOptions.depthMapPanelY"
@@ -509,6 +514,115 @@
         </div>
     </popup-dialog>
 
+    <!-- stable diffusion options dialog -->
+    <popup-dialog title="Stable Diffusion"
+                  v-if="editorCtx && sdDialog"
+                  v-model:visible="sdDialog"
+                  v-model:x="uiOptions.sdPanelX"
+                  v-model:y="uiOptions.sdPanelY"
+                  closable
+    >
+        <div class="properties" style="padding: 0;">
+            <div class="property inline">
+                <label>Web UI Server</label>
+                <input class="value" type="text" v-model="editorCtx.options.sdServer">
+                <button class="icon-button" title="Refresh"
+                        @click="onRefreshSdServer"
+                >
+                    <img src="./icons/refresh.png" alt="">
+                </button>
+            </div>
+            <div class="cols">
+                <div class="fill" style="margin-right: 10px;">
+                    <div class="property">
+                        <label>Prompt</label>
+                        <input class="value" type="text" v-model="editorCtx.options.sdPrompt">
+                    </div>
+                    <div class="property">
+                        <label>Negative Prompt</label>
+                        <input class="value" type="text" v-model="editorCtx.options.sdNPrompt">
+                    </div>
+                </div>
+                <div class="fill">
+                    <div class="property">
+                        <label>Additional Prompt</label>
+                        <input class="value" type="text" v-model="editorCtx.options.sdPromptA">
+                    </div>
+                    <div class="property">
+                        <label>Additional Negative</label>
+                        <input class="value" type="text" v-model="editorCtx.options.sdNPromptA">
+                    </div>
+                </div>
+            </div>
+            <div class="cols">
+                <div class="fill" style="margin-right: 10px;">
+                    <div class="property inline">
+                        <label>Sampler</label>
+                        <select class="value" v-model="editorCtx.options.sdSampler">
+                            <option v-for="item in sdSamplers" :value="item">{{ item }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="fill">
+                    <div class="property inline">
+                        <label>Steps</label>
+                        <input-number class="value"
+                                      :value="editorCtx.options.sdSteps"
+                                      @input="editorCtx.options.sdSteps = $event"
+                                      :min="1"
+                                      :max="150"
+                                      :step="1"
+                        />
+                    </div>
+                </div>
+            </div>
+            <div class="cols">
+                <div class="fill" style="margin-right: 10px;">
+                    <div class="property inline">
+                        <label>Width</label>
+                        <input-number class="value"
+                                      :value="editorCtx.options.sdWidth"
+                                      @input="editorCtx.options.sdWidth = $event"
+                                      :min="1"
+                                      :step="1"
+                        />
+                    </div>
+                </div>
+                <div class="fill">
+                    <div class="property inline">
+                        <label>Height</label>
+                        <input-number class="value"
+                                      :value="editorCtx.options.sdHeight"
+                                      @input="editorCtx.options.sdHeight = $event"
+                                      :min="1"
+                                      :step="1"
+                        />
+                    </div>
+                </div>
+            </div>
+            <div class="property">
+                <label>ControlNet Depth Model</label>
+                <select class="value" v-model="editorCtx.options.sdCnDepthModel">
+                    <option v-for="item in sdCnModels" :value="item">{{ item }}</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 10px; display: flex; justify-content: center;">
+                <canvas width="512" height="512"
+                        style="margin: 0 auto; border: solid 1px #333; width: 256px; height: 256px;"
+                        ref="depthMapCanvas"
+                ></canvas>
+            </div>
+            <button class="normal-button"
+                    style="width: 100%;"
+                    :disabled="!editorCtx.options.sdServer || !editorCtx.options.sdCnDepthModel"
+                    @click="onSdGenerate"
+            >
+                Generate
+            </button>
+        </div>
+    </popup-dialog>
+
+    <!-- sketchfab model downloading dialog -->
     <popup-dialog v-if="downloadProgressDialog"
                   :visible="downloadProgressDialog"
                   modal

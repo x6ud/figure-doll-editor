@@ -1,4 +1,4 @@
-import {PCFSoftShadowMap, Scene, Vector2, WebGLRenderer} from 'three';
+import {PCFSoftShadowMap, Scene, Vector2, WebGLRenderer, WebGLRenderTarget} from 'three';
 import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer';
 import {OutlinePass} from 'three/examples/jsm/postprocessing/OutlinePass';
 import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass';
@@ -143,6 +143,8 @@ export default class EditorContext {
     views: EditorView[];
     readonly mainViewIndex: number;
     disableCameraDraggingThisFrame = false;
+
+    depthMapOutput?: CanvasRenderingContext2D;
 
     selectionRect = new SelectionRect();
     selectionRectDragging = false;

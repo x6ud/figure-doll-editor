@@ -9,6 +9,17 @@ export default class EditorOptions {
     depthMapOffset: number = 0.0;
     depthMapScale: number = 0.1;
 
+    sdServer = 'http://localhost:7860';
+    sdWidth = 512;
+    sdHeight = 512;
+    sdPrompt = '';
+    sdNPrompt = '';
+    sdPromptA = 'best quality, extremely detailed';
+    sdNPromptA = 'longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality';
+    sdSampler = '';
+    sdSteps = 30;
+    sdCnDepthModel = '';
+
     allowSelectingInvisibleObjectByClicking: boolean = true;
     keepTransformUnchangedWhileMoving: boolean = true;
     useLocalSpaceForTransformControl: boolean = true;

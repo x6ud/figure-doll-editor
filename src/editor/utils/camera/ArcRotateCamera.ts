@@ -20,6 +20,14 @@ export default class ArcRotateCamera {
         return this.perspective ? this.perspectiveCamera : this.orthographicCamera;
     }
 
+    copy(camera: ArcRotateCamera) {
+        this.perspective = camera.perspective;
+        this.target.copy(camera.target);
+        this.distance = camera.distance;
+        this.alpha = camera.alpha;
+        this.beta = camera.beta;
+    }
+
     update(width: number, height: number) {
         _euler.set(0, this.beta, -this.alpha);
         _rotation.setFromEuler(_euler);

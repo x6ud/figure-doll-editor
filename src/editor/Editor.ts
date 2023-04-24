@@ -91,6 +91,8 @@ export default defineComponent({
             colorPanelY: 50,
             depthMapPanelX: 250,
             depthMapPanelY: 50,
+            sdPanelX: 250,
+            sdPanelY: 50,
         });
         const fullscreenLoading = ref(false);
 
@@ -780,6 +782,100 @@ export default defineComponent({
             window.open('https://github.com/x6ud/figure-doll-editor#download-models');
         }
 
+        const depthMapCanvas = ref<HTMLCanvasElement>();
+        const sdDialog = ref(false);
+        const sdSamplers = ref<string[]>([]);
+        const sdCnModels = ref<string[]>([]);
+
+        async function onShowSdDialog() {
+            sdDialog.value = true;
+            if (!sdSamplers.value.length) {
+                onRefreshSdServer();
+            }
+            await nextTick();
+            const canvas = depthMapCanvas.value;
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                    editorCtx.value!.depthMapOutput = ctx;
+                }
+            }
+        }
+
+        watch(sdDialog, function (visible) {
+            if (!visible) {
+                editorCtx.value!.depthMapOutput = undefined;
+            }
+        });
+
+        async function onRefreshSdServer() {
+            if (!editorCtx.value) {
+                return;
+            }
+            const server = editorCtx.value.options.sdServer;
+            if (!server) {
+                return;
+            }
+            const samplersRes = await fetch(server + '/sdapi/v1/samplers', {mode: 'cors'});
+            sdSamplers.value = (await samplersRes.json()).map((item: any) => item.name);
+            if (sdSamplers.value.length) {
+                if (!editorCtx.value!.options.sdSampler) {
+                    editorCtx.value!.options.sdSampler = sdSamplers.value[0];
+                }
+            }
+            const modelsRes = await fetch(server + '/controlnet/model_list', {mode: 'cors'});
+            sdCnModels.value = (await modelsRes.json())['model_list'];
+            if (!editorCtx.value!.options.sdCnDepthModel) {
+                editorCtx.value!.options.sdCnDepthModel = sdCnModels.value.find(item => item.includes('depth')) || '';
+            }
+        }
+
+        async function onSdGenerate() {
+            const ctx = editorCtx.value;
+            if (!ctx) {
+                return;
+            }
+            const depthMap = depthMapCanvas.value;
+            if (!depthMap) {
+                return;
+            }
+            try {
+                fullscreenLoading.value = true;
+                const res = await fetch(ctx.options.sdServer + '/sdapi/v1/txt2img', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: ctx.options.sdPrompt + ', ' + ctx.options.sdPromptA,
+                        negative_prompt: ctx.options.sdNPrompt + ', ' + ctx.options.sdNPromptA,
+                        sampler_name: ctx.options.sdSampler,
+                        steps: ctx.options.sdSteps,
+                        width: ctx.options.sdWidth,
+                        height: ctx.options.sdHeight,
+                        alwayson_scripts: {
+                            controlnet: {
+                                args: [{
+                                    input_image: depthMap.toDataURL(),
+                                    model: ctx.options.sdCnDepthModel,
+                                    module: 'none'
+                                }]
+                            }
+                        }
+                    }),
+                });
+                const json = await res.json();
+                if (json.images && json.images[0]) {
+                    const imageUrl = 'data:image/png;base64,' + json.images[0];
+                    window.open(imageUrl);
+                }
+            } finally {
+                fullscreenLoading.value = false;
+            }
+        }
+
         return {
             dom,
             sketchfabClient,
@@ -795,6 +891,10 @@ export default defineComponent({
             downloadTotalText,
             downloadCancelFlag,
             downloadProgressPercent,
+            depthMapCanvas,
+            sdDialog,
+            sdSamplers,
+            sdCnModels,
             onCanvasMounted,
             onBeforeCanvasUnmount,
             onUndo,
@@ -831,6 +931,9 @@ export default defineComponent({
             onSketchfabImportModel,
             onOpenFeedback,
             onOpenTutorial,
+            onShowSdDialog,
+            onRefreshSdServer,
+            onSdGenerate,
         };
     }
 });

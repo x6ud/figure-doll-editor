@@ -12,6 +12,8 @@ const Z_AXIS = new Vector3(0, 0, 1);
 
 const _cross = new Vector3();
 
+const outputCamera = new ArcRotateCamera();
+
 function isCameraParallelTo(camera: ArcRotateCamera, axis: Vector3) {
     return _cross.crossVectors(camera._dir, axis).lengthSq() < 1e-8;
 }
@@ -36,6 +38,22 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
         ctx = ctx.readonlyRef();
         const rect = ctx.canvas.getBoundingClientRect();
         const renderer = ctx.renderer;
+
+        if (ctx.depthMapOutput) {
+            renderer.setScissorTest(false);
+            const view = ctx.views[ctx.mainViewIndex];
+            const camera = view.camera;
+            outputCamera.copy(camera);
+            outputCamera.update(512, 512);
+            renderer.setViewport(0, ctx.canvas.height - 512, 512, 512);
+            ctx.depthMapPass.camera = outputCamera.get();
+            ctx.depthMapPass.offset = ctx.options.depthMapOffset;
+            ctx.depthMapPass.scale = ctx.options.depthMapScale;
+            ctx.depthMapComposer.setSize(512, 512);
+            ctx.depthMapComposer.render();
+            ctx.depthMapOutput.drawImage(ctx.canvas, 0, 0, 512, 512, 0, 0, 512, 512);
+        }
+
         renderer.setScissorTest(true);
         renderer.setClearColor(0x000000, 0.0);
         renderer.clear();
