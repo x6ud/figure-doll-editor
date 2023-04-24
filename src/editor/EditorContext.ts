@@ -56,6 +56,7 @@ import SculptSmoothTool from './tools/SculptSmoothTool';
 import SculptTransformTool from './tools/SculptTransformTool';
 import ToolSeperator from './tools/ToolSeperator';
 import TubeTool from './tools/TubeTool';
+import DepthMapPass from './utils/post-processing/DepthMapPass';
 import SelectionRect from './utils/SelectionRect';
 import UpdateSystem from './utils/UpdateSystem';
 
@@ -133,9 +134,11 @@ export default class EditorContext {
 
     canvas: HTMLCanvasElement;
     renderer: WebGLRenderer;
-    composer: EffectComposer;
+    defaultComposer: EffectComposer;
     renderPass: RenderPass;
     outlinePass: OutlinePass;
+    depthMapComposer: EffectComposer;
+    depthMapPass: DepthMapPass;
     scene = new Scene();
     views: EditorView[];
     readonly mainViewIndex: number;
@@ -186,19 +189,23 @@ export default class EditorContext {
             new EditorView(this, 3, view4, 0, 0, false),
         ];
 
-        this.composer = new EffectComposer(this.renderer);
+        this.defaultComposer = new EffectComposer(this.renderer);
         this.renderPass = new RenderPass(
             this.scene,
             this.views[this.mainViewIndex].camera.get()
         );
-        this.composer.addPass(this.renderPass);
+        this.defaultComposer.addPass(this.renderPass);
         this.outlinePass = new OutlinePass(
             new Vector2(),
             this.scene,
             this.renderPass.camera
         );
         this.outlinePass.visibleEdgeColor.setHex(0xf3982d);
-        this.composer.addPass(this.outlinePass);
+        this.defaultComposer.addPass(this.outlinePass);
+
+        this.depthMapComposer = new EffectComposer(this.renderer);
+        this.depthMapPass = new DepthMapPass(this.scene, this.renderPass.camera);
+        this.depthMapComposer.addPass(this.depthMapPass);
 
         for (let system of this.systems) {
             system.setup(this);

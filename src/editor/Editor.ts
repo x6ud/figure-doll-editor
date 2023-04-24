@@ -5,6 +5,7 @@ import ColorPicker from './components/ColorPicker/ColorPicker.vue';
 import FullscreenLoading from './components/FullscreenLoading/FullscreenLoading.vue';
 import InputBoolean from './components/input/InputBoolean/InputBoolean.vue';
 import InputNumber from './components/input/InputNumber/InputNumber.vue';
+import InputRange from './components/input/InputRange/InputRange.vue';
 import LabelRange from './components/LabelRange/LabelRange.vue';
 import ModelNodeProperties from './components/ModelNodeProperties/ModelNodeProperties.vue';
 import ModelTree from './components/ModelTree/ModelTree.vue';
@@ -60,6 +61,7 @@ export default defineComponent({
         FullscreenLoading,
         InputBoolean,
         InputNumber,
+        InputRange,
         LabelRange,
         ModelNodeProperties,
         ModelTree,
@@ -87,6 +89,8 @@ export default defineComponent({
             modelNodePropertiesPanelWidth: 200,
             colorPanelX: 250,
             colorPanelY: 50,
+            depthMapPanelX: 250,
+            depthMapPanelY: 50,
         });
         const fullscreenLoading = ref(false);
 

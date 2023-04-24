@@ -1,10 +1,13 @@
 /** Editor options that will be written to browser local storge when changed */
 export default class EditorOptions {
-    shadingMode: 'solid' | 'rendered' = 'solid';
+    shadingMode: 'solid' | 'rendered' | 'depth' = 'solid';
 
     enablePressure: boolean = true;
     remeshVoxelSize: number = 0.003;
     paintColor: [number, number, number] = [1, 0, 1];
+
+    depthMapOffset: number = 0.0;
+    depthMapScale: number = 0.1;
 
     allowSelectingInvisibleObjectByClicking: boolean = true;
     keepTransformUnchangedWhileMoving: boolean = true;

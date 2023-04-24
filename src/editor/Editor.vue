@@ -354,6 +354,14 @@
                     >
                         <img src="./icons/shading-rendered.png" alt="">
                     </button>
+                    <button class="normal-button toggle-button"
+                            title="Depth Map"
+                            style="padding: 0;"
+                            :class="{active: editorCtx.options.shadingMode === 'depth'}"
+                            @click="editorCtx.options.shadingMode = 'depth'"
+                    >
+                        <img src="./icons/shading-depth.png" alt="">
+                    </button>
                 </div>
             </template>
         </div>
@@ -469,6 +477,36 @@
         <color-picker v-model:value="editorCtx.options.paintColor"
                       color-box
         />
+    </popup-dialog>
+
+    <popup-dialog title="Depth Map"
+                  v-model:x="uiOptions.depthMapPanelX"
+                  v-model:y="uiOptions.depthMapPanelY"
+                  v-if="editorCtx?.options?.shadingMode === 'depth'"
+                  :visible="true"
+    >
+        <div class="properties" style="padding: 0;">
+            <div class="property inline">
+                <label>Offset</label>
+                <input-range class="value"
+                             :value="editorCtx.options.depthMapOffset"
+                             :min="-10"
+                             :max="10"
+                             :step="0.001"
+                             @input="editorCtx.options.depthMapOffset = $event"
+                />
+            </div>
+            <div class="property inline">
+                <label>Scale</label>
+                <input-range class="value"
+                             :value="editorCtx.options.depthMapScale"
+                             :min="0"
+                             :max="1"
+                             :step="0.001"
+                             @input="editorCtx.options.depthMapScale = $event"
+                />
+            </div>
+        </div>
     </popup-dialog>
 
     <popup-dialog v-if="downloadProgressDialog"

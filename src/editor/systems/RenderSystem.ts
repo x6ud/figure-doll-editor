@@ -36,9 +36,6 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
         ctx = ctx.readonlyRef();
         const rect = ctx.canvas.getBoundingClientRect();
         const renderer = ctx.renderer;
-        const composer = ctx.composer;
-        const renderPass = ctx.renderPass;
-        const outlinePass = ctx.outlinePass;
         renderer.setScissorTest(true);
         renderer.setClearColor(0x000000, 0.0);
         renderer.clear();
@@ -63,10 +60,18 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
                 const h = curr.height;
                 renderer.setViewport(x, y, w, h);
                 renderer.setScissor(x, y, w, h);
-                renderPass.camera = camera.get();
-                outlinePass.renderCamera = camera.get();
-                composer.setSize(w, h);
-                composer.render();
+                if (ctx.options.shadingMode === 'depth') {
+                    ctx.depthMapPass.camera = camera.get();
+                    ctx.depthMapPass.offset = ctx.options.depthMapOffset;
+                    ctx.depthMapPass.scale = ctx.options.depthMapScale;
+                    ctx.depthMapComposer.setSize(w, h);
+                    ctx.depthMapComposer.render();
+                } else {
+                    ctx.renderPass.camera = camera.get();
+                    ctx.outlinePass.renderCamera = camera.get();
+                    ctx.defaultComposer.setSize(w, h);
+                    ctx.defaultComposer.render();
+                }
             }
         }
         ctx.tool.afterRender(ctx);
