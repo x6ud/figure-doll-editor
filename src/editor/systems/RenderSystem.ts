@@ -39,19 +39,27 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
         const rect = ctx.canvas.getBoundingClientRect();
         const renderer = ctx.renderer;
 
-        if (ctx.depthMapOutput) {
+        if (ctx.depthMapOutput || ctx.edgeOutput) {
             renderer.setScissorTest(false);
             const view = ctx.views[ctx.mainViewIndex];
-            const camera = view.camera;
-            outputCamera.copy(camera);
+            outputCamera.copy(view.camera);
             outputCamera.update(512, 512);
             renderer.setViewport(0, ctx.canvas.height - 512, 512, 512);
-            ctx.depthMapPass.camera = outputCamera.get();
-            ctx.depthMapPass.offset = ctx.options.depthMapOffset;
-            ctx.depthMapPass.scale = ctx.options.depthMapScale;
-            ctx.depthMapComposer.setSize(512, 512);
-            ctx.depthMapComposer.render();
-            ctx.depthMapOutput.drawImage(ctx.canvas, 0, 0, 512, 512, 0, 0, 512, 512);
+            if (ctx.depthMapOutput) {
+                ctx.depthMapPass.camera = outputCamera.get();
+                ctx.depthMapPass.offset = ctx.options.depthMapOffset;
+                ctx.depthMapPass.scale = ctx.options.depthMapScale;
+                ctx.depthMapComposer.setSize(512, 512);
+                ctx.depthMapComposer.render();
+                ctx.depthMapOutput.drawImage(ctx.canvas, 0, 0, 512, 512, 0, 0, 512, 512);
+            }
+            if (ctx.edgeOutput) {
+                ctx.edgeDetectPass.camera = outputCamera.get();
+                ctx.edgeDetectPass.threshold = ctx.options.edgeDetectThreshold;
+                ctx.edgeComposer.setSize(512, 512);
+                ctx.edgeComposer.render();
+                ctx.edgeOutput.drawImage(ctx.canvas, 0, 0, 512, 512, 0, 0, 512, 512);
+            }
         }
 
         renderer.setScissorTest(true);

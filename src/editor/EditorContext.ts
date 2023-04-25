@@ -149,6 +149,7 @@ export default class EditorContext {
     disableCameraDraggingThisFrame = false;
 
     depthMapOutput?: CanvasRenderingContext2D;
+    edgeOutput?: CanvasRenderingContext2D;
 
     selectionRect = new SelectionRect();
     selectionRectDragging = false;

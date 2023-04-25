@@ -7,6 +7,8 @@ import InputBoolean from './components/input/InputBoolean/InputBoolean.vue';
 import InputNumber from './components/input/InputNumber/InputNumber.vue';
 import InputRange from './components/input/InputRange/InputRange.vue';
 import LabelRange from './components/LabelRange/LabelRange.vue';
+import AccordionGroup from './components/layout/AccordionGroup/AccordionGroup.vue';
+import CollapsiblePanel from './components/layout/CollapsiblePanel/CollapsiblePanel.vue';
 import ModelNodeProperties from './components/ModelNodeProperties/ModelNodeProperties.vue';
 import ModelTree from './components/ModelTree/ModelTree.vue';
 import PopupDialog from './components/popup/PopupDialog/PopupDialog.vue';
@@ -63,6 +65,8 @@ export default defineComponent({
         InputNumber,
         InputRange,
         LabelRange,
+        AccordionGroup,
+        CollapsiblePanel,
         ModelNodeProperties,
         ModelTree,
         PopupDialog,
@@ -787,6 +791,7 @@ export default defineComponent({
         }
 
         const depthMapCanvas = ref<HTMLCanvasElement>();
+        const edgeCanvas = ref<HTMLCanvasElement>();
         const sdDialog = ref(false);
         const sdSamplers = ref<string[]>([]);
         const sdCnModels = ref<string[]>([]);
@@ -799,11 +804,16 @@ export default defineComponent({
                 onRefreshSdServer();
             }
             await nextTick();
-            const canvas = depthMapCanvas.value;
-            if (canvas) {
-                const ctx = canvas.getContext('2d');
+            if (depthMapCanvas.value) {
+                const ctx = depthMapCanvas.value.getContext('2d');
                 if (ctx) {
                     editorCtx.value!.depthMapOutput = ctx;
+                }
+            }
+            if (edgeCanvas.value) {
+                const ctx = edgeCanvas.value.getContext('2d');
+                if (ctx) {
+                    editorCtx.value!.edgeOutput = ctx;
                 }
             }
         }
@@ -811,6 +821,7 @@ export default defineComponent({
         watch(sdDialog, function (visible) {
             if (!visible) {
                 editorCtx.value!.depthMapOutput = undefined;
+                editorCtx.value!.edgeOutput = undefined;
             }
         });
 
@@ -834,19 +845,32 @@ export default defineComponent({
             if (!editorCtx.value!.options.sdCnDepthModel) {
                 editorCtx.value!.options.sdCnDepthModel = sdCnModels.value.find(item => item.includes('depth')) || '';
             }
+            if (!editorCtx.value!.options.sdCnEdgeModel) {
+                editorCtx.value!.options.sdCnEdgeModel = sdCnModels.value.find(item => item.includes('canny')) || '';
+            }
         }
 
         async function onSdGenerate() {
-            const ctx = editorCtx.value;
-            if (!ctx) {
-                return;
-            }
-            const depthMap = depthMapCanvas.value;
-            if (!depthMap) {
-                return;
-            }
+            const ctx = editorCtx.value!;
             try {
                 fullscreenLoading.value = true;
+                const controlNetArgs: any[] = [];
+                if (ctx.options.sdCnDepthEnabled && ctx.options.sdCnDepthModel) {
+                    controlNetArgs.push({
+                        input_image: depthMapCanvas.value?.toDataURL(),
+                        model: ctx.options.sdCnDepthModel,
+                        module: 'none',
+                        guessmode: false
+                    });
+                }
+                if (ctx.options.sdCnEdgeEnabled && ctx.options.sdCnEdgeModel) {
+                    controlNetArgs.push({
+                        input_image: edgeCanvas.value?.toDataURL(),
+                        model: ctx.options.sdCnEdgeModel,
+                        module: 'none',
+                        guessmode: false
+                    });
+                }
                 const res = await fetch(ctx.options.sdServer + '/sdapi/v1/txt2img', {
                     method: 'POST',
                     mode: 'cors',
@@ -863,12 +887,7 @@ export default defineComponent({
                         height: ctx.options.sdHeight,
                         alwayson_scripts: {
                             controlnet: {
-                                args: [{
-                                    input_image: depthMap.toDataURL(),
-                                    model: ctx.options.sdCnDepthModel,
-                                    module: 'none',
-                                    guessmode: false
-                                }]
+                                args: controlNetArgs
                             }
                         }
                     }),
@@ -900,6 +919,7 @@ export default defineComponent({
             downloadCancelFlag,
             downloadProgressPercent,
             depthMapCanvas,
+            edgeCanvas,
             sdDialog,
             sdSamplers,
             sdCnModels,

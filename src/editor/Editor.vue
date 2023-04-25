@@ -631,18 +631,46 @@
                     </div>
                 </div>
             </div>
-            <div class="property">
-                <label>ControlNet Depth Model</label>
-                <select class="value" v-model="editorCtx.options.sdCnDepthModel">
-                    <option v-for="item in sdCnModels" :value="item">{{ item }}</option>
-                </select>
-            </div>
-            <div style="margin-bottom: 10px; display: flex; justify-content: center;">
-                <canvas width="512" height="512"
-                        style="margin: 0 auto; border: solid 1px #333; width: 256px; height: 256px;"
-                        ref="depthMapCanvas"
-                ></canvas>
-            </div>
+            <div style="margin-bottom: 6px;">ControlNet</div>
+            <accordion-group style="margin-bottom: 10px;">
+                <collapsible-panel>
+                    <template #title>
+                        <div class="cols">
+                            <input-boolean label="Depth"
+                                           :value="editorCtx.options.sdCnDepthEnabled"
+                                           @input="editorCtx.options.sdCnDepthEnabled = $event"/>&nbsp;
+                            <select class="value" v-model="editorCtx.options.sdCnDepthModel">
+                                <option v-for="item in sdCnModels" :value="item">{{ item }}</option>
+                            </select>
+                        </div>
+                    </template>
+                    <template #body>
+                        <canvas width="512" height="512"
+                                style="margin: 0 auto; border: solid 1px #333; width: 256px; height: 256px;"
+                                ref="depthMapCanvas"
+                        ></canvas>
+                    </template>
+                </collapsible-panel>
+                <collapsible-panel>
+                    <template #title>
+                        <div class="cols">
+                            <input-boolean label="Edge"
+                                           :value="editorCtx.options.sdCnEdgeEnabled"
+                                           @input="editorCtx.options.sdCnEdgeEnabled = $event"
+                            />&nbsp;
+                            <select class="value" v-model="editorCtx.options.sdCnEdgeModel">
+                                <option v-for="item in sdCnModels" :value="item">{{ item }}</option>
+                            </select>
+                        </div>
+                    </template>
+                    <template #body>
+                        <canvas width="512" height="512"
+                                style="margin: 0 auto; border: solid 1px #333; width: 256px; height: 256px;"
+                                ref="edgeCanvas"
+                        ></canvas>
+                    </template>
+                </collapsible-panel>
+            </accordion-group>
             <button class="normal-button"
                     style="width: 100%;"
                     :disabled="!editorCtx.options.sdServer || !editorCtx.options.sdCnDepthModel"

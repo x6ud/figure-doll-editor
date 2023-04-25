@@ -20,6 +20,9 @@ export default class EditorOptions {
     sdSampler = '';
     sdSteps = 30;
     sdCnDepthModel = '';
+    sdCnDepthEnabled = false;
+    sdCnEdgeModel = '';
+    sdCnEdgeEnabled = false;
 
     allowSelectingInvisibleObjectByClicking: boolean = true;
     keepTransformUnchangedWhileMoving: boolean = true;
