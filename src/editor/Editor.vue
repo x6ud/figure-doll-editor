@@ -622,6 +622,18 @@
         </div>
     </popup-dialog>
 
+    <!-- stable diffusion generate result -->
+    <popup-dialog v-if="sdResultDialog"
+                  v-model:visible="sdResultDialog"
+                  v-model:x="uiOptions.sdResultPanelX"
+                  v-model:y="uiOptions.sdResultPanelY"
+                  closable
+                  title="Generate Result"
+                  :body-style="{padding: '0', display: 'inline-flex'}"
+    >
+        <img :src="sdResultImage" alt="">
+    </popup-dialog>
+
     <!-- sketchfab model downloading dialog -->
     <popup-dialog v-if="downloadProgressDialog"
                   :visible="downloadProgressDialog"

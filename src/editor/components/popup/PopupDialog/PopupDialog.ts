@@ -13,6 +13,7 @@ export default defineComponent({
         visible: Boolean,
         x: Number,
         y: Number,
+        bodyStyle: Object,
     },
     emits: ['update:visible', 'update:x', 'update:y', 'close'],
     setup(props, ctx) {

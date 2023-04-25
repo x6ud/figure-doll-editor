@@ -17,7 +17,9 @@
                             @click="close"
                     ></button>
                 </div>
-                <div class="popup-dialog__body">
+                <div class="popup-dialog__body"
+                     :style="bodyStyle"
+                >
                     <slot/>
                 </div>
                 <div class="popup-dialog__buttons"

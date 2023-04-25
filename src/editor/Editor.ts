@@ -93,6 +93,8 @@ export default defineComponent({
             depthMapPanelY: 50,
             sdPanelX: 250,
             sdPanelY: 50,
+            sdResultPanelX: 250,
+            sdResultPanelY: 250,
         });
         const fullscreenLoading = ref(false);
 
@@ -786,6 +788,8 @@ export default defineComponent({
         const sdDialog = ref(false);
         const sdSamplers = ref<string[]>([]);
         const sdCnModels = ref<string[]>([]);
+        const sdResultDialog = ref(false);
+        const sdResultImage = ref('');
 
         async function onShowSdDialog() {
             sdDialog.value = true;
@@ -869,7 +873,8 @@ export default defineComponent({
                 const json = await res.json();
                 if (json.images && json.images[0]) {
                     const imageUrl = 'data:image/png;base64,' + json.images[0];
-                    window.open(imageUrl);
+                    sdResultDialog.value = true;
+                    sdResultImage.value = imageUrl;
                 }
             } finally {
                 fullscreenLoading.value = false;
@@ -895,6 +900,8 @@ export default defineComponent({
             sdDialog,
             sdSamplers,
             sdCnModels,
+            sdResultDialog,
+            sdResultImage,
             onCanvasMounted,
             onBeforeCanvasUnmount,
             onUndo,
