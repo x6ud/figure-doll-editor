@@ -57,6 +57,7 @@ import SculptTransformTool from './tools/SculptTransformTool';
 import ToolSeperator from './tools/ToolSeperator';
 import TubeTool from './tools/TubeTool';
 import DepthMapPass from './utils/post-processing/DepthMapPass';
+import EdgeDetectPass from './utils/post-processing/EdgeDetectPass';
 import SelectionRect from './utils/SelectionRect';
 import UpdateSystem from './utils/UpdateSystem';
 
@@ -139,6 +140,9 @@ export default class EditorContext {
     outlinePass: OutlinePass;
     depthMapComposer: EffectComposer;
     depthMapPass: DepthMapPass;
+    edgeComposer: EffectComposer;
+    edgeDetectPass: EdgeDetectPass;
+
     scene = new Scene();
     views: EditorView[];
     readonly mainViewIndex: number;
@@ -208,6 +212,10 @@ export default class EditorContext {
         this.depthMapComposer = new EffectComposer(this.renderer);
         this.depthMapPass = new DepthMapPass(this.scene, this.renderPass.camera);
         this.depthMapComposer.addPass(this.depthMapPass);
+
+        this.edgeComposer = new EffectComposer(this.renderer);
+        this.edgeDetectPass = new EdgeDetectPass(this.scene, this.renderPass.camera);
+        this.edgeComposer.addPass(this.edgeDetectPass);
 
         for (let system of this.systems) {
             system.setup(this);

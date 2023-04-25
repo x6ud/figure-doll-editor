@@ -1,6 +1,6 @@
 /** Editor options that will be written to browser local storge when changed */
 export default class EditorOptions {
-    shadingMode: 'solid' | 'rendered' | 'depth' = 'solid';
+    shadingMode: 'solid' | 'rendered' | 'depth' | 'edge' = 'solid';
 
     enablePressure: boolean = true;
     remeshVoxelSize: number = 0.003;
@@ -8,6 +8,7 @@ export default class EditorOptions {
 
     depthMapOffset: number = 0.0;
     depthMapScale: number = 0.1;
+    edgeDetectThreshold: number = 0.5;
 
     sdServer = 'http://localhost:7860';
     sdWidth = 512;

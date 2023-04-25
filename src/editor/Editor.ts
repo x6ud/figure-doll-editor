@@ -91,6 +91,8 @@ export default defineComponent({
             colorPanelY: 50,
             depthMapPanelX: 250,
             depthMapPanelY: 50,
+            edgePanelX: 250,
+            edgePanelY: 50,
             sdPanelX: 250,
             sdPanelY: 50,
             sdResultPanelX: 250,
@@ -864,7 +866,8 @@ export default defineComponent({
                                 args: [{
                                     input_image: depthMap.toDataURL(),
                                     model: ctx.options.sdCnDepthModel,
-                                    module: 'none'
+                                    module: 'none',
+                                    guessmode: false
                                 }]
                             }
                         }

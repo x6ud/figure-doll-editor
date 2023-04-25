@@ -35,7 +35,12 @@ export default class DepthMapPass extends RenderPass {
     clearColor = new Color(0, 0, 0);
     private visibleMap: Map<number, boolean> = new Map();
 
-    render(renderer: WebGLRenderer, writeBuffer: WebGLRenderTarget, readBuffer: WebGLRenderTarget, deltaTime: number, maskActive: boolean) {
+    dispose() {
+        super.dispose();
+        this.overrideMaterial?.dispose();
+    }
+
+    render(renderer: WebGLRenderer, writeBuffer: WebGLRenderTarget) {
         // hide non-mesh objects
         const visibleMap = this.visibleMap;
         visibleMap.clear();

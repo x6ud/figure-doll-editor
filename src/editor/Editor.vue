@@ -340,6 +340,24 @@
                     </popup-menu>
                 </template>
                 <div class="fill"></div>
+                <div class="button-group cols" style="margin-right: 6px">
+                    <button class="normal-button toggle-button"
+                            title="Depth Map"
+                            style="padding: 0;"
+                            :class="{active: editorCtx.options.shadingMode === 'depth'}"
+                            @click="editorCtx.options.shadingMode = 'depth'"
+                    >
+                        <img src="./icons/shading-depth.png" alt="">
+                    </button>
+                    <button class="normal-button toggle-button"
+                            title="Edge"
+                            style="padding: 0;"
+                            :class="{active: editorCtx.options.shadingMode === 'edge'}"
+                            @click="editorCtx.options.shadingMode = 'edge'"
+                    >
+                        <img src="./icons/shading-edge.png" alt="">
+                    </button>
+                </div>
                 <div class="button-group cols">
                     <button class="normal-button toggle-button"
                             title="Shadow Off"
@@ -356,14 +374,6 @@
                             @click="editorCtx.options.shadingMode = 'rendered'"
                     >
                         <img src="./icons/shading-rendered.png" alt="">
-                    </button>
-                    <button class="normal-button toggle-button"
-                            title="Depth Map"
-                            style="padding: 0;"
-                            :class="{active: editorCtx.options.shadingMode === 'depth'}"
-                            @click="editorCtx.options.shadingMode = 'depth'"
-                    >
-                        <img src="./icons/shading-depth.png" alt="">
                     </button>
                 </div>
             </template>
@@ -483,7 +493,7 @@
         />
     </popup-dialog>
 
-    <!-- depth map dialog -->
+    <!-- depth map options dialog -->
     <popup-dialog title="Depth Map"
                   v-model:x="uiOptions.depthMapPanelX"
                   v-model:y="uiOptions.depthMapPanelY"
@@ -495,8 +505,8 @@
                 <label>Offset</label>
                 <input-range class="value"
                              :value="editorCtx.options.depthMapOffset"
-                             :min="-10"
-                             :max="10"
+                             :min="-20"
+                             :max="20"
                              :step="0.001"
                              @input="editorCtx.options.depthMapOffset = $event"
                 />
@@ -509,6 +519,27 @@
                              :max="1"
                              :step="0.001"
                              @input="editorCtx.options.depthMapScale = $event"
+                />
+            </div>
+        </div>
+    </popup-dialog>
+
+    <!-- edge detect options dialog -->
+    <popup-dialog title="Edge"
+                  v-model:x="uiOptions.edgePanelX"
+                  v-model:y="uiOptions.edgePanelY"
+                  v-if="editorCtx?.options?.shadingMode === 'edge'"
+                  :visible="true"
+    >
+        <div class="properties" style="padding: 0;">
+            <div class="property inline">
+                <label>Threshold</label>
+                <input-range class="value"
+                             :value="editorCtx.options.edgeDetectThreshold"
+                             :min="0"
+                             :max="1"
+                             :step="0.001"
+                             @input="editorCtx.options.edgeDetectThreshold = $event"
                 />
             </div>
         </div>

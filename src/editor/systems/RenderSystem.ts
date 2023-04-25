@@ -78,17 +78,30 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
                 const h = curr.height;
                 renderer.setViewport(x, y, w, h);
                 renderer.setScissor(x, y, w, h);
-                if (ctx.options.shadingMode === 'depth') {
-                    ctx.depthMapPass.camera = camera.get();
-                    ctx.depthMapPass.offset = ctx.options.depthMapOffset;
-                    ctx.depthMapPass.scale = ctx.options.depthMapScale;
-                    ctx.depthMapComposer.setSize(w, h);
-                    ctx.depthMapComposer.render();
-                } else {
-                    ctx.renderPass.camera = camera.get();
-                    ctx.outlinePass.renderCamera = camera.get();
-                    ctx.defaultComposer.setSize(w, h);
-                    ctx.defaultComposer.render();
+                switch (ctx.options.shadingMode) {
+                    case 'solid':
+                    case 'rendered': {
+                        ctx.renderPass.camera = camera.get();
+                        ctx.outlinePass.renderCamera = camera.get();
+                        ctx.defaultComposer.setSize(w, h);
+                        ctx.defaultComposer.render();
+                    }
+                        break;
+                    case 'depth': {
+                        ctx.depthMapPass.camera = camera.get();
+                        ctx.depthMapPass.offset = ctx.options.depthMapOffset;
+                        ctx.depthMapPass.scale = ctx.options.depthMapScale;
+                        ctx.depthMapComposer.setSize(w, h);
+                        ctx.depthMapComposer.render();
+                    }
+                        break;
+                    case 'edge': {
+                        ctx.edgeDetectPass.camera = camera.get();
+                        ctx.edgeDetectPass.threshold = ctx.options.edgeDetectThreshold;
+                        ctx.edgeComposer.setSize(w, h);
+                        ctx.edgeComposer.render();
+                    }
+                        break;
                 }
             }
         }
