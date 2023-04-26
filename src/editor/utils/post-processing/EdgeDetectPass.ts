@@ -12,6 +12,7 @@ import {
 } from 'three';
 import {FullScreenQuad} from 'three/examples/jsm/postprocessing/Pass';
 import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass';
+import CRenderEdge from '../../model/components/CRenderEdge';
 import ModelNode from '../../model/ModelNode';
 import {getModelNodeDef} from '../../model/ModelNodeDef';
 
@@ -155,6 +156,9 @@ export default class EdgeDetectPass extends RenderPass {
                     if ((obj as Points).isPoints || (obj as Line).isLine) {
                         obj.visible = false;
                     }
+                }
+                if (node && node.has(CRenderEdge) && !node.value(CRenderEdge)) {
+                    obj.visible = false;
                 }
                 if (obj.visible) {
                     stack.push(...obj.children);

@@ -43,6 +43,7 @@ import ProjectReader from './ProjectReader';
 import ProjectWriter from './ProjectWriter';
 import EditorTool from './tools/EditorTool';
 import Class from './type/Class';
+import {bufferToDataUrl} from './utils/convert';
 import {voxelizeRemesh} from './utils/geometry/voxelize-remesh';
 import {getTranslation} from './utils/math';
 import {progressiveDownload} from './utils/progressive-download';
@@ -790,6 +791,7 @@ export default defineComponent({
             window.open('https://github.com/x6ud/figure-doll-editor#download-models');
         }
 
+        const sdInputCanvas = ref<HTMLCanvasElement>();
         const depthMapCanvas = ref<HTMLCanvasElement>();
         const edgeCanvas = ref<HTMLCanvasElement>();
         const poseCanvas = ref<HTMLCanvasElement>();
@@ -879,26 +881,32 @@ export default defineComponent({
                         guessmode: guessMode,
                     });
                 }
-                const res = await fetch(ctx.options.sdServer + '/sdapi/v1/txt2img', {
+                const req: any = {
+                    prompt: ctx.options.sdPrompt + ', ' + ctx.options.sdPromptA,
+                    negative_prompt: ctx.options.sdNPrompt + ', ' + ctx.options.sdNPromptA,
+                    sampler_name: ctx.options.sdSampler,
+                    steps: ctx.options.sdSteps,
+                    width: ctx.options.sdWidth,
+                    height: ctx.options.sdHeight,
+                    alwayson_scripts: {
+                        controlnet: {
+                            args: controlNetArgs
+                        }
+                    }
+                };
+                let url = '/sdapi/v1/txt2img';
+                if (ctx.options.sdInputImg) {
+                    req.init_images = [sdInputCanvas.value!.toDataURL()];
+                    url = '/sdapi/v1/img2img';
+                }
+                const res = await fetch(ctx.options.sdServer + url, {
                     method: 'POST',
                     mode: 'cors',
                     headers: {
                         'accept': 'application/json',
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        prompt: ctx.options.sdPrompt + ', ' + ctx.options.sdPromptA,
-                        negative_prompt: ctx.options.sdNPrompt + ', ' + ctx.options.sdNPromptA,
-                        sampler_name: ctx.options.sdSampler,
-                        steps: ctx.options.sdSteps,
-                        width: ctx.options.sdWidth,
-                        height: ctx.options.sdHeight,
-                        alwayson_scripts: {
-                            controlnet: {
-                                args: controlNetArgs
-                            }
-                        }
-                    }),
+                    body: JSON.stringify(req),
                 });
                 const json = await res.json();
                 if (json.images && json.images[0]) {
@@ -908,6 +916,57 @@ export default defineComponent({
                 }
             } finally {
                 fullscreenLoading.value = false;
+            }
+        }
+
+        async function onPasteToCanvas(canvas: HTMLCanvasElement) {
+            const ctx2d = canvas.getContext('2d')!;
+            if (ctx2d === editorCtx.value!.poseOutput) {
+                editorCtx.value!.poseOutput = undefined;
+            }
+            if (ctx2d === editorCtx.value!.depthMapOutput) {
+                editorCtx.value!.depthMapOutput = undefined;
+            }
+            if (ctx2d === editorCtx.value!.edgeOutput) {
+                editorCtx.value!.edgeOutput = undefined;
+            }
+            const item = (await navigator.clipboard.read())[0];
+            for (let type of item.types) {
+                if (type.startsWith('image/')) {
+                    const blob = await item.getType(type);
+                    const dataUrl = await bufferToDataUrl(blob);
+                    const image = new Image();
+                    image.onload = () => {
+                        ctx2d.fillStyle = '#000';
+                        ctx2d.fillRect(0, 0, ctx2d.canvas.width, ctx2d.canvas.height);
+                        ctx2d.drawImage(image, 0, 0);
+                    };
+                    image.src = dataUrl;
+                }
+            }
+        }
+
+        function onCopyFromCanvas(canvas: HTMLCanvasElement) {
+            canvas.toBlob(function (blob) {
+                if (blob) {
+                    const item = new ClipboardItem({'image/png': blob});
+                    navigator.clipboard.write([item]);
+                }
+            });
+        }
+
+        function onRefreshOutputCanvas(name: 'pose' | 'depth' | 'edge') {
+            const ctx = editorCtx.value!;
+            switch (name) {
+                case 'pose':
+                    ctx.poseOutput = poseCanvas.value?.getContext('2d')!;
+                    break;
+                case 'depth':
+                    ctx.depthMapOutput = depthMapCanvas.value?.getContext('2d')!;
+                    break;
+                case 'edge':
+                    ctx.edgeOutput = edgeCanvas.value?.getContext('2d')!;
+                    break;
             }
         }
 
@@ -926,6 +985,7 @@ export default defineComponent({
             downloadTotalText,
             downloadCancelFlag,
             downloadProgressPercent,
+            sdInputCanvas,
             depthMapCanvas,
             edgeCanvas,
             poseCanvas,
@@ -973,6 +1033,9 @@ export default defineComponent({
             onShowSdDialog,
             onRefreshSdServer,
             onSdGenerate,
+            onPasteToCanvas,
+            onCopyFromCanvas,
+            onRefreshOutputCanvas,
         };
     }
 });

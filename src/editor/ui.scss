@@ -96,7 +96,32 @@ button.icon-button {
   }
 }
 
-.normal-button,
+.normal-button {
+  box-sizing: border-box;
+  height: 24px;
+  padding: 4px 12px;
+  border: none;
+  background: #444;
+  font-size: 14px;
+
+  & img {
+    vertical-align: text-top;
+  }
+
+  &:hover {
+    background-color: #555;
+  }
+
+  &:active {
+    background-color: #222;
+  }
+
+  &:disabled, &[disabled] {
+    background-color: #555 !important;
+    color: rgba(255, 255, 255, .5) !important;
+  }
+}
+
 input[type=file]::file-selector-button {
   box-sizing: border-box;
   height: 24px;
@@ -104,6 +129,10 @@ input[type=file]::file-selector-button {
   border: none;
   background: #444;
   font-size: 14px;
+
+  & img {
+    vertical-align: text-top;
+  }
 
   &:hover {
     background-color: #555;

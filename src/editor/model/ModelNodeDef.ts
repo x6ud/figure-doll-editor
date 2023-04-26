@@ -44,6 +44,7 @@ import CPosition from './components/CPosition';
 import CRadius from './components/CRadius';
 import CRadius3 from './components/CRadius3';
 import CReceiveShadow from './components/CReceiveShadow';
+import CRenderEdge from './components/CRenderEdge';
 import CRotation from './components/CRotation';
 import CRoughness from './components/CRoughness';
 import CRoundRadius from './components/CRoundRadius';
@@ -142,7 +143,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconContainer,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CDisableFlip, COpenPoseRoot, CPosition, CRotation, CScale, COpacity, CObject3D],
+        components: [CName, CVisible, CDisableFlip, COpenPoseRoot, CRenderEdge, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
         validChildTypes: [
             'Container',
@@ -179,7 +180,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconIKChain,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CDisableFlip, COpenPoseRoot, CPosition, CRotation, CScale, COpacity, CObject3D, CShowMoveHandler, CLockEnd],
+        components: [CName, CVisible, CDisableFlip, COpenPoseRoot, CRenderEdge, CPosition, CRotation, CScale, COpacity, CObject3D, CShowMoveHandler, CLockEnd],
         canBeRoot: true,
         validChildTypes: ['IKNode'],
     },

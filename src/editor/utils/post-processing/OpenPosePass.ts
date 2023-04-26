@@ -38,6 +38,7 @@ export default class OpenPosePass extends RenderPass {
         this.fsQuad.render(renderer);
         this.material.map = this.texture;
         this.fsQuad.render(renderer);
+        renderer.autoClear = true;
     }
 
 }

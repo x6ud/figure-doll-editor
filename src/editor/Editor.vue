@@ -604,7 +604,7 @@
                         <input class="value" type="text" v-model="editorCtx.options.sdPromptA">
                     </div>
                     <div class="property">
-                        <label>Additional Negative</label>
+                        <label>Additional Negative Prompt</label>
                         <input class="value" type="text" v-model="editorCtx.options.sdNPromptA">
                     </div>
                 </div>
@@ -655,8 +655,38 @@
                     </div>
                 </div>
             </div>
-            <div style="margin-bottom: 6px;">ControlNet</div>
             <accordion-group style="margin-bottom: 10px;">
+                <collapsible-panel>
+                    <template #title>
+                        <div class="cols">
+                            <input-boolean label="img2img"
+                                           :value="editorCtx.options.sdInputImg"
+                                           @input="editorCtx.options.sdInputImg = $event"/>&nbsp;
+                        </div>
+                    </template>
+                    <template #body>
+                        <div style="margin-bottom: 4px;">
+                            <button class="normal-button"
+                                    @click="onCopyFromCanvas(sdInputCanvas)"
+                                    style="margin-right: 4px;"
+                            >
+                                <img src="./icons/copy.png" alt="">
+                                Copy
+                            </button>
+                            <button class="normal-button"
+                                    @click="onPasteToCanvas(sdInputCanvas)"
+                            >
+                                <img src="./icons/paste.png" alt="">
+                                Paste
+                            </button>
+                        </div>
+                        <canvas width="512" height="512"
+                                style="margin: 0 auto; border: solid 1px #333; max-width: 200px; max-height: 200px;"
+                                ref="sdInputCanvas"
+                        ></canvas>
+                    </template>
+                </collapsible-panel>
+                <div style="margin-bottom: 6px;">ControlNet</div>
                 <collapsible-panel>
                     <template #title>
                         <div class="cols">
@@ -669,8 +699,30 @@
                         </div>
                     </template>
                     <template #body>
+                        <div style="margin-bottom: 4px;">
+                            <button class="normal-button"
+                                    @click="onCopyFromCanvas(depthMapCanvas)"
+                                    style="margin-right: 4px;"
+                            >
+                                <img src="./icons/copy.png" alt="">
+                                Copy
+                            </button>
+                            <button class="normal-button"
+                                    @click="onPasteToCanvas(depthMapCanvas)"
+                                    style="margin-right: 4px;"
+                            >
+                                <img src="./icons/paste.png" alt="">
+                                Paste
+                            </button>
+                            <button class="normal-button"
+                                    @click="onRefreshOutputCanvas('depth')"
+                            >
+                                <img src="./icons/refresh-small.png" alt="">
+                                Refresh
+                            </button>
+                        </div>
                         <canvas width="512" height="512"
-                                style="margin: 0 auto; border: solid 1px #333; width: 256px; height: 256px;"
+                                style="margin: 0 auto; border: solid 1px #333; max-width: 200px; max-height: 200px;"
                                 ref="depthMapCanvas"
                         ></canvas>
                     </template>
@@ -688,8 +740,30 @@
                         </div>
                     </template>
                     <template #body>
+                        <div style="margin-bottom: 4px;">
+                            <button class="normal-button"
+                                    @click="onCopyFromCanvas(edgeCanvas)"
+                                    style="margin-right: 4px;"
+                            >
+                                <img src="./icons/copy.png" alt="">
+                                Copy
+                            </button>
+                            <button class="normal-button"
+                                    @click="onPasteToCanvas(edgeCanvas)"
+                                    style="margin-right: 4px;"
+                            >
+                                <img src="./icons/paste.png" alt="">
+                                Paste
+                            </button>
+                            <button class="normal-button"
+                                    @click="onRefreshOutputCanvas('edge')"
+                            >
+                                <img src="./icons/refresh-small.png" alt="">
+                                Refresh
+                            </button>
+                        </div>
                         <canvas width="512" height="512"
-                                style="margin: 0 auto; border: solid 1px #333; width: 256px; height: 256px;"
+                                style="margin: 0 auto; border: solid 1px #333; max-width: 200px; max-height: 200px;"
                                 ref="edgeCanvas"
                         ></canvas>
                     </template>
@@ -706,8 +780,30 @@
                         </div>
                     </template>
                     <template #body>
+                        <div style="margin-bottom: 4px;">
+                            <button class="normal-button"
+                                    @click="onCopyFromCanvas(poseCanvas)"
+                                    style="margin-right: 4px;"
+                            >
+                                <img src="./icons/copy.png" alt="">
+                                Copy
+                            </button>
+                            <button class="normal-button"
+                                    @click="onPasteToCanvas(poseCanvas)"
+                                    style="margin-right: 4px;"
+                            >
+                                <img src="./icons/paste.png" alt="">
+                                Paste
+                            </button>
+                            <button class="normal-button"
+                                    @click="onRefreshOutputCanvas('pose')"
+                            >
+                                <img src="./icons/refresh-small.png" alt="">
+                                Refresh
+                            </button>
+                        </div>
                         <canvas width="512" height="512"
-                                style="margin: 0 auto; border: solid 1px #333; width: 256px; height: 256px;"
+                                style="margin: 0 auto; border: solid 1px #333; max-width: 200px; max-height: 200px;"
                                 ref="poseCanvas"
                         ></canvas>
                     </template>
@@ -715,7 +811,7 @@
             </accordion-group>
             <button class="normal-button"
                     style="width: 100%;"
-                    :disabled="!editorCtx.options.sdServer || !editorCtx.options.sdCnDepthModel"
+                    :disabled="!editorCtx.options.sdServer"
                     @click="onSdGenerate"
             >
                 Generate

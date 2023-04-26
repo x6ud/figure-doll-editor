@@ -20,6 +20,7 @@ export default class EditorOptions {
     sdNPromptA = 'longbody, lowres, bad anatomy, bad hands, missing fingers, extra digit, fewer digits, cropped, worst quality, low quality';
     sdSampler = '';
     sdSteps = 30;
+    sdInputImg = false;
     sdCnDepthModel = '';
     sdCnDepthEnabled = false;
     sdCnEdgeModel = '';
