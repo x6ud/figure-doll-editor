@@ -533,13 +533,23 @@
     >
         <div class="properties" style="padding: 0;">
             <div class="property inline">
-                <label>Threshold</label>
+                <label>Angle Threshold</label>
                 <input-range class="value"
-                             :value="editorCtx.options.edgeDetectThreshold"
+                             :value="editorCtx.options.edgeDetectNormalThreshold"
                              :min="0"
                              :max="1"
                              :step="0.001"
-                             @input="editorCtx.options.edgeDetectThreshold = $event"
+                             @input="editorCtx.options.edgeDetectNormalThreshold = $event"
+                />
+            </div>
+            <div class="property inline">
+                <label>Depth Threshold</label>
+                <input-range class="value"
+                             :value="editorCtx.options.edgeDetectDepthThreshold"
+                             :min="0"
+                             :max="2"
+                             :step="0.001"
+                             @input="editorCtx.options.edgeDetectDepthThreshold = $event"
                 />
             </div>
         </div>

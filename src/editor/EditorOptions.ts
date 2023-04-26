@@ -8,7 +8,8 @@ export default class EditorOptions {
 
     depthMapOffset: number = 0.0;
     depthMapScale: number = 0.1;
-    edgeDetectThreshold: number = 0.5;
+    edgeDetectNormalThreshold: number = 0.5;
+    edgeDetectDepthThreshold: number = 0.1;
 
     sdServer = 'http://localhost:7860';
     sdWidth = 512;

@@ -47,15 +47,12 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
             renderer.setViewport(0, ctx.canvas.height - 512, 512, 512);
             if (ctx.depthMapOutput) {
                 ctx.depthMapPass.camera = outputCamera.get();
-                ctx.depthMapPass.offset = ctx.options.depthMapOffset;
-                ctx.depthMapPass.scale = ctx.options.depthMapScale;
                 ctx.depthMapComposer.setSize(512, 512);
                 ctx.depthMapComposer.render();
                 ctx.depthMapOutput.drawImage(ctx.canvas, 0, 0, 512, 512, 0, 0, 512, 512);
             }
             if (ctx.edgeOutput) {
                 ctx.edgeDetectPass.camera = outputCamera.get();
-                ctx.edgeDetectPass.threshold = ctx.options.edgeDetectThreshold;
                 ctx.edgeComposer.setSize(512, 512);
                 ctx.edgeComposer.render();
                 ctx.edgeOutput.drawImage(ctx.canvas, 0, 0, 512, 512, 0, 0, 512, 512);
@@ -105,7 +102,8 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
                         break;
                     case 'edge': {
                         ctx.edgeDetectPass.camera = camera.get();
-                        ctx.edgeDetectPass.threshold = ctx.options.edgeDetectThreshold;
+                        ctx.edgeDetectPass.normalThreshold = ctx.options.edgeDetectNormalThreshold;
+                        ctx.edgeDetectPass.depthThreshold = ctx.options.edgeDetectDepthThreshold;
                         ctx.edgeComposer.setSize(w, h);
                         ctx.edgeComposer.render();
                     }

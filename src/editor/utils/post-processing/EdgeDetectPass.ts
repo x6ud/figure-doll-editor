@@ -1,4 +1,5 @@
 import {
+    DepthTexture,
     Line,
     Mesh,
     MeshNormalMaterial,
@@ -31,11 +32,17 @@ export default class EdgeDetectPass extends RenderPass {
             varying vec2 vUv;
 
             uniform sampler2D uTexNormal;
+            uniform sampler2D uTexDepth;
             uniform vec4 uResolution;
-            uniform float uThreshold;
+            uniform float uNormalThreshold;
+            uniform float uDepthThreshold;
 
             vec3 getNormal(int x, int y) {
                 return texture2D(uTexNormal, vUv + vec2(x, y) * uResolution.zw).rgb * 2.0 - 1.0;
+            }
+
+            float getDepth(int x, int y) {
+                return texture2D(uTexDepth, vUv + vec2(x, y) * uResolution.zw).r;
             }
 
             float neighborNormalEdgeIndicator(int x, int y, vec3 normal) {
@@ -44,6 +51,27 @@ export default class EdgeDetectPass extends RenderPass {
                 float normalDiff = dot(normal - neighborNormal, normalEdgeBias);
                 float normalIndicator = clamp(normalDiff, 0.0, 1.0);
                 return (1.0 - dot(normal, neighborNormal)) * normalIndicator;
+            }
+
+            float depthEdgeIndicator(float depth) {
+                float diff = 0.0;
+
+                diff += abs(getDepth(1, 0) - depth);
+                diff += abs(getDepth(-1, 0) - depth);
+                diff += abs(getDepth(0, 1) - depth);
+                diff += abs(getDepth(0, -1) - depth);
+
+                diff += abs(getDepth(1, 1) - depth);
+                diff += abs(getDepth(-1, -1) - depth);
+                diff += abs(getDepth(-1, 1) - depth);
+                diff += abs(getDepth(1, -1) - depth);
+
+                diff += abs(getDepth(2, 0) - depth);
+                diff += abs(getDepth(-2, 0) - depth);
+                diff += abs(getDepth(0, 2) - depth);
+                diff += abs(getDepth(0, -2) - depth);
+
+                return diff * 4.0 > uDepthThreshold ? 1.0 : 0.0;
             }
 
             float normalEdgeIndicator(vec3 normal) {
@@ -63,28 +91,33 @@ export default class EdgeDetectPass extends RenderPass {
                 indicator += neighborNormalEdgeIndicator(0, 2, normal);
                 indicator += neighborNormalEdgeIndicator(-2, 0, normal);
                 indicator += neighborNormalEdgeIndicator(2, 0, normal);
-                
-                return indicator / 2.0 > (1.0 - uThreshold) ? 1.0 : 0.0;
+
+                return indicator * 0.5 > uNormalThreshold ? 1.0 : 0.0;
             }
 
             void main() {
-                gl_FragColor.rgb = vec3(1.0, 1.0, 1.0) * normalEdgeIndicator(getNormal(0, 0));
+                float ni = normalEdgeIndicator(getNormal(0, 0));
+                float di = depthEdgeIndicator(getDepth(0, 0));
+                gl_FragColor.rgb = vec3(1.0, 1.0, 1.0) * (ni + di);
                 gl_FragColor.a = 1.0;
             }
         `,
         uniforms: {
             uTexNormal: {value: null},
+            uTexDepth: {value: null},
             uResolution: {value: new Vector4()},
-            uThreshold: {value: 0.0},
+            uNormalThreshold: {value: 0.0},
+            uDepthThreshold: {value: 0.0},
         }
     });
     private normalMaterial = new MeshNormalMaterial();
-    private normalRenderTarget = new WebGLRenderTarget();
+    private normalRenderTarget = new WebGLRenderTarget(1, 1, {depthBuffer: true, depthTexture: new DepthTexture(1, 1)});
     private fsQuad = new FullScreenQuad(this.edgeMaterial);
 
     private visibleMap: Map<number, boolean> = new Map();
 
-    threshold = 0.5;
+    normalThreshold = 0.5;
+    depthThreshold = 0.1;
 
     dispose() {
         this.normalMaterial.dispose();
@@ -155,7 +188,9 @@ export default class EdgeDetectPass extends RenderPass {
 
         // render edge
         this.edgeMaterial.uniforms.uTexNormal.value = this.normalRenderTarget.texture;
-        this.edgeMaterial.uniforms.uThreshold.value = this.threshold;
+        this.edgeMaterial.uniforms.uTexDepth.value = this.normalRenderTarget.depthTexture;
+        this.edgeMaterial.uniforms.uNormalThreshold.value = this.normalThreshold;
+        this.edgeMaterial.uniforms.uDepthThreshold.value = this.depthThreshold;
         if (this.renderToScreen) {
             renderer.setRenderTarget(null);
         } else {
