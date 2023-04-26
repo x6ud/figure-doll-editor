@@ -792,6 +792,7 @@ export default defineComponent({
 
         const depthMapCanvas = ref<HTMLCanvasElement>();
         const edgeCanvas = ref<HTMLCanvasElement>();
+        const poseCanvas = ref<HTMLCanvasElement>();
         const sdDialog = ref(false);
         const sdSamplers = ref<string[]>([]);
         const sdCnModels = ref<string[]>([]);
@@ -804,24 +805,18 @@ export default defineComponent({
                 onRefreshSdServer();
             }
             await nextTick();
-            if (depthMapCanvas.value) {
-                const ctx = depthMapCanvas.value.getContext('2d');
-                if (ctx) {
-                    editorCtx.value!.depthMapOutput = ctx;
-                }
-            }
-            if (edgeCanvas.value) {
-                const ctx = edgeCanvas.value.getContext('2d');
-                if (ctx) {
-                    editorCtx.value!.edgeOutput = ctx;
-                }
-            }
+            const ctx = editorCtx.value!;
+            ctx.depthMapOutput = depthMapCanvas.value?.getContext('2d')!;
+            ctx.edgeOutput = edgeCanvas.value?.getContext('2d')!;
+            ctx.poseOutput = poseCanvas.value?.getContext('2d')!;
         }
 
         watch(sdDialog, function (visible) {
             if (!visible) {
-                editorCtx.value!.depthMapOutput = undefined;
-                editorCtx.value!.edgeOutput = undefined;
+                const ctx = editorCtx.value!;
+                ctx.depthMapOutput = undefined;
+                ctx.edgeOutput = undefined;
+                ctx.poseOutput = undefined;
             }
         });
 
@@ -842,11 +837,15 @@ export default defineComponent({
             }
             const modelsRes = await fetch(server + '/controlnet/model_list', {mode: 'cors'});
             sdCnModels.value = (await modelsRes.json())['model_list'];
-            if (!editorCtx.value!.options.sdCnDepthModel) {
-                editorCtx.value!.options.sdCnDepthModel = sdCnModels.value.find(item => item.includes('depth')) || '';
+            const options = editorCtx.value!.options;
+            if (!options.sdCnDepthModel) {
+                options.sdCnDepthModel = sdCnModels.value.find(item => item.includes('depth')) || '';
             }
-            if (!editorCtx.value!.options.sdCnEdgeModel) {
-                editorCtx.value!.options.sdCnEdgeModel = sdCnModels.value.find(item => item.includes('canny')) || '';
+            if (!options.sdCnEdgeModel) {
+                options.sdCnEdgeModel = sdCnModels.value.find(item => item.includes('canny')) || '';
+            }
+            if (!options.sdCnPoseModel) {
+                options.sdCnPoseModel = sdCnModels.value.find(item => item.includes('pose')) || '';
             }
         }
 
@@ -855,12 +854,13 @@ export default defineComponent({
             try {
                 fullscreenLoading.value = true;
                 const controlNetArgs: any[] = [];
+                const guessMode = false;
                 if (ctx.options.sdCnDepthEnabled && ctx.options.sdCnDepthModel) {
                     controlNetArgs.push({
                         input_image: depthMapCanvas.value?.toDataURL(),
                         model: ctx.options.sdCnDepthModel,
                         module: 'none',
-                        guessmode: false
+                        guessmode: guessMode,
                     });
                 }
                 if (ctx.options.sdCnEdgeEnabled && ctx.options.sdCnEdgeModel) {
@@ -868,7 +868,15 @@ export default defineComponent({
                         input_image: edgeCanvas.value?.toDataURL(),
                         model: ctx.options.sdCnEdgeModel,
                         module: 'none',
-                        guessmode: false
+                        guessmode: guessMode,
+                    });
+                }
+                if (ctx.options.sdCnPoseEnabled && ctx.options.sdCnPoseModel) {
+                    controlNetArgs.push({
+                        input_image: poseCanvas.value?.toDataURL(),
+                        model: ctx.options.sdCnPoseModel,
+                        module: 'none',
+                        guessmode: guessMode,
                     });
                 }
                 const res = await fetch(ctx.options.sdServer + '/sdapi/v1/txt2img', {
@@ -920,6 +928,7 @@ export default defineComponent({
             downloadProgressPercent,
             depthMapCanvas,
             edgeCanvas,
+            poseCanvas,
             sdDialog,
             sdSamplers,
             sdCnModels,

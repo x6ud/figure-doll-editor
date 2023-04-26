@@ -6,6 +6,7 @@ import CCastShadow from './components/CCastShadow';
 import CColor from './components/CColor';
 import CColors from './components/CColors';
 import CCredit from './components/CCredit';
+import CDisableFlip from './components/CDisableFlip';
 import CEmissive from './components/CEmissive';
 import CEndRadius2 from './components/CEndRadius2';
 import './components/CFlipDirection';
@@ -33,6 +34,8 @@ import CName from './components/CName';
 import CNumOfSlices from './components/CNumOfSlices';
 import CObject3D from './components/CObject3D';
 import COpacity from './components/COpacity';
+import COpenPoseKeypoint from './components/COpenPoseKeypoint';
+import COpenPoseRoot from './components/COpenPoseRoot';
 import COuterRadius from './components/COuterRadius';
 import COuterRotation from './components/COuterRotation';
 import COuterSegments from './components/COuterSegments';
@@ -96,13 +99,13 @@ import iconImportModel from './icons/ImportModel.png';
 import iconLight from './icons/Light.png';
 import iconMirror from './icons/Mirror.png';
 import iconObjModel from './icons/ObjModel.png';
+import iconOpenPoseKeypoint from './icons/OpenPoseKeypoint.png';
 import iconShape from './icons/Shape.png';
 import iconTarget from './icons/Target.png';
 import iconTube from './icons/Tube.png';
 import {ModelNodeChildCreationInfo} from './ModelHistory';
 import ModelNode from './ModelNode';
 import ModelNodeComponent from './ModelNodeComponent';
-import CDisableFlip from "./components/CDisableFlip";
 
 export type ModelNodeDef = {
     /** A unique name */
@@ -139,7 +142,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconContainer,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CDisableFlip, CPosition, CRotation, CScale, COpacity, CObject3D],
+        components: [CName, CVisible, CDisableFlip, COpenPoseRoot, CPosition, CRotation, CScale, COpacity, CObject3D],
         canBeRoot: true,
         validChildTypes: [
             'Container',
@@ -162,6 +165,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
             'Shape',
             'Clay',
             'Mirror',
+            'OpenPoseKeypoint',
             'AmbientLight',
             'HemisphereLight',
             'DirectionalLight',
@@ -175,7 +179,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
         icon: iconIKChain,
         showInList: true,
         instanceable: true,
-        components: [CName, CVisible, CDisableFlip, CPosition, CRotation, CScale, COpacity, CObject3D, CShowMoveHandler, CLockEnd],
+        components: [CName, CVisible, CDisableFlip, COpenPoseRoot, CPosition, CRotation, CScale, COpacity, CObject3D, CShowMoveHandler, CLockEnd],
         canBeRoot: true,
         validChildTypes: ['IKNode'],
     },
@@ -208,6 +212,7 @@ export const modelNodeDefs: ModelNodeDef[] = [
             'Shape',
             'Clay',
             'Mirror',
+            'OpenPoseKeypoint',
             'AmbientLight',
             'HemisphereLight',
             'DirectionalLight',
@@ -626,6 +631,16 @@ export const modelNodeDefs: ModelNodeDef[] = [
         mesh: true,
         components: [CName, CVisible, CDisableFlip, CTextureSize, CPosition, CRotation, CScale, CObject3D, CWidth, CHeight, CColor],
         canBeRoot: true,
+        validChildTypes: [],
+    },
+    {
+        name: 'OpenPoseKeypoint',
+        label: 'Pose Keypoint',
+        icon: iconOpenPoseKeypoint,
+        showInList: true,
+        instanceable: true,
+        components: [CPosition, COpenPoseKeypoint, CObject3D],
+        canBeRoot: false,
         validChildTypes: [],
     },
     {

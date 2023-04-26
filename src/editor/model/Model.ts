@@ -19,6 +19,7 @@ import ImageWatcher from './watchers/ImageWatcher';
 import ImportModelWatcher from './watchers/ImportModelWatcher';
 import MaterialWatcher from './watchers/MaterialWatcher';
 import OpacityWatcher from './watchers/OpacityWatcher';
+import OpenPoseWatcher from './watchers/OpenPoseWatcher';
 import SdfShapeWatcher from './watchers/SdfShapeWatcher';
 import TransformWatcher from './watchers/TransformWatcher';
 
@@ -41,6 +42,7 @@ export default class Model {
         new CsgWatcher(),
         new ClayWatcher(),
         new MaterialWatcher(),
+        new OpenPoseWatcher(),
     ];
     /** True if any node needs to be updated */
     dirty: boolean = true;

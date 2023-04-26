@@ -4,6 +4,7 @@ import EditorContext from '../EditorContext';
 import CFlipDirection from '../model/components/CFlipDirection';
 import CIkNode from '../model/components/CIkNode';
 import CIkNodeRotation from '../model/components/CIkNodeRotation';
+import COpenPoseKeypoint from '../model/components/COpenPoseKeypoint';
 import CPosition from '../model/components/CPosition';
 import CRotation from '../model/components/CRotation';
 import CScale from '../model/components/CScale';
@@ -125,6 +126,30 @@ export function createInstanceNode(ctx: EditorContext, node: ModelNode, mirror: 
             }
             if (node.has(CScale)) {
                 _localScale1.setScalar(node.value(CScale));
+            }
+            if (node.has(COpenPoseKeypoint)) {
+                const type = node.value(COpenPoseKeypoint);
+                newNode.data[COpenPoseKeypoint.name] = {
+                    '': '',
+                    'nose': 'nose',
+                    'neck': 'neck',
+                    'right_shoulder': 'left_shoulder',
+                    'right_elbow': 'left_elbow',
+                    'right_wrist': 'left_wrist',
+                    'left_shoulder': 'right_shoulder',
+                    'left_elbow': 'right_elbow',
+                    'left_wrist': 'right_wrist',
+                    'right_hip': 'left_hip',
+                    'right_knee': 'left_knee',
+                    'right_ankle': 'left_ankle',
+                    'left_hip': 'right_hip',
+                    'left_knee': 'right_knee',
+                    'left_ankle': 'right_ankle',
+                    'right_eye': 'left_eye',
+                    'left_eye': 'right_eye',
+                    'right_ear': 'left_ear',
+                    'left_ear': 'right_ear',
+                }[type];
             }
             _localMat1.compose(_localTranslation1, _localRotation1, _localScale1);
             parentMat1 = new Matrix4().multiplyMatrices(parentMat1, _localMat1);

@@ -1,14 +1,14 @@
 import {Euler, Matrix4, Quaternion, Vector3} from 'three';
 import {toRaw} from 'vue';
 import EditorContext from '../EditorContext';
+import CDisableFlip from '../model/components/CDisableFlip';
 import CFlipDirection from '../model/components/CFlipDirection';
 import CIkNode from '../model/components/CIkNode';
 import CIkNodeRotation from '../model/components/CIkNodeRotation';
 import CPosition from '../model/components/CPosition';
 import CRotation from '../model/components/CRotation';
 import ModelNode from '../model/ModelNode';
-import {getAxisAngle, getRotation, quatFromForwardUp} from '../utils/math';
-import CDisableFlip from "../model/components/CDisableFlip";
+import {getAxisAngle, quatFromForwardUp} from '../utils/math';
 
 const _axis = new Vector3();
 const _ikNodeQuad = new Quaternion();

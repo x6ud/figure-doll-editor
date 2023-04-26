@@ -2,6 +2,7 @@ import {Vector3} from 'three';
 import EditorContext from '../EditorContext';
 import ArcRotateCamera from '../utils/camera/ArcRotateCamera';
 import Grids from '../utils/geometry/Grids';
+import {drawOpenposeKeypoints} from '../utils/post-processing/draw-openpose-keypoints';
 import UpdateSystem from '../utils/UpdateSystem';
 
 const GRIDS_SIZE = 200;
@@ -39,23 +40,31 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
         const rect = ctx.canvas.getBoundingClientRect();
         const renderer = ctx.renderer;
 
-        if (ctx.depthMapOutput || ctx.edgeOutput) {
-            renderer.setScissorTest(false);
+        if (ctx.depthMapOutput || ctx.edgeOutput || ctx.poseOutput) {
             const view = ctx.views[ctx.mainViewIndex];
             outputCamera.copy(view.camera);
             outputCamera.update(512, 512);
-            renderer.setViewport(0, ctx.canvas.height - 512, 512, 512);
-            if (ctx.depthMapOutput) {
-                ctx.depthMapPass.camera = outputCamera.get();
-                ctx.depthMapComposer.setSize(512, 512);
-                ctx.depthMapComposer.render();
-                ctx.depthMapOutput.drawImage(ctx.canvas, 0, 0, 512, 512, 0, 0, 512, 512);
+            if (ctx.depthMapOutput || ctx.edgeOutput) {
+                renderer.setScissorTest(false);
+                renderer.setViewport(0, ctx.canvas.height - 512, 512, 512);
+                if (ctx.depthMapOutput) {
+                    ctx.depthMapPass.camera = outputCamera.get();
+                    ctx.depthMapComposer.setSize(512, 512);
+                    ctx.depthMapComposer.render();
+                    ctx.depthMapOutput.drawImage(ctx.canvas, 0, 0, 512, 512, 0, 0, 512, 512);
+                }
+                if (ctx.edgeOutput) {
+                    ctx.edgeDetectPass.camera = outputCamera.get();
+                    ctx.edgeComposer.setSize(512, 512);
+                    ctx.edgeComposer.render();
+                    ctx.edgeOutput.drawImage(ctx.canvas, 0, 0, 512, 512, 0, 0, 512, 512);
+                }
             }
-            if (ctx.edgeOutput) {
-                ctx.edgeDetectPass.camera = outputCamera.get();
-                ctx.edgeComposer.setSize(512, 512);
-                ctx.edgeComposer.render();
-                ctx.edgeOutput.drawImage(ctx.canvas, 0, 0, 512, 512, 0, 0, 512, 512);
+            if (ctx.poseOutput) {
+                const ctx2d = ctx.poseOutput;
+                ctx2d.fillStyle = '#000';
+                ctx2d.fillRect(0, 0, ctx2d.canvas.width, ctx2d.canvas.height);
+                drawOpenposeKeypoints(ctx2d, ctx.scene, outputCamera.get());
             }
         }
 
@@ -88,6 +97,8 @@ export default class RenderSystem extends UpdateSystem<EditorContext> {
                     case 'rendered': {
                         ctx.renderPass.camera = camera.get();
                         ctx.outlinePass.renderCamera = camera.get();
+                        ctx.openPosePass.camera = camera.get();
+                        ctx.openPosePass.enabled = ctx.options.showOpenPoseKeypoints;
                         ctx.defaultComposer.setSize(w, h);
                         ctx.defaultComposer.render();
                     }

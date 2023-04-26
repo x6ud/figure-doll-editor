@@ -9,7 +9,7 @@ export default class LightHelperUpdateFilter implements ModelNodeUpdateFilter {
         if (node.has(CLightHelper)) {
             const cLightHelper = node.get(CLightHelper);
             const lightHelper = cLightHelper.value as (
-                HemisphereLightHelper | DirectionalLightHelper | PointLightHelper |SpotLightHelper
+                HemisphereLightHelper | DirectionalLightHelper | PointLightHelper | SpotLightHelper
                 );
             if (lightHelper) {
                 lightHelper.update();

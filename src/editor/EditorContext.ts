@@ -1,4 +1,4 @@
-import {PCFSoftShadowMap, Scene, Vector2, WebGLRenderer, WebGLRenderTarget} from 'three';
+import {PCFSoftShadowMap, Scene, Vector2, WebGLRenderer} from 'three';
 import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer';
 import {OutlinePass} from 'three/examples/jsm/postprocessing/OutlinePass';
 import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass';
@@ -27,6 +27,7 @@ import MaterialUpdateFilter from './systems/model-update-filters/MaterialUpdateF
 import MirrorUpdateFilter from './systems/model-update-filters/MirrorUpdateFilter';
 import Object3DRelationshipUpdateFilter from './systems/model-update-filters/Object3DRelationshipUpdateFilter';
 import OpacityUpdateFilter from './systems/model-update-filters/OpacityUpdateFilter';
+import OpenPoseUpdateFilter from './systems/model-update-filters/OpenPoseUpdateFilter';
 import SdfShapeUpdateFilter from './systems/model-update-filters/SdfShapeUpdateFilter';
 import ShadowUpdateFilter from './systems/model-update-filters/ShadowUpdateFilter';
 import TransformUpdateFilter from './systems/model-update-filters/TransformUpdateFilter';
@@ -58,6 +59,7 @@ import ToolSeperator from './tools/ToolSeperator';
 import TubeTool from './tools/TubeTool';
 import DepthMapPass from './utils/post-processing/DepthMapPass';
 import EdgeDetectPass from './utils/post-processing/EdgeDetectPass';
+import OpenPosePass from './utils/post-processing/OpenPosePass';
 import SelectionRect from './utils/SelectionRect';
 import UpdateSystem from './utils/UpdateSystem';
 
@@ -77,6 +79,7 @@ export default class EditorContext {
             new MirrorUpdateFilter(),
             new ContainerUpdateFilter(),
             new IkChainUpdateFilter(),
+            new OpenPoseUpdateFilter(),
             new Object3DRelationshipUpdateFilter(),
             new TransformUpdateFilter(),
             new ShadowUpdateFilter(),
@@ -121,6 +124,43 @@ export default class EditorContext {
         new SculptPaintTool(),
     ];
 
+    canvas: HTMLCanvasElement;
+    renderer: WebGLRenderer;
+    defaultComposer: EffectComposer;
+    renderPass: RenderPass;
+    outlinePass: OutlinePass;
+    openPosePass: OpenPosePass;
+    depthMapComposer: EffectComposer;
+    depthMapPass: DepthMapPass;
+    edgeComposer: EffectComposer;
+    edgeDetectPass: EdgeDetectPass;
+
+    depthMapOutput?: CanvasRenderingContext2D;
+    edgeOutput?: CanvasRenderingContext2D;
+    poseOutput?: CanvasRenderingContext2D;
+
+    scene = new Scene();
+    views: EditorView[];
+    readonly mainViewIndex: number;
+    disableCameraDraggingThisFrame = false;
+
+    model = new Model();
+    history = new ModelHistory(this.model);
+    fps: number = 0;
+    detSec: number = 0;
+    private lastTimestamp: number = 0;
+    statusBarMessage: string = '';
+    tool: EditorTool = this.tools[0];
+    nextFrameCallbacks: (() => void)[] = [];
+    throttleTasks: Map<string, { time: number, callback: () => void }> = new Map();
+
+    selectionRect = new SelectionRect();
+    selectionRectDragging = false;
+    selectionRectViewIndex = -1;
+    selectionRectSetThisFrame = false;
+    selectionStart = new Vector2();
+    selectionEnd = new Vector2();
+
     sculptNodeId = 0;
     sculptActiveView = -1;
     sculptSym = false;
@@ -132,41 +172,6 @@ export default class EditorContext {
     sculptY0 = 0;
     sculptX1 = 0;
     sculptY1 = 0;
-
-    canvas: HTMLCanvasElement;
-    renderer: WebGLRenderer;
-    defaultComposer: EffectComposer;
-    renderPass: RenderPass;
-    outlinePass: OutlinePass;
-    depthMapComposer: EffectComposer;
-    depthMapPass: DepthMapPass;
-    edgeComposer: EffectComposer;
-    edgeDetectPass: EdgeDetectPass;
-
-    scene = new Scene();
-    views: EditorView[];
-    readonly mainViewIndex: number;
-    disableCameraDraggingThisFrame = false;
-
-    depthMapOutput?: CanvasRenderingContext2D;
-    edgeOutput?: CanvasRenderingContext2D;
-
-    selectionRect = new SelectionRect();
-    selectionRectDragging = false;
-    selectionRectViewIndex = -1;
-    selectionRectSetThisFrame = false;
-    selectionStart = new Vector2();
-    selectionEnd = new Vector2();
-
-    model = new Model();
-    history = new ModelHistory(this.model);
-    fps: number = 0;
-    detSec: number = 0;
-    private lastTimestamp: number = 0;
-    statusBarMessage: string = '';
-    tool: EditorTool = this.tools[0];
-    nextFrameCallbacks: (() => void)[] = [];
-    throttleTasks: Map<string, { time: number, callback: () => void }> = new Map();
 
     options = new EditorOptions();
 
@@ -209,6 +214,8 @@ export default class EditorContext {
         );
         this.outlinePass.visibleEdgeColor.setHex(0xf3982d);
         this.defaultComposer.addPass(this.outlinePass);
+        this.openPosePass = new OpenPosePass(this.scene, this.renderPass.camera);
+        this.defaultComposer.addPass(this.openPosePass);
 
         this.depthMapComposer = new EffectComposer(this.renderer);
         this.depthMapPass = new DepthMapPass(this.scene, this.renderPass.camera);

@@ -14,6 +14,7 @@
     >
         <div class="toolbar">
             <template v-if="editorCtx">
+                <!-- menus -->
                 <popup-menu title="File">
                     <popup-menu-item title="New" @click="onNew"/>
                     <popup-menu-item title="Open" popup hotkey="Ctrl+O" @click="onOpen"/>
@@ -113,6 +114,10 @@
                     <popup-menu-item title="IK Joint Indicators"
                                      :checked="editorCtx.options.showIkBones"
                                      @click="editorCtx.options.showIkBones = !editorCtx.options.showIkBones"
+                    />
+                    <popup-menu-item title="OpenPose Keypoints"
+                                     :checked="editorCtx.options.showOpenPoseKeypoints"
+                                     @click="editorCtx.options.showOpenPoseKeypoints = !editorCtx.options.showOpenPoseKeypoints"
                     />
                 </popup-menu>
                 <popup-menu title="Sketchfab"
@@ -244,6 +249,7 @@
                     Tutorial
                 </button>
 
+                <!-- sculpt options -->
                 <template v-if="editorCtx.tool.sculpt">
                     <div class="separator"></div>
                     <label-range style="margin-right: 6px;"
@@ -339,7 +345,10 @@
                         </div>
                     </popup-menu>
                 </template>
+
                 <div class="fill"></div>
+
+                <!-- shading mode -->
                 <div class="button-group cols" style="margin-right: 6px">
                     <button class="normal-button toggle-button"
                             title="Depth Map"
@@ -380,6 +389,7 @@
         </div>
 
         <div class="cols fill">
+            <!-- tools -->
             <div class="tools scrollable"
                  v-if="uiOptions.showTools"
             >
@@ -403,6 +413,7 @@
                 </div>
             </div>
 
+            <!-- model tree -->
             <side-panel direction="right"
                         v-model:width="uiOptions.modelTreePanelWidth"
                         style="border-left: none;"
@@ -450,6 +461,7 @@
                 </div>
             </side-panel>
 
+            <!-- properties -->
             <side-panel direction="right"
                         v-model:width="uiOptions.modelNodePropertiesPanelWidth"
                         style="border-left: none;"
@@ -462,6 +474,7 @@
                 </template>
             </side-panel>
 
+            <!-- 3d view -->
             <quad-view class="fill"
                        :editor-context="editorCtx"
                        :quad-view="editorCtx?.options?.quadView"
@@ -472,6 +485,7 @@
             />
         </div>
 
+        <!-- status bar -->
         <div class="status-bar cols"
              v-if="uiOptions.showStatusBar && editorCtx"
         >
@@ -677,6 +691,24 @@
                         <canvas width="512" height="512"
                                 style="margin: 0 auto; border: solid 1px #333; width: 256px; height: 256px;"
                                 ref="edgeCanvas"
+                        ></canvas>
+                    </template>
+                </collapsible-panel>
+                <collapsible-panel>
+                    <template #title>
+                        <div class="cols">
+                            <input-boolean label="Pose"
+                                           :value="editorCtx.options.sdCnPoseEnabled"
+                                           @input="editorCtx.options.sdCnPoseEnabled = $event"/>&nbsp;
+                            <select class="value" v-model="editorCtx.options.sdCnPoseModel">
+                                <option v-for="item in sdCnModels" :value="item">{{ item }}</option>
+                            </select>
+                        </div>
+                    </template>
+                    <template #body>
+                        <canvas width="512" height="512"
+                                style="margin: 0 auto; border: solid 1px #333; width: 256px; height: 256px;"
+                                ref="poseCanvas"
                         ></canvas>
                     </template>
                 </collapsible-panel>

@@ -24,6 +24,8 @@ export default class EditorOptions {
     sdCnDepthEnabled = false;
     sdCnEdgeModel = '';
     sdCnEdgeEnabled = false;
+    sdCnPoseModel = '';
+    sdCnPoseEnabled = false;
 
     allowSelectingInvisibleObjectByClicking: boolean = true;
     keepTransformUnchangedWhileMoving: boolean = true;
@@ -38,6 +40,7 @@ export default class EditorOptions {
     showGrids: boolean = true;
     showLightHelpers: boolean = false;
     showIkBones: boolean = false;
+    showOpenPoseKeypoints: boolean = false;
 
     tools: { [name: string]: { [prop: string]: any } } = {};
 }

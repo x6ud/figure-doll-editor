@@ -1,5 +1,6 @@
 import {computed, defineComponent, ref} from 'vue';
 import CName from '../../model/components/CName';
+import COpenPoseKeypoint from '../../model/components/COpenPoseKeypoint';
 import CVisible from '../../model/components/CVisible';
 import Model from '../../model/Model';
 import ModelNode from '../../model/ModelNode';
@@ -38,6 +39,30 @@ export default defineComponent({
         const dom = ref<HTMLElement>();
         const name = computed(function () {
             const node = props.node;
+            if (node.type === 'OpenPoseKeypoint') {
+                const type = node.value(COpenPoseKeypoint);
+                return '#' + {
+                    '': 'Keypoint',
+                    'nose': 'Nose',
+                    'neck': 'Neck',
+                    'right_shoulder': 'Right Shoulder',
+                    'right_elbow': 'Right Elbow',
+                    'right_wrist': 'Right Wrist',
+                    'left_shoulder': 'Left Shoulder',
+                    'left_elbow': 'Left Elbow',
+                    'left_wrist': 'Left Wrist',
+                    'right_hip': 'Right Hip',
+                    'right_knee': 'Right Knee',
+                    'right_ankle': 'Right Ankle',
+                    'left_hip': 'Left Hip',
+                    'left_knee': 'Left Knee',
+                    'left_ankle': 'Left Ankle',
+                    'right_eye': 'Right Eye',
+                    'left_eye': 'Left Eye',
+                    'right_ear': 'Right Ear',
+                    'left_ear': 'Left Ear',
+                }[type];
+            }
             return (node.has(CName) ? node.value(CName) : '') || `${getModelNodeDef(node.type).label} #${node.id}`;
         });
         const icon = computed(function () {
