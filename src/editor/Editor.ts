@@ -800,6 +800,8 @@ export default defineComponent({
         const sdCnModels = ref<string[]>([]);
         const sdResultDialog = ref(false);
         const sdResultImage = ref('');
+        const sdGenerating = ref(false);
+        const sdProgress = ref(0);
 
         async function onShowSdDialog() {
             sdDialog.value = true;
@@ -851,18 +853,44 @@ export default defineComponent({
             }
         }
 
+        async function sdGetGenerateProgress() {
+            if (!sdGenerating.value) {
+                return;
+            }
+            try {
+                const res = await fetch(editorCtx.value!.options.sdServer + '/sdapi/v1/progress', {mode: 'cors'});
+                const data = await res.json();
+                if (sdGenerating.value) {
+                    sdProgress.value = Math.round(data.progress * 100);
+                    if (data.current_image) {
+                        const imageUrl = 'data:image/png;base64,' + data.current_image;
+                        sdResultDialog.value = true;
+                        sdResultImage.value = imageUrl;
+                    }
+                }
+            } finally {
+                if (sdGenerating.value) {
+                    setTimeout(sdGetGenerateProgress, 500);
+                }
+            }
+        }
+
         async function onSdGenerate() {
             const ctx = editorCtx.value!;
             try {
-                fullscreenLoading.value = true;
+                sdGenerating.value = true;
+                sdProgress.value = 0;
+                sdGetGenerateProgress();
                 const controlNetArgs: any[] = [];
-                const guessMode = false;
                 if (ctx.options.sdCnDepthEnabled && ctx.options.sdCnDepthModel) {
                     controlNetArgs.push({
                         input_image: depthMapCanvas.value?.toDataURL(),
                         model: ctx.options.sdCnDepthModel,
                         module: 'none',
-                        guessmode: guessMode,
+                        weight: ctx.options.sdCnDepthWeight,
+                        guidance_start: ctx.options.sdCnDepthGuidanceStart,
+                        guidance_end: ctx.options.sdCnDepthGuidanceEnd,
+                        control_mode: ctx.options.sdCnDepthControlMode,
                     });
                 }
                 if (ctx.options.sdCnEdgeEnabled && ctx.options.sdCnEdgeModel) {
@@ -870,7 +898,10 @@ export default defineComponent({
                         input_image: edgeCanvas.value?.toDataURL(),
                         model: ctx.options.sdCnEdgeModel,
                         module: 'none',
-                        guessmode: guessMode,
+                        weight: ctx.options.sdCnEdgeWeight,
+                        guidance_start: ctx.options.sdCnEdgeGuidanceStart,
+                        guidance_end: ctx.options.sdCnEdgeGuidanceEnd,
+                        control_mode: ctx.options.sdCnEdgeControlMode,
                     });
                 }
                 if (ctx.options.sdCnPoseEnabled && ctx.options.sdCnPoseModel) {
@@ -878,7 +909,10 @@ export default defineComponent({
                         input_image: poseCanvas.value?.toDataURL(),
                         model: ctx.options.sdCnPoseModel,
                         module: 'none',
-                        guessmode: guessMode,
+                        weight: ctx.options.sdCnPoseWeight,
+                        guidance_start: ctx.options.sdCnPoseGuidanceStart,
+                        guidance_end: ctx.options.sdCnPoseGuidanceEnd,
+                        control_mode: ctx.options.sdCnPoseControlMode,
                     });
                 }
                 const req: any = {
@@ -915,7 +949,7 @@ export default defineComponent({
                     sdResultImage.value = imageUrl;
                 }
             } finally {
-                fullscreenLoading.value = false;
+                sdGenerating.value = false;
             }
         }
 
@@ -994,6 +1028,8 @@ export default defineComponent({
             sdCnModels,
             sdResultDialog,
             sdResultImage,
+            sdGenerating,
+            sdProgress,
             onCanvasMounted,
             onBeforeCanvasUnmount,
             onUndo,

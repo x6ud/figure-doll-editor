@@ -213,7 +213,7 @@
                                 <span style="font-size: 16px; font-weight: bold;">
                                     Figure Doll Editor
                                 </span>
-                                Ver 20230424
+                                Ver 20230427
                             </div>
                             <div style="margin-bottom: 6px;">Author: x6udpngx</div>
                             <div style="margin-bottom: 6px;">
@@ -670,13 +670,13 @@
                                     @click="onCopyFromCanvas(sdInputCanvas)"
                                     style="margin-right: 4px;"
                             >
-                                <img src="./icons/copy.png" alt="">
+                                <img src="./icons/copy.png" alt="" style="vertical-align: text-top;">
                                 Copy
                             </button>
                             <button class="normal-button"
                                     @click="onPasteToCanvas(sdInputCanvas)"
                             >
-                                <img src="./icons/paste.png" alt="">
+                                <img src="./icons/paste.png" alt="" style="vertical-align: text-top;">
                                 Paste
                             </button>
                         </div>
@@ -699,25 +699,48 @@
                         </div>
                     </template>
                     <template #body>
+                        <div class="cols" style="margin-bottom: 4px; align-items: center;">
+                            <label>Weight&nbsp;</label>
+                            <input-number style="width: 3em"
+                                          :value="editorCtx.options.sdCnDepthWeight"
+                                          @input="editorCtx.options.sdCnDepthWeight = $event"
+                            />
+                            &nbsp;&nbsp;
+                            <label>Guidance&nbsp;</label>
+                            <input-number style="width: 3em"
+                                          :value="editorCtx.options.sdCnDepthGuidanceStart"
+                                          @input="editorCtx.options.sdCnDepthGuidanceStart = $event"/>
+                            <span>&nbsp;~&nbsp;</span>
+                            <input-number style="width: 3em"
+                                          :value="editorCtx.options.sdCnDepthGuidanceEnd"
+                                          @input="editorCtx.options.sdCnDepthGuidanceEnd = $event"/>
+                            &nbsp;&nbsp;
+                            <label>Priority&nbsp;</label>
+                            <select v-model="editorCtx.options.sdCnDepthControlMode">
+                                <option :value="0">Balanced</option>
+                                <option :value="1">Prompt</option>
+                                <option :value="2">ControlNet</option>
+                            </select>
+                        </div>
                         <div style="margin-bottom: 4px;">
                             <button class="normal-button"
                                     @click="onCopyFromCanvas(depthMapCanvas)"
                                     style="margin-right: 4px;"
                             >
-                                <img src="./icons/copy.png" alt="">
+                                <img src="./icons/copy.png" alt="" style="vertical-align: text-top;">
                                 Copy
                             </button>
                             <button class="normal-button"
                                     @click="onPasteToCanvas(depthMapCanvas)"
                                     style="margin-right: 4px;"
                             >
-                                <img src="./icons/paste.png" alt="">
+                                <img src="./icons/paste.png" alt="" style="vertical-align: text-top;">
                                 Paste
                             </button>
                             <button class="normal-button"
                                     @click="onRefreshOutputCanvas('depth')"
                             >
-                                <img src="./icons/refresh-small.png" alt="">
+                                <img src="./icons/refresh-small.png" alt="" style="vertical-align: text-top;">
                                 Refresh
                             </button>
                         </div>
@@ -740,25 +763,48 @@
                         </div>
                     </template>
                     <template #body>
+                        <div class="cols" style="margin-bottom: 4px; align-items: center;">
+                            <label>Weight&nbsp;</label>
+                            <input-number style="width: 3em"
+                                          :value="editorCtx.options.sdCnEdgeWeight"
+                                          @input="editorCtx.options.sdCnEdgeWeight = $event"
+                            />
+                            &nbsp;&nbsp;
+                            <label>Guidance&nbsp;</label>
+                            <input-number style="width: 3em"
+                                          :value="editorCtx.options.sdCnEdgeGuidanceStart"
+                                          @input="editorCtx.options.sdCnEdgeGuidanceStart = $event"/>
+                            <span>&nbsp;~&nbsp;</span>
+                            <input-number style="width: 3em"
+                                          :value="editorCtx.options.sdCnEdgeGuidanceEnd"
+                                          @input="editorCtx.options.sdCnEdgeGuidanceEnd = $event"/>
+                            &nbsp;&nbsp;
+                            <label>Priority&nbsp;</label>
+                            <select v-model="editorCtx.options.sdCnEdgeControlMode">
+                                <option :value="0">Balanced</option>
+                                <option :value="1">Prompt</option>
+                                <option :value="2">ControlNet</option>
+                            </select>
+                        </div>
                         <div style="margin-bottom: 4px;">
                             <button class="normal-button"
                                     @click="onCopyFromCanvas(edgeCanvas)"
                                     style="margin-right: 4px;"
                             >
-                                <img src="./icons/copy.png" alt="">
+                                <img src="./icons/copy.png" alt="" style="vertical-align: text-top;">
                                 Copy
                             </button>
                             <button class="normal-button"
                                     @click="onPasteToCanvas(edgeCanvas)"
                                     style="margin-right: 4px;"
                             >
-                                <img src="./icons/paste.png" alt="">
+                                <img src="./icons/paste.png" alt="" style="vertical-align: text-top;">
                                 Paste
                             </button>
                             <button class="normal-button"
                                     @click="onRefreshOutputCanvas('edge')"
                             >
-                                <img src="./icons/refresh-small.png" alt="">
+                                <img src="./icons/refresh-small.png" alt="" style="vertical-align: text-top;">
                                 Refresh
                             </button>
                         </div>
@@ -780,25 +826,48 @@
                         </div>
                     </template>
                     <template #body>
+                        <div class="cols" style="margin-bottom: 4px; align-items: center;">
+                            <label>Weight&nbsp;</label>
+                            <input-number style="width: 3em"
+                                          :value="editorCtx.options.sdCnPoseWeight"
+                                          @input="editorCtx.options.sdCnPoseWeight = $event"
+                            />
+                            &nbsp;&nbsp;
+                            <label>Guidance&nbsp;</label>
+                            <input-number style="width: 3em"
+                                          :value="editorCtx.options.sdCnPoseGuidanceStart"
+                                          @input="editorCtx.options.sdCnPoseGuidanceStart = $event"/>
+                            <span>&nbsp;~&nbsp;</span>
+                            <input-number style="width: 3em"
+                                          :value="editorCtx.options.sdCnPoseGuidanceEnd"
+                                          @input="editorCtx.options.sdCnPoseGuidanceEnd = $event"/>
+                            &nbsp;&nbsp;
+                            <label>Priority&nbsp;</label>
+                            <select v-model="editorCtx.options.sdCnPoseControlMode">
+                                <option :value="0">Balanced</option>
+                                <option :value="1">Prompt</option>
+                                <option :value="2">ControlNet</option>
+                            </select>
+                        </div>
                         <div style="margin-bottom: 4px;">
                             <button class="normal-button"
                                     @click="onCopyFromCanvas(poseCanvas)"
                                     style="margin-right: 4px;"
                             >
-                                <img src="./icons/copy.png" alt="">
+                                <img src="./icons/copy.png" alt="" style="vertical-align: text-top;">
                                 Copy
                             </button>
                             <button class="normal-button"
                                     @click="onPasteToCanvas(poseCanvas)"
                                     style="margin-right: 4px;"
                             >
-                                <img src="./icons/paste.png" alt="">
+                                <img src="./icons/paste.png" alt="" style="vertical-align: text-top;">
                                 Paste
                             </button>
                             <button class="normal-button"
                                     @click="onRefreshOutputCanvas('pose')"
                             >
-                                <img src="./icons/refresh-small.png" alt="">
+                                <img src="./icons/refresh-small.png" alt="" style="vertical-align: text-top;">
                                 Refresh
                             </button>
                         </div>
@@ -829,6 +898,26 @@
                   :body-style="{padding: '0', display: 'inline-flex'}"
     >
         <img :src="sdResultImage" alt="">
+    </popup-dialog>
+
+    <!-- stable diffusion generate progress -->
+    <popup-dialog v-if="sdGenerating"
+                  :visible="sdGenerating"
+                  modal
+                  title="Generating"
+    >
+        <div class="cols" style="align-items: center;">
+            <div class="progress-bar"
+                 style="width: 260px;"
+            >
+                <div class="progress"
+                     :style="{width: `${sdProgress}%`}"
+                ></div>
+                <div class="text">
+                    {{ sdProgress }}%
+                </div>
+            </div>
+        </div>
     </popup-dialog>
 
     <!-- sketchfab model downloading dialog -->

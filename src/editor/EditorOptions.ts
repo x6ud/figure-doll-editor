@@ -23,10 +23,22 @@ export default class EditorOptions {
     sdInputImg = false;
     sdCnDepthModel = '';
     sdCnDepthEnabled = false;
+    sdCnDepthWeight = 1.0;
+    sdCnDepthGuidanceStart = 0.0;
+    sdCnDepthGuidanceEnd = 1.0;
+    sdCnDepthControlMode = 0;
     sdCnEdgeModel = '';
     sdCnEdgeEnabled = false;
+    sdCnEdgeWeight = 1.0;
+    sdCnEdgeGuidanceStart = 0.0;
+    sdCnEdgeGuidanceEnd = 1.0;
+    sdCnEdgeControlMode = 0;
     sdCnPoseModel = '';
     sdCnPoseEnabled = false;
+    sdCnPoseWeight = 1.0;
+    sdCnPoseGuidanceStart = 0.0;
+    sdCnPoseGuidanceEnd = 1.0;
+    sdCnPoseControlMode = 0;
 
     allowSelectingInvisibleObjectByClicking: boolean = true;
     keepTransformUnchangedWhileMoving: boolean = true;
