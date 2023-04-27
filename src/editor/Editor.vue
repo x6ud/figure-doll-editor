@@ -667,13 +667,6 @@
                     <template #body>
                         <div style="margin-bottom: 4px;">
                             <button class="normal-button"
-                                    @click="onCopyFromCanvas(sdInputCanvas)"
-                                    style="margin-right: 4px;"
-                            >
-                                <img src="./icons/copy.png" alt="" style="vertical-align: text-top;">
-                                Copy
-                            </button>
-                            <button class="normal-button"
                                     @click="onPasteToCanvas(sdInputCanvas)"
                             >
                                 <img src="./icons/paste.png" alt="" style="vertical-align: text-top;">
@@ -723,13 +716,6 @@
                             </select>
                         </div>
                         <div style="margin-bottom: 4px;">
-                            <button class="normal-button"
-                                    @click="onCopyFromCanvas(depthMapCanvas)"
-                                    style="margin-right: 4px;"
-                            >
-                                <img src="./icons/copy.png" alt="" style="vertical-align: text-top;">
-                                Copy
-                            </button>
                             <button class="normal-button"
                                     @click="onPasteToCanvas(depthMapCanvas)"
                                     style="margin-right: 4px;"
@@ -788,13 +774,6 @@
                         </div>
                         <div style="margin-bottom: 4px;">
                             <button class="normal-button"
-                                    @click="onCopyFromCanvas(edgeCanvas)"
-                                    style="margin-right: 4px;"
-                            >
-                                <img src="./icons/copy.png" alt="" style="vertical-align: text-top;">
-                                Copy
-                            </button>
-                            <button class="normal-button"
                                     @click="onPasteToCanvas(edgeCanvas)"
                                     style="margin-right: 4px;"
                             >
@@ -851,13 +830,6 @@
                         </div>
                         <div style="margin-bottom: 4px;">
                             <button class="normal-button"
-                                    @click="onCopyFromCanvas(poseCanvas)"
-                                    style="margin-right: 4px;"
-                            >
-                                <img src="./icons/copy.png" alt="" style="vertical-align: text-top;">
-                                Copy
-                            </button>
-                            <button class="normal-button"
                                     @click="onPasteToCanvas(poseCanvas)"
                                     style="margin-right: 4px;"
                             >
@@ -889,7 +861,7 @@
     </popup-dialog>
 
     <!-- stable diffusion generate result -->
-    <popup-dialog v-if="sdResultDialog"
+    <popup-dialog v-if="editorCtx && sdResultDialog"
                   v-model:visible="sdResultDialog"
                   v-model:x="uiOptions.sdResultPanelX"
                   v-model:y="uiOptions.sdResultPanelY"
@@ -897,7 +869,9 @@
                   title="Generate Result"
                   :body-style="{padding: '0', display: 'inline-flex'}"
     >
-        <img :src="sdResultImage" alt="">
+        <img :src="sdResultImage" alt=""
+             :style="{width: `${editorCtx.options.sdWidth}px`, height: `${editorCtx.options.sdHeight}px`}"
+        >
     </popup-dialog>
 
     <!-- stable diffusion generate progress -->

@@ -922,12 +922,14 @@ export default defineComponent({
                     steps: ctx.options.sdSteps,
                     width: ctx.options.sdWidth,
                     height: ctx.options.sdHeight,
-                    alwayson_scripts: {
+                };
+                if (controlNetArgs.length) {
+                    req.alwayson_scripts = {
                         controlnet: {
                             args: controlNetArgs
                         }
-                    }
-                };
+                    };
+                }
                 let url = '/sdapi/v1/txt2img';
                 if (ctx.options.sdInputImg) {
                     req.init_images = [sdInputCanvas.value!.toDataURL()];
@@ -978,15 +980,6 @@ export default defineComponent({
                     image.src = dataUrl;
                 }
             }
-        }
-
-        function onCopyFromCanvas(canvas: HTMLCanvasElement) {
-            canvas.toBlob(function (blob) {
-                if (blob) {
-                    const item = new ClipboardItem({'image/png': blob});
-                    navigator.clipboard.write([item]);
-                }
-            });
         }
 
         function onRefreshOutputCanvas(name: 'pose' | 'depth' | 'edge') {
@@ -1070,7 +1063,6 @@ export default defineComponent({
             onRefreshSdServer,
             onSdGenerate,
             onPasteToCanvas,
-            onCopyFromCanvas,
             onRefreshOutputCanvas,
         };
     }
