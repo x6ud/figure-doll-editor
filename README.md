@@ -8,7 +8,7 @@ Sculpting algorithms are copied from [SculptGL](https://github.com/stephomi/scul
 
 |                                   ![std-male](./images/std-male.jpg)                                   |
 |:------------------------------------------------------------------------------------------------------:|
-| [std-male](https://github.com/x6ud/figure-doll-editor/releases/download/models/std-male-20230324.doll) |
+| [std-male](https://github.com/x6ud/figure-doll-editor/releases/download/models/std-male-20230426.doll) |
 
 ## Tutorial
 
