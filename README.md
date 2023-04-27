@@ -69,6 +69,29 @@ You can use the ![Stretch Joint](./images/ik-joint-stretch-tool.jpg) to stretch 
 
 ![](./images/stretching-limb.gif)
 
+### Rendering with Stable Diffusion and ControlNet
+
+Follow the steps below or [this guide](https://stable-diffusion-art.com/beginners-guide/) to
+install [Stable Diffusion web UI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
+and [sd-webui-controlnet](https://github.com/Mikubill/sd-webui-controlnet).
+
+1. Install [Python](https://www.python.org/downloads/);
+2. Install [TortoiseGit](https://tortoisegit.org/download/);
+3. Copy this address `https://github.com/AUTOMATIC1111/stable-diffusion-webui`, open any folder where you want to
+   install the Stable Diffusion, right-click menu -> click `Git Clone...` -> `OK`;
+4. Open `webui-user.bat` in text editor, change `set COMMANDLINE_ARGS=`
+   to `set COMMANDLINE_ARGS=--api --cors-allow-origins=https://x6ud.github.io`;
+5. Run `webui-user.bat`, wait for the web UI to automatically download and install the model;
+6. Open `http://localhost:7860`, switch to `Extensions` tab, click `Install from URL`,
+   paste `https://github.com/Mikubill/sd-webui-controlnet`, click `Install`, wait for a few seconds, switch
+   to `Installed` tab, click `Apply and restart UI`;
+7. Open https://huggingface.co/lllyasviel/ControlNet-v1-1/tree/main, click the little `↓` button to download
+   every `.pth` model file you want, put the model files
+   into `\stable-diffusion-webui\extensions\sd-webui-controlnet\models`. The ControlNet models can be used in Figure
+   Doll Editor are `depth`, `canny`, `mlsd`, `scribble` and `pose`.
+
+In Figure Doll Editor, click `Render` -> `Stable Diffusion`. Select and check the ControlNet models you want.
+
 ### Shadow nodes
 
 A clone/mirror of the model can be created by right-clicking the node -> click `Create Shadow Node`
