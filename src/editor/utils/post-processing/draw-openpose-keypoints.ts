@@ -30,16 +30,14 @@ export function drawOpenposeKeypoints(ctx: CanvasRenderingContext2D, scene: Scen
         }
         if (obj.visible) {
             const node = obj.userData.node as ModelNode | undefined;
-            if (node) {
-                if (node.has(COpenPoseRoot)) {
-                    const cOpenPoseRoot = node.get(COpenPoseRoot);
-                    if (cOpenPoseRoot.value) {
-                        poseRoots.push(cOpenPoseRoot);
-                    }
+            if (node?.has(COpenPoseRoot)) {
+                const cOpenPoseRoot = node.get(COpenPoseRoot);
+                if (cOpenPoseRoot.value) {
+                    poseRoots.push(cOpenPoseRoot);
+                    continue;
                 }
-            } else {
-                stack.push(...obj.children);
             }
+            stack.push(...obj.children);
         }
     }
 
